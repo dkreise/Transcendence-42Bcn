@@ -1,0 +1,36 @@
+version: '3.4'
+services:
+  frontend_bootstrap:
+    build:
+      context: ./frontEnd
+    container_name: front_bootstrap
+    ports:
+      - "1026:1026"
+      - "1025:1025"
+    networks:
+       - transcendence_net
+
+  db_postgres:
+    image: postgres:alpine3.18
+    container_name: db_postgre
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: transcendence
+    networks:
+       - transcendence_net
+
+  backend_django:
+    build:
+      context: ./backEnd
+    container_name: back_django
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db_postgres
+    networks:
+       - transcendence_net
+
+networks:
+  transcendence_net:
+    driver: bridge
