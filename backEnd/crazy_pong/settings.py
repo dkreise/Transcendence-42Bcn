@@ -34,7 +34,7 @@ SECRET_KEY = 'django-insecure--=!#=6-=b1$xrc=$@7o1s#orkkuskzn+fsx(z&t_4377sisfze
 #DEBUG = os.getenv('DEBUG')
 DEBUG = True 
 
-ALLOWED_HOSTS = ['localhost', '*.localhost*', 'crazy-pong.com', '*.crazy-pong.com', '82.223.64.71']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '*.localhost*', 'crazy-pong.com', '*.crazy-pong.com', '82.223.64.71']
 
 
 # Application definition
@@ -47,8 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders'
-    #'crazy_pong'
+    'corsheaders',
+    'ping_pong'
 ]
 
 MIDDLEWARE = [
@@ -66,6 +66,8 @@ MIDDLEWARE = [
 #CSRF_COOKIE_SECURE = os.getenv('CSRF_COOKIE_SECURE')
 
 #ROOT_URLCONF = os.getenv('ROOT_URLCONF')
+ROOT_URLCONF = 'crazy_pong.urls'
+
 
 TEMPLATES = [
     {
