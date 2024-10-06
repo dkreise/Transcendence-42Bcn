@@ -1,6 +1,6 @@
 FROM nginx:alpine
 
-COPY src/ /usr/share/nginx/html/.
+#COPY src/ /usr/share/nginx/html/.
 
 RUN rm /etc/nginx/conf.d/default.conf
 

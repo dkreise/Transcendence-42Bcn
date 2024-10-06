@@ -1,4 +1,3 @@
-version: '3.4'
 services:
   frontend_bootstrap:
     build:
@@ -30,6 +29,7 @@ services:
       - db_postgres
     networks:
        - transcendence_net
+    restart: always
 
 networks:
   transcendence_net:
