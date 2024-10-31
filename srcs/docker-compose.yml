@@ -1,36 +1,53 @@
 services:
-  frontend_bootstrap:
-    build:
-      context: ./frontEnd
-    container_name: front_bootstrap
-    ports:
-      - "1026:1026"
-      - "1025:1025"
-    networks:
-       - transcendence_net
+  # front: pending Dina
+  #   build:
+  #     context: ./front
+  #   container_name: front-node
+  #   ports:
+  #     - "1026:1026"
+  #   networks:
+  #      - trs_net
 
-  db_postgres:
+  db:
     image: postgres:alpine3.18
-    container_name: db_postgre
+    container_name: db-postgres
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: 12345
       POSTGRES_DB: transcendence
+    volumes:
+      - db_data:/var/lib/postgresql/data
     networks:
-       - transcendence_net
+       - trs_net
 
-  backend_django:
+  user-mgmt:
     build:
-      context: ./backEnd
-    container_name: back_django
+      context: ./user-mgmt
+    container_name: user-mgmt
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
+    networks:
+       - trs_net
+    restart: always
     ports:
       - "8000:8000"
+
+  game:
+    build:
+      context: ./game
+    container_name: game
     depends_on:
-      - db_postgres
+      - db
     networks:
-       - transcendence_net
+       - trs_net
     restart: always
 
+volumes:
+  db_data:
+    driver: local
+
 networks:
-  transcendence_net:
+  trs_net:
     driver: bridge
