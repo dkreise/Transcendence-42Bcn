@@ -1,0 +1,12 @@
+{
+  "name": "pong-frontend",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node src/game.js"
+  },
+  "dependencies": {
+    "bootstrap": "^5.1.3"  
+  }
+}
+
+//add nodemon 
