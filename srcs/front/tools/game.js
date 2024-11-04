@@ -17,7 +17,7 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw the rectangle
-    ctx.fillStyle = "blue"; // Set the rectangle color
+    ctx.fillStyle = "white"; // Set the rectangle color
     ctx.fillRect(rectX, rectY, rectWidth, rectHeight); // Draw the rectangle
 
     // Update the rectangle's position
