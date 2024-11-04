@@ -1,59 +1,84 @@
 services:
-  # frontend_bootstrap:
-  #   build:
-  #     context: ./frontEnd
-  #   container_name: front_bootstrap
-  #   ports:
-  #     - "1026:1026"
-  #     - "1025:1025"
-  #   networks:
-  #      - transcendence_net
 
-  node:
-    container_name: node
-    build: ./node
-    image: node
+  nginx:
+    depends_on:
+      - front
+      # - user-mgmt
+      # - game
+    container_name: nginx
+    image: nginx
+    build: ./nginx
+    restart: always
+    env_file: 
+      - .env
+    ports:
+      - "8443:8443"
     volumes:
-      - node_data:/app
-  #    - /home/nzhuzhle/node/node_modules
+      - front_data:/var/www/html
+    networks:
+      - trs_net
+  
+  front:
+    container_name: front
+    build: ./front
+    image: front
+    volumes:
+      - front_data:/app
     env_file:
       - .env
-    #command: npm start # Or adjust to your start script
-    ports:
-      - "8080:8080"
+    expose:
+      - "2424:2424"
     networks:
-       - transcendence_net
+       - trs_net
 
-  # db_postgres:
+  # db:
   #   image: postgres:alpine3.18
-  #   container_name: db_postgre
+  #   container_name: db-postgres
   #   environment:
   #     POSTGRES_USER: admin
   #     POSTGRES_PASSWORD: 12345
   #     POSTGRES_DB: transcendence
+  #   volumes:
+  #     - db_data:/var/lib/postgresql/data
   #   networks:
-  #      - transcendence_net
+  #      - trs_net
 
-  # backend_django:
+  # user-mgmt:
   #   build:
-  #     context: ./backEnd
-  #   container_name: back_django
+  #     context: ./user-mgmt
+  #   container_name: user-mgmt
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
+  #   networks:
+  #      - trs_net
+  #   restart: always
   #   ports:
   #     - "8000:8000"
+
+  # game:
+  #   build:
+  #     context: ./game
+  #   container_name: game
   #   depends_on:
-  #     - db_postgres
+  #     - db
   #   networks:
-  #      - transcendence_net
+  #      - trs_net
   #   restart: always
 
+# volumes:
+#   db_data:
+#     driver: local
+
 volumes:
-  node_data:
+  front_data:
     driver: local
     driver_opts:
-      device: "./node/src"
+      device: "./front/tools"
       o: bind
       type: none
 
 networks:
-  transcendence_net:
+  trs_net:
     driver: bridge
