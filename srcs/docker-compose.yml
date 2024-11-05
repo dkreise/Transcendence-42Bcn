@@ -1,12 +1,4 @@
 services:
-  # front: pending Dina
-  #   build:
-  #     context: ./front
-  #   container_name: front-node
-  #   ports:
-  #     - "1026:1026"
-  #   networks:
-  #      - trs_net
 
   db:
     image: postgres:alpine3.18
@@ -50,8 +42,45 @@ services:
     ports:
       - "8001:8000"
 
+  front:
+    container_name: front
+    build: ./front
+    image: front
+    volumes:
+      - front_data:/app
+    env_file:
+      - .env
+    expose:
+      - "2424:2424"
+    networks:
+       - trs_net
+  
+    nginx:
+    depends_on:
+      - front
+      # - user-mgmt
+      # - game
+    container_name: nginx
+    image: nginx
+    build: ./nginx
+    restart: always
+    env_file: 
+      - .env
+    ports:
+      - "8443:8443"
+    volumes:
+      - front_data:/var/www/html
+    networks:
+      - trs_net
+
 volumes:
-  db_data:
+  front_data:
+    driver: local
+    driver_opts:
+      device: "./front/tools"
+      o: bind
+      type: none
+    db_data:
     driver: local
 
   user-mgmt:

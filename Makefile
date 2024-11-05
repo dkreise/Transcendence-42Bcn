@@ -10,7 +10,7 @@ all: up
 
 #up -> pulls base image, builds image, starts services
 up:
-	docker-compose -f ./srcs/docker-compose.yml up -d --build
+	docker-compose -f ./srcs/docker-compose.yml up -d --build --remove-orphans
 
 #stop -> stops services
 stop:
@@ -22,7 +22,7 @@ down:
 
 #rm -> removes stopped service containers
 clean:
-	docker-compose -f ./srcs/docker-compose.yml rm
+	docker-compose -f ./srcs/docker-compose.yml rm 
 
 ps:
 	docker-compose -f ./srcs/docker-compose.yml ps
@@ -37,6 +37,7 @@ fclean: down clean
 	docker system prune -af --volumes || true
 #docker volume rm srcs_wordpress || true
 #docker volume rm srcs_mariadb || true
+
 
 re: fclean all
 
