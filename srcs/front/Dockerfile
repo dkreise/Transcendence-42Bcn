@@ -8,11 +8,7 @@ WORKDIR /app
 COPY ./conf/package.json ./
 RUN npm install && npm install -g nodemon && npm install express
 
-# Copy frontend source files to Nginx's default directory
-#COPY --from=build /app/src /usr/share/nginx/html
-
-
-# Expose port 80 for Nginx (default for Nginx)
+# Expose port 2424 for Nginx (default for Nginx)
 EXPOSE 2424
 
 # Start the app with nodemon to watch for file changes

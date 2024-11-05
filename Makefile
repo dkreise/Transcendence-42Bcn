@@ -36,7 +36,8 @@ fclean: down clean
 	docker rmi ${D_IMG} || true
 	docker system prune -af --volumes || true
 #docker volume rm srcs_wordpress || true
-# docker volume rm srcs_mariadb || true
+#docker volume rm srcs_mariadb || true
+
 
 re: fclean all
 
