@@ -55,7 +55,7 @@ services:
     networks:
        - trs_net
   
-    nginx:
+  nginx:
     depends_on:
       - front
       # - user-mgmt
@@ -80,7 +80,8 @@ volumes:
       device: "./front/tools"
       o: bind
       type: none
-    db_data:
+    
+  db_data:
     driver: local
 
   user-mgmt:
