@@ -22,7 +22,7 @@ services:
 
   user-mgmt:
     build:
-      context: ./user-mgmt
+      context: ./back/user-mgmt
     container_name: user-mgmt
     depends_on:
       - db
@@ -31,22 +31,39 @@ services:
     networks:
        - trs_net
     restart: always
+    volumes:
+      - user-mgmt:/usr/src/app
     ports:
       - "8000:8000"
 
   game:
     build:
-      context: ./game
+      context: ./back/game
     container_name: game
     depends_on:
       - db
     networks:
        - trs_net
     restart: always
+    volumes:
+      - game:/usr/src/app
 
 volumes:
   db_data:
     driver: local
+
+  user-mgmt:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./back/user-mgmt
+      o: bind
+  game:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./back/game
+      o: bind
 
 networks:
   trs_net:
