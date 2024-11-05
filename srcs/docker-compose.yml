@@ -20,10 +20,10 @@ services:
     networks:
        - trs_net
 
-  user-mgmt:
+  user_mgmt:
     build:
-      context: ./back/user-mgmt
-    container_name: user-mgmt
+      context: ./back/user_mgmt
+    container_name: user_mgmt
     depends_on:
       - db
     environment:
@@ -47,6 +47,8 @@ services:
     restart: always
     volumes:
       - game:/usr/src/app
+    ports:
+      - "8001:8000"
 
 volumes:
   db_data:
@@ -56,7 +58,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ./back/user-mgmt
+      device: ./back/user_mgmt
       o: bind
   game:
     driver: local
