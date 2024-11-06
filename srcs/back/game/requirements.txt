@@ -3,3 +3,6 @@ channels~=3.0
 bcrypt
 django-cors-headers
 django-cors-middleware
+django-extensions
+Werkzeug
+djangorestframework
