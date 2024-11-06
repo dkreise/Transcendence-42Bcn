@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'tournament',
 ]
 
 MIDDLEWARE = [
@@ -73,10 +74,15 @@ WSGI_APPLICATION = 'game.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# CHANGE LATER TO ENV VARIABLES (?)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'transcendence',
+        'USER': 'admin',
+        'PASSWORD': '12345',
+        'HOST': 'db-postgres',
+        'PORT': '5432',
     }
 }
 
