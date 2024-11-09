@@ -1,39 +1,39 @@
 services:
 
-  db:
-    image: postgres:alpine3.18
-    container_name: db-postgres
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 12345
-      POSTGRES_DB: transcendence
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    networks:
-       - trs_net
+#  db:
+#    image: postgres:alpine3.18
+#    container_name: db-postgres
+#    environment:
+#      POSTGRES_USER: admin
+#      POSTGRES_PASSWORD: 12345
+#      POSTGRES_DB: transcendence
+#    volumes:
+#      - db_data:/var/lib/postgresql/data
+#    networks:
+#       - trs_net
 
-  user_mgmt:
-    build:
-      context: ./back/user_mgmt
-    container_name: user_mgmt
-    depends_on:
-      - db
-    environment:
-      - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
-    networks:
-       - trs_net
-    restart: always
-    volumes:
-      - user-mgmt:/usr/src/app
-    ports:
-      - "8000:8000"
+#  user_mgmt:
+#    build:
+#      context: ./back/user_mgmt
+#    container_name: user_mgmt
+#    depends_on:
+#      - db
+#    environment:
+#      - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
+#    networks:
+#       - trs_net
+#    restart: always
+#    volumes:
+#      - user-mgmt:/usr/src/app
+#    ports:
+#      - "8000:8000"
 
   game:
     build:
       context: ./back/game
     container_name: game
-    depends_on:
-      - db
+#    depends_on:
+#      - db
     networks:
        - trs_net
     restart: always
@@ -80,16 +80,16 @@ volumes:
       device: "./front/tools"
       o: bind
       type: none
-    
-  db_data:
-    driver: local
-
-  user-mgmt:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./back/user_mgmt
-      o: bind
+#    
+#  db_data:
+#    driver: local
+#
+#  user-mgmt:
+#    driver: local
+#    driver_opts:
+#      type: none
+#      device: ./back/user_mgmt
+#      o: bind
   game:
     driver: local
     driver_opts:

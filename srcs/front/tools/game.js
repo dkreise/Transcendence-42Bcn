@@ -1,33 +1,42 @@
-// Get the canvas element and its context
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById('pongCanvas');
+const context = canvas.getContext('2d');
 
-// Initial position and size of the rectangle
-let rectX = 50;
-let rectY = 50;
-const rectWidth = 50;
-const rectHeight = 100;
+//const socket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
 
-// Speed of the rectangle
-const speed = 2;
+// Game variables
+let playerPaddleY = canvas.height / 2 - 50;
+let opponentPaddleY = canvas.height / 2 - 50;
+let ballX = canvas.width / 2;
+let ballY = canvas.height / 2;
 
-// Draw function to render the rectangle
-function draw() {
-    // Clear the canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Draw the rectangle
-    ctx.fillStyle = "white"; // Set the rectangle color
-    ctx.fillRect(rectX, rectY, rectWidth, rectHeight); // Draw the rectangle
-
-    // Update the rectangle's position
-    rectX += speed;
-
-    // Reset the rectangle position if it goes off the screen
-    if (rectX > canvas.width) {
-        rectX = -rectWidth; // Start from the left again
+// WebSocket connection for game state sync
+/*socket.onmessage = function(event) {
+    const data = JSON.parse(event.data);
+    // Update the opponent paddle or ball position based on received data
+    if (data.type === 'position') {
+        opponentPaddleY = data.paddleY;
+        ballX = data.ballX;
+        ballY = data.ballY;
     }
+};
+*/
+function gameLoop() {
+    // Clear canvas
+    context.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw player paddle
+    context.fillRect(10, playerPaddleY, 10, 100);
+
+    // Draw opponent paddle
+    context.fillRect(canvas.width - 20, opponentPaddleY, 10, 100);
+
+    // Draw ball
+    context.beginPath();
+    context.arc(ballX, ballY, 10, 0, Math.PI * 2);
+    context.fill();
+
+    // Game logic here...
+    requestAnimationFrame(gameLoop);
 }
 
-// Call the draw function 60 times per second
-setInterval(draw, 1000 / 60); // 60 FPS
+gameLoop();
