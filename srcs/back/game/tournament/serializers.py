@@ -1,16 +1,13 @@
 from rest_framework import serializers
-from .models import Player, Match
+from .models import Tournament
+from ping_pong.serializers import PlayerSerializer
 
-class PlayerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model: Player
-        fields = ['id', 'name']
-
-class MatchSerializer(serializers.ModelSerializer):
-    pl1 = PlayerSerializer()
-    pl2 = PlayerSerializer()
-    winner = PlayerSerializer()
+class TournamentSerializer(serializers.ModelSerializer):
+    player = PlayerSerializer(read_only=True)
 
     class Meta:
-        model = Match
-        fields = ['id', 'pl1', 'pl2', 'winner', 'time']
+        model = Tournament
+        fields = ['id', 'id_tournament', 'player', 'score']
+        read_only_fields = ['player']
+
+    

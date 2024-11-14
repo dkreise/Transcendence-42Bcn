@@ -9,6 +9,8 @@ services:
       POSTGRES_DB: transcendence
     volumes:
       - db_data:/var/lib/postgresql/data
+    expose:
+      - "5432:5432"
     networks:
        - trs_net
 
@@ -34,13 +36,15 @@ services:
     container_name: game
     depends_on:
       - db
+    environment:
+      - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
     networks:
        - trs_net
     restart: always
     volumes:
       - game:/usr/src/app
     ports:
-      - "8001:8001"
+      - "8100:8100"
 
   front:
     container_name: front
