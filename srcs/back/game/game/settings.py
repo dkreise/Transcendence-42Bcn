@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tournament',
     'ping_pong',
+    'rest_framework',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
