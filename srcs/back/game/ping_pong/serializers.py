@@ -4,7 +4,7 @@ from .models import Game
 
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
-        model: User
+        model = User
         fields = ['id', 'username']
 
 class GameSerializer(serializers.ModelSerializer):
@@ -26,4 +26,4 @@ class GameSerializer(serializers.ModelSerializer):
         read_only_fields = ['date', 'player1', 'player2']
     
     def __str__(self):
-        return f"{self.player1} vs {self.player2} - Winner: {self.winner}"s
+        return f"{self.player1} vs {self.player2} - Winner: {self.winner}"

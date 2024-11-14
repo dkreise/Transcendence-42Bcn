@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Winner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: black;
+            color: white;
+            margin: 0;
+        }
+        #winnerMessage {
+            font-size: 80px; /* Huge font size */
+            margin-top: 20px;
+        }
+        #score {
+            font-size: 40px;
+            margin-top: 20px;
+        }
+        #restartBtn {
+            margin-top: 50px;
+            padding: 15px 30px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Game Over!</h1>
+
+    <div id="winnerMessage"></div>
+    <div id="score"></div>
+
+    <button id="restartBtn" onclick="restartGame()">Play Again</button>
+
+    <script>
+        // Get the URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const player1 = urlParams.get('player1');
+        const player2 = urlParams.get('player2');
+        const score1 = urlParams.get('score1');
+        const score2 = urlParams.get('score2');
+
+        // Display the winner
+        const winnerMessage = document.getElementById('winnerMessage');
+        const score = document.getElementById('score');
+
+        // Determine the winner
+        let winner = '';
+        if (parseInt(score1) > parseInt(score2)) {
+            winner = player1 + ' WON!!!!!!!!!!!!!';
+        } else {
+            winner = player2 + ' WON!!!!!!!!!!!!!';
+        }
+
+        // Display winner's message and scores
+        winnerMessage.innerHTML = winner;
+        score.innerHTML = `${player1}: ${score1} - ${player2}: ${score2}`;
+
+        // Restart game function (redirect to the main game page)
+        function restartGame() {
+            window.location.href = '/game';  // Replace with your actual game URL
+        }
+    </script>
+</body>
+</html>

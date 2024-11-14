@@ -14,21 +14,21 @@ services:
     networks:
        - trs_net
 
-  user_mgmt:
-    build:
-      context: ./back/user_mgmt
-    container_name: user_mgmt
-    depends_on:
-      - db
-    environment:
-      - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
-    networks:
-       - trs_net
-    restart: always
-    volumes:
-      - user-mgmt:/usr/src/app
-    ports:
-      - "8000:8000"
+  # user_mgmt:
+  #   build:
+  #     context: ./back/user_mgmt
+  #   container_name: user_mgmt
+  #   depends_on:
+  #     - db
+  #   environment:
+  #     - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
+  #   networks:
+  #      - trs_net
+  #   restart: always
+  #   volumes:
+  #     - user-mgmt:/usr/src/app
+  #   ports:
+  #     - "8000:8000"
 
   game:
     build:
@@ -46,36 +46,36 @@ services:
     ports:
       - "8100:8100"
 
-  front:
-    container_name: front
-    build: ./front
-    image: front
-    volumes:
-      - front_data:/app
-    env_file:
-      - .env
-    expose:
-      - "2424:2424"
-    networks:
-       - trs_net
+  # front:
+  #   container_name: front
+  #   build: ./front
+  #   image: front
+  #   volumes:
+  #     - front_data:/app
+  #   env_file:
+  #     - .env
+  #   expose:
+  #     - "2424:2424"
+  #   networks:
+  #      - trs_net
   
-  nginx:
-    depends_on:
-      - front
-      # - user-mgmt
-      # - game
-    container_name: nginx
-    image: nginx
-    build: ./nginx
-    restart: always
-    env_file: 
-      - .env
-    ports:
-      - "8443:8443"
-    volumes:
-      - front_data:/var/www/html
-    networks:
-      - trs_net
+  # nginx:
+  #   depends_on:
+  #     - front
+  #     # - user-mgmt
+  #     # - game
+  #   container_name: nginx
+  #   image: nginx
+  #   build: ./nginx
+  #   restart: always
+  #   env_file: 
+  #     - .env
+  #   ports:
+  #     - "8443:8443"
+  #   volumes:
+  #     - front_data:/var/www/html
+  #   networks:
+  #     - trs_net
 
 volumes:
   front_data:
