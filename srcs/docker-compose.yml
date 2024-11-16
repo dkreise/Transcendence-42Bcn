@@ -72,6 +72,10 @@ services:
       - front_data:/var/www/html
     networks:
       - trs_net
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
 
 volumes:
   front_data:
