@@ -42,8 +42,8 @@ class Ball {
     constructor(canvas) {
         this.x = canvas.width / 2;
         this.y = canvas.height / 2;
-        this.xspeed = 4.0;
-        this.yspeed = 4.0;
+        this.xspeed = 3.0;
+        this.yspeed = 3.0;
         this.color = "white";
         this.canvas = canvas;
     }
