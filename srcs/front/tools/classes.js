@@ -17,21 +17,6 @@ class Player {
         ctx.fillStyle = this.color;
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
-    //move(socket) {
-    //    if (this.up && this.y > 0)
-    //        this.y -= this.speed;
-    //    if (this.down && this.y < this.canvas.height - this.height)
-    //        this.y += this.speed;
-    //    if (this.up || this.down) {
-    //        const data = { "type": "paddleMove", "position": this.y };
-    //        if (socket.readyState === WebSocket.OPEN) {
-    //            console.log("Sending paddleMove:", data);
-    //            socket.send(JSON.stringify(data));
-    //        } else {
-    //            console.error("Cannot send data. WebSocket is not open:", socket.readyState);
-    //        }
-    //    }
-    //}
     move(socket) {
         if (this.up && this.y > 0)
             this.y -= this.speed;
@@ -112,7 +97,9 @@ class Ball {
             player.scored(loopID);
             this.resetPosition();
         }
-        //const data = {type: "ballPosition", xpos: this.x, ypos: this.y};
-        //socket.send(JSON.stringify(data));
+        const data = { type: "ballPosition", xpos: this.x, ypos: this.y };
+        if (socket.readyState === WebSocket.OPEN)
+            socket.send(JSON.stringify(data));
+        
     }
 }

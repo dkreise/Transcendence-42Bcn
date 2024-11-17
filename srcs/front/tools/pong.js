@@ -10,9 +10,6 @@ player.draw(ctx);
 opponent.draw(ctx);
 ball.draw(ctx);
 
-
-//const socket = new WebSocket('wss://localhost:8443/ws/ping_pong/');
-
 let socket;
 
 function initializeWebSocket() {
@@ -21,9 +18,8 @@ function initializeWebSocket() {
         return;
     }
 
-    const roomID = "42"; // This could be dynamic or user-defined
+    const roomID = new URLSearchParams(window.location.search).get("room") || "default";
     socket = new WebSocket(`ws://localhost:8443/ws/ping_pong/?room=${roomID}`);
-
 
     socket.onopen = function () {
         console.log("WebSocket connection established.");
@@ -41,14 +37,66 @@ function initializeWebSocket() {
     socket.onmessage = function (event) {
         const data = JSON.parse(event.data);
         console.log("Received data:", data);
+
+        if (data.type === "role") {
+            if (data.role === "player1") {
+                console.log("You are player 1.");
+                player.x = 0; // Left paddle
+                opponent.x = canvas.width - opponent.width; // Right paddle
+            } else if (data.role === "player2") {
+                console.log("You are player 2.");
+                player.x = canvas.width - player.width; // Right paddle
+                opponent.x = 0; // Left paddle
+            }
+        }
+
         if (data.type === "paddleMove") {
             if (data.player !== (player.x === 0 ? "player1" : "player2")) {
                 opponent.update(data.position);
             }
         }
     };
-    
 }
+
+
+//function initializeWebSocket() {
+//    if (socket && socket.readyState !== WebSocket.CLOSED) {
+//        console.warn("WebSocket already open or not closed yet.");
+//        return;
+//    }
+//
+//    const roomID = "42"; // This could be dynamic or user-defined
+//    socket = new WebSocket(`ws://localhost:8443/ws/ping_pong/?room=${roomID}`);
+//
+//
+//    socket.onopen = function () {
+//        console.log("WebSocket connection established.");
+//    };
+//
+//    socket.onerror = function (error) {
+//        console.error("WebSocket error:", error);
+//    };
+//
+//    socket.onclose = function () {
+//        console.warn("WebSocket connection closed. Retrying...");
+//        setTimeout(initializeWebSocket, 1000); // Retry connection
+//    };
+//
+//    socket.onmessage = function (event) {
+//        const data = JSON.parse(event.data);
+//        console.log("Received data:", data);
+//        if (data.type === "paddleMove") {
+//            if (data.player == "player2")
+//            {
+//                opponent.update(data.position);
+//            }
+//            //if (data.player !== (player.x === 0 ? "player1" : "player2")) {
+//            //    opponent.update(data.position);
+//            //}
+//        }
+//    };
+//    
+//}
 
 
 initializeWebSocket();
