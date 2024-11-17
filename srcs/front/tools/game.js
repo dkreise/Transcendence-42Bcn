@@ -1,7 +1,8 @@
 const canvas = document.getElementById('pongCanvas');
 const context = canvas.getContext('2d');
 
-//const socket = new WebSocket('ws://' + window.location.host + '/ws/pong/');
+const socket = new WebSocket('ws://' + window.location.host + '/ws/match/');
+
 
 // Game variables
 let playerPaddleY = canvas.height / 2 - 50;

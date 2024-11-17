@@ -10,25 +10,54 @@ player.draw(ctx);
 opponent.draw(ctx);
 ball.draw(ctx);
 
-// WebSocket setup (placeholder for future multiplayer connection)
+
+//const socket = new WebSocket('wss://localhost:8443/ws/ping_pong/');
+
 let socket;
-function setupWebSocket() {
-    socket = new WebSocket("ws://172.30.192.1:8000/ws/pong/");
-    socket.onopen = () => console.log("Connected to WebSocket");
-    socket.onmessage = (event) => handleSocketMessage(JSON.parse(event.data));
+
+function initializeWebSocket() {
+    if (socket && socket.readyState !== WebSocket.CLOSED) {
+        console.warn("WebSocket already open or not closed yet.");
+        return;
+    }
+
+    const roomID = "42"; // This could be dynamic or user-defined
+    socket = new WebSocket(`ws://localhost:8443/ws/ping_pong/?room=${roomID}`);
+
+
+    socket.onopen = function () {
+        console.log("WebSocket connection established.");
+    };
+
+    socket.onerror = function (error) {
+        console.error("WebSocket error:", error);
+    };
+
+    socket.onclose = function () {
+        console.warn("WebSocket connection closed. Retrying...");
+        setTimeout(initializeWebSocket, 1000); // Retry connection
+    };
+
+    socket.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        console.log("Received data:", data);
+        if (data.type === "paddleMove") {
+            if (data.player !== (player.x === 0 ? "player1" : "player2")) {
+                opponent.update(data.position);
+            }
+        }
+    };
+    
 }
 
-// Handle WebSocket messages (to be implemented for multiplayer)
-function handleSocketMessage(data) {
-    // Update opponent and ball positions based on remote player’s data
-    if (data.type === "opponent_position") {
-        opponent.y = data.position;  // Remote player's paddle position
-    } else if (data.type === "ball_position") {
-        ball.x = data.x;
-        ball.y = data.y;
-    } else if (data.type === "score_update") {
-        player.score = data.player_1_score;
-        opponent.score = data.player_2_score;
+
+initializeWebSocket();
+
+function sendPlayerAction(action) {
+    if (socket.readyState === WebSocket.OPEN) {
+        socket.send(JSON.stringify(action));
+    } else {
+        console.warn("WebSocket is not open. Cannot send:", action);
     }
 }
 
@@ -36,16 +65,16 @@ function handleSocketMessage(data) {
 window.addEventListener('keydown', (e) => {
     if (e.key === 'w') player.up = true;
     if (e.key === 's') player.down = true;
-    //if (e.key === 'ArrowUp') opponent.up = true;
-    //if (e.key === 'ArrowDown') opponent.down = true;
+    if (e.key === 'ArrowUp') player.up = true;
+    if (e.key === 'ArrowDown') player.down = true;
 });
 
 // Keyup event
 window.addEventListener('keyup', (e) => {
     if (e.key === 'w') player.up = false;
     if (e.key === 's') player.down = false;
-    //if (e.key === 'ArrowUp') opponent.up = false;
-    //if (e.key === 'ArrowDown') opponent.down = false;
+    if (e.key === 'ArrowUp') player.up = false;
+    if (e.key === 'ArrowDown') player.down = false;
 });
 
 let gameLoopId = requestAnimationFrame(gameLoop);
@@ -58,14 +87,8 @@ function gameLoop()
     opponent.draw(ctx);
     ball.draw(ctx);
 
-    player.move();
-    opponent.move();
+    player.move(socket);
     ball.move(player, opponent, gameLoopId);
-
-    // Send player position to server if multiplayer (placeholder)
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify({ type: "player_position", position: player.y }));
-    }
 }
 
 gameLoop();
