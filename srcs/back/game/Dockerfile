@@ -14,6 +14,9 @@ COPY . .
 
 # Expose the application port (adjust according to your app's port)
 EXPOSE 8000
+#daphne -b 0.0.0.0 -p 8443 game.asgi:application
+
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "game.asgi:application"]
 
 # Start the application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+#CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
