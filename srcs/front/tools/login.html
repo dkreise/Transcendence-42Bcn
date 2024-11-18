@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcendance</title>
+    <link rel="stylesheet" href="login.css"
+</head>
+<body>
+    <div id="particle-background"></div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    const particleBackground = document.getElementById("particle-background");
+    const particleCount = 300; // Número de partículas
+
+    for (let i = 0; i < particleCount; i++) {
+        const particle = document.createElement("div");
+        particle.className = "particle";
+
+        particle.style.left = `${Math.random() * 100}vw`;
+
+        const size = Math.random() * 5 + 5; // Entre 5px y 10px
+        particle.style.width = `${size}px`;
+        particle.style.height = `${size}px`;
+
+        particle.style.animationDuration = `${5 + Math.random() * 10}s`;
+
+        particle.style.animationDelay = `${Math.random() * 5}s`;
+
+        particleBackground.appendChild(particle);
+    }
+    });
+
+      </script>
+      
+    <div class="container">
+        <h1>Sign Up</h1>
+        <form method="get" id="form1">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <label for="fname">Nick:</label>
+                <input type="text" id="fname" name="fname">
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+                <label for="lname">Password:</label>
+                <input type="password" id="lname" name="lname">
+            </div>
+            <button type="submit" form="form1" value="Submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
