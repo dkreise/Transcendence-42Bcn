@@ -14,7 +14,7 @@ loginForm.addEventListener("submit", async (event) => {
 
     try {
         // Enviar las credenciales al backend con fetch
-        const response = await fetch("http://localhost:3000/api/login", {
+        const response = await fetch("http://localhost:8002/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
