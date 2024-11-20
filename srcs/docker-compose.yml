@@ -1,15 +1,18 @@
 services:
 
   db:
-    image: postgres:alpine3.18
+    image: postgres
     container_name: db-postgres
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 12345
-      POSTGRES_DB: transcendence
+      - POSTGRES_USER=${POSTGRE_USER}
+      - POSTGRES_PASSWORD=${POSTGRE_PASSWORD}
+      - POSTGRES_DB=${POSTGRE_DB}
+      - DATABASE_URL=${DATABASE_URL}
     volumes:
       - db_data:/var/lib/postgresql/data
-    expose:
+      - type: tmpfs
+        target: /var/lib/postgresql/data
+    ports:
       - "5432:5432"
     networks:
        - trs_net
@@ -37,7 +40,7 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
+      - DATABASE_URL={DATABASE_URL}
     networks:
        - trs_net
     restart: always
@@ -89,7 +92,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ./postgres
+      device: ./postgres/data
       o: bind
 
   user-mgmt:
