@@ -12,7 +12,7 @@ services:
       - db_data:/var/lib/postgresql/data
       - type: tmpfs
         target: /var/lib/postgresql/data
-    ports:
+    expose:
       - "5432:5432"
     networks:
        - trs_net
@@ -92,8 +92,7 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: ./postgres/data
-      o: bind
+      device: ./postgres
 
   user-mgmt:
     driver: local
