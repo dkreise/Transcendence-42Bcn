@@ -1,2 +1,3 @@
-**/__pycache__/
 srcs/postgres/
+__pycache__/
+*.pyc
