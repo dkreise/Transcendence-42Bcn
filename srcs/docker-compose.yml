@@ -42,36 +42,39 @@ services:
     ports:
       - "8001:8000"
 
-  front:
-    container_name: front
-    build: ./front
-    image: front
-    volumes:
-      - front_data:/app
-    env_file:
-      - .env
-    expose:
-      - "2424:2424"
-    networks:
-       - trs_net
+  # front:
+  #   container_name: front
+  #   build: ./front
+  #   image: front
+  #   volumes:
+  #     - front_data:/app
+  #   env_file:
+  #     - .env
+  #   expose:
+  #     - "2424:2424"
+  #   networks:
+  #      - trs_net
   
   nginx:
-    depends_on:
-      - front
-      # - user-mgmt
-      # - game
+    # depends_on:
+    #    - front
+    #    - user-mgmt
+    #    - game
     container_name: nginx
     image: nginx
-    build: ./nginx
+    build:
+      context: ./  # Establecer el contexto de construcción en la raíz del proyecto
+      dockerfile: ./nginx/Dockerfile
     restart: always
     env_file: 
       - .env
     ports:
       - "8443:8443"
-    volumes:
-      - front_data:/var/www/html
     networks:
       - trs_net
+    volumes:
+      - front_data:/var/www/html 
+
 
 volumes:
   front_data:

@@ -1,15 +1,19 @@
-# Use Nginx to serve static files
+# Usa la imagen base oficial de Nginx
 FROM nginx:alpine
 
 RUN mkdir -p /var/www 
 RUN chmod +x /var/www/
 
-COPY ./tools/nginx_start.sh /var/www/
-# Copy custom Nginx config
-COPY ./conf/nginx.conf /etc/nginx/nginx.conf
+# Copia tu configuración personalizada de Nginx
+COPY ./nginx/conf/nginx.conf /etc/nginx/nginx.conf
 
-# Expose port 80 for Nginx (default for Nginx)
+COPY ./nginx/tools/nginx_start.sh /var/www/
+
+# Copia los archivos del frontend al directorio de Nginx
+# COPY ./front/tools/ /usr/share/nginx/html/
+
+# Expone el puerto 8443
 EXPOSE 8443
 
-# Set entrypoint to start the services
+# Mantiene Nginx ejecutándose en primer plano
 CMD ["nginx", "-g", "daemon off;"]
