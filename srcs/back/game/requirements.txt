@@ -4,3 +4,7 @@ bcrypt
 django-cors-headers
 django-cors-middleware
 psycopg2
+django-extensions
+Werkzeug
+djangorestframework
+django-environ

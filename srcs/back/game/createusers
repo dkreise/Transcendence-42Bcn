@@ -1,0 +1,18 @@
+from django.contrib.auth.models import User
+
+# Creating the first user
+user1 = User.objects.create_user(username='dina')
+
+# Creating the second user
+user2 = User.objects.create_user(username='bobby')
+user3 = User.objects.create_user(username='julia')
+user4 = User.objects.create_user(username='nuria')
+
+# Save users (this is done automatically with create_user)
+user1.save()
+user2.save()
+user3.save()
+user4.save()
+
+# You can also print their usernames to check if they are saved properly
+print(user1.username, user2.username)
