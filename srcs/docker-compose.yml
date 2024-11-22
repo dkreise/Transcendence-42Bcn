@@ -31,7 +31,7 @@ services:
     volumes:
       - user-mgmt:/usr/src/app
     ports:
-      - "8000:8000"
+      - "8002:8000"
 
   game:
     build:
@@ -39,48 +39,24 @@ services:
     container_name: game
     depends_on:
       - db
-    environment:
-      - DATABASE_URL={DATABASE_URL}
     networks:
        - trs_net
     restart: always
     volumes:
       - game:/usr/src/app
     ports:
-      - "8100:8100"
+      - "8001:8000"
 
-  # front:
-  #   container_name: front
-  #   build: ./front
-  #   image: front
-  #   volumes:
-  #     - front_data:/app
-  #   env_file:
-  #     - .env
-  #   expose:
-  #     - "2424:2424"
-  #   networks:
-  #      - trs_net
-  
-  nginx:
-    # depends_on:
-    #    - front
-    #    - user-mgmt
-    #    - game
-    container_name: nginx
-    image: nginx
+  front:
     build:
-      context: ./  # Establecer el contexto de construcción en la raíz del proyecto
-      dockerfile: ./nginx/Dockerfile
-    restart: always
-    env_file: 
-      - .env
+      context: ./front
+      dockerfile: Dockerfile
+    container_name: front
     ports:
       - "8443:8443"
     networks:
       - trs_net
-    volumes:
-      - front_data:/var/www/html 
+    restart: always
 
 volumes:
   front_data:
