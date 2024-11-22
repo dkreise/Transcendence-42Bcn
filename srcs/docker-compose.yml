@@ -57,6 +57,8 @@ services:
     networks:
       - trs_net
     restart: always
+    volumes:
+      - ./front/tools:/usr/share/nginx/html # Mapea archivos locales a dentro del contenedor
 
 volumes:
   front_data:
