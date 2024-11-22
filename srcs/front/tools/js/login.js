@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         try {
             // Enviar las credenciales al backend con fetch
-            const response = await fetch("http://localhost:8002/login", {
+            const response = await fetch("http://localhost:8002/login/", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

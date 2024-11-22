@@ -7,31 +7,31 @@ from .serializers import UserSerializer
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import serializers
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 def home(request):
 	if not request.user.is_authenticated:
 		return HttpResponseRedirect(reverse("login"))
 	return render(request, "user.html")
 		
+
+@csrf_exempt
 def login_view(request):
-	print("DEBUGGGGGGG")
-	if request.method == "POST":
-		username = request.POST["username"]
-		password = request.POST["password"]
-		print(username)
-		user = authenticate(request, username=username, password=password)
-		data = {
-			'content': 'info'
-		}
-		return JsonResponse(data)
-	# 	if user is not None: # means authentication was successful
-	# 		login(request, user)
-	# 		return HttpResponseRedirect(reverse("home"))
-	# 	else:
-	# 		return render(request, "login.html", {
-	# 			"message": "Invalid credentials."
-	# 		})
-	# return render(request, "login.html")
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            username = data.get('username')
+            password = data.get('password')
+            
+            # Aquí se podría agregar lógica real de autenticación
+            if username == "test" and password == "test":
+                return JsonResponse({"message": "Login successful", "username": username, "pass": password}, status=200)
+            return JsonResponse({"error": "Invalid credentials"}, status=401)
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON"}, status=400)
+    return JsonResponse({"error": "Method not allowed"}, status=405)
 
 def add_user(request):
     if request.method == "POST":

@@ -7,6 +7,8 @@ RUN mkdir -p /usr/share/nginx/html
 # Copia tus archivos estáticos al directorio de Nginx
 COPY ./tools /usr/share/nginx/html
 
+COPY ./conf/nginx.conf /etc/nginx/nginx.conf
+
 # Expone el puerto en el que Nginx está configurado (8443 en este caso)
 EXPOSE 8443
 
