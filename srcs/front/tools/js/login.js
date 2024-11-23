@@ -32,8 +32,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log("Login successful:", data);
                 //window.location.href = "/home"; // Redirigir a la página de inicio o dashboard
             } else {
-                // Mostrar mensaje de error si la autenticación falla
-                errorMessage.textContent = "Invalid username or password";
+                document.getElementById('error-message').textContent = errorData.error || 'Login failed!';
                 console.log("Error: Authentication failed");
             }
         } catch (error) {
