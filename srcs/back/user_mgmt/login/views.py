@@ -8,12 +8,16 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
 
 # def home(request):
 #     if not request.user.is_authenticated:
 #         return HttpResponseRedirect(reverse("login"))
 #     return render(request, "user.html")
 
+@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow anyone to access this API
 def login_view(request):
@@ -32,10 +36,22 @@ def login_view(request):
 def login_form_api(request):
     if request.method == "GET":
         print("Login form API called")
-        form_html = render_to_string('login_form.html')
+        form_html = render_to_string('login.html')
         return JsonResponse({'form_html': form_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+#@login_required
+def user_info_api(request):
+    if request.user.is_authenticated:
+        context = {
+            'user': request.user,  # Pass the user object to the template
+        }
+        # Render the HTML with the user's data
+        user_html = render_to_string('user.html', context)
+        return JsonResponse({'user_html': user_html}, content_type="application/json")
+    else:
+        return JsonResponse({'error': 'user not authenticated'}, status=401)
 
 		
 # def login_view(request):
