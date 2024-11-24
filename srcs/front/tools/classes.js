@@ -1,4 +1,4 @@
-class Player {
+export class Player {
     width = 10;
     height = 80;
     maxScore = 5;
@@ -26,40 +26,80 @@ class Player {
             const data = {
                 "type": "paddleMove",
                 "position": this.y,
-                "player": this.x === 0 ? "player1" : "player2" // Identify which player is sending the data
+                "player": this.x === 0 ? "player1" : "player2", // Identify which player is sending the data
+                "score": this.score
             };
             if (socket.readyState === WebSocket.OPEN) {
-                console.log("Sending paddleMove:", data);
+                //console.log("Sending paddleMove:", data);
                 socket.send(JSON.stringify(data));
             } else {
-                console.error("Cannot send data. WebSocket is not open:", socket.readyState);
+                console.warn("WebSocket not open, cannot send data. ReadyState:", socket.readyState);
             }
         }
     }
     
-    scored(loopID) {
+    scored(socket) {
         this.score++;
-        if (this.score == this.maxScore)
-        {
-            cancelAnimationFrame(loopID);
-            alert("This is endgame");
+        const data = {
+            type: "scoreUpdate",
+            player: this.x === 0 ? "player1" : "player2", // Indicate who scored
+            score: this.score, // Send the updated score
+        };
+        console.log(data.player + " has scored");
+        if (socket.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify(data)); // Broadcast the score update
         }
     }
+    
     update(newY) {
         this.y = newY;
     }
+
+    drawScore(ctx, playerID)
+    {
+        let x;
+        ctx.fillStyle = "white";
+        ctx.font = "40px Calibri";
+        if (playerID == 1)
+            x = this.canvas.width / 4;
+        else
+            x = this.canvas.width * 3 / 4;
+        ctx.fillText(`Score: ${this.score}`, x, 30);
+    }
+
+    displayEndgameMessage(ctx, finalScore) {
+        // Determine if this player has won or lost
+        const message =
+            this.score === this.maxScore
+                ? "Congratulations! You've won!"
+                : "Better luck next time!";
+    
+        // Semi-transparent overlay
+        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    
+        // Display the message
+        ctx.fillStyle = "white";
+        ctx.font = "50px Calibri";
+        ctx.textAlign = "center";
+        ctx.fillText(message, this.canvas.width / 2, this.canvas.height / 2 - 20);
+        ctx.font = "40px Arial";
+        ctx.fillText(finalScore, this.canvas.width / 2, this.canvas.height / 2 + 30);
+    }
+    
 }
 
-class Ball {
+export class Ball {
     radius = 10;
 
     constructor(canvas) {
         this.x = canvas.width / 2;
         this.y = canvas.height / 2;
-        this.xspeed = 3.0;
-        this.yspeed = 3.0;
+        this.xspeed = 10.0;
+        this.yspeed = 10.0;
         this.color = "white";
         this.canvas = canvas;
+        this.isGameMaster = false;
     }
     draw(ctx) {
         ctx.fillStyle = this.color;
@@ -68,11 +108,13 @@ class Ball {
         ctx.fill();
     }
     resetPosition() {
-        this.x = canvas.width / 2;
-        this.y = canvas.height / 2;
+        this.x = this.canvas.width / 2;
+        this.y = this.canvas.height / 2;
         this.xspeed = -this.xspeed;
     }
-    move(player, opponent, loopID) {
+    move(player, opponent, socket) {
+        if (!this.isGameMaster)
+            return ;
         this.x += this.xspeed;
         this.y += this.yspeed;
 
@@ -89,17 +131,24 @@ class Ball {
             && this.y + this.radius >= opponent.y
             && this.y <= opponent.y + opponent.height)
             this.xspeed = -this.xspeed;
-        if (this.x <= 0) {
-            opponent.scored(loopID);
+        if (this.x <= 0)
+        {
+            opponent.scored(socket);
             this.resetPosition();
         }
-        else if (this.x + this.radius >= this.canvas.width) {
-            player.scored(loopID);
+        else if (this.x + this.radius >= this.canvas.width)
+        {
+            player.scored(socket);
             this.resetPosition();
         }
         const data = { type: "ballPosition", xpos: this.x, ypos: this.y };
         if (socket.readyState === WebSocket.OPEN)
             socket.send(JSON.stringify(data));
         
+    }
+    update(newX, newY)
+    {
+        this.x = newX;
+        this.y = newY;
     }
 }
