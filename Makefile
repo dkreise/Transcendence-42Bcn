@@ -6,6 +6,7 @@ SHELL := /bin/bash
 
 D_PS = $(shell docker ps -aq)
 D_IMG = $(shell docker images -q)
+#D_VOL = $(shell docker volume ls -q --filter dangling=true)
 
 all: up
 
