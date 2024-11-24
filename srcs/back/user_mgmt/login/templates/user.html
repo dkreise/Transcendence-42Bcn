@@ -1,11 +1,11 @@
-{% extends "layout_login.html" %}
+<!-- temporal, later will be a profile page or smth -->
 
-{% block body %}
-	<h1>Welcome, {{ request.user.first_name }}</h1>
+<div id="user-container"> 
+	<h1>Welcome, {{ user.first_name }}</h1>
 	
 	<ul>
-		<li>Username: {{ request.user.username }}</li>
+		<li>Username: {{ user.username }}</li>
+		<li>Email: {{ user.email }}</li>
 	</ul>
 	
-	<a href="{% url 'logout' %}">Log Out</a>
-{% endblock %}
+</div>
