@@ -10,12 +10,20 @@ from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 # def home(request):
 #     if not request.user.is_authenticated:
 #         return HttpResponseRedirect(reverse("login"))
 #     return render(request, "user.html")
+
+def generate_jwt_tokens(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
 @csrf_exempt
 @api_view(['POST'])
@@ -26,12 +34,13 @@ def login_view(request):
     user = authenticate(request, username=username, password=password)
 
     if user is not None:
-        login(request, user)
-        return Response({'success': True, 'message': 'Login successful'})
+        #login(request, user)
+        tokens = generate_jwt_tokens(user)
+        return Response({'success': True, 'tokens': tokens, 'message': 'Login successful'})
     else:
         return Response({'success': False, 'message': 'Invalid credentials'}, status=401)
 
-
+@api_view(['GET'])
 @permission_classes([AllowAny])
 def login_form_api(request):
     if request.method == "GET":
@@ -41,7 +50,7 @@ def login_form_api(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-#@login_required
+@api_view(['GET'])
 def user_info_api(request):
     if request.user.is_authenticated:
         context = {
