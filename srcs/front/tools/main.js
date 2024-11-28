@@ -4,7 +4,31 @@ console.log('main.js is loaded');
 document.addEventListener('DOMContentLoaded', () => {
     const loginButton = document.getElementById('login-button');
     const contentArea = document.getElementById('content-area');
+    const accessToken = localStorage.getItem('access_token');
 
+    if (accessToken) {
+        fetch(baseUrl + ':8000/api/user-info/', {
+            method: 'GET',
+            headers: {'Authorization': `Bearer ${accessToken}`}
+        })
+        .then(response => {
+            if (response.ok)
+                return response.json();
+            else {
+                // if token invalid or expired
+                console.log('Token invalid, needed to login again');
+                localStorage.removeItem('access_token');
+                loginButton.style.display = 'block';
+            }
+        })
+        .then(data => {
+            if (data) {
+                loginButton.remove();
+                contentArea.innerHTML = data.user_html;
+            }
+        })
+        .catch(error => console.error('Error verifying token:', error));
+    }
 
     // Function to load the login form dynamically via API
     loginButton.addEventListener('click', () => {
