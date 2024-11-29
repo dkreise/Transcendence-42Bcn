@@ -4,11 +4,7 @@ bcrypt
 django-cors-headers
 django-cors-middleware
 psycopg2
-<<<<<<< HEAD
 django-extensions
 Werkzeug
 djangorestframework
 django-environ
-=======
-djangorestframework
->>>>>>> origin/login

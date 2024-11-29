@@ -21,6 +21,7 @@ from django.contrib.auth.decorators import login_required
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow anyone to access this API
 def login_view(request):
+    print("login api called")
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(request, username=username, password=password)
@@ -30,13 +31,14 @@ def login_view(request):
         return Response({'success': True, 'message': 'Login successful'})
     else:
         return Response({'success': False, 'message': 'Invalid credentials'}, status=401)
-
+    
 
 @permission_classes([AllowAny])
 def login_form_api(request):
     if request.method == "GET":
         print("Login form API called")
         form_html = render_to_string('login.html')
+        print()
         return JsonResponse({'form_html': form_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
