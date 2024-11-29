@@ -7,27 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const accessToken = localStorage.getItem('access_token');
 
     if (accessToken) {
-        fetch(baseUrl + ':8000/api/user-info/', {
-            method: 'GET',
-            headers: {'Authorization': `Bearer ${accessToken}`}
-        })
-        .then(response => {
-            if (response.ok)
-                return response.json();
-            else {
-                // if token invalid or expired
-                console.log('Token invalid, needed to login again');
-                localStorage.removeItem('access_token');
-                loginButton.style.display = 'block';
-            }
-        })
-        .then(data => {
-            if (data) {
-                loginButton.remove();
-                contentArea.innerHTML = data.user_html;
-            }
-        })
-        .catch(error => console.error('Error verifying token:', error));
+        loadUserInfo();
     }
 
     // Function to load the login form dynamically via API
@@ -85,26 +65,99 @@ document.addEventListener('DOMContentLoaded', () => {
             .catch(error => console.error('Error loading login form:', error));
     });
 
-    const loadUserInfo = () => {
-        const token = localStorage.getItem('access_token');
-        if (!token) {
-            alert('No token found! :(');
-            return;
+    const refreshAccessToken = () => {
+        const refreshToken = localStorage.getItem("refresh_token");
+        if (!refreshToken) {
+            console.error("No refresh token found. User needs to log in again.");
+            return Promise.reject("No refresh token available");
         }
-    
-        fetch(baseUrl + ':8000/api/user-info/', {
-            headers: {'Authorization': `Bearer ${token}`}
+
+        return fetch(baseUrl + ":8000/api/token/refresh/", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({refresh: refreshToken}),
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.user_html) {
-                contentArea.innerHTML = data.user_html;
-                addLogoutListener();
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
             } else {
-                alert('User not authorized!');
+                console.error("Refresh token invalid or expired.");
+                handleLogout();
+                return Promise.reject("Refresh token invalid or expired.");
             }
         })
-        .catch(error => console.error('Error loading user info:', error));
+        .then((data) => {
+            if (data.access) {
+                localStorage.setItem("access_token", data.access);
+                return data.access;
+            }
+        });
+    };
+
+    const makeAuthenticatedRequest = (url, options = {}) => {
+        const accessToken = localStorage.getItem("access_token");
+        if (!accessToken) {
+            console.error("No access token available.");
+            return Promise.reject("No access token.");
+        }
+
+        options.headers = {
+            ...options.headers,
+            Authorization: `Bearer ${accessToken}`, // adding authorization header with the access token
+        };
+
+        return fetch(url, options).then((response) => {
+            if (response.status === 401) {
+                console.log("Access token expired, attempting refresh..");
+                return refreshAccessToken().then((newAccessToken) => {
+                    options.headers["Authorization"] = `Bearer ${newAccessToken}`;
+                    return fetch(url, options); //retry the original request
+                });
+            } else {
+                return response; // means that response is valid
+            }
+        });
+    };
+
+    // const loadUserInfo = () => {
+    //     const token = localStorage.getItem('access_token');
+    //     if (!token) {
+    //         alert('No token found! :(');
+    //         return;
+    //     }
+    
+    //     fetch(baseUrl + ':8000/api/user-info/', {
+    //         headers: {'Authorization': `Bearer ${token}`}
+    //     })
+    //     .then(response => response.json())
+    //     .then(data => {
+    //         if (data.user_html) {
+    //             contentArea.innerHTML = data.user_html;
+    //             addLogoutListener();
+    //         } else {
+    //             alert('User not authorized!');
+    //         }
+    //     })
+    //     .catch(error => console.error('Error loading user info:', error));
+    // };
+
+    const loadUserInfo = () => {
+        makeAuthenticatedRequest(baseUrl + ":8000/api/user-info/", {method: "GET"})
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                console.error("Failed to load user info");
+            }
+        })
+        .then((data) => {
+            if (data && data.user_html) {
+                loginButton.remove();
+                contentArea.innerHTML = data.user_html;
+                addLogoutListener();
+            }
+        })
+        .catch((error) => console.error("Error loading user info:", error));
     };
 
     const displayLoginError = (message) => {
