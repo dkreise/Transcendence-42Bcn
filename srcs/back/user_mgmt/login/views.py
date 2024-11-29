@@ -11,6 +11,10 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
+from rest_framework import status
+import json
 
 
 # def home(request):
@@ -62,23 +66,35 @@ def user_info_api(request):
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
 
-		
-# def login_view(request):
-# 	if request.method == "POST":
-# 		username = request.POST["username"]
-# 		password = request.POST["password"]
-# 		user = authenticate(request, username=username, password=password)
-# 		if user is not None: # means authentication was successful
-# 			login(request, user)
-# 			return HttpResponseRedirect(reverse("home"))
-# 		else:
-# 			return render(request, "login.html", {
-# 				"message": "Invalid credentials."
-# 			})
-# 	return render(request, "login.html")
-	
-# def logout_view(request):
-# 	logout(request)
-# 	return render(request, "login.html", {
-# 		"message": "Logged out."
-# 	})
+@api_view(['POST'])
+def register_user(request):
+    try:
+        data = json.loads(request.body)
+        username = data.get("username")
+        email = data.get("email")
+        password = data.get("password")
+
+        if not username or not email or not password:
+            return JsonResponse({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({"error": "Username already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({"error": "Email already registered."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # maybe to check also for invalid characters or smth..
+
+        user = User.objects.create(
+            username=username,
+            email=email,
+            password=make_password(password) # to hash it (? if its not done automatically ?)
+        )
+
+        return JsonResponse({"message": "User registered successfully!", "user_id": user.id}, status=status.HTTP_201_CREATED)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON format."}, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
