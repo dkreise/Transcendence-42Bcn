@@ -12,7 +12,7 @@ services:
       - db_data:/var/lib/postgresql/data
       - type: tmpfs
         target: /var/lib/postgresql/data
-    expose:
+    ports:
       - "5432:5432"
     networks:
        - trs_net
