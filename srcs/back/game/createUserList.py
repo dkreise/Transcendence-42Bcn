@@ -1,0 +1,11 @@
+from django.contrib.auth.models import User
+user1 = User.objects.create_user(username='dins')
+user2 = User.objects.create_user(username='bobby')
+user3 = User.objects.create_user(username='nuria')
+user4 = User.objects.create_user(username='julia')
+user5 = User.objects.create_user(username='diana')
+user1.save()
+user2.save()
+user3.save()
+user4.save()
+user5.save()

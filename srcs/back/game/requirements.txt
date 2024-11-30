@@ -6,3 +6,6 @@ django-cors-middleware
 psycopg2
 djangorestframework
 djangorestframework-simplejwt
+django-extensions
+Werkzeug
+django-environ

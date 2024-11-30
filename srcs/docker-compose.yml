@@ -1,14 +1,19 @@
 services:
 
   db:
-    image: postgres:alpine3.18
+    image: postgres
     container_name: db-postgres
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: 12345
-      POSTGRES_DB: transcendence
+      - POSTGRES_USER=${POSTGRE_USER}
+      - POSTGRES_PASSWORD=${POSTGRE_PASSWORD}
+      - POSTGRES_DB=${POSTGRE_DB}
+      - DATABASE_URL=${DATABASE_URL}
     volumes:
       - db_data:/var/lib/postgresql/data
+      - type: tmpfs
+        target: /var/lib/postgresql/data
+    expose:
+      - "5432:5432"
     networks:
        - trs_net
 
@@ -26,7 +31,7 @@ services:
     volumes:
       - user-mgmt:/usr/src/app
     ports:
-      - "8000:8000"
+      - "8002:8000"
 
   game:
     build:
@@ -43,35 +48,17 @@ services:
       - "8001:8000"
 
   front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
     container_name: front
-    build: ./front
-    image: front
-    volumes:
-      - front_data:/app
-    env_file:
-      - .env
-    expose:
-      - "2424:2424"
-    networks:
-       - trs_net
-  
-  nginx:
-    depends_on:
-      - front
-      # - user-mgmt
-      # - game
-    container_name: nginx
-    image: nginx
-    build: ./nginx
-    restart: always
-    env_file: 
-      - .env
     ports:
       - "8443:8443"
-    volumes:
-      - front_data:/var/www/html
     networks:
       - trs_net
+    restart: always
+    volumes:
+      - ./front/tools:/usr/share/nginx/html # Mapea archivos locales a dentro del contenedor
 
 volumes:
   front_data:
@@ -86,7 +73,6 @@ volumes:
     driver_opts:
       type: none
       device: ./postgres
-      o: bind
 
   user-mgmt:
     driver: local

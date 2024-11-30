@@ -33,6 +33,7 @@ def generate_jwt_tokens(user):
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow anyone to access this API
 def login_view(request):
+    print("login api called")
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(request, username=username, password=password)
@@ -44,12 +45,14 @@ def login_view(request):
     else:
         return Response({'success': False, 'message': 'Invalid credentials'}, status=401)
 
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def login_form_api(request):
     if request.method == "GET":
         print("Login form API called")
         form_html = render_to_string('login.html')
+        print()
         return JsonResponse({'form_html': form_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
@@ -65,6 +68,7 @@ def user_info_api(request):
         return JsonResponse({'user_html': user_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
+
 
 @api_view(['POST'])
 def register_user(request):
@@ -98,3 +102,18 @@ def register_user(request):
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+		
+# def login_view(request):
+# 	if request.method == "POST":
+# 		username = request.POST["username"]
+# 		password = request.POST["password"]
+# 		user = authenticate(request, username=username, password=password)
+# 		if user is not None: # means authentication was successful
+# 			login(request, user)
+# 			return HttpResponseRedirect(reverse("home"))
+# 		else:
+# 			return render(request, "login.html", {
+# 				"message": "Invalid credentials."
+# 			})
+# 	return render(request, "login.html")
+	

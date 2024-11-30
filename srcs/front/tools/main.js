@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginButton = document.getElementById('login-button');
     const contentArea = document.getElementById('content-area');
     const accessToken = localStorage.getItem('access_token');
+    // const signin = document.getElementById('signin');
+    // const signin_link = document.getElementById('sign-in-link');
 
     if (accessToken) {
         loadUserInfo();
@@ -12,13 +14,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to load the login form dynamically via API
     loginButton.addEventListener('click', () => {
-        
         console.log('Login button clicked!');
         loginButton.remove();
-        fetch(baseUrl + ':8000/api/login-form/')  // Call the API endpoint to get the form as JSON
-            .then(response => response.json())
-            .then(data => {
-                if (data.form_html) {
+        fetch(baseUrl + ':8002/login-form/')  // Call the API endpoint to get the form as JSON
+        .then(response => response.json())
+        .then(data => {
+            if (data.form_html) {
                     console.log('Form html returned!');
                     contentArea.innerHTML = data.form_html;  // Insert the form into the content area
 
@@ -28,7 +29,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         loginForm.addEventListener('submit', (event) => {
                             event.preventDefault();  // Prevent the default form submission
                             console.log('Submit button clicked!');
-
                             // Send form data via AJAX (????)
                             const formData = new FormData(loginForm);
                             fetch(loginForm.action, {
@@ -39,14 +39,33 @@ document.addEventListener('DOMContentLoaded', () => {
                                 // headers: {
                                 //     'X-CSRFToken': csrfToken || 'hardcoded-token',
                                 // },
+
                             })
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
+
                                     //alert('Login successful!');
                                     localStorage.setItem('access_token', data.tokens.access);
                                     localStorage.setItem('refresh_token', data.tokens.refresh);
                                     loadUserInfo();
+
+//                                     // Handle successful login (redirect or update UI)
+//                                     alert('Login successful!');
+//                                     fetch(baseUrl + ':8002/user-info/', {
+//                                         method: 'GET',
+//                                         credentials: 'include',
+//                                     })
+//                                         .then(response => response.json())
+//                                         .then(data => {
+//                                             if (data.user_html) {
+//                                                 console.log('User html returned!');
+//                                                 contentArea.innerHTML = data.user_html;
+//                                             } else {
+//                                                 console.log('Error: No user html returned :(');
+//                                             }
+//                                         })
+//                                         .catch(error => console.error('Error loading user info:', error));
                                 } else {
                                     //alert('Login failed!');
                                     displayLoginError('Invalid credentials. Please try again.');
@@ -64,6 +83,27 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(error => console.error('Error loading login form:', error));
     });
+
+    contentArea.addEventListener('click', (event) => {
+        if (event.target && event.target.id === 'sign-in-link') {
+            event.preventDefault();
+            console.log('Sign In button clicked!');
+            const signin = document.getElementById('signin');
+            const loginForm = document.getElementById('login-form');
+            if (signin)
+                signin.remove();
+            if (loginForm)
+                loginForm.remove();
+            fetch('SignInForm.html')
+                .then(response => response.text())
+                .then(html => {
+                    contentArea.innerHTML = html;
+                })
+                .catch(error => console.error('Error loading Sign In form:', error));
+        }
+    });
+});
+
 
     const refreshAccessToken = () => {
         const refreshToken = localStorage.getItem("refresh_token");

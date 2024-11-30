@@ -1,8 +1,8 @@
 /* Fondo animado en el body */
 body {
-    background: linear-gradient(135deg, #121212, #3a3a3a, #121212); /* Colores de fondo gradiente */
-    background-size: 200% 200%; /* Amplía el tamaño del fondo */
-    animation: gradientAnimation 10s ease infinite; /* Aplica la animación */
+    background: linear-gradient(135deg, #121212, #3a3a3a, #121212);
+    background-size: 200% 200%;
+    animation: gradientAnimation 10s ease infinite; 
     color: #EAEAEA;
     font-family: Arial, sans-serif;
     margin: 0;
@@ -71,7 +71,7 @@ body {
   
   /* Estilos del formulario */
   form {
-    width: 100%;
+    width: 110%;
   }
   
   label {
@@ -106,4 +106,11 @@ body {
   
   button:hover {
     background-color: #9828ed; /* Cambio a púrpura neón en hover */
+  }
+
+  #sigin {
+    background-color: #BB86FC;
+    border: none;
+    border-radius: 5px;
+    border-style:dotted;
   }

@@ -35,6 +35,7 @@ fclean: down clean
 	docker rm ${D_PS} || true
 	docker rmi ${D_IMG} || true
 	docker system prune -af --volumes || true
+	rm -rf ./srcs/postgres/*
   
 #docker volume rm srcs_wordpress || true
 #docker volume rm srcs_mariadb || true
