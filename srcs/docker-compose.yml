@@ -91,16 +91,21 @@ volumes:
       device: "./front/tools"
       o: bind
       type: none
-#    
-#  db_data:
-#    driver: local
-#
-#  user-mgmt:
-#    driver: local
-#    driver_opts:
-#      type: none
-#      device: ./back/user_mgmt
-#      o: bind
+
+  db_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./postgres
+      o: bind
+
+  user-mgmt:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./back/user_mgmt
+      o: bind
+      
   game:
     driver: local
     driver_opts:
