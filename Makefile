@@ -2,9 +2,11 @@
 #-f flag -> specify the name and path of one or more compose files
 
 #-d detach -> run containers in the background
+SHELL := /bin/bash
 
-D_PS = $(docker ps -aq)
-D_IMG = $(docker images -q)
+D_PS = $(shell docker ps -aq)
+D_IMG = $(shell docker images -q)
+#D_VOL = $(shell docker volume ls -q --filter dangling=true)
 
 all: up
 
@@ -28,16 +30,29 @@ ps:
 	docker-compose -f ./srcs/docker-compose.yml ps
 
 logs:
-	docker logs ${CONTAINER}
+	docker logs $(CONTAINER)
 
-fclean: down clean
-	docker stop ${D_PS} || true
-	docker rm ${D_PS} || true
-	docker rmi ${D_IMG} || true
-	docker system prune -af --volumes || true
-  
-#docker volume rm srcs_wordpress || true
-#docker volume rm srcs_mariadb || true
+fclean:
+	@if [ -n "$(D_PS)" ]; then \
+		echo "deleting containers"; \
+		docker stop $(D_PS); \
+		docker rm $(D_PS); \
+	fi
+	@if [ -n "$(D_IMG)" ]; then \
+		echo "deleting images"; \
+		docker rmi $(D_IMG); \
+	fi
+	@if [ -n "$$(docker volume ls -q --filter dangling=true)" ]; then \
+		echo "deleting volumes"; \
+		docker volume rm $$(docker volume ls -q --filter dangling=true); \
+		echo "volumes deleted"; \
+	fi
+	@if [ -d ./srcs/postgres ]; then \
+		rm -rf ./srcs/postgres/*; \
+	fi
+
+show:
+	@echo $(D_VOL)
 
 re: fclean all
 

@@ -1,3 +1,5 @@
 from django.shortcuts import render
 
-# Create your views here.
+def match(request):
+    return render(request, '../../front/tools/index.html')
+
