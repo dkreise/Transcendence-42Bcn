@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loginButton.addEventListener('click', () => {
         console.log('Login button clicked!');
         loginButton.remove();
-        fetch(baseUrl + ':8002/login-form/')  // Call the API endpoint to get the form as JSON
+        fetch(baseUrl + ':8000/api/login-form/')  // Call the API endpoint to get the form as JSON
         .then(response => response.json())
         .then(data => {
             if (data.form_html) {
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(error => console.error('Error loading Sign In form:', error));
         }
     });
-});
+
 
 
     const refreshAccessToken = () => {
