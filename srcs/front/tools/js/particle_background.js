@@ -1,3 +1,5 @@
+console.log('parti.js is loaded');
+
 document.addEventListener("DOMContentLoaded", function () {
     const particleBackground = document.getElementById("particle-background");
     const particleCount = 300; // Número de partículas
