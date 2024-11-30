@@ -1,0 +1,8 @@
+# Ignorar cachés de Python
+*.pyc
+__pycache__/*
+
+# Ignorar migraciones compiladas
+*/migrations/__pycache__/
+srcs/postgres/*
+.env

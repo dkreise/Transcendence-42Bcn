@@ -1,46 +1,52 @@
 services:
 
-#  db:
-#    image: postgres:alpine3.18
-#    container_name: db-postgres
-#    environment:
-#      POSTGRES_USER: admin
-#      POSTGRES_PASSWORD: 12345
-#      POSTGRES_DB: transcendence
-#    volumes:
-#      - db_data:/var/lib/postgresql/data
-#    networks:
-#       - trs_net
+  db:
+    image: postgres
+    #image: postgres:alpine3.18
+    container_name: db-postgres
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - DATABASE_URL=${DATABASE_URL}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - type: tmpfs
+        target: /var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+       - trs_net
 
-#  user_mgmt:
-#    build:
-#      context: ./back/user_mgmt
-#    container_name: user_mgmt
-#    depends_on:
-#      - db
-#    environment:
-#      - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
-#    networks:
-#       - trs_net
-#    restart: always
-#    volumes:
-#      - user-mgmt:/usr/src/app
-#    ports:
-#      - "8000:8000"
+  user_mgmt:
+   build:
+     context: ./back/user_mgmt
+   container_name: user_mgmt
+   depends_on:
+     - db
+   environment:
+     - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
+   networks:
+      - trs_net
+   restart: always
+   volumes:
+     - user-mgmt:/usr/src/app
+   ports:
+     - "8000:8000"
 
   game:
     build:
       context: ./back/game
     container_name: game
-#    depends_on:
-#      - db
+    depends_on:
+      - db
     networks:
        - trs_net
     restart: always
     volumes:
       - game:/usr/src/app
     ports:
-      - "8001:8000"
+      - "8001:8001"
 
   redis:
     container_name: redis
@@ -54,35 +60,17 @@ services:
       - '6379'
 
   front:
+    build:
+      context: ./front
+      dockerfile: Dockerfile
     container_name: front
-    build: ./front
-    image: front
-    volumes:
-      - front_data:/app
-    env_file:
-      - .env
-    expose:
-      - "2424:2424"
-    networks:
-       - trs_net
-  
-  nginx:
-    depends_on:
-      - front
-      # - user-mgmt
-      # - game
-    container_name: nginx
-    image: nginx
-    build: ./nginx
-    restart: always
-    env_file: 
-      - .env
     ports:
       - "8443:8443"
-    volumes:
-      - front_data:/var/www/html
     networks:
       - trs_net
+    restart: always
+    volumes:
+      - ./front/tools:/usr/share/nginx/html # Mapea archivos locales a dentro del contenedor
 
 volumes:
   front_data:
@@ -97,7 +85,6 @@ volumes:
     driver_opts:
       type: none
       device: ./postgres
-      o: bind
 
   user-mgmt:
     driver: local

@@ -7,3 +7,10 @@ class Tournament(models.Model):
     id_tournament = models.IntegerField(default=0) # not unique 
     player = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tournaments_as_participant')
     score = models.FloatField() # in percentage !!
+
+#     def __str__(self):
+#         return self.name
+
+#     def __str__(self):
+#         return f"{self.player1} vs {self.player2} - Winner: {self.winner}"
+

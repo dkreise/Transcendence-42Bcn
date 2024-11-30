@@ -1,0 +1,116 @@
+/* Fondo animado en el body */
+body {
+    background: linear-gradient(135deg, #121212, #3a3a3a, #121212);
+    background-size: 200% 200%;
+    animation: gradientAnimation 10s ease infinite; 
+    color: #EAEAEA;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+  }
+  
+  /* Contenedor de partículas */
+  #particle-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: -1;
+  }
+  
+  /* Partícula individual */
+  .particle {
+    position: absolute;
+    bottom: 0; /* Comienza desde la parte inferior */
+    width: 10px;
+    height: 10px;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation-name: float-up;
+    animation-timing-function: ease-out;
+    animation-iteration-count: infinite;
+  }
+  
+  /* Animación: Mover hacia arriba */
+  @keyframes float-up {
+    0% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(-100vh);
+      opacity: 0; /* Se desvanece al final */
+    }
+  }
+  
+  
+  /* Contenedor principal */
+  .container {
+    background-color: rgba(74, 72, 72, 0.8); /* Fondo ligeramente transparente */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+  }
+  
+  /* Título */
+  h1 {
+    margin-bottom: 20px;
+    font-size: 2em;
+    color: #BB86FC; /* Color de acento: púrpura neón */
+  }
+  
+  /* Estilos del formulario */
+  form {
+    width: 110%;
+  }
+  
+  label {
+    width: 80px;
+    text-align: right;
+    margin-right: 10px;
+    color: #EAEAEA; /* Gris claro para el texto de las etiquetas */
+  }
+  
+  input[type="text"], input[type="password"] {
+    width: 180px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 5px;
+    background-color: #2A2A2A; /* Fondo oscuro en los campos de entrada */
+    color: #EAEAEA; /* Texto claro en los campos de entrada */
+  }
+  
+  /* Estilo del botón */
+  button {
+    width: 100%;
+    padding: 10px;
+    background-color: #BB86FC; /* Fondo de botón: verde neón */
+    border: none;
+    border-radius: 5px;
+    color: #121212; /* Texto oscuro en el botón */
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  
+  button:hover {
+    background-color: #9828ed; /* Cambio a púrpura neón en hover */
+  }
+
+  #sigin {
+    background-color: #BB86FC;
+    border: none;
+    border-radius: 5px;
+    border-style:dotted;
+  }

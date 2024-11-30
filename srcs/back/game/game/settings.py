@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -37,8 +38,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "channels",
-    "ping_pong",
-    'tournament'
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'tournament',
+    'ping_pong',
+    'django_extensions',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +60,7 @@ ROOT_URLCONF = 'game.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -87,6 +91,12 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+# env = environ.Env()
+
+# DATABASES = {
+#     'default': env.db(),  # Reads DATABASE_URL
+# }
 
 
 # Password validation
@@ -139,4 +149,9 @@ CHANNEL_LAYERS = {
             "expiry": 10, # default 60 seconds
         },
     },
+}
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
 }

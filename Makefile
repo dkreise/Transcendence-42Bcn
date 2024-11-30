@@ -51,8 +51,6 @@ fclean:
 		rm -rf ./srcs/postgres/*; \
 	fi
 
-show:
-	@echo $(D_VOL)
 
 re: fclean all
 

@@ -6,3 +6,8 @@ django-cors-headers
 django-cors-middleware
 daphne
 psycopg2
+djangorestframework
+djangorestframework-simplejwt
+django-extensions
+Werkzeug
+django-environ
