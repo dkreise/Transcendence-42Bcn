@@ -38,8 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-	'login',
-    'rest_framework'
+    'corsheaders',
+    'rest_framework',
+    'rest_framework_simplejwt',
+	'login'
 ]
 
 MIDDLEWARE = [
@@ -144,3 +146,9 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Use database-backed se
 SESSION_COOKIE_SECURE = False  # Set to True for HTTPS in production
 CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to access CSRF token
 CSRF_COOKIE_SECURE = False  # Set to True for HTTPS in production
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}

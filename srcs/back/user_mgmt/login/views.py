@@ -10,12 +10,24 @@ from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
+from rest_framework import status
+import json
 
 
 # def home(request):
 #     if not request.user.is_authenticated:
 #         return HttpResponseRedirect(reverse("login"))
 #     return render(request, "user.html")
+
+def generate_jwt_tokens(user):
+    refresh = RefreshToken.for_user(user)
+    return {
+        'refresh': str(refresh),
+        'access': str(refresh.access_token),
+    }
 
 @csrf_exempt
 @api_view(['POST'])
@@ -27,12 +39,14 @@ def login_view(request):
     user = authenticate(request, username=username, password=password)
 
     if user is not None:
-        login(request, user)
-        return Response({'success': True, 'message': 'Login successful'})
+        #login(request, user)
+        tokens = generate_jwt_tokens(user)
+        return Response({'success': True, 'tokens': tokens, 'message': 'Login successful'})
     else:
         return Response({'success': False, 'message': 'Invalid credentials'}, status=401)
-    
 
+
+@api_view(['GET'])
 @permission_classes([AllowAny])
 def login_form_api(request):
     if request.method == "GET":
@@ -43,7 +57,7 @@ def login_form_api(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-#@login_required
+@api_view(['GET'])
 def user_info_api(request):
     if request.user.is_authenticated:
         context = {
@@ -55,6 +69,39 @@ def user_info_api(request):
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
 
+
+@api_view(['POST'])
+def register_user(request):
+    try:
+        data = json.loads(request.body)
+        username = data.get("username")
+        email = data.get("email")
+        password = data.get("password")
+
+        if not username or not email or not password:
+            return JsonResponse({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(username=username).exists():
+            return JsonResponse({"error": "Username already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(email=email).exists():
+            return JsonResponse({"error": "Email already registered."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # maybe to check also for invalid characters or smth..
+
+        user = User.objects.create(
+            username=username,
+            email=email,
+            password=make_password(password) # to hash it (? if its not done automatically ?)
+        )
+
+        return JsonResponse({"message": "User registered successfully!", "user_id": user.id}, status=status.HTTP_201_CREATED)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON format."}, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 		
 # def login_view(request):
 # 	if request.method == "POST":
@@ -70,8 +117,3 @@ def user_info_api(request):
 # 			})
 # 	return render(request, "login.html")
 	
-# def logout_view(request):
-# 	logout(request)
-# 	return render(request, "login.html", {
-# 		"message": "Logged out."
-# 	})
