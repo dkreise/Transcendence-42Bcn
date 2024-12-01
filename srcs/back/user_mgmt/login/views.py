@@ -75,6 +75,7 @@ def register_user(request):
     try:
         data = json.loads(request.body)
         username = data.get("username")
+        name = data.get("name")
         email = data.get("email")
         password = data.get("password")
 
@@ -91,11 +92,15 @@ def register_user(request):
 
         user = User.objects.create(
             username=username,
+            first_name=name,
             email=email,
             password=make_password(password) # to hash it (? if its not done automatically ?)
         )
 
-        return JsonResponse({"message": "User registered successfully!", "user_id": user.id}, status=status.HTTP_201_CREATED)
+        # return JsonResponse({"message": "User registered successfully!", "user_id": user.id}, status=status.HTTP_201_CREATED)
+        tokens = generate_jwt_tokens(user)
+        return Response({'success': True, 'tokens': tokens, 'message': 'Login successful'})
+    # else:
 
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON format."}, status=status.HTTP_400_BAD_REQUEST)
