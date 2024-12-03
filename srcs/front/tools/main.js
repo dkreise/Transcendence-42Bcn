@@ -128,26 +128,9 @@ document.addEventListener('DOMContentLoaded', () => {
                                     localStorage.setItem('access_token', data.tokens.access);
                                     localStorage.setItem('refresh_token', data.tokens.refresh);
                                     loadUserInfo();
-
-//                                     // Handle successful login (redirect or update UI)
-//                                     alert('Login successful!');
-//                                     fetch(baseUrl + ':8000/user-info/', {
-//                                         method: 'GET',
-//                                         credentials: 'include',
-//                                     })
-//                                         .then(response => response.json())
-//                                         .then(data => {
-//                                             if (data.user_html) {
-//                                                 console.log('User html returned!');
-//                                                 contentArea.innerHTML = data.user_html;
-//                                             } else {
-//                                                 console.log('Error: No user html returned :(');
-//                                             }
-//                                         })
-//                                         .catch(error => console.error('Error loading user info:', error));
                                 } else {
                                     //alert('Login failed!');
-                                    displayLoginError('Invalid credentials. Please try again.');
+                                    displayLoginError('Invalid credentials. Please try again.', 'login-form');
                                 }
                             })
                             .catch(error => {
@@ -194,76 +177,26 @@ document.addEventListener('DOMContentLoaded', () => {
                                     localStorage.setItem('access_token', data.tokens.access);
                                     localStorage.setItem('refresh_token', data.tokens.refresh);
                                     loadUserInfo();
+                                } else {
+                                    displayLoginError(data.error + ' Please try again.', 'signup-form');
+                                    // if (data.error == 'All fields are required.')
+                                    //     displayLoginError('All fields are required. Please try again.', 'signup-form');
+                                    // else if (data.error == 'Username already exists.')
+                                    //     displayLoginError('Username already exists. Please try again.', 'signup-form');
+                                    // else if (data.error == 'Email already registered.')
+                                    //     displayLoginError('Email already registered. Please try again.', 'signup-form');
+                                    // else if (data.error == 'Password mismatch.')
+                                    //     displayLoginError('Password mismatch. Please try again.', 'signup-form');
                                 }
-                                // } else {
-                                // displayLoginError('Invalid credentials. Please try again.');
-                            
                             })
                         })
                     }
                 })
                 .catch(error => console.error('Error loading Sign In form:', error));
         }
-    });
+    });  
 
-    // contentArea.innerHTML = data.form_html;  // Insert the form into the content area
-
-    // // // Add event listener for form submission
-    // // const loginForm = document.getElementById('login-form');
-    // // if (loginForm) {
-    // //     loginForm.addEventListener('submit', (event) => {
-    // //         event.preventDefault();  // Prevent the default form submission
-    // //         console.log('Submit button clicked!');
-    // //         // Send form data via AJAX (????)
-    //         const formData = new FormData(loginForm);
-    //         fetch(loginForm.action, {
-    //             method: 'POST',
-    //             body: JSON.stringify(Object.fromEntries(formData)),
-    //             headers: { 'Content-Type': 'application/json' }
-    //             //body: formData,
-    //             // headers: {
-    //             //     'X-CSRFToken': csrfToken || 'hardcoded-token',
-    //             // },
-
-    //         })
-    //         .then(response => response.json())
-    //         .then(data => {
-    //             if (data.success) {
-
-    //                 //alert('Login successful!');
-    //                 localStorage.setItem('access_token', data.tokens.access);
-    //                 localStorage.setItem('refresh_token', data.tokens.refresh);
-    //                 loadUserInfo();
-
-
-
-    
-
-    // const loadUserInfo = () => {
-    //     const token = localStorage.getItem('access_token');
-    //     if (!token) {
-    //         alert('No token found! :(');
-    //         return;
-    //     }
-    
-    //     fetch(baseUrl + ':8000/api/user-info/', {
-    //         headers: {'Authorization': `Bearer ${token}`}
-    //     })
-    //     .then(response => response.json())
-    //     .then(data => {
-    //         if (data.user_html) {
-    //             contentArea.innerHTML = data.user_html;
-    //             addLogoutListener();
-    //         } else {
-    //             alert('User not authorized!');
-    //         }
-    //     })
-    //     .catch(error => console.error('Error loading user info:', error));
-    // };
-
-    
-
-    const displayLoginError = (message) => {
+    const displayLoginError = (message, form) => {
         const loginContainer = document.getElementById('login-container');
         if (!loginContainer)
             return;
@@ -280,11 +213,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         loginContainer.prepend(errorMessage); //adding at the top of the login container
         
-        const loginForm = document.getElementById('login-form');
+        // const loginForm = document.getElementById('login-form');
+        const loginForm = document.getElementById(form);
         if (loginForm) {
             loginForm.reset();  // to clear the form
         }
     };
+
+    // const displaySignUpError = (message) => {
+    //     const 
+    // }
 
     const handleLogout = () => {
         console.log('Logging out..');

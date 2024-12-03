@@ -15,6 +15,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 import json
+import re
 
 
 # def home(request):
@@ -29,7 +30,6 @@ def generate_jwt_tokens(user):
         'access': str(refresh.access_token),
     }
 
-@csrf_exempt
 @api_view(['POST'])
 @permission_classes([AllowAny])  # Allow anyone to access this API
 def login_view(request):
@@ -78,9 +78,19 @@ def register_user(request):
         name = data.get("name")
         email = data.get("email")
         password = data.get("password")
+        repassword = data.get("repassword")
 
-        if not username or not email or not password:
+        if password != repassword:
+            return JsonResponse({"error": "Password mismatch."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not username or not email or not password or not name:
             return JsonResponse({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not re.match(r'^[a-zA-Z0-9.]+$', username):
+            return JsonResponse({"error": "Username should consist only of letters, digits and dots(.)."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
+            return JsonResponse({"error": "Invalid email format."}, status=status.HTTP_400_BAD_REQUEST)
 
         if User.objects.filter(username=username).exists():
             return JsonResponse({"error": "Username already exists."}, status=status.HTTP_400_BAD_REQUEST)
@@ -88,7 +98,7 @@ def register_user(request):
         if User.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already registered."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # maybe to check also for invalid characters or smth..
+        # maybe to check also for invalid characters in username?
 
         user = User.objects.create(
             username=username,
