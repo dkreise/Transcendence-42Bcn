@@ -65,7 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const loadUserInfo = () => {
-        makeAuthenticatedRequest(baseUrl + ":8000/api/user-info/", {method: "GET"})
+        //makeAuthenticatedRequest(baseUrl + ":8000/api/user-info/", {method: "GET"})
+        makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {method: "GET"})
         .then((response) => {
             if (response.ok) {
                 return response.json();
@@ -74,9 +75,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
         .then((data) => {
-            if (data && data.user_html) {
+            // if (data && data.user_html) {
+            //     loginButton.remove();
+            //     contentArea.innerHTML = data.user_html;
+            //     addLogoutListener();
+            // }
+            if (data && data.profile_html) {
                 loginButton.remove();
-                contentArea.innerHTML = data.user_html;
+                contentArea.innerHTML = data.profile_html;
                 addLogoutListener();
             }
         })
@@ -179,14 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                     loadUserInfo();
                                 } else {
                                     displayLoginError(data.error + ' Please try again.', 'signup-form');
-                                    // if (data.error == 'All fields are required.')
-                                    //     displayLoginError('All fields are required. Please try again.', 'signup-form');
-                                    // else if (data.error == 'Username already exists.')
-                                    //     displayLoginError('Username already exists. Please try again.', 'signup-form');
-                                    // else if (data.error == 'Email already registered.')
-                                    //     displayLoginError('Email already registered. Please try again.', 'signup-form');
-                                    // else if (data.error == 'Password mismatch.')
-                                    //     displayLoginError('Password mismatch. Please try again.', 'signup-form');
                                 }
                             })
                         })
