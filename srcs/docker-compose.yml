@@ -70,15 +70,15 @@ services:
       - trs_net
     restart: always
     volumes:
-      - ./front/tools:/usr/share/nginx/html # Mapea archivos locales a dentro del contenedor
+      - ./front/static:/usr/share/nginx/html/static # Mapea archivos locales a dentro del contenedor
 
 volumes:
-  front_data:
-    driver: local
-    driver_opts:
-      device: "./front/tools"
-      o: bind
-      type: none
+  # front_data:
+  #   driver: local
+  #   driver_opts:
+  #     device: "./front/static"
+  #     o: bind
+  #     type: none
 
   db_data:
     driver: local

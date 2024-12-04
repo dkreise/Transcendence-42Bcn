@@ -10,7 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // const signin = document.getElementById('signin');
     // const signin_link = document.getElementById('sign-in-link');
 
-    const refreshAccessToken = () => {
+    function refreshAccessToken(){
+        console.log("holaaaaaaaa");
         const refreshToken = localStorage.getItem("refresh_token");
         if (!refreshToken) {
             console.error("No refresh token found. User needs to log in again.");
@@ -114,10 +115,6 @@ document.addEventListener('DOMContentLoaded', () => {
                                 method: 'POST',
                                 body: JSON.stringify(Object.fromEntries(formData)),
                                 headers: { 'Content-Type': 'application/json' }
-                                //body: formData,
-                                // headers: {
-                                //     'X-CSRFToken': csrfToken || 'hardcoded-token',
-                                // },
 
                             })
                             .then(response => response.json())
@@ -247,5 +244,3 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 });
-
-//test

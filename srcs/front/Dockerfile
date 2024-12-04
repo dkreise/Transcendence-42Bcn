@@ -1,15 +1,16 @@
-# Usa una imagen de Nginx ligera como base
+# Usa una imagen ligera de Nginx como base
 FROM nginx:alpine
 
 # Crea el directorio donde se almacenarán los archivos estáticos
-RUN mkdir -p /usr/share/nginx/html
+RUN mkdir -p /usr/share/nginx/html/static
 
-# Copia tus archivos estáticos al directorio de Nginx
-COPY ./tools /usr/share/nginx/html
+# Copia los archivos estáticos al directorio correcto
+COPY ./static /usr/share/nginx/html/static
 
+# Copia la configuración personalizada de Nginx
 COPY ./conf/nginx.conf /etc/nginx/nginx.conf
 
-# Expone el puerto en el que Nginx está configurado (8443 en este caso)
+# Expone el puerto 8443 para tráfico HTTPS
 EXPOSE 8443
 
 # Usa el comando por defecto de Nginx para mantenerlo en ejecución
