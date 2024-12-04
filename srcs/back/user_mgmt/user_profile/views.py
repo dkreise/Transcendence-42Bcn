@@ -23,8 +23,10 @@ def user_info_api(request):
 @api_view(['GET'])
 def profile_page(request):
     if request.user.is_authenticated:
-        
-        profile_html = render_to_string('profile.html')
+        context = {
+            'user': request.user,
+        }
+        profile_html = render_to_string('profile.html', context)
         return JsonResponse({'profile_html': profile_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)

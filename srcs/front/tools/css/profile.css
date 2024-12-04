@@ -1,8 +1,13 @@
 /* Container styles */
 #profile-container {
-    margin: 20px auto;
+    display: block;
+    margin: 0 auto;
     max-width: 1200px;
+    min-width: 1000px;
     width: 100%;
+    min-height: 100vh;
+    position: relative;
+    border: 3px dashed red;
 }
 
 /* Top navigation */
@@ -47,6 +52,7 @@
     margin-left: auto;
     margin-right: auto;
     color: black;
+    /* border: 3px dashed blue; */
 }
 
 #stats-list li {
