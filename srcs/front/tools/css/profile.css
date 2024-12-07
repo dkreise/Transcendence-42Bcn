@@ -3,11 +3,11 @@
     display: block;
     margin: 0 auto;
     max-width: 1200px;
-    min-width: 1000px;
+    min-width: 500px;
     width: 100%;
     min-height: 100vh;
     position: relative;
-    border: 3px dashed red;
+    /* border: 3px dashed red; */
 }
 
 /* Top navigation */
