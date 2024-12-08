@@ -1,0 +1,79 @@
+/* Container styles */
+#profile-container {
+    display: block;
+    margin: 0 auto;
+    max-width: 1200px;
+    min-width: 500px;
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    /* border: 3px dashed red; */
+}
+
+/* Top navigation */
+#profile-container .d-flex {
+    margin-bottom: 20px;
+}
+
+#profile-container h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    letter-spacing: 2px; /* Adds space between letters */
+    text-transform: uppercase; /* Makes the text uppercase */
+}
+
+/* Photo placeholder */
+.photo-placeholder {
+    width: 150px;
+    height: 150px;
+    background-color: grey;
+    border-radius: 50%;
+    margin-bottom: 15px; /* Adds space between the photo and text */
+}
+
+/* User info */
+#profile-container h3,
+#profile-container p {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+/* Statistics block */
+.statistics-block {
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    padding: 30px;
+    border-radius: 8px;
+    margin-top: 20px; /* Adds space between profile info and stats */
+    margin-bottom: 20px;
+    text-align: left; /* Aligns statistics content to the left */
+    width: 100%;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    color: black;
+    /* border: 3px dashed blue; */
+}
+
+#stats-list li {
+    font-size: 1.1em; /* Adjust font size */
+    margin-bottom: 10px;
+}
+
+/* Logout button */
+#logout-button {
+    margin-top: 30px;
+    width: 100%;
+    padding: 10px;
+    background-color: #BB86FC; /* Fondo de botón: verde neón */
+    border: none;
+    border-radius: 5px;
+    color: #121212; /* Texto oscuro en el botón */
+    font-size: 1em;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#logout-button:hover {
+    background-color: #9828ed;
+}

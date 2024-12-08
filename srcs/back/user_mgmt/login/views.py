@@ -57,17 +57,17 @@ def login_form_api(request):
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
-@api_view(['GET'])
-def user_info_api(request):
-    if request.user.is_authenticated:
-        context = {
-            'user': request.user,  # Pass the user object to the template
-        }
-        # Render the HTML with the user's data
-        user_html = render_to_string('user.html', context)
-        return JsonResponse({'user_html': user_html}, content_type="application/json")
-    else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+# @api_view(['GET'])
+# def user_info_api(request):
+#     if request.user.is_authenticated:
+#         context = {
+#             'user': request.user,  # Pass the user object to the template
+#         }
+#         # Render the HTML with the user's data
+#         user_html = render_to_string('user.html', context)
+#         return JsonResponse({'user_html': user_html}, content_type="application/json")
+#     else:
+#         return JsonResponse({'error': 'user not authenticated'}, status=401)
 
 
 @api_view(['POST'])

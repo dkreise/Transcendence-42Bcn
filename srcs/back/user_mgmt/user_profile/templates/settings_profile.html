@@ -1,0 +1,12 @@
+<div id="profile-settings-container">
+    <h1>Settings</h1>
+    <form method="POST">
+        <label for="first_name">First Name</label>
+        <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}">
+        
+        <label for="last_name">Last Name</label>
+        <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}">
+
+        <button type="submit" id="save-settings-button" >Save</button>
+    </form>
+</div>
