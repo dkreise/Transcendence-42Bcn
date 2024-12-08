@@ -63,12 +63,28 @@ def profile_page(request):
         return JsonResponse({'error': 'user not authenticated'}, status=401)
 
 @api_view(['GET'])
-def settings_page(request):
+def profile_settings_page(request):
     if request.user.is_authenticated:
         context = {
             'user': request.user,
         }
-        settings_html = render_to_string('settings.html', context)
-        return JsonResponse({'settings_html': settings_html}, content_type="application/json")
+        profile_settings_html = render_to_string('settings_profile.html', context)
+        return JsonResponse({'profile_settings_html': profile_settings_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
+
+@api_view(['POST'])
+def update_profile_settings(request):
+    if request.user.is_authenticated:
+        data = request.data
+        first_name = data.get('first_name', '')
+        last_name = data.get('last_name', '')
+
+        user = request.user
+        user.first_name = first_name
+        user.last_name = last_name
+        user.save()
+
+        return JsonResponse({'success': True, 'message': 'Settings updated successfully!'})
+    else:
+        return JsonResponse({'success': False, 'error': 'User not authenticated.'}, status=401)

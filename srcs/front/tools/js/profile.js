@@ -25,12 +25,12 @@ const makeAuthenticatedRequest = (url, options = {}) => {
     });
 };
 
-function loadSettingsPage() {
-    makeAuthenticatedRequest(baseUrl + ":8000/api/settings-page/", {method: "GET"})
+const loadProfileSettingsPage = () => {
+    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {method: "GET"})
         .then(response => response.json())
         .then(data => {
-            if (data.settings_html) {
-                document.getElementById('content-area').innerHTML = data.settings_html;
+            if (data.profile_settings_html) {
+                document.getElementById('content-area').innerHTML = data.profile_settings_html;
             } else {
                 console.error('Error fetching settings:', data.error);
             }
@@ -38,4 +38,36 @@ function loadSettingsPage() {
         .catch(error => {
             console.error('Error fetching settings:', error);
         });
-}
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    const contentArea = document.getElementById("content-area");
+    contentArea.addEventListener("click", (event) => {
+        if (event.target.id == "save-settings-button") {
+            event.preventDefault();
+            const form = document.querySelector("#profile-settings-container form");
+            updateProfileSettings(form);
+        }
+    });
+});
+
+const updateProfileSettings = (form) => {
+    const formData = new FormData(form);
+
+    makeAuthenticatedRequest(baseUrl + ":8000/api/update-profile-settings/", {
+        method: "POST",
+        body: formData,
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                alert("settings updated successfully!");
+                loadProfileSettingsPage();
+            } else {
+                alert("failed to update settings :( :" + data.error);
+            }
+        })
+        .catch((error) => {
+            console.log("Error updating settings: ", error);
+        });
+};
