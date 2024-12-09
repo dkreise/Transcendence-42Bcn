@@ -102,12 +102,31 @@ document.addEventListener('DOMContentLoaded', () => {
     loginButton.addEventListener('click', () => {
         console.log('Login button clicked!');
         loginButton.remove();
-        fetch(baseUrl + ':8000/api/login-form/')  // Call the API endpoint to get the form as JSON
-        .then(response => response.json())
+        fetch('html/login_form.html')  // Call the API endpoint to get the form as JSON
+        .then(response => response.text())
         .then(data => {
-            if (data.form_html) {
+            if (data) {
                     console.log('Form html returned!');
-                    contentArea.innerHTML = data.form_html;  // Insert the form into the content area
+                    contentArea.innerHTML = data;  // Insert the form into the content area
+
+                    //intra button
+                    const intra_button = document.getElementById('login_intra_button');
+                    intra_button.addEventListener('click', () => {
+                        console.log('login 42 clicked');
+                        fetch(baseUrl + ":8000api/login-intra/")
+                        .then(response => {
+                            if (response.success) {
+                                localStorage.setItem('42_token_1', response.token1);
+                                localStorage.setItem('42_token_2', response.token2);
+                            } else {
+                                displayLoginError('error getting or saving 42 tokens');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error 42 login:', error);
+                            alert('An error occurred during 42 login.');
+                        });
+                    })
 
                     // Add event listener for form submission
                     const loginForm = document.getElementById('login-form');
@@ -150,16 +169,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     contentArea.addEventListener('click', (event) => {
-        if (event.target && event.target.id === 'sign-in-link') {
+        if (event.target && event.target.id === 'signup-link') {
             event.preventDefault();
             console.log('Sign In button clicked!');
-            const signin = document.getElementById('signin');
+            //const signin = document.getElementById('signin');
             const loginForm = document.getElementById('login-form');
-            if (signin)
-                signin.remove();
+            // if (signin)
+            //     signin.remove();
             if (loginForm)
                 loginForm.remove();
-            fetch('SignInForm.html')
+            fetch('html/signup_form.html')
                 .then(response => response.text())
                 .then(html => {
                     contentArea.innerHTML = html;

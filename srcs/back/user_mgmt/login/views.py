@@ -52,7 +52,6 @@ def login_form_api(request):
     if request.method == "GET":
         print("Login form API called")
         form_html = render_to_string('login.html')
-        print()
         return JsonResponse({'form_html': form_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
