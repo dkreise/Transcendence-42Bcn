@@ -1,6 +1,9 @@
 <div id="profile-settings-container">
     <h1>Settings</h1>
-    <form method="POST">
+    <form method="POST" enctype="multipart/form-data" id="profile-settings-form">
+        <label for="photo">Profile Photo</label>
+        <input type="file" id="photo" name="photo">
+        
         <label for="first_name">First Name</label>
         <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}">
         

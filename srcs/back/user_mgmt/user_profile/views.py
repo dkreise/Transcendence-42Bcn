@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from rest_framework import status
 import json
 import requests
+from django.conf import settings
 
 @api_view(['GET'])
 def user_info_api(request):
@@ -56,6 +57,7 @@ def profile_page(request):
             'user': request.user,
             'stats_games': stats_games,
             'stats_tournaments': stats_tournaments,
+            'MEDIA_URL': settings.MEDIA_URL,
         }
         profile_html = render_to_string('profile.html', context)
         return JsonResponse({'profile_html': profile_html}, content_type="application/json")
@@ -83,6 +85,12 @@ def update_profile_settings(request):
         user = request.user
         user.first_name = first_name
         user.last_name = last_name
+
+        if 'photo' in request.FILES:
+            profile = user.profile  # to access related profile object
+            profile.photo = request.FILES['photo']
+            profile.save()
+
         user.save()
 
         return JsonResponse({'success': True, 'message': 'Settings updated successfully!'})

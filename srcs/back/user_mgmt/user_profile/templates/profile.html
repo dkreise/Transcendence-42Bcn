@@ -10,7 +10,11 @@
     <!-- Profile content -->
     <div class="d-flex flex-column align-items-center mb-4">
         <!-- Photo and user info -->
-        <div class="photo-placeholder mb-3"></div>
+         {% if user.profile.photo %}
+            <img src="http://localhost:8000{{ user.profile.photo.url }}" alt="Profile Photo" class="profile-photo">
+        {% else %}
+            <div class="photo-placeholder mb-3"></div>
+        {% endif %}
         <div>
             <h3 id="username">Username: {{ user.username }}</h3>
             <p id="name">Name: {{ user.first_name }}</p>
