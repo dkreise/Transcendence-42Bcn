@@ -9,6 +9,7 @@ from rest_framework import status
 import json
 import requests
 from django.conf import settings
+import re
 
 @api_view(['GET'])
 def user_info_api(request):
@@ -79,10 +80,21 @@ def profile_settings_page(request):
 def update_profile_settings(request):
     if request.user.is_authenticated:
         data = request.data
+        user = request.user
+        username = data.get('username', user.username)
         first_name = data.get('first_name', '')
         last_name = data.get('last_name', '')
 
-        user = request.user
+        # if not username or not email or not password or not name:
+        #     return JsonResponse({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not re.match(r'^[a-zA-Z0-9.]+$', username):
+            return JsonResponse({'success': False, "error": "Username should consist only of letters, digits and dots(.)."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(username=username).exclude(id=request.user.id).exists():
+            return JsonResponse({'success': False, "error": "Username already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.username = username
         user.first_name = first_name
         user.last_name = last_name
 
