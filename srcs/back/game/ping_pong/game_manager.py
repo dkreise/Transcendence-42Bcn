@@ -1,30 +1,53 @@
+from collections import defaultdict
+
 class GameManager:
-    rooms = {}
+    games = defaultdict(lambda: {
+        "players": {}, 
+        "ball": {"x": 300, "y": 200, "xspeed": 5, "yspeed": 5}, 
+        "scores": {"player1": 0, "player2": 0}
+    })
 
-    @classmethod
-    def join_room(cls, room_id, player_id):
-        if room_id not in cls.rooms:
-            cls.rooms[room_id] = {"players": {}, "max_players": 2}
+    @staticmethod
+    def join_room(room_id, player_id):
+        game = GameManager.games[room_id]
+        if len(game["players"]) >= 2:
+            return None  # Room full
 
-        room = cls.rooms[room_id]
-        if player_id in room["players"]:
-            return room["players"][player_id]["role"]  # Rejoining player
-
-        if len(room["players"]) >= room["max_players"]:
-            return None  # Room is full
-
-        role = "player1" if "player1" not in [p["role"] for p in room["players"].values()] else "player2"
-        room["players"][player_id] = {"role": role}
+        print(f"Joining room {room_id} as player {player_id}")
+        role = "player1" if "player1" not in game["players"] else "player2"
+        game["players"][role] = {"id": player_id, "y": 0}  # Track paddle position
         return role
 
-    @classmethod
-    def leave_room(cls, room_id, player_id):
-        if room_id in cls.rooms and player_id in cls.rooms[room_id]["players"]:
-            del cls.rooms[room_id]["players"][player_id]
-            if not cls.rooms[room_id]["players"]:
-                del cls.rooms[room_id]
+    @staticmethod
+    def leave_room(room_id, player_id):
+        game = GameManager.games[room_id]
+        for role, player in game["players"].items():
+            if player["id"] == player_id:
+                del game["players"][role]
+                break
+        if not game["players"]:  # Cleanup empty rooms
+            del GameManager.games[room_id]
 
-    @classmethod
-    def handle_message(cls, room_id, data):
-        # Add any server-side game state processing logic here
-        pass
+    @staticmethod
+    def handle_message(room_id, player_id, data):
+        game = GameManager.games[room_id]
+
+        if data["type"] == "paddleMove":
+            for role, player in game["players"].items():
+                if player["id"] == player_id:
+                    player["y"] = data["position"]
+
+        elif data["type"] == "ballPosition":
+            ball = game["ball"]
+            ball["x"] += ball["xspeed"]
+            ball["y"] += ball["yspeed"]
+
+            # Check collisions and scoring logic
+            # (Update `ball["xspeed"]`, `ball["yspeed"]`, and scores as needed)
+
+        return {
+            "type": "update",
+            "ball": game["ball"],
+            "scores": game["scores"],
+            "players": {role: {"y": player["y"]} for role, player in game["players"].items()},
+        }

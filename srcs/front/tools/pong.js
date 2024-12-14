@@ -1,10 +1,3 @@
-import {
-    handleBallPosition,
-    handlePaddleMove,
-    handleRoleAssignment,
-    handleScoreUpdate,
-} from "./handlers.js"
-
 import { Ball, Player } from "./classes.js"
 
 const canvas = document.getElementById('gameCanvas');
@@ -19,68 +12,90 @@ player.draw(ctx);
 opponent.draw(ctx);
 ball.draw(ctx);
 
-let socket = null;
 let gameLoopId = null;
 
-function initializeWebSocket() {
-    if (socket && socket.readyState !== WebSocket.CLOSED) {
-        console.warn("WebSocket already open or not closed yet.");
-        return;
+function handleScoreUpdate(data, player, opponent, ctx, gameLoopId) {
+    if (data.player === "player1") {
+        player.score = data.score;
+    } else {
+        opponent.score = data.score;
     }
 
-    const roomID = new URLSearchParams(window.location.search).get("room") || "default";
-    socket = new WebSocket(`ws://localhost:8443/ws/ping_pong/${roomID}/`);
-    console.log("roomID: " + roomID);
+    console.log("current data score: " + data.score);
+    if (data.score >= player.maxScore)
+    {
+        cancelAnimationFrame(gameLoopId);
+        const finalScore = `${player.score} - ${opponent.score}`;
 
-    socket.onopen = function () {
-        console.log("WebSocket connection established.");
-        if (!gameLoopId) {
-            gameLoopId = requestAnimationFrame(gameLoop);
+        const isLocalPlayerWinner =
+            (data.player === "player1" && player.x === 0) || 
+            (data.player === "player2" && player.x > 0);
+
+        if (!isLocalPlayerWinner) {
+            player.displayEndgameMessage(ctx, finalScore);
+        } else {
+            opponent.displayEndgameMessage(ctx, finalScore);
         }
+    }
+}
+
+function handleRoleAssignment(data, player, opponent, ball, canvas) {
+    if (data.role === "player1") {
+        player.x = 0;
+        opponent.x = canvas.width - opponent.width;
+        ball.isGameMaster = true;
+    } else if (data.role === "player2") {
+        player.x = canvas.width - player.width;
+        opponent.x = 0;
+    }
+}
+
+let socket = null;
+
+function initializeWebSocket() {
+    const roomID = new URLSearchParams(window.location.search).get("room") || "default";
+    socket = new WebSocket(`ws://localhost:8001/ws/ping_pong/${roomID}/`);
+    
+    socket.onopen = () => console.log("WebSocket connection established.");
+    socket.onerror = (error) => console.error("WebSocket encountered an error:", error);
+    socket.onclose = () => {
+        console.warn("WebSocket connection closed. Retrying...");
+        setTimeout(initializeWebSocket, 1000);
     };
 
-    socket.onerror = function (error) {
-        console.error("WebSocket error:", error);
-    };
-
-    socket.onclose = function () {
-        console.warn("WebSocket connection closed.");
-        setTimeout(initializeWebSocket, 1000); // Retry connection
-    };
-
-    socket.onmessage = function (event) {
+    socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
     
         switch (data.type) {
             case "role":
-                console.log("you're: " + data.role);
                 handleRoleAssignment(data, player, opponent, ball, canvas);
                 break;
-            case "paddleMove":
-                handlePaddleMove(data, player, opponent);
+            case "paddleUpdate":
+                // Update the paddle position of the opponent
+                if (data.player !== player.id) {
+                    opponent.update(data.position);
+                }
                 break;
-            case "ballPosition":
-                handleBallPosition(data, ball);
+            case "update":
+                if (data.ball)
+                    ball.update(data.ball.x, data.ball.y);
+                if (data.players) {
+                    if (data.players.player1)
+                        player.update(data.players.player1.y);
+                    if (data.players.player2)
+                        opponent.update(data.players.player2.y);
+                }
                 break;
             case "scoreUpdate":
                 handleScoreUpdate(data, player, opponent, ctx, gameLoopId);
                 break;
             default:
-                console.warn(`Unhandled message type: ${data.type}`);
+                console.warn("Unhandled message type:", data.type);
         }
-    };
-    
+    }; 
 }
 
 initializeWebSocket();
-
-function sendPlayerAction(action) {
-    if (socket.readyState === WebSocket.OPEN) {
-        socket.send(JSON.stringify(action));
-    } else {
-        console.warn("WebSocket is not open. Cannot send:", action);
-    }
-}
 
 // Keydown event
 window.addEventListener('keydown', (e) => {
@@ -98,10 +113,9 @@ window.addEventListener('keyup', (e) => {
     if (e.key === 'ArrowDown') player.down = false;
 });
 
-function gameLoop()
-{
+function gameLoop() {
     gameLoopId = requestAnimationFrame(gameLoop);
-    ctx.clearRect(0,0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     player.draw(ctx);
     opponent.draw(ctx);
@@ -110,7 +124,5 @@ function gameLoop()
     opponent.drawScore(ctx, 2);
 
     player.move(socket);
-    ball.move(player, opponent, socket);
 }
-
 gameLoop();

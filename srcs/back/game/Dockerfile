@@ -19,8 +19,8 @@ EXPOSE 8001
 
 ENTRYPOINT ["./entrypoint.sh"]
 
-# CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "game.asgi:application"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "game.asgi:application"]
 
 # Start the application
 #CMD ["python", "manage.py", "runserver", "0.0.0.0:8001"]
-CMD ["python", "manage.py", "runserver_plus", "0.0.0.0:8001"]
+#CMD ["python", "manage.py", "runserver_plus", "0.0.0.0:8001"]

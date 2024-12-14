@@ -63,7 +63,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Dynamically load the game scripts
         Promise.all([
             loadScript('classes.js'),
-            loadScript('handlers.js'),
             loadScript('pong.js'),
         ])
             .then(() => console.log('Game scripts loaded successfully.'))

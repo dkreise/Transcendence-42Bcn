@@ -6,23 +6,17 @@ from .game_manager import GameManager
 
 class PongConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        print(f"Attempting connection: {self.scope['url_route']['kwargs']}")
-        self.room_id = self.scope['url_route']['kwargs']['room']  # Get room from URL
-        #self.player_id = self.scope['session'].session_key or self.scope['client'][0]  # Unique identifier (session or IP)
-        self.player_id = str(uuid.uuid4()) # Generate a unique identifier for this connection
-        print(f"Player ID: {self.player_id}")
-
+        self.room_id = self.scope['url_route']['kwargs']['room']
+        self.player_id = str(uuid.uuid4())
+        
         self.role = GameManager.join_room(self.room_id, self.player_id)
         if not self.role:
-            print(f"Connection rejected: room full or invalid")
-            await self.close()  # Reject connection if room is full or player unauthorized
+            await self.close()
             return
 
         await self.channel_layer.group_add(self.room_id, self.channel_name)
         await self.accept()
 
-        # Notify client of their role
-        print(f"Connection accepted: {self.role}")
         await self.send(json.dumps({"type": "role", "role": self.role}))
 
     async def disconnect(self, close_code):
@@ -31,13 +25,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        GameManager.handle_message(self.room_id, data)
+        response = GameManager.handle_message(self.room_id, self.player_id, data)
 
-        # Broadcast to room
-        await self.channel_layer.group_send(
-            self.room_id,
-            {"type": "broadcast", "message": data}
-        )
+        # Broadcast the game state to all players
+        if response:
+            await self.channel_layer.group_send(
+                self.room_id,
+                {"type": "broadcast", "message": response}
+            )
 
     async def broadcast(self, event):
         await self.send(json.dumps(event["message"]))
