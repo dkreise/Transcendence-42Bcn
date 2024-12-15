@@ -56,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         contentArea.innerHTML = `
         <div id="gameBoard">
             <h1 class="text-center">Pong Game</h1>
-            <canvas id="gameCanvas" width="1600" height="800"></canvas>
+            <canvas id="gameCanvas" width="800" height="500"></canvas>
         </div>
         `;
 

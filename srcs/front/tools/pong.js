@@ -57,15 +57,21 @@ function initializeWebSocket() {
     socket = new WebSocket(`ws://localhost:8001/ws/ping_pong/${roomID}/`);
     
     socket.onopen = () => console.log("WebSocket connection established.");
-    socket.onerror = (error) => console.error("WebSocket encountered an error:", error);
+    socket.onerror = (error) => {
+        console.error("WebSocket encountered an error:", error);
+        alert("Unable to connect to the server. Please check your connection or try again later.");
+    };
     socket.onclose = () => {
         console.warn("WebSocket connection closed. Retrying...");
-        setTimeout(initializeWebSocket, 1000);
+        setTimeout(() => {
+            initializeWebSocket(); // Retry connection
+        }, 1000);
     };
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
     
+        console.log("data.type is: " + data.type);
         switch (data.type) {
             case "role":
                 handleRoleAssignment(data, player, opponent, ball, canvas);
@@ -77,13 +83,16 @@ function initializeWebSocket() {
                 }
                 break;
             case "update":
-                if (data.ball)
-                    ball.update(data.ball.x, data.ball.y);
                 if (data.players) {
                     if (data.players.player1)
                         player.update(data.players.player1.y);
                     if (data.players.player2)
-                        opponent.update(data.players.player2.y);
+                        player.update(data.players.player2.y);
+                    console.log("data.players.player1 is: " + data.players.player1);
+                }
+                else
+                {
+                    console.log("data.players.player1 is: " + data.players.player1);
                 }
                 break;
             case "scoreUpdate":
@@ -92,7 +101,7 @@ function initializeWebSocket() {
             default:
                 console.warn("Unhandled message type:", data.type);
         }
-    }; 
+    };    
 }
 
 initializeWebSocket();

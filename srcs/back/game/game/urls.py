@@ -20,4 +20,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('ping_pong.urls')),
+    path("ws/", include("ping_pong.routing")),
 ]

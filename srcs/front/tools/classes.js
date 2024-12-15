@@ -20,16 +20,27 @@ export class Player {
     }
 
     move(socket) {
-        // Only send movement commands to the backend
         if (this.up && this.y > 0) {
-            this.y -= this.speed; // Optional: Update locally for responsiveness
+            this.y -= this.speed;
             this.sendPaddleMove(socket);
         }
         if (this.down && this.y < this.canvas.height - this.height) {
-            this.y += this.speed; // Optional: Update locally for responsiveness
+            this.y += this.speed;
             this.sendPaddleMove(socket);
         }
     }
+    
+    sendPaddleMove(socket) {
+        // Throttle updates to the server (e.g., every 50ms)
+        if (!this.lastMoveTime || Date.now() - this.lastMoveTime > 50) {
+            socket.send(JSON.stringify({
+                type: "paddleMove",
+                position: this.y
+            }));
+            this.lastMoveTime = Date.now();
+        }
+    }
+    
 
     sendPaddleMove(socket) {
         const data = {
