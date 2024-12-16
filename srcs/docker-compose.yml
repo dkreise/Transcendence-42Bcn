@@ -19,20 +19,22 @@ services:
        - trs_net
 
   user_mgmt:
-   build:
-     context: ./back/user_mgmt
-   container_name: user_mgmt
-   depends_on:
-     - db
-   environment:
-     - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
-   networks:
+    build:
+      context: ./back/user_mgmt
+    container_name: user_mgmt
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
+    env_file:
+      - .env
+    networks:
       - trs_net
-   restart: always
-   volumes:
-     - user-mgmt:/usr/src/app
-   ports:
-     - "8000:8000"
+    restart: always
+    volumes:
+      - user-mgmt:/usr/src/app
+    ports:
+      - "8000:8000"
 
   game:
     build:
