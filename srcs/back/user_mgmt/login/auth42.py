@@ -101,12 +101,16 @@ class Callback42API(APIView):
         try:
             response = post42("/oauth/token", defaultParams(code, state))
             logger.info("Response 42: %s", response.content)
+            print("1111!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", response.content)
             if response.status_code != 200:
                 raise AuthenticationFailed("Bad response code while authentication")
+            print("222!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
             data = response.json()
             intra_token = data.get("access_token")
             res_front = saveUser(str(intra_token))
+            print("333!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
             data_res_front = json.loads(res_front.content)
+            print("444!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:", res_front.content)
             if res_front.status_code == 500:
                 raise AuthenticationFailed(res_front.content['Error'])
             try:
@@ -115,6 +119,7 @@ class Callback42API(APIView):
                 raise Exception("No users found with the same username")
             except User.MultipleObjectsReturned:
                 raise Exception("Multiple users found with the same username")
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
             # user.is_active = True
             #####
             # refresh_intra_token = RefreshToken(intra_token)
@@ -153,9 +158,12 @@ def saveUser(token):
         if user_res.status_code != 200:
             raise AuthenticationFailed("Bad response code while authentication")
         user_data = user_res.json()
+        print("55555!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user_data.get('login'))  
         if not user_data.get('login'):
             raise AuthenticationFailed("Couldn't recognize the user")
-        exist = User.objects.filter(username=user_data.get('login')).exists()
+        print("7777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
+        exist = User.objects.filter(username=user_data.get('login')).exists() # try except
+        print("888!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", exist)  
         if not exist:
             user = User(username=user_data.get('login'), email=user_data.get('email'))
             user.save()
@@ -163,6 +171,7 @@ def saveUser(token):
         if user_data['image']['link']:
             user_img = user_data['image']['link']
         # print("BEFORECOAL: ", user_img)
+        print("6666!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user_img)  
         coal_data = getCoalition(defaultUser(user_data.get('login'), user_data.get('staff?'), user_img), user_data.get('login'), token)
         # piscine / student / alumni
         return JsonResponse(coal_data)

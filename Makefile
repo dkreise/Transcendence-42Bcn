@@ -46,7 +46,6 @@ fclean:
 	@if [ -n "$$(docker volume ls -q --filter dangling=true)" ]; then \
 		echo "deleting volumes"; \
 		docker volume rm $$(docker volume ls -q --filter dangling=true); \
-		docker system prune -a --volumes \
 		echo "volumes deleted"; \
 	fi
 	@if [ -d ./srcs/postgres ]; then \
