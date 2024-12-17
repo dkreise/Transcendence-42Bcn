@@ -12,6 +12,7 @@ export class Player {
         this.down = false;
         this.score = 0;
         this.canvas = canvas;
+		this.lastMoveTime = 0;
     }
 
     draw(ctx) {
@@ -20,25 +21,36 @@ export class Player {
     }
 
     move(socket) {
-        if (this.up && this.y > 0) {
+        if (this.up && this.y > 0)
+		{
             this.y -= this.speed;
             this.sendPaddleMove(socket);
         }
-        if (this.down && this.y < this.canvas.height - this.height) {
+        if (this.down && this.y < this.canvas.height - this.height)
+		{
             this.y += this.speed;
-            this.sendPaddleMove(socket);
-        }
-    }
-    
-    sendPaddleMove(socket) {
-        // Throttle updates to the server (e.g., every 50ms)
-        if (!this.lastMoveTime || Date.now() - this.lastMoveTime > 50) {
+			console.log("Client's new y is: " + this.y);
+			console.log("Sending paddleMove from client to server");
             socket.send(JSON.stringify({
                 type: "paddleMove",
                 position: this.y
             }));
-            this.lastMoveTime = Date.now();
+            //this.sendPaddleMove(socket);
         }
+    }
+    
+    sendPaddleMove(socket)
+	{
+        // Throttle updates to the server (e.g., every 50ms)
+        //if (!this.lastMoveTime || Date.now() - this.lastMoveTime > 50)
+		//{
+			console.log("Sending paddleMove from client to server");
+            socket.send(JSON.stringify({
+                type: "paddleMove",
+                position: this.y
+            }));
+          //  this.lastMoveTime = Date.now();
+        //}
     }
     
 

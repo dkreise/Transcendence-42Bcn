@@ -88,11 +88,11 @@ function initializeWebSocket() {
                         player.update(data.players.player1.y);
                     if (data.players.player2)
                         player.update(data.players.player2.y);
-                    console.log("data.players.player1 is: " + data.players.player1);
+                    console.log("if data.players.player1 is: " + data.players.player1.y);
                 }
                 else
                 {
-                    console.log("data.players.player1 is: " + data.players.player1);
+                    console.log("else data.players.player1 is: " + data.players.player1.y);
                 }
                 break;
             case "scoreUpdate":

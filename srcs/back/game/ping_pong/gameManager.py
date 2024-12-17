@@ -1,4 +1,7 @@
 from collections import defaultdict
+import logging
+
+logger = logging.getLogger(__name__)
 
 class GameManager:
     # Initialize games storage
@@ -21,12 +24,14 @@ class GameManager:
         game = GameManager.games[room_id]
         
         if len(game["players"]) >= 2:
-            print(f"Room {room_id} is full.")
+            logger.info(f"Room {room_id} is full.")
             return None  # Room is full
 
         role = "player1" if "player1" not in game["players"] else "player2" # Assigning role (player1 / player2)
-        game["players"][role] = {"id": player_id, "y": 250}  # Adding the new player to the game
-        print(f"Player {player_id} joined room {room_id} as {role}.")
+        logger.info(f"Player {player_id} joined the room {room_id} as {role}!")
+        game["players"][role] = {
+			"username": player_id,
+			"y": 250}  # Adding the new player to the game
         return role
 
     @staticmethod
@@ -34,7 +39,7 @@ class GameManager:
         game = GameManager.games[room_id]
 
         for role, player in game["players"].items(): # Delete players from game
-            if player["id"] == player_id:
+            if player["username"] == player_id:
                 del game["players"][role]
                 print(f"Player {player_id} left room {room_id}.")
                 break
@@ -43,19 +48,20 @@ class GameManager:
             del GameManager.games[room_id]
             print(f"Room {room_id} has been deleted")
 
+    @staticmethod
+    def updatePaddlePos(game, player_num, position):
+        for player in game["players"].values():
+            if player["num"] == player_num:
+                player["y"] = position
+                #logger.info(f"Position: {position} updated in: {player_id}")
+                return
+
     #@staticmethod
     #def updatePaddlePos(game, player_id, position):
-    #    for player in game["players"].values():
-    #        if player["id"] == player_id:
+    #    for role, player in game["players"].items():
+    #        if player["username"] == player_id:
     #            player["y"] = position
-    #            return
-
-    @staticmethod
-    def updatePaddlePos(game, player_id, position):
-        for role, player in game["players"].items():
-            if player["id"] == player_id:
-                player["y"] = position
-                break
+    #            break
 
 
     @staticmethod
@@ -83,11 +89,12 @@ class GameManager:
         ball["yspeed"] = 5
 
     @staticmethod
-    def handleMessage(room_id, player_id, data):
+    def handleMessage(room_id, player_num, data):
         game = GameManager.games[room_id]
 
         if data["type"] == "paddleMove":
-            GameManager.updatePaddlePos(game, player_id, data["position"])
+            logger.info(f"player_id pre-update: {player_num}")
+            GameManager.updatePaddlePos(game, player_num, data["position"])
 
         elif data["type"] == "ballPosition":
             GameManager.updateBallPos(game)

@@ -14,12 +14,16 @@ COPY . .
 
 RUN chmod 777 entrypoint.sh
 
+# Set Python to unbuffered mode
+ENV PYTHONUNBUFFERED=1
+
 # Expose the application port (adjust according to your app's port)
 EXPOSE 8001
 
 ENTRYPOINT ["./entrypoint.sh"]
 
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "game.asgi:application"]
+#CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "--verbosity", "3", "game.asgi:application"]
 
 # Start the application
 #CMD ["python", "manage.py", "runserver", "0.0.0.0:8001"]

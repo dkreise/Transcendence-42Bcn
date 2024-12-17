@@ -1,31 +1,43 @@
 from urllib.parse import parse_qs
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
-import uuid
 from .gameManager import GameManager
+import logging
+import uuid
+
+logger = logging.getLogger(__name__)
 
 class PongConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_id = self.scope['url_route']['kwargs']['room']
-        self.player_id = str(uuid.uuid4())
         
+        # Generate a unique player ID for this connection
+        query_string = parse_qs(self.scope['query_string'].decode())
+        self.player_id = query_string.get('player_id', [str(uuid.uuid4())])[0]
+        
+        # Role assignment logic using player_id
         self.role = GameManager.joinRoom(self.room_id, self.player_id)
         if not self.role:
             await self.close()
             return
 
+        # Add to channel group
         await self.channel_layer.group_add(self.room_id, self.channel_name)
         await self.accept()
 
-        await self.send(json.dumps({"type": "role", "role": self.role}))
+        # Send the player's role back to them
+        await self.send(json.dumps({"type": "role", "role": self.role, "player_id": self.player_id}))
+
 
     async def disconnect(self, close_code):
         GameManager.leaveRoom(self.room_id, self.player_id)
+        #GameManager.leaveRoom(self.room_id, self.scope['user'])
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        response = GameManager.handleMessage(self.room_id, self.player_id, data)
+        response = GameManager.handleMessage(self.room_id, self.role, data)
+        #response = GameManager.handleMessage(self.room_id, self.scope['user'], data)
 
         # Broadcast the game state to all players
         if response:
