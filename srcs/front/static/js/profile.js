@@ -1,5 +1,6 @@
 var baseUrl = "http://localhost"; // change (parse) later
 
+// some functions are repeated for now from main.js..
 const makeAuthenticatedRequest = (url, options = {}) => {
     const accessToken = localStorage.getItem("access_token");
     if (!accessToken) {
@@ -25,6 +26,69 @@ const makeAuthenticatedRequest = (url, options = {}) => {
     });
 };
 
+const displayUpdatingError = (message, form) => {
+    const profileSettingsContainer = document.getElementById('profile-settings-form');
+    if (!profileSettingsContainer)
+        return;
+
+    const existingError = document.getElementById('settings-update-error');
+    if (existingError)
+        existingError.remove();
+
+    const errorMessage = document.createElement('div');
+    errorMessage.id = 'settings-update-error';
+    errorMessage.style.color = 'red';
+    errorMessage.style.marginBottom = '15px';
+    errorMessage.textContent = message;
+
+    profileSettingsContainer.prepend(errorMessage); //adding at the top of the login container
+};
+
+const renderStatisticsGraph = () => {
+    const statsData = {
+        gamesPlayed: parseInt(document.getElementById('games-played').innerText) || 0,
+        gamesWon: parseInt(document.getElementById('games-won').innerText) || 0,
+        tournamentsPlayed: parseInt(document.getElementById('tournaments-played').innerText) || 0,
+        tournamentsScore: parseInt(document.getElementById('tournaments-won').innerText) || 0,
+    };
+
+    let graphContainer = document.createElement('canvas');
+    graphContainer.id = 'stats-chart';
+    graphContainer.style.maxWidth = '600px';
+    document.querySelector('.statistics-block').appendChild(graphContainer);
+
+    const ctx = document.getElementById('stats-chart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Games Played', 'Games Won', 'Tournaments Played', 'Avg Tournament Score'],
+            datasets: [{
+                label: 'Statistics',
+                data: [
+                    statsData.gamesPlayed,
+                    statsData.gamesWon,
+                    statsData.tournamentsPlayed,
+                    statsData.tournamentsScore,
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                ],
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+};
+
 const loadProfileSettingsPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {method: "GET"})
         .then(response => response.json())
@@ -39,6 +103,28 @@ const loadProfileSettingsPage = () => {
             console.error('Error fetching settings:', error);
         });
 };
+
+const loadProfilePage = () => {
+    console.log('Loading profile page..');
+    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {method: "GET"})
+        .then((response) => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                console.error("Failed to load user info");
+            }
+        })
+        .then((data) => {
+            if (data && data.profile_html) {
+                document.getElementById('content-area').innerHTML = data.profile_html;
+                addLogoutListener();
+                console.log('Profile page loaded');
+                renderStatisticsGraph();
+                console.log('Statistics graph rendered');
+            }
+        })
+        .catch((error) => console.error("Error loading user info:", error));
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     const contentArea = document.getElementById("content-area");
@@ -64,10 +150,40 @@ const updateProfileSettings = (form) => {
                 alert("settings updated successfully!");
                 loadProfileSettingsPage();
             } else {
-                alert("failed to update settings :( :" + data.error);
+                displayUpdatingError(data.error + ' Please try again.', form);
             }
         })
         .catch((error) => {
             console.log("Error updating settings: ", error);
         });
 };
+
+const handleLogout = () => {
+    console.log('Logging out..');
+
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+
+    // there can be fetch to back if need to inform backend that user is logging out (optional)
+
+    document.getElementById('content-area').innerHTML = ''; // to clear user content
+    const loginButton = document.createElement('button');
+    loginButton.id = 'login-button';
+    loginButton.textContent = 'LOGIN';
+    loginButton.onclick = () => location.reload(); //reload the page to show the button
+    document.getElementById('content-area').appendChild(loginButton);
+};
+
+const addLogoutListener = () => {
+    const logoutButton = document.getElementById('logout-button');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+};
+
+// document.addEventListener("DOMContentLoaded", () => {
+//     loadProfilePage();
+//     console.log('Profile page loaded');
+//     renderStatisticsGraph();
+// });
+

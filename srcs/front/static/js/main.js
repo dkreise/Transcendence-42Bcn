@@ -65,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    
+
     const loadUserInfo = () => {
         //makeAuthenticatedRequest(baseUrl + ":8000/api/user-info/", {method: "GET"})
         makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {method: "GET"})
@@ -134,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         loginForm.addEventListener('submit', (event) => {
                             event.preventDefault();  // Prevent the default form submission
                             console.log('Submit button clicked!');
-                            // Send form data via AJAX (????)
+
                             const formData = new FormData(loginForm);
                             fetch(loginForm.action, {
                                 method: 'POST',

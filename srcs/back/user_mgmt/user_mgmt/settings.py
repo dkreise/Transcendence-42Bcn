@@ -184,3 +184,8 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
     'TOKEN_BLACKLIST_ENABLED': True,  # Enable blacklist feature
 }
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media' #os.path.join(BASE_DIR, 'media')
+

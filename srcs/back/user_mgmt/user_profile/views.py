@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 from rest_framework import status
 import json
 import requests
+from django.conf import settings
+import re
 
 @api_view(['GET'])
 def user_info_api(request):
@@ -56,6 +58,7 @@ def profile_page(request):
             'user': request.user,
             'stats_games': stats_games,
             'stats_tournaments': stats_tournaments,
+            'MEDIA_URL': settings.MEDIA_URL,
         }
         profile_html = render_to_string('profile.html', context)
         return JsonResponse({'profile_html': profile_html}, content_type="application/json")
@@ -77,12 +80,29 @@ def profile_settings_page(request):
 def update_profile_settings(request):
     if request.user.is_authenticated:
         data = request.data
+        user = request.user
+        username = data.get('username', user.username)
         first_name = data.get('first_name', '')
         last_name = data.get('last_name', '')
 
-        user = request.user
+        # if not username or not email or not password or not name:
+        #     return JsonResponse({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if not re.match(r'^[a-zA-Z0-9.]+$', username):
+            return JsonResponse({'success': False, "error": "Username should consist only of letters, digits and dots(.)."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(username=username).exclude(id=request.user.id).exists():
+            return JsonResponse({'success': False, "error": "Username already exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.username = username
         user.first_name = first_name
         user.last_name = last_name
+
+        if 'photo' in request.FILES:
+            profile = user.profile  # to access related profile object
+            profile.photo = request.FILES['photo']
+            profile.save()
+
         user.save()
 
         return JsonResponse({'success': True, 'message': 'Settings updated successfully!'})

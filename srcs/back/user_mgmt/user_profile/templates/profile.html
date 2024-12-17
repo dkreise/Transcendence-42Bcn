@@ -3,6 +3,7 @@
 	<div class="d-flex justify-content-between align-items-center mb-4">
         <h1>Profile</h1>
         <div>
+            <!-- <button id="profile-home-button">Home</button> -->
             <button id="profile-settings-button" onclick="loadProfileSettingsPage()">Settings</button>
         </div>
     </div>
@@ -10,7 +11,11 @@
     <!-- Profile content -->
     <div class="d-flex flex-column align-items-center mb-4">
         <!-- Photo and user info -->
-        <div class="photo-placeholder mb-3"></div>
+         {% if user.profile.photo %}
+            <img src="http://localhost:8000{{ user.profile.photo.url }}" alt="Profile Photo" class="profile-photo">
+        {% else %}
+            <div class="photo-placeholder mb-3"></div>
+        {% endif %}
         <div>
             <h3 id="username">Username: {{ user.username }}</h3>
             <p id="name">Name: {{ user.first_name }}</p>
@@ -26,6 +31,8 @@
             <li>Tournaments Played: <span id="tournaments-played">{{ stats_tournaments.tournaments_played }}</span></li>
             <li>Tournament Average Score: <span id="tournaments-won">{{ stats_tournaments.tournament_score }} %</span></li>
         </ul>
+        <!-- Graphical Statistics -->
+        
     </div>
 
 	<button id="logout-button">Logout</button>
