@@ -44,6 +44,51 @@ const displayUpdatingError = (message, form) => {
     profileSettingsContainer.prepend(errorMessage); //adding at the top of the login container
 };
 
+const renderStatisticsGraph = () => {
+    const statsData = {
+        gamesPlayed: parseInt(document.getElementById('games-played').innerText) || 0,
+        gamesWon: parseInt(document.getElementById('games-won').innerText) || 0,
+        tournamentsPlayed: parseInt(document.getElementById('tournaments-played').innerText) || 0,
+        tournamentsScore: parseInt(document.getElementById('tournaments-won').innerText) || 0,
+    };
+
+    let graphContainer = document.createElement('canvas');
+    graphContainer.id = 'stats-chart';
+    graphContainer.style.maxWidth = '600px';
+    document.querySelector('.statistics-block').appendChild(graphContainer);
+
+    const ctx = document.getElementById('stats-chart').getContext('2d');
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Games Played', 'Games Won', 'Tournaments Played', 'Avg Tournament Score'],
+            datasets: [{
+                label: 'Statistics',
+                data: [
+                    statsData.gamesPlayed,
+                    statsData.gamesWon,
+                    statsData.tournamentsPlayed,
+                    statsData.tournamentsScore,
+                ],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.2)',
+                    'rgba(54, 162, 235, 0.2)',
+                    'rgba(255, 206, 86, 0.2)',
+                    'rgba(75, 192, 192, 0.2)',
+                ],
+                borderWidth: 1,
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+};
+
 const loadProfileSettingsPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {method: "GET"})
         .then(response => response.json())
@@ -60,6 +105,7 @@ const loadProfileSettingsPage = () => {
 };
 
 const loadProfilePage = () => {
+    console.log('Loading profile page..');
     makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {method: "GET"})
         .then((response) => {
             if (response.ok) {
@@ -72,6 +118,9 @@ const loadProfilePage = () => {
             if (data && data.profile_html) {
                 document.getElementById('content-area').innerHTML = data.profile_html;
                 addLogoutListener();
+                console.log('Profile page loaded');
+                renderStatisticsGraph();
+                console.log('Statistics graph rendered');
             }
         })
         .catch((error) => console.error("Error loading user info:", error));
@@ -131,3 +180,10 @@ const addLogoutListener = () => {
         logoutButton.addEventListener('click', handleLogout);
     }
 };
+
+// document.addEventListener("DOMContentLoaded", () => {
+//     loadProfilePage();
+//     console.log('Profile page loaded');
+//     renderStatisticsGraph();
+// });
+
