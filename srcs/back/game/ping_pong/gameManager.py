@@ -50,10 +50,11 @@ class GameManager:
 
     @staticmethod
     def updatePaddlePos(game, player_num, position):
-        for player in game["players"].values():
-            if player["num"] == player_num:
+        for role, player in game["players"].items():
+            logger.info(f"updatePaddlePos: player_num \033[1;31m{player_num}\033[0m\n\t\tplayer[id] \033[1;32m{player['username']}\033[0m")
+            if role == player_num:
                 player["y"] = position
-                #logger.info(f"Position: {position} updated in: {player_id}")
+                logger.info(f"Position: \033[1;33m{position}\033[0m updated in: \033[1;34m{player_num}\033[0m")
                 return
 
     #@staticmethod
@@ -93,7 +94,7 @@ class GameManager:
         game = GameManager.games[room_id]
 
         if data["type"] == "paddleMove":
-            logger.info(f"player_id pre-update: {player_num}")
+            #logger.info(f"player_id pre-update: {player_num}")
             GameManager.updatePaddlePos(game, player_num, data["position"])
 
         elif data["type"] == "ballPosition":
