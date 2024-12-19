@@ -7,6 +7,11 @@ SHELL := /bin/bash
 D_PS = $(shell docker ps -aq)
 D_IMG = $(shell docker images -q)
 #D_VOL = $(shell docker volume ls -q --filter dangling=true)
+# Macros
+DOCKER_COMPOSE = docker compose
+DOCKER_COMPOSE_DP = docker-compose
+
+DC_RUN_DB = run --rm db_form sh -c
 
 all: up
 
@@ -23,7 +28,7 @@ down:
 	docker-compose -f ./srcs/docker-compose.yml down
 
 #rm -> removes stopped service containers
-clean:
+clean: down
 	docker-compose -f ./srcs/docker-compose.yml rm 
 
 ps:
@@ -32,8 +37,7 @@ ps:
 logs:
 	docker logs $(CONTAINER)
 
-fclean:
-	docker-compose -f ./srcs/docker-compose.yml down
+fclean: down
 	@if [ -n "$(D_PS)" ]; then \
 		echo "deleting containers"; \
 		docker stop $(D_PS); \

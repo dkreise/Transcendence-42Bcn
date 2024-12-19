@@ -1,14 +1,56 @@
+function clearURL() {
+    const url = new URL(window.location.href);
+    url.search = '';
+    window.history.replaceState({}, document.title, url.toString());
+}
+
 var baseUrl = "http://localhost"; // change (parse) later
 
 console.log('main.js is loaded');
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded event triggered");
+
+ 
     const loginButton = document.getElementById('login-button');
     const contentArea = document.getElementById('content-area');
     const accessToken = localStorage.getItem('access_token');
     console.log("Access token:", accessToken);
     // const signin = document.getElementById('signin');
     // const signin_link = document.getElementById('sign-in-link');
+    // Check if we have a code in the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
+    if (code && state){
+        const queryParams = new URLSearchParams({code , state}).toString();
+        console.log(code, state);
+        
+        const url = `http://localhost:8000/api/login-intra/callback?${queryParams}`;
+		console.log(`Sending GET request to: ${url}`);
+        fetch(url, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+		})
+		.then(response => response.json())
+		.then(data => {		
+			if (data.access_token && data.refresh_token){
+				localStorage.setItem('access_token', data.access_token);
+				localStorage.setItem('refresh_token', data.refresh_token);
+				localStorage.setItem('intra_token', data.intra_token);
+				clearURL();
+                loadUserInfo();
+			}else{
+                clearURL();
+                displayLoginError('Invalid credentials. Please try again.', 'login-form');
+			}
+		})
+		.catch(error => {
+			clearURL();
+            displayLoginError('Invalid credentials. Please try again.', 'login-form');
+		});
+    }
 
     function refreshAccessToken(){
         console.log("holaaaaaaaa");
@@ -65,7 +107,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    
+    // code = getParameterByName('code');
+    // console.log('code:', code)
+    // if (code)
+    // {
+    //     console.log('we got code');
+    // }
+
 
     const loadUserInfo = () => {
         //makeAuthenticatedRequest(baseUrl + ":8000/api/user-info/", {method: "GET"})
@@ -100,6 +148,15 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('we do not have access token..');
     }
 
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[[]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
     // Function to load the login form dynamically via API
     loginButton.addEventListener('click', () => {
         console.log('Login button clicked!');
@@ -115,19 +172,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const intra_button = document.getElementById('login_intra_button');
                     intra_button.addEventListener('click', () => {
                         console.log('login 42 clicked');
-                        fetch(baseUrl + ":8000api/login-intra/")
-                        .then(response => {
-                            if (response.success) {
-                                localStorage.setItem('42_token_1', response.token1);
-                                localStorage.setItem('42_token_2', response.token2);
-                            } else {
-                                displayLoginError('error getting or saving 42 tokens');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error 42 login:', error);
-                            alert('An error occurred during 42 login.');
-                        });
+                        window.location.href = "http://localhost:8000/api/login-intra";
+
                     })
 
                     // Add event listener for form submission

@@ -40,6 +40,7 @@ def login_intra(request):
         "https://api.intra.42.fr/oauth/authorize"
         f"?client_id={settings.UID}"
         f"&redirect_uri={settings.REDIRECT_URI}"
+        # f"&redirect_uri=http://localhost:8443/"
         f"&response_type=code"
         f"&scope=public"
         f"&state={state}"
@@ -61,7 +62,6 @@ class Callback42API(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request):
-        # return ("HOLA!")
         # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         code = request.GET.get('code')
         state = request.GET.get('state')
@@ -78,35 +78,22 @@ class Callback42API(APIView):
             intra_token = data.get("access_token")
             user = saveUser(str(intra_token))
             # print("333!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
-            # data_res_front = json.loads(res_front.content)
-            # print("444!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:", res_front.content)
             if user == AnonymousUser:
                 raise AuthenticationFailed("Authentication failed")
-            print("42 username !!!!!!!!!!!!!!!!!!:", user.username)  
-            # try:
-            #     user = User.objects.get(username=name42)
-            # except User.DoesNotExist:
-            #     raise Exception("No users found with the same username")
-            # except User.MultipleObjectsReturned:
-            #     raise Exception("Multiple users found with the same username")
+            print("42 username !!!!!!!!!!!!!!!!!!:", user.username)
             # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
-            # user.is_active = True
             django_login(request, user)
-            # Test user authentication immediately after login
             if request.user.is_authenticated:
                 print("User authenticated successfully:", request.user.username)
             else:
                 print("User authentication failed")
-            
+            # print("777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user.profile.photo)
             refresh_token = RefreshToken.for_user(user)
             loginResponse = {
                 'refresh_token': str(refresh_token),
                 'access_token': str(refresh_token.access_token), 
                 'intra_token': str(intra_token)
             }
-            # loginResponse.set_cookie('access_token', access_token)
-            # loginResponse.set_cookie('refresh_token', str(refresh_token))
-            # loginResponse.set_cookie('refresh_token', str(intra_token))
             return JsonResponse(loginResponse)
         except Exception as e:
             return JsonResponse({'Error': str(e)}, status=400)
@@ -122,7 +109,7 @@ def saveUser(token):
             raise AuthenticationFailed("Couldn't recognize the user")
         # print("7777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
         name42 = '@42' + user_data.get('login')
-        print("42 username !!!!!!!!!!!!!!!!!!:", name42)  
+        # print("42 username !!!!!!!!!!!!!!!!!!:", name42)  
         try:
             exist = User.objects.filter(username=name42).exists() # try catch
             # print("888!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", exist)  
@@ -130,41 +117,18 @@ def saveUser(token):
                 return User.objects.get(username=name42)
         except Exception as e:
             print("Database empty, creating a user...")
-        print("555!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         user = User(username=name42, email=user_data.get('email'), first_name=user_data.get('first_name'), last_name=user_data.get('last_name')) # add first_name, last_name, photo
-        print("444!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         user.save()
-        print("33!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         user_img = None # here the default
         if user_data['image']['link']:
             user_img = user_data['image']['link']
-        print("6666!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user_img)  
         user.profile.photo = user_img
-        print("777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user_img)  
+        # print("777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user.profile.photo)  
         user.profile.save()
-        print("888!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user_img)  
-        # Here update the Profile!!!!
-        # print("BEFORECOAL: ", user_img)
-        # print("6666!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user_img)  
-        # coal_data = getCoalition(defaultUser(user_data.get('login'), user_data.get('staff?'), user_img), user_data.get('login'), token)
-        # piscine / student / alumni
         return user
     except Exception as e:
         print("RETURNING Anonimous")
         return AnonymousUser()
-
-# def defaultUser(login, is_staff, user_img):
-#     default =  {
-#         # 'status': 200,
-#         'username': login,
-#         'is_staff': is_staff,
-#         'user_img': user_img,
-#         'coalition': None,
-#         'color': "#00BABC",
-#         'coalition_img': None,
-#         'title': ""     
-#     }
-#     return default
 
 def defaultParams(code, state):
     params = {
@@ -173,6 +137,7 @@ def defaultParams(code, state):
         'client_secret': os.environ['SECRET'],
         'code': code,
         'redirect_uri': os.environ['REDIRECT_URI'],
+        # 'redirect_uri': 'http://localhost:8443/',
         'state': state
     }
     return params

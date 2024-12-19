@@ -70,6 +70,7 @@ def login_form_api(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register_user(request):
     try:
         data = json.loads(request.body)
