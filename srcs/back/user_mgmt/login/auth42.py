@@ -39,8 +39,8 @@ def login_intra(request):
     go_to_api = (
         "https://api.intra.42.fr/oauth/authorize"
         f"?client_id={settings.UID}"
-        f"&redirect_uri={settings.REDIRECT_URI}"
-        # f"&redirect_uri=http://localhost:8443/"
+        # f"&redirect_uri={settings.REDIRECT_URI}"
+        f"&redirect_uri=http://localhost:8443/callback"
         f"&response_type=code"
         f"&scope=public"
         f"&state={state}"
@@ -136,8 +136,8 @@ def defaultParams(code, state):
         'client_id': os.environ['UID'],
         'client_secret': os.environ['SECRET'],
         'code': code,
-        'redirect_uri': os.environ['REDIRECT_URI'],
-        # 'redirect_uri': 'http://localhost:8443/',
+        # 'redirect_uri': os.environ['REDIRECT_URI'],
+        'redirect_uri': 'http://localhost:8443/callback',
         'state': state
     }
     return params

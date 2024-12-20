@@ -1,8 +1,36 @@
+
+// const routes = {
+//     '/': homePage,
+//     '/signup': signupPage,
+//     '/profile': profilePage,
+//     '/options': optionsPage,
+//     '/localgame': localGamePage,
+//     '/aigame': aiGamePage,
+//     '/tournament': tournamentPage
+// };
+
+// function router() {
+//     const path = window.location.pathname;
+//     const view = routes[path];
+//     if (view) {
+//         view(); // Call the function associated with the path
+//     } else {
+//         renderNotFound(); // Handle unknown routes
+//     }
+// }
+
+function navigateTo(path) {
+    history.pushState(null, null, path);
+    router();
+}
+
 function clearURL() {
     const url = new URL(window.location.href);
     url.search = '';
     window.history.replaceState({}, document.title, url.toString());
 }
+
+// window.addEventListener('popstate', router);
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -10,7 +38,74 @@ console.log('main.js is loaded');
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded event triggered");
 
- 
+    // Event delegation for data-route attributes
+    document.body.addEventListener('click', (event) => {
+        const target = event.target;
+
+        // Check if the clicked element has the 'data-route' attribute
+        if (target && target.hasAttribute('data-route')) {
+            const route = target.getAttribute('data-route');
+            handleRoute(route, target);
+        }
+    });
+
+    // Function to handle route changes based on data-route
+    const handleRoute = (route, element) => {
+        switch (route) {
+            case 'login-intra':
+                // Trigger login-intra OAuth flow
+                console.log('login 42 clicked');
+                window.location.href = "http://localhost:8000/api/login-intra";  // Backend redirect
+                break;
+
+            // Add other cases for different routes if needed
+            default:
+                console.log(`Route ${route} not handled`);
+        }
+    };
+
+    
+
+    const handleOAuthCallback = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        if (code && state){
+            const queryParams = new URLSearchParams({code , state}).toString();
+            console.log(code, state);
+            
+            const url = `http://localhost:8000/api/login-intra/callback?${queryParams}`;
+            console.log(`Sending GET request to: ${url}`);
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => response.json())
+            .then(data => {		
+                if (data.access_token && data.refresh_token){
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('refresh_token', data.refresh_token);
+                    localStorage.setItem('intra_token', data.intra_token);
+                    clearURL();
+                    loadUserInfo();
+                }else{
+                    clearURL();
+                    displayLoginError('Invalid credentials. Please try again.', 'login-form');
+                }
+            })
+            .catch(error => {
+                clearURL();
+                displayLoginError('Invalid credentials. Please try again.', 'login-form');
+            });
+        }
+    };
+    
+    if (window.location.pathname === '/callback') {
+        handleOAuthCallback();
+    }
+
     const loginButton = document.getElementById('login-button');
     const contentArea = document.getElementById('content-area');
     const accessToken = localStorage.getItem('access_token');
@@ -18,39 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // const signin = document.getElementById('signin');
     // const signin_link = document.getElementById('sign-in-link');
     // Check if we have a code in the URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const state = urlParams.get('state');
-    if (code && state){
-        const queryParams = new URLSearchParams({code , state}).toString();
-        console.log(code, state);
-        
-        const url = `http://localhost:8000/api/login-intra/callback?${queryParams}`;
-		console.log(`Sending GET request to: ${url}`);
-        fetch(url, {
-			method: 'GET',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-		})
-		.then(response => response.json())
-		.then(data => {		
-			if (data.access_token && data.refresh_token){
-				localStorage.setItem('access_token', data.access_token);
-				localStorage.setItem('refresh_token', data.refresh_token);
-				localStorage.setItem('intra_token', data.intra_token);
-				clearURL();
-                loadUserInfo();
-			}else{
-                clearURL();
-                displayLoginError('Invalid credentials. Please try again.', 'login-form');
-			}
-		})
-		.catch(error => {
-			clearURL();
-            displayLoginError('Invalid credentials. Please try again.', 'login-form');
-		});
-    }
+    
 
     function refreshAccessToken(){
         console.log("holaaaaaaaa");
@@ -291,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
-
+        localStorage.removeItem('intra_token');
         // there can be fetch to back if need to inform backend that user is logging out (optional)
 
         contentArea.innerHTML = ''; // to clear user content

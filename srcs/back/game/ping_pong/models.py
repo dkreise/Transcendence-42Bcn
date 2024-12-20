@@ -6,8 +6,10 @@ from django.conf import settings
 class Game(models.Model):
     date = models.DateTimeField(auto_now_add=True)
     player1 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='games_as_player1', null=True) #winner
+    alias1 = models.CharField(max_length=100, blank=True, null=True)
     score_player1 = models.IntegerField(default=0)
     player2 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='games_as_player2', null=True)
+    alias2 = models.CharField(max_length=100, blank=True, null=True)
     score_player2 = models.IntegerField(default=0)
-    winner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='games_as_winner', null=True) #winner
+    # winner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='games_as_winner', null=True) #winner
     tournament_id = models.IntegerField(default=-1)

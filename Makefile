@@ -8,16 +8,29 @@ D_PS = $(shell docker ps -aq)
 D_IMG = $(shell docker images -q)
 #D_VOL = $(shell docker volume ls -q --filter dangling=true)
 # Macros
-DOCKER_COMPOSE = docker compose
-DOCKER_COMPOSE_DP = docker-compose
+# DOCKER_COMPOSE = docker compose
+DOCKER_COMPOSE = docker-compose -f ./srcs/docker-compose.yml
 
-DC_RUN_DB = run --rm db_form sh -c
+DC_RUN_GAME= run --rm game sh -c
+DC_RUN_USER= run --rm user_mgmt sh -c
 
-all: up
+all: build
+
+build:
+	@$(DOCKER_COMPOSE) build 
+# @$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py wait_for_db"
+# # @$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py wait_for_db"
 
 #up -> pulls base image, builds image, starts services
 up:
-	docker-compose -f ./srcs/docker-compose.yml up -d --build --remove-orphans
+	docker-compose -f ./srcs/docker-compose.yml up --detach --remove-orphans
+
+mi:
+	@echo "Running Migrations..."
+	@$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py makemigrations"
+	@$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py makemigrations"
+	@$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py migrate"
+	@$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py migrate"
 
 #stop -> stops services
 stop:
