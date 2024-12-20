@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-^)=g1^6d1@)ddwk@+k*jnjh$63+j%m3!zng%yex8x*f7qi_&w6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', 'transcendence'] #rarete tambien
 
 
 # Application definition
@@ -64,10 +64,13 @@ CORS_ALLOWED_ORIGINS = [
 ROOT_URLCONF = 'user_mgmt.urls'
 CORS_ALLOW_CREDENTIALS = True  # This allows all origins, useful for dev.
 
+
+BASE_DIR = Path(__file__).resolve().parent #rarete
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

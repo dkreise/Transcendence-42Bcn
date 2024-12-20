@@ -1,263 +1,253 @@
-var baseUrl = "http://localhost"; // change (parse) later
+// Define constants
+const baseUrl = "http://localhost";
 
 console.log('main.js is loaded');
+
+const accessToken = localStorage.getItem('access_token');
+console.log("Access token:", accessToken);
+
+if (accessToken) {
+    console.log('Access token found');
+    loadUserInfo();
+} else {
+    console.log('No access token found');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded event triggered");
+
     const loginButton = document.getElementById('login-button');
     const contentArea = document.getElementById('content-area');
-    const accessToken = localStorage.getItem('access_token');
-    console.log("Access token:", accessToken);
-    // const signin = document.getElementById('signin');
-    // const signin_link = document.getElementById('sign-in-link');
 
-    function refreshAccessToken(){
-        console.log("holaaaaaaaa");
-        const refreshToken = localStorage.getItem("refresh_token");
-        if (!refreshToken) {
-            console.error("No refresh token found. User needs to log in again.");
-            return Promise.reject("No refresh token available");
-        }
+    if (loginButton) {
+        loginButton.addEventListener('click', () => {
+            console.log('Login button clicked!');
+            loginButton.remove();
+            
+            fetch('html/login_form.html')
+                .then(response => response.text())
+                .then(data => {
+                    console.log('Form HTML loaded!');
+                    contentArea.innerHTML = data;
+                })
+                .catch(error => console.error('Error loading login form:', error));
+        });
+    } else {
+        console.error('Login button not found in the DOM!');
+    }
 
-        return fetch(baseUrl + ":8000/api/token/refresh/", {
+    contentArea.addEventListener('click', handleSignupLinkClick);
+});
+
+
+async function refreshAccessToken() {
+    const refreshToken = localStorage.getItem("refresh_token");
+    if (!refreshToken) {
+        console.error("No refresh token found. User needs to log in again.");
+        return Promise.reject("No refresh token available");
+    }
+
+    try {
+        const response = await fetch(`${baseUrl}:8000/login/api/token/refresh/`, {
             method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({refresh: refreshToken}),
-        })
-        .then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                console.error("Refresh token invalid or expired.");
-                handleLogout();
-                return Promise.reject("Refresh token invalid or expired.");
-            }
-        })
-        .then((data) => {
-            if (data.access) {
-                localStorage.setItem("access_token", data.access);
-                return data.access;
-            }
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refresh: refreshToken }),
         });
-    };
 
-    const makeAuthenticatedRequest = (url, options = {}) => {
-        const accessToken = localStorage.getItem("access_token");
-        if (!accessToken) {
-            console.error("No access token available.");
-            return Promise.reject("No access token.");
+        if (!response.ok) {
+            console.error("Refresh token invalid or expired.");
+            handleLogout();
+            throw new Error("Refresh token invalid or expired.");
         }
 
-        options.headers = {
-            ...options.headers,
-            Authorization: `Bearer ${accessToken}`, // adding authorization header with the access token
-        };
+        const data = await response.json();
+        if (data.access) {
+            localStorage.setItem("access_token", data.access);
+            return data.access;
+        }
+    } catch (error) {
+        console.error("Error refreshing access token:", error);
+    }
+}
 
-        return fetch(url, options).then((response) => {
-            if (response.status === 401) {
-                console.log("Access token expired, attempting refresh..");
-                return refreshAccessToken().then((newAccessToken) => {
-                    options.headers["Authorization"] = `Bearer ${newAccessToken}`;
-                    return fetch(url, options); //retry the original request
-                });
-            } else {
-                return response; // means that response is valid
-            }
-        });
+
+async function makeAuthenticatedRequest(url, options = {}) {
+    let token = localStorage.getItem("access_token");
+    if (!token) {
+        console.error("No access token available.");
+        return Promise.reject("No access token.");
+    }
+
+    options.headers = {
+        ...options.headers,
+        Authorization: `Bearer ${token}`,
     };
 
-    const loadUserInfo = () => {
-        //makeAuthenticatedRequest(baseUrl + ":8000/api/user-info/", {method: "GET"})
-        makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {method: "GET"})
-        .then((response) => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                console.error("Failed to load user info");
-            }
-        })
-        .then((data) => {
-            // if (data && data.user_html) {
-            //     loginButton.remove();
-            //     contentArea.innerHTML = data.user_html;
-            //     addLogoutListener();
-            // }
+    try {
+        let response = await fetch(url, options);
+
+        if (response.status === 401) {
+            console.log("Access token expired, attempting refresh...");
+            const newToken = await refreshAccessToken();
+            options.headers.Authorization = `Bearer ${newToken}`;
+            response = await fetch(url, options);
+        }
+
+        return response;
+    } catch (error) {
+        console.error("Error making authenticated request:", error);
+        throw error;
+    }
+}
+
+
+async function loadUserInfo() {
+    try {
+        const response = await makeAuthenticatedRequest(`${baseUrl}:8000/profile/api/profile-page/`, { method: "GET" });
+        if (response.ok) {
+            const data = await response.json();
             if (data && data.profile_html) {
-                loginButton.remove();
-                contentArea.innerHTML = data.profile_html;
+                updateContentArea(data.profile_html);
                 addLogoutListener();
             }
-        })
-        .catch((error) => console.error("Error loading user info:", error));
-    };
-
-    if (accessToken) {
-        console.log('we have access token');
-        loadUserInfo();
+        } else {
+            console.error("Failed to load user info");
+        }
+    } catch (error) {
+        console.error("Error loading user info:", error);
     }
-    else {
-        console.log('we do not have access token..');
-    }
+}
 
-    // Function to load the login form dynamically via API
-    loginButton.addEventListener('click', () => {
-        console.log('Login button clicked!');
-        loginButton.remove();
-        fetch('html/login_form.html')  // Call the API endpoint to get the form as JSON
+
+function loadLoginForm() {
+    loginButton.remove();
+    console.log('Login button clicked!');
+    fetch('html/login_form.html')
         .then(response => response.text())
-        .then(data => {
-            if (data) {
-                    console.log('Form html returned!');
-                    contentArea.innerHTML = data;  // Insert the form into the content area
+        .then(html => {
+            updateContentArea(html);
+            setupLoginForm();
+        })
+        .catch(error => console.error('Error loading login form:', error));
+}
 
-                    //intra button
-                    const intra_button = document.getElementById('login_intra_button');
-                    intra_button.addEventListener('click', () => {
-                        console.log('login 42 clicked');
-                        fetch(baseUrl + ":8000api/login-intra/")
-                        .then(response => {
-                            if (response.success) {
-                                localStorage.setItem('42_token_1', response.token1);
-                                localStorage.setItem('42_token_2', response.token2);
-                            } else {
-                                displayLoginError('error getting or saving 42 tokens');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error 42 login:', error);
-                            alert('An error occurred during 42 login.');
-                        });
-                    })
 
-                    // Add event listener for form submission
-                    const loginForm = document.getElementById('login-form');
-                    if (loginForm) {
-                        loginForm.addEventListener('submit', (event) => {
-                            event.preventDefault();  // Prevent the default form submission
-                            console.log('Submit button clicked!');
-                            // Send form data via AJAX (????)
-                            const formData = new FormData(loginForm);
-                            fetch(loginForm.action, {
-                                method: 'POST',
-                                body: JSON.stringify(Object.fromEntries(formData)),
-                                headers: { 'Content-Type': 'application/json' }
-
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-
-                                    //alert('Login successful!');
-                                    localStorage.setItem('access_token', data.tokens.access);
-                                    localStorage.setItem('refresh_token', data.tokens.refresh);
-                                    loadUserInfo();
-                                } else {
-                                    //alert('Login failed!');
-                                    displayLoginError('Invalid credentials. Please try again.', 'login-form');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error logging in:', error);
-                                alert('An error occurred during login.');
-                            });
-                        });
-                    }
-                } else {
-                    console.error('Error: No form HTML returned');
-                }
-            })
-            .catch(error => console.error('Error loading login form:', error));
-    });
-
-    contentArea.addEventListener('click', (event) => {
-        if (event.target && event.target.id === 'signup-link') {
+function setupLoginForm() {
+    const loginForm = document.getElementById('login-form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', async (event) => {
             event.preventDefault();
-            console.log('Sign In button clicked!');
-            //const signin = document.getElementById('signin');
-            const loginForm = document.getElementById('login-form');
-            // if (signin)
-            //     signin.remove();
-            if (loginForm)
-                loginForm.remove();
-            fetch('html/signup_form.html')
-                .then(response => response.text())
-                .then(html => {
-                    contentArea.innerHTML = html;
-                    const signupForm = document.getElementById('signup-form');
-                    if (signupForm) {
-                        signupForm.addEventListener('submit', (event) => {
-                            event.preventDefault();
-                            console.log('Submit of sign up clicked!');
-                            const formData = new FormData(signupForm);
-                            fetch(signupForm.action, {
-                                method: 'POST',
-                                body: JSON.stringify(Object.fromEntries(formData)),
-                                headers: {'Content-Type': 'application/json'}
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    localStorage.setItem('access_token', data.tokens.access);
-                                    localStorage.setItem('refresh_token', data.tokens.refresh);
-                                    loadUserInfo();
-                                } else {
-                                    displayLoginError(data.error + ' Please try again.', 'signup-form');
-                                }
-                            })
-                        })
-                    }
-                })
-                .catch(error => console.error('Error loading Sign In form:', error));
-        }
-    });  
+            console.log('Submit button clicked!');
 
-    const displayLoginError = (message, form) => {
-        const loginContainer = document.getElementById('login-container');
-        if (!loginContainer)
-            return;
+            const formData = new FormData(loginForm);
 
-        const existingError = document.getElementById('login-error');
-        if (existingError)
-            existingError.remove();
+            try {
+                const response = await fetch(loginForm.action, {
+                    method: 'POST',
+                    body: JSON.stringify(Object.fromEntries(formData)),
+                    headers: { 'Content-Type': 'application/json' },
+                });
 
-        const errorMessage = document.createElement('div');
-        errorMessage.id = 'login-error';
-        errorMessage.style.color = 'red';
-        errorMessage.style.marginBottom = '15px';
-        errorMessage.textContent = message;
+                const data = await response.json();
 
-        loginContainer.prepend(errorMessage); //adding at the top of the login container
-        
-        // const loginForm = document.getElementById('login-form');
-        const loginForm = document.getElementById(form);
-        if (loginForm) {
-            loginForm.reset();  // to clear the form
-        }
-    };
+                if (data.success) {
+                    localStorage.setItem('access_token', data.tokens.access);
+                    localStorage.setItem('refresh_token', data.tokens.refresh);
+                    loadUserInfo();
+                } else {
+                    displayError('Invalid credentials. Please try again.', 'login-form');
+                }
+            } catch (error) {
+                console.error('Error logging in:', error);
+            }
+        });
+    }
+}
 
-    // const displaySignUpError = (message) => {
-    //     const 
-    // }
 
-    const handleLogout = () => {
-        console.log('Logging out..');
+function handleSignupLinkClick(event) {
+    if (event.target && event.target.id === 'signup-link') {
+        loginButton.remove();
+        event.preventDefault();
+        console.log('Sign Up button clicked!');
 
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        fetch('html/signup_form.html')
+            .then(response => response.text())
+            .then(html => {
+                updateContentArea(html);
+                setupSignupForm();
+            })
+            .catch(error => console.error('Error loading Sign Up form:', error));
+    }
+}
 
-        // there can be fetch to back if need to inform backend that user is logging out (optional)
 
-        contentArea.innerHTML = ''; // to clear user content
-        const loginButton = document.createElement('button');
-        loginButton.id = 'login-button';
-        loginButton.textContent = 'LOGIN';
-        loginButton.onclick = () => location.reload(); //reload the page to show the button
-        contentArea.appendChild(loginButton);
-    };
+function setupSignupForm() {
+    const signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+        signupForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            console.log('Submit of sign up clicked!');
 
-    const addLogoutListener = () => {
-        const logoutButton = document.getElementById('logout-button');
-        if (logoutButton) {
-            logoutButton.addEventListener('click', handleLogout);
-        }
-    };
-});
+            const formData = new FormData(signupForm);
+
+            try {
+                const response = await fetch(signupForm.action, {
+                    method: 'POST',
+                    body: JSON.stringify(Object.fromEntries(formData)),
+                    headers: { 'Content-Type': 'application/json' },
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('access_token', data.tokens.access);
+                    localStorage.setItem('refresh_token', data.tokens.refresh);
+                    loadUserInfo();
+                } else {
+                    displayError(data.error + ' Please try again.', 'signup-form');
+                }
+            } catch (error) {
+                console.error('Error signing up:', error);
+            }
+        });
+    }
+}
+
+
+function displayError(message, formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+
+    const existingError = document.getElementById('form-error');
+    if (existingError) existingError.remove();
+
+    const errorMessage = document.createElement('div');
+    errorMessage.id = 'form-error';
+    errorMessage.style.color = 'red';
+    errorMessage.textContent = message;
+    form.prepend(errorMessage);
+    form.reset();
+}
+
+
+function handleLogout() {
+    console.log('Logging out...');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    updateContentArea('');
+    location.reload();
+}
+
+
+function addLogoutListener() {
+    const logoutButton = document.getElementById('logout-button');
+    if (logoutButton) {
+        logoutButton.addEventListener('click', handleLogout);
+    }
+}
+
+function updateContentArea(html) {
+    const contentArea = document.getElementById('content-area');
+    contentArea.innerHTML = html;
+}
