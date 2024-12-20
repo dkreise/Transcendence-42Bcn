@@ -5,7 +5,7 @@ from .models import Game
 class PlayerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username']
+        fields = ['id', 'username', 'password']
 
 class GameSerializer(serializers.ModelSerializer):
     player1 = PlayerSerializer(read_only=True)  # Use PlayerSerializer for player1

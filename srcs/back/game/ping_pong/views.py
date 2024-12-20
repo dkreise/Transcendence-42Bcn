@@ -6,8 +6,7 @@ from .models import Game
 from .serializers import PlayerSerializer, GameSerializer
 from django.contrib.auth.models import User
 import random
-
-# Create your views here.
+from django.db.models import Q
 
 @api_view(['GET'])
 def player_list(request):
@@ -79,3 +78,13 @@ def send_score(request):
 
 def winner_page(request):
     return render(request, 'winner.html')
+
+@api_view(['GET'])
+def get_player_game_statistics(request, player_id):
+    games_played = Game.objects.filter(Q(player1_id=player_id) | Q(player2_id=player_id)).count()
+    games_won = Game.objects.filter(winner_id=player_id).count()
+
+    return Response({
+        'games_played': games_played,
+        'games_won': games_won
+    })

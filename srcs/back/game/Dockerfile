@@ -15,9 +15,12 @@ COPY . .
 RUN chmod 777 entrypoint.sh
 
 # Expose the application port (adjust according to your app's port)
-EXPOSE 8100
+EXPOSE 8001
 
 ENTRYPOINT ["./entrypoint.sh"]
 
+# CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "game.asgi:application"]
+
 # Start the application
-CMD ["python", "manage.py", "runserver_plus", "0.0.0.0:8100"]
+#CMD ["python", "manage.py", "runserver", "0.0.0.0:8001"]
+CMD ["python", "manage.py", "runserver_plus", "0.0.0.0:8001"]

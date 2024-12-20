@@ -26,8 +26,7 @@ SECRET_KEY = 'django-insecure-d0#pa6x9j=zb@!d&8#pe@x97)2o3qv#op6b((0r53-f^4k4&i@
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'game']
 
 # Application definition
 
@@ -38,10 +37,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.postgres',
+    'channels',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'tournament',
     'ping_pong',
-    'rest_framework',
     'django_extensions',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -73,6 +78,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'game.wsgi.application'
+ASGI_APPLICATION = 'game.asgi.application'
 
 
 # Database
@@ -137,3 +143,19 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],  # Redis service in docker-compose.yml
+            "capacity": 1500, # default 100 messages
+            "expiry": 10, # default 60 seconds
+        },
+    },
+}
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}

@@ -1,15 +1,17 @@
-# Base image with Node and Nginx for serving static files
-FROM node:18 
+# Usa una imagen ligera de Nginx como base
+FROM nginx:alpine
 
-# Set the working directory
-WORKDIR /app
+# Crea el directorio donde se almacenarán los archivos estáticos
+RUN mkdir -p /usr/share/nginx/html/static
 
-# Copy package.json and install dependencies
-COPY ./conf/package.json ./
-RUN npm install && npm install -g nodemon && npm install express
+# Copia los archivos estáticos al directorio correcto
+COPY ./static /usr/share/nginx/html/static
 
-# Expose port 2424 for Nginx (default for Nginx)
-EXPOSE 2424
+# Copia la configuración personalizada de Nginx
+COPY ./conf/nginx.conf /etc/nginx/nginx.conf
 
-# Start the app with nodemon to watch for file changes
-CMD ["nodemon", "--watch", ".", "--ext", "js,html,css", "server.js"]
+# Expone el puerto 8443 para tráfico HTTPS
+EXPOSE 8443
+
+# Usa el comando por defecto de Nginx para mantenerlo en ejecución
+CMD ["nginx", "-g", "daemon off;"]
