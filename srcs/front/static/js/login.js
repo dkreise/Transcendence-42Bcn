@@ -58,11 +58,22 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
     });
 };
 
+export const loadLoginPage = (contentArea) => {
+    fetch('html/login_form.html')  // Call the API endpoint to get the form as JSON
+        .then(response => response.text())
+        .then(data => {
+            if (data) {
+                    console.log('Form html returned!');
+                    contentArea.innerHTML = data;
+            }
+        })
+        .catch(error => console.error('Error loading login form:', error));
+};
+
 const handleLogin = () => {
-    alert('lala');
     const loginForm = document.getElementById('login-form');
     const formData = new FormData(loginForm);
-    fetch("http://localhost:8000/api/login/", {
+    fetch(baseUrl + ":8000/api/login/", {
         method: 'POST',
         body: JSON.stringify(Object.fromEntries(formData)),
         headers: { 'Content-Type': 'application/json' }
@@ -121,7 +132,7 @@ const handleSignup = () => {
         .catch(error => console.error('Error loading Sign In form:', error));
 };
 
-const displayLoginError = (message, form) => {
+export const displayLoginError = (message, form) => {
     const loginContainer = document.getElementById('login-container');
     if (!loginContainer)
         return;
@@ -150,7 +161,6 @@ document.addEventListener("DOMContentLoaded", () => {
     contentArea.addEventListener('submit', (event) => {
         console.log(event.target.id === "login-submit", 'true?');
         console.log(event.target.id, 'targetid');
-        alert( event.target.id === "login-submit", '|');
         if (event.target && event.target.id === "login-form") {
             event.preventDefault();
             console.log('Submit button clicked!');
@@ -165,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log('Sign up button clicked!');
 
             handleSignup(); // navigateTo ??
-            
         }
     });  
 });

@@ -1,4 +1,5 @@
 import { makeAuthenticatedRequest } from "./login.js";
+import { addLogoutListener } from "./logout.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -128,17 +129,6 @@ export const loadProfilePage = () => {
         .catch((error) => console.error("Error loading user info:", error));
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    const contentArea = document.getElementById("content-area");
-    contentArea.addEventListener("click", (event) => {
-        if (event.target.id == "save-settings-button") {
-            event.preventDefault();
-            const form = document.querySelector("#profile-settings-container form");
-            updateProfileSettings(form);
-        }
-    });
-});
-
 const updateProfileSettings = (form) => {
     const formData = new FormData(form);
 
@@ -160,32 +150,19 @@ const updateProfileSettings = (form) => {
         });
 };
 
-const handleLogout = () => {
-    console.log('Logging out..');
-
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-
-    // there can be fetch to back if need to inform backend that user is logging out (optional)
-
-    document.getElementById('content-area').innerHTML = ''; // to clear user content
-    const loginButton = document.createElement('button');
-    loginButton.id = 'login-button';
-    loginButton.textContent = 'LOGIN';
-    loginButton.onclick = () => location.reload(); //reload the page to show the button
-    document.getElementById('content-area').appendChild(loginButton);
-};
-
-const addLogoutListener = () => {
-    const logoutButton = document.getElementById('logout-button');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
-};
-
-// document.addEventListener("DOMContentLoaded", () => {
-//     loadProfilePage();
-//     console.log('Profile page loaded');
-//     renderStatisticsGraph();
-// });
-
+document.addEventListener("DOMContentLoaded", () => {
+    const contentArea = document.getElementById("content-area");
+    contentArea.addEventListener("click", (event) => {
+        if (event.target && event.target.id == "profile-settings-button") {
+            loadProfileSettingsPage();
+        }
+        if (event.target && event.target.id == "save-settings-button") {
+            event.preventDefault();
+            const form = document.querySelector("#profile-settings-container form");
+            updateProfileSettings(form);
+        }
+        if (event.target && event.target.id == "back-to-profile-button") {
+            loadProfilePage();
+        }
+    });
+});
