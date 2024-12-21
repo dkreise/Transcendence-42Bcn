@@ -8,6 +8,7 @@ urlpatterns = [
     path("api/profile-page/", views.profile_page, name="profile_page"),
     path("api/profile-settings-page/", views.profile_settings_page, name="profile_settings_page"),
     path("api/update-profile-settings/", views.update_profile_settings, name="update_profile_settings"),
+    path("api/last-ten-games/", views.player_last_ten_games, name="last_ten_games"),
 ] 
 
 if settings.DEBUG:

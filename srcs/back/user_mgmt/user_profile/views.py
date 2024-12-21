@@ -48,6 +48,27 @@ def player_tournament_statistics(player_id):
         return {'tournaments_played': 0, 'tournament_score': 0}
 
 @api_view(['GET'])
+def player_last_ten_games(request):
+    if request.user.is_authenticated:
+        player_id = request.user.id
+        username = request.user.username
+        game_service_url = 'http://game:8001'
+        endpoint = f'{game_service_url}/api/player/{player_id}/last_ten_games'
+
+        try:
+            response = requests.get(endpoint)
+            response.raise_for_status()
+            game_data = response.json()
+            return JsonResponse({
+                'username': username,
+                'games': game_data,
+            }, safe=False)
+        except requests.RequestException as e:
+            return JsonResponse({'error': 'Failed to fetch game data.'}, status=500)
+    else:
+        return JsonResponse({'error': 'User not authenticated.'}, status=401)
+
+@api_view(['GET'])
 def profile_page(request):
     if request.user.is_authenticated:
         user_id = request.user.id
