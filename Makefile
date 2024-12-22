@@ -50,6 +50,7 @@ fclean:
 	@if [ -d ./srcs/postgres ]; then \
 		rm -rf ./srcs/postgres/*; \
 	fi
+	docker system prune --all --force --volumes
 
 
 re: fclean all
