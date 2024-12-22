@@ -21,47 +21,19 @@ export class Player {
     }
 
     move(socket) {
-        if (this.up && this.y > 0)
+		if (this.up && this.y > 0)
+			this.y -= this.speed;
+		if (this.down && this.y < (this.canvas.height - this.height))
+			this.y += this.speed;
+		//console.log("UP= " + this.up + "\tDOWN= " + this.down + "\nNew y:" + this.y);
+        if (socket.readyState === WebSocket.OPEN)
 		{
-            this.y -= this.speed;
-            this.sendPaddleMove(socket);
-        }
-        if (this.down && this.y < this.canvas.height - this.height)
-		{
-            this.y += this.speed;
-			console.log("Client's new y is: " + this.y);
-			console.log("Sending paddleMove from client to server");
-            socket.send(JSON.stringify({
-                type: "paddleMove",
-                position: this.y
-            }));
-            //this.sendPaddleMove(socket);
-        }
-    }
-    
-    sendPaddleMove(socket)
-	{
-        // Throttle updates to the server (e.g., every 50ms)
-        //if (!this.lastMoveTime || Date.now() - this.lastMoveTime > 50)
-		//{
-			console.log("Sending paddleMove from client to server");
-            socket.send(JSON.stringify({
-                type: "paddleMove",
-                position: this.y
-            }));
-          //  this.lastMoveTime = Date.now();
-        //}
-    }
-    
-
-    sendPaddleMove(socket) {
-        const data = {
-            type: "paddleMove",
-            position: this.y,
-        };
-        if (socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify(data));
-        }
+			socket.send(JSON.stringify(
+			{
+				type: "paddleMove",
+				position: this.y
+			}));
+		}
     }
 
     update(newY) {
@@ -72,11 +44,10 @@ export class Player {
         let x;
         ctx.fillStyle = "white";
         ctx.font = "40px Calibri";
-        if (playerID === 1) {
+        if (playerID === 1)
             x = this.canvas.width / 4;
-        } else {
+        else
             x = this.canvas.width * 3 / 4;
-        }
         ctx.fillText(`Score: ${this.score}`, x, 30);
     }
 

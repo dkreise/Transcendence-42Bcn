@@ -8,18 +8,19 @@ const opponent = new Player(canvas);
 
 const ball = new Ball(canvas);
 
-player.draw(ctx);
+player.draw(ctx, 0);
 opponent.draw(ctx);
 ball.draw(ctx);
+
+let	whoAmI = 0;
 
 let gameLoopId = null;
 
 function handleScoreUpdate(data, player, opponent, ctx, gameLoopId) {
-    if (data.player === "player1") {
+    if (data.player === "player1")
         player.score = data.score;
-    } else {
-        opponent.score = data.score;
-    }
+    else
+		opponent.score = data.score;
 
     console.log("current data score: " + data.score);
     if (data.score >= player.maxScore)
@@ -31,28 +32,28 @@ function handleScoreUpdate(data, player, opponent, ctx, gameLoopId) {
             (data.player === "player1" && player.x === 0) || 
             (data.player === "player2" && player.x > 0);
 
-        if (!isLocalPlayerWinner) {
+        if (!isLocalPlayerWinner)
             player.displayEndgameMessage(ctx, finalScore);
-        } else {
+        else
             opponent.displayEndgameMessage(ctx, finalScore);
-        }
     }
 }
 
-function handleRoleAssignment(data, player, opponent, ball, canvas) {
-    if (data.role === "player1") {
-        player.x = 0;
-        opponent.x = canvas.width - opponent.width;
+function handleRoleAssignment(data, player, opponent, ball, canvas)
+{
+    if (data.role === "player1")
+	{
+		whoAmI = 1;
         ball.isGameMaster = true;
-    } else if (data.role === "player2") {
-        player.x = canvas.width - player.width;
-        opponent.x = 0;
     }
+	else if (data.role === "player2")
+		whoAmI = 2;
 }
 
 let socket = null;
 
-function initializeWebSocket() {
+function initializeWebSocket()
+{
     const roomID = new URLSearchParams(window.location.search).get("room") || "default";
     socket = new WebSocket(`ws://localhost:8001/ws/ping_pong/${roomID}/`);
     
@@ -71,28 +72,25 @@ function initializeWebSocket() {
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
     
-        console.log("data.type is: " + data.type);
-        switch (data.type) {
+        //console.log("data.type is: " + data.type);
+        switch (data.type)
+		{
             case "role":
                 handleRoleAssignment(data, player, opponent, ball, canvas);
                 break;
-            case "paddleUpdate":
-                // Update the paddle position of the opponent
-                if (data.player !== player.id) {
-                    opponent.update(data.position);
-                }
-                break;
             case "update":
-                if (data.players) {
-                    if (data.players.player1)
+                if (data.players && data.players.player1 && data.players.player2)
+				{
+                    if (whoAmI == 1)
+					{
                         player.update(data.players.player1.y);
-                    if (data.players.player2)
+						opponent.update(data.players.player2.y);
+					}
+                    if (whoAmI == 2)
+					{
+                        opponent.update(data.players.player1.y);
                         player.update(data.players.player2.y);
-                    console.log("if data.players.player1 is: " + data.players.player1.y);
-                }
-                else
-                {
-                    console.log("else data.players.player1 is: " + data.players.player1.y);
+					}
                 }
                 break;
             case "scoreUpdate":
@@ -128,10 +126,11 @@ function gameLoop() {
 
     player.draw(ctx);
     opponent.draw(ctx);
-    ball.draw(ctx);
-    player.drawScore(ctx, 1);
-    opponent.drawScore(ctx, 2);
+    //ball.draw(ctx);
+    //player.drawScore(ctx, 1);
+    //opponent.drawScore(ctx, 2);
 
     player.move(socket);
 }
+
 gameLoop();
