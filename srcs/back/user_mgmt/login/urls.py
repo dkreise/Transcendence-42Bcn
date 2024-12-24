@@ -15,8 +15,5 @@ urlpatterns = [
 	path("api/token/refresh/", TokenRefreshView.as_view(), name='token_refresh'),
 	path("api/login-intra/", auth42.login_intra, name="login_intra"),
 	path("api/login-intra/callback", Callback42API.as_view(), name="callback"),
-	#path("login/", views.login_view, name="login_api"),
-  # path("login-form/", views.login_form_api, name="login_form_api"),
-	#path("user-info/", views.user_info_api, name="user_info_api"),
-	#path("sigin-form/", views.sigin_form_api, name="sigin_form_api"),
+	path("api/logout/", views.logout, name="logout"),
 ]

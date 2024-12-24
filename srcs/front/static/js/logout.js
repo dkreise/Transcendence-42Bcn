@@ -1,13 +1,33 @@
 import { loadLoginPage } from "./login.js";
 
+var baseUrl = "http://localhost"; // change (parse) later
+
 const handleLogout = () => {
     const contentArea = document.getElementById("content-area");
     console.log('Logging out..');
+    const refreshToken = localStorage.getItem('refresh_token');
+    // const accessToken = localStorage.getItem('access_token');
+
+    if (refreshToken) {
+        fetch(baseUrl + ":8000/api/logout/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({refresh_token: refreshToken}),
+        })
+        .then((response) => {
+            if (response.ok) {
+                console.log('Backend logout successful');
+            }
+        })
+        .catch((error) => {
+            console.log('Error logging out: ', error);
+        });
+    }
 
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-
-    // there can be fetch to back if need to inform backend that user is logging out (optional)
 
     contentArea.innerHTML = ''; // to clear user content
     loadLoginPage(contentArea);

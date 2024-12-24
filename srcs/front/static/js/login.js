@@ -28,6 +28,10 @@ function refreshAccessToken() {
     .then((data) => {
         if (data.access) {
             localStorage.setItem("access_token", data.access);
+            if (data.refresh) {
+                console.log("new refresh!!!!");
+                localStorage.setItem("refresh_token", data.refresh);
+            }
             return data.access;
         }
     });
@@ -159,8 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const contentArea = document.getElementById("content-area");
 
     contentArea.addEventListener('submit', (event) => {
-        console.log(event.target.id === "login-submit", 'true?');
-        console.log(event.target.id, 'targetid');
         if (event.target && event.target.id === "login-form") {
             event.preventDefault();
             console.log('Submit button clicked!');
