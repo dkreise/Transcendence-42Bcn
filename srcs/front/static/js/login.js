@@ -2,12 +2,11 @@ import { loadProfilePage } from "./profile.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
-console.log('login.js is loaded');
-
 function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refresh_token");
     if (!refreshToken) {
         console.error("No refresh token found. User needs to log in again.");
+        handleLogout();
         return Promise.reject("No refresh token available");
     }
 
@@ -34,6 +33,12 @@ function refreshAccessToken() {
             }
             return data.access;
         }
+    })
+    .catch((error) => {
+        console.error("Error during token refresh:", error);
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        throw error;
     });
 };
 
