@@ -192,6 +192,42 @@ const updateProfileSettings = (form) => {
         });
 };
 
+const loadFriendsSearchPage = () => {
+    makeAuthenticatedRequest(baseUrl + ":8000/api/search-users", {method: "GET"})
+        .then((response) => response.json())
+        .then(data => {
+            if (data.search_users_html) {
+                document.getElementById('content-area').innerHTML = data.search_users_html;
+            } else {
+                console.error('Error fetching friends search:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching friends search:', error);
+        });
+};
+
+const performSearch = () => {
+    const searchInput = document.getElementById("search-input");
+    const query = searchInput.value.trim();
+    console.log('query:', query);
+
+    if (query) {
+        makeAuthenticatedRequest(baseUrl + ":8000/api/search-users/?q=" + encodeURIComponent(query), {method: "GET"})
+            .then((response) => response.json())
+            .then(data => {
+                if (data.search_users_html) {
+                    document.getElementById('content-area').innerHTML = data.search_users_html;
+                } else {
+                    console.error('Error fetching friends search:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching friends search:', error);
+            });
+    }
+};
+
 document.addEventListener("DOMContentLoaded", () => {
     const contentArea = document.getElementById("content-area");
     contentArea.addEventListener("click", (event) => {
@@ -202,6 +238,13 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             const form = document.querySelector("#profile-settings-container form");
             updateProfileSettings(form);
+        }
+        if (event.target && event.target.id == "friends-button") {
+            loadFriendsSearchPage();
+        }
+        if (event.target && event.target.id == "submit-search") {
+            event.preventDefault();
+            performSearch();
         }
         if (event.target && event.target.id == "back-to-profile-button") {
             loadProfilePage();

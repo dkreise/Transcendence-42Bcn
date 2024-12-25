@@ -148,3 +148,23 @@
     text-transform: uppercase; /* Makes the text uppercase */
     margin-bottom: 0px;
 }
+
+#search-users-container {
+    display: block;
+    margin: 0 auto;
+    max-width: 1200px;
+    min-width: 500px;
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    margin-top: 100px;
+    /* border: 3px dashed red; */
+}
+
+#search-users-container h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    letter-spacing: 2px; /* Adds space between letters */
+    text-transform: uppercase; /* Makes the text uppercase */
+    margin-bottom: 0px;
+}

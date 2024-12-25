@@ -10,6 +10,7 @@ import json
 import requests
 from django.conf import settings
 import re
+from django.db.models import Q
 
 @api_view(['GET'])
 def user_info_api(request):
@@ -129,3 +130,18 @@ def update_profile_settings(request):
         return JsonResponse({'success': True, 'message': 'Settings updated successfully!'})
     else:
         return JsonResponse({'success': False, 'error': 'User not authenticated.'}, status=401)
+
+@api_view(['GET'])
+def search_users(request):
+    query = request.GET.get('q', '') 
+    print("query: *" + query + "*")
+    if query:
+        results = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query))
+    else:
+        results = []
+    context = {
+        'results': results,
+        'query': query
+    }
+    search_users_html = render_to_string('search_users.html', context)
+    return JsonResponse({'search_users_html': search_users_html}, content_type="application/json")
