@@ -5,12 +5,14 @@ from django.contrib.auth import authenticate, login
 from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
+from .models import Profile
 from rest_framework import status
 import json
 import requests
 from django.conf import settings
 import re
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
 
 @api_view(['GET'])
 def user_info_api(request):
@@ -136,12 +138,40 @@ def search_users(request):
     query = request.GET.get('q', '') 
     print("query: *" + query + "*")
     if query:
-        results = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query))
+        users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query))
+        results = [
+            {
+                'profile': user.profile,
+                'is_friend': request.user.profile.is_friend_already(user.profile) if hasattr(request.user, 'profile') else False
+            }
+            for user in users if hasattr(user, 'profile')
+        ]
     else:
         results = []
     context = {
+        'user': request.user,
         'results': results,
         'query': query
     }
     search_users_html = render_to_string('search_users.html', context)
     return JsonResponse({'search_users_html': search_users_html}, content_type="application/json")
+
+@api_view(['POST'])
+def add_friend(request, friend_id):
+    user_profile = request.user.profile
+    friend_profile = get_object_or_404(Profile, pk=friend_id)
+
+    if not user_profile.is_friend_already(friend_profile):
+        user_profile.add_friend(friend_profile)
+        return JsonResponse({'status': 'success', 'message': 'Friend added successfully!'})
+    return JsonResponse({'status': 'error', 'message': 'Is a friend already.'})
+
+@api_view(['POST'])
+def remove_friend(request, friend_id):
+    user_profile = request.user.profile
+    friend_profile = get_object_or_404(Profile, pk=friend_id)
+
+    if user_profile.is_friend_already(friend_profile):
+        user_profile.remove_friend(friend_profile)
+        return JsonResponse({'status': 'success', 'message': 'Friend removed successfully!'})
+    return JsonResponse({'status': 'error', 'message': 'Is not a friend.'})

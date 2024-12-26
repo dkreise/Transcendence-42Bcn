@@ -11,11 +11,16 @@
     </form>
     {% if results %}
         <ul>
-            {% for user in results %}
+            {% for res in results %}
                 <li>
-                    {{ user.username }}
-                    {% if user.email %}
-                        ({{ user.email }})
+                    {{ res.profile.user.username }}
+                    {% if res.profile.user.email %}
+                        ({{ res.profile.user.email }})
+                    {% endif %}
+                    {% if res.is_friend %}
+                        <button id="remove-friend-button" data-id="{{ res.profile.id }}" class="btn btn-danger">Remove Friend</button>
+                    {% else %}
+                        <button id="add-friend-button" data-id="{{ res.profile.id }}" class="btn btn-success">Add Friend</button>
                     {% endif %}
                 </li>
             {% endfor %}
