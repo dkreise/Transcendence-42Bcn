@@ -5,6 +5,8 @@
             <button id="back-to-profile-button">My profile</button>
         </div>
     </div>
+
+    <!-- Search User Section -->
     <form method="get" class="d-flex">
         <input id="search-input" class="form-control me-2" type="search" name="q" placeholder="Search by username or email" value="{{ query }}">
         <button class="btn btn-outline-success" type="submit" id="submit-search">Search</button>
@@ -27,5 +29,25 @@
         </ul>
     {% else %}
         <p>No users found.</p>
+    {% endif %}
+
+    <!-- Friends List Section -->
+    <h2>Your Friends</h2>
+    {% if friends %}
+        <ul>
+            {% for friend in friends %}
+                <li>
+                    
+                    <div class="user-info">
+                        {{ friend.user.username }}
+                        {% if friend.user.email %}
+                            ({{ friend.user.email }})
+                        {% endif %}
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have no friends yet..</p>
     {% endif %}
 </div>

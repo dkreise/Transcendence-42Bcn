@@ -137,8 +137,10 @@ def update_profile_settings(request):
 def search_users(request):
     query = request.GET.get('q', '') 
     print("query: *" + query + "*")
+    friends = request.user.profile.friends.all()
     if query:
         users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query))
+        
         results = [
             {
                 'profile': user.profile,
@@ -151,6 +153,7 @@ def search_users(request):
     context = {
         'user': request.user,
         'results': results,
+        'friends': friends,
         'query': query
     }
     search_users_html = render_to_string('search_users.html', context)
