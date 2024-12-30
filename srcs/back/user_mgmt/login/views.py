@@ -10,7 +10,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
@@ -70,6 +70,7 @@ def login_form_api(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register_user(request):
     try:
         data = json.loads(request.body)
@@ -117,17 +118,30 @@ def register_user(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 		
-# def login_view(request):
-# 	if request.method == "POST":
-# 		username = request.POST["username"]
-# 		password = request.POST["password"]
-# 		user = authenticate(request, username=username, password=password)
-# 		if user is not None: # means authentication was successful
-# 			login(request, user)
-# 			return HttpResponseRedirect(reverse("home"))
-# 		else:
-# 			return render(request, "login.html", {
-# 				"message": "Invalid credentials."
-# 			})
-# 	return render(request, "login.html")
-	
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def logout(request):
+    try:
+        print("trying logout")
+        refresh_token = request.data.get('refresh_token')
+        if not refresh_token:
+            return Response({"error": "No refresh token provided"}, status=400)
+
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        print("refresh blacklisted")
+        # access_token = request.data.get('access_token')
+        # if not access_token:
+        #     print("no access token")
+        #     return Response({"error": "No access token provided"}, status=400)
+        # print("we have access token")
+        # print(f"access token: *{access_token}*")
+        # token = AccessToken(access_token)
+        # print("we converted access token")
+        # token.blacklist()
+        # print("access blacklisted")
+
+        return Response({"message": "Logged out successfully"}, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+

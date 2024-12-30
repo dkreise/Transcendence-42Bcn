@@ -37,12 +37,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    "channels",
+    'django.contrib.postgres',
+    'channels',
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'tournament',
     'ping_pong',
     'django_extensions',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [

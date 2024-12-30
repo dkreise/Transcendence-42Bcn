@@ -9,4 +9,5 @@ urlpatterns = [
     path('scores/', views.score_list, name='score_list'),
     path('winner/', views.winner_page, name='winner'),
     path('api/player/<int:player_id>/game_statistics/', views.get_player_game_statistics, name='player_game_statistics'),
+    path('api/player/<int:player_id>/last_ten_games/', views.get_player_last_ten_games, name='last_ten_games'),
 ]
