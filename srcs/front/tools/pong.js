@@ -73,6 +73,7 @@ function initializeWebSocket()
         const data = JSON.parse(event.data);
     
         //console.log("data.type is: " + data.type);
+		console.log(data.ball);
         switch (data.type)
 		{
             case "role":
@@ -92,6 +93,8 @@ function initializeWebSocket()
                         player.update(data.players.player2.y);
 					}
                 }
+				if (data.ball)
+					ball.update(data.ball.x, data.ball.y);
                 break;
             case "scoreUpdate":
                 handleScoreUpdate(data, player, opponent, ctx, gameLoopId);
@@ -126,7 +129,7 @@ function gameLoop() {
 
     player.draw(ctx);
     opponent.draw(ctx);
-    //ball.draw(ctx);
+    ball.draw(ctx);
     //player.drawScore(ctx, 1);
     //opponent.drawScore(ctx, 2);
 

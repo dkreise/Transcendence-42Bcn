@@ -51,19 +51,11 @@ class GameManager:
     @staticmethod
     def updatePaddlePos(game, player_num, position):
         for role, player in game["players"].items():
-            logger.info(f"updatePaddlePos: player_num \033[1;31m{player_num}\033[0m\n\t\tplayer[id] \033[1;32m{player['username']}\033[0m")
+            #logger.info(f"updatePaddlePos: player_num \033[1;31m{player_num}\033[0m\n\t\tplayer[id] \033[1;32m{player['username']}\033[0m")
             if role == player_num:
                 player["y"] = position
-                logger.info(f"Position: \033[1;33m{position}\033[0m updated in: \033[1;34m{player_num}\033[0m")
+                #logger.info(f"Position: \033[1;33m{position}\033[0m updated in: \033[1;34m{player_num}\033[0m")
                 return
-
-    #@staticmethod
-    #def updatePaddlePos(game, player_id, position):
-    #    for role, player in game["players"].items():
-    #        if player["username"] == player_id:
-    #            player["y"] = position
-    #            break
-
 
     @staticmethod
     def updateBallPos(game):
@@ -71,9 +63,16 @@ class GameManager:
         ball["x"] += ball["xspeed"]
         ball["y"] += ball["yspeed"]
 
+        players = game["players"]
+
         # Wall collisions
         if ball["y"] <= 0 or ball["y"] >= 500: #Board's height
-            ball["yspeed"] *= -1
+            ball["xspeed"] *= -1
+            #ball["yspeed"] *= -1
+        # Paddles collisions
+        if ball["x"] <= 10 or ball["y"] >= 790:
+            ball["xspeed"] *= -1
+            #ball["yspeed"] *= -1
 
         # Scores
         if ball["x"] <= 0:  # Left wall
@@ -85,9 +84,8 @@ class GameManager:
 
     @staticmethod
     def resetBall(ball, direction):
-        ball["x"], ball["y"] = 300, 200
-        ball["xspeed"] = 5 * direction
-        ball["yspeed"] = 5
+        ball["x"], ball["y"] = 250, 200
+        ball["xspeed"] *= direction
 
     @staticmethod
     def handleMessage(room_id, player_num, data):
@@ -96,9 +94,6 @@ class GameManager:
         if data["type"] == "paddleMove":
             #logger.info(f"player_id pre-update: {player_num}")
             GameManager.updatePaddlePos(game, player_num, data["position"])
-
-        elif data["type"] == "ballPosition":
-            GameManager.updateBallPos(game)
 
         playerInfo = {
             role: {

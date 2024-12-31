@@ -4,6 +4,7 @@ import json
 from .gameManager import GameManager
 import logging
 import uuid
+import asyncio
 
 logger = logging.getLogger(__name__)
 
@@ -27,12 +28,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 
         # Send the player's role back to them
         await self.send(json.dumps({"type": "role", "role": self.role, "player_id": self.player_id}))
+        self.game_loop_task = asyncio.create_task(self.game_loop())
 
 
     async def disconnect(self, close_code):
         GameManager.leaveRoom(self.room_id, self.player_id)
         #GameManager.leaveRoom(self.room_id, self.scope['user'])
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
+        #self.game_loop_task.cancel()
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -48,3 +51,34 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def broadcast(self, event):
         await self.send(json.dumps(event["message"]))
+
+    async def game_loop(self):
+        while True:
+            # Update ball position
+            GameManager.updateBallPos(GameManager.games[self.room_id])
+            
+            await self.channel_layer.group_send(
+                self.room_id,
+                {
+                    "type": "game_update",
+                    "game_state": GameManager.games[self.room_id],
+                },
+            )
+            
+
+            # Adjust the loop speed (e.g., 60 FPS = ~16ms per frame)
+            await asyncio.sleep(1 / 60)
+    async def game_update(self, event):
+        # Send the game state to the WebSocket client
+        await self.send(json.dumps({
+            "type": "update",
+            "ball": event["game_state"]["ball"],
+            "scores": event["game_state"]["scores"],
+            "players": {
+                role: {
+                    "y": player["y"]
+                }
+                for role, player in event["game_state"]["players"].items()
+            },
+        }))
+    
