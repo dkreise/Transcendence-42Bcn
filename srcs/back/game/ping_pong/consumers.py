@@ -23,6 +23,11 @@ class PongConsumer(AsyncWebsocketConsumer):
            await self.channel_layer.group_add(self.room_id, self.channel_name)
            await self.accept()
 
+           await self.send(json.dumps({
+               "type": "status",
+               "wait": 1 if len(GameManager.games[self.room_id]["players"]) < 2 else 0
+           }))
+
            await self.send(json.dumps({"type": "role", "role": self.role, "player_id": self.player_id}))
            
            if not GameManager.isGameLoopRunning(self.room_id):
@@ -38,6 +43,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 
            # Send the player's role back to them
            await self.send(json.dumps({"type": "role", "role": self.role, "player_id": self.player_id}))
+           if len(GameManager.games[self.room_id]["players"]) == 2:
+               await self.channel_layer.group_send(
+                   self.room_id,
+                   {
+                       "type": "game_update",
+                       "message": {
+                           "type": "status",
+                           "wait": 0  # Notify that waiting is over
+                       },
+                   },
+               )
            # Start the game loop only if this is the first player
            if not GameManager.isGameLoopRunning(self.room_id):
                GameManager.setGameLoopRunning(self.room_id, True)
@@ -57,18 +73,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-    
-        # Handle paddle moves locally
-        if data["type"] == "paddleMove":
+        if data["type"] == "ballUpdate":
+            # Validate ball position and update server state
+            game = GameManager.games.get(self.room_id)
+            if game:
+                # Ensure ball position is within bounds
+                ball = data["ball"]
+                if 0 <= ball["x"] <= GameManager.BOARD_WIDTH and 0 <= ball["y"] <= GameManager.BOARD_HEIGHT:
+                    game["ball"].update(ball)
+        elif data["type"] == "paddleMove":
             GameManager.handleMessage(self.room_id, self.role, data)
-        else:
-            # Broadcast only non-paddle updates (e.g., scores, ball position)
-            response = GameManager.handleMessage(self.room_id, self.role, data)
-            if response:
-                await self.channel_layer.group_send(
-                    self.room_id,
-                    {"type": "broadcast", "message": response}
-                )
+    
     
     
 
@@ -82,6 +97,7 @@ class PongConsumer(AsyncWebsocketConsumer):
             "type": "update",
             "ball": event["game_state"]["ball"],
             "scores": event["game_state"]["scores"],
+            "wait": 0,
             "players": {
                 role: {
                     "y": player["y"]

@@ -3,13 +3,13 @@ import { Ball, Player } from "./classes.js"
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
-const player = new Player(canvas, 0);
-const opponent = new Player(canvas);
+//const player = new Player(canvas, 0);
+//const opponent = new Player(canvas);
 
 const ball = new Ball(canvas);
 
-player.draw(ctx, 0);
-opponent.draw(ctx);
+//player.draw(ctx, 0);
+//opponent.draw(ctx);
 ball.draw(ctx);
 
 let	whoAmI = 0;
@@ -17,6 +17,8 @@ let gameLoopId = null;
 let targetBallX = ball.x, targetBallY = ball.y;
 let socket = null;
 
+let player = null;
+let opponent = null;
 
 function interpolateBall() {
     ball.x += (targetBallX - ball.x) * 0.1;  // Smooth interpolation factor
@@ -46,15 +48,31 @@ function handleScoreUpdate(data, player, opponent, ctx, gameLoopId) {
     }
 }
 
-function handleRoleAssignment(data, player, opponent, ball, canvas)
+function handleRoleAssignment(data)
 {
+	console.log("data.role is: " + data.role);
     if (data.role === "player1")
 	{
 		whoAmI = 1;
-        ball.isGameMaster = true;
-    }
+		player = new Player(canvas, 0);
+	}
 	else if (data.role === "player2")
+	{
 		whoAmI = 2;
+		opponent = new Player(canvas);
+	}
+}
+
+function displayStatus(wait)
+{
+	const message = document.getElementById("gameStatus");
+
+	console.log("wait: " + wait);
+
+	if (wait)
+		message.style.display = "block";
+	else
+		message.style.display = "none";
 }
 
 function initializeWebSocket()
@@ -77,14 +95,20 @@ function initializeWebSocket()
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
     
-        //console.log("data.type is: " + data.type);
-		console.log(data.ball);
+        console.log("data.type is: " + data.type);
+		//console.log(data.ball);
         switch (data.type)
 		{
+			case "status":
+				displayStatus(data.wait);
+				break ;
             case "role":
-                handleRoleAssignment(data, player, opponent, ball, canvas);
+                handleRoleAssignment(data);
                 break;
             case "update":
+				if (data.wait)
+					return ;
+				//	displayStatus(data.wait);
                 if (data.players && data.players.player1 && data.players.player2)
 				{
                     if (whoAmI == 1)
@@ -128,6 +152,16 @@ window.addEventListener('keyup', (e) => {
     if (e.key === 's') player.down = false;
     if (e.key === 'ArrowUp') player.up = false;
     if (e.key === 'ArrowDown') player.down = false;
+});
+
+document.addEventListener('keydown', (e) => {
+	if (!player || !opponent)
+		e.preventDefault();
+});
+
+document.addEventListener('keyup', (e) => {
+	if (!player || !opponent)
+		e.preventDefault();
 });
 
 function gameLoop() {

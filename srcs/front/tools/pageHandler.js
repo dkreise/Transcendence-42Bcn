@@ -55,6 +55,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         contentArea.innerHTML = `
         <div id="gameBoard">
+			<div id="gameStatus" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); color: white; font-size: 24px; text-align: center; line-height: 100vh;">
+    			Waiting for Player 2 to join...
+			</div>
+
             <h1 class="text-center">Pong Game</h1>
             <canvas id="gameCanvas" width="800" height="500"></canvas>
         </div>
