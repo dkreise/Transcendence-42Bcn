@@ -148,7 +148,7 @@ CHANNEL_LAYERS = {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
             "hosts": [("redis", 6379)],  # Redis service in docker-compose.yml
-            "capacity": 1500, # default 100 messages
+            "capacity": 3000, # default 100 messages
             "expiry": 10, # default 60 seconds
         },
     },

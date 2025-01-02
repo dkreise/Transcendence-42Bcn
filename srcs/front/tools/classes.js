@@ -20,21 +20,23 @@ export class Player {
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 
-    move(socket) {
-		if (this.up && this.y > 0)
+	move(socket) {
+	    const now = Date.now();
+	    if (this.up && this.y > 0)
 			this.y -= this.speed;
-		if (this.down && this.y < (this.canvas.height - this.height))
+	    if (this.down && this.y < (this.canvas.height - this.height))
 			this.y += this.speed;
-		//console.log("UP= " + this.up + "\tDOWN= " + this.down + "\nNew y:" + this.y);
-        if (socket.readyState === WebSocket.OPEN)
+	
+	    // Send updates only every 100ms
+	    if (socket.readyState === WebSocket.OPEN && now - this.lastMoveTime > 100)
 		{
-			socket.send(JSON.stringify(
-			{
-				type: "paddleMove",
-				position: this.y
-			}));
-		}
-    }
+	        this.lastMoveTime = now;
+	        socket.send(JSON.stringify({
+	            type: "paddleMove",
+	            position: this.y
+	        }));
+	    }
+	}
 
     update(newY) {
         this.y = newY;
@@ -57,9 +59,8 @@ export class Player {
             type: "scoreUpdate",
             score: this.score,
         };
-        if (socket.readyState === WebSocket.OPEN) {
+        if (socket.readyState === WebSocket.OPEN)
             socket.send(JSON.stringify(data));
-        }
     }
 
     displayEndgameMessage(ctx, finalScore) {
@@ -85,8 +86,8 @@ export class Ball {
     constructor(canvas) {
         this.x = canvas.width / 2;
         this.y = canvas.height / 2;
-        this.xspeed = 0; // Set to 0 since backend handles movement
-        this.yspeed = 0;
+        this.xspeed = 5;
+        this.yspeed = 5;
         this.color = "white";
         this.canvas = canvas;
     }
@@ -107,5 +108,40 @@ export class Ball {
     resetPosition() {
         this.x = this.canvas.width / 2;
         this.y = this.canvas.height / 2;
+    }
+
+	move(player, opponent, loopID) {
+        this.x += this.xspeed;
+        this.y += this.yspeed;
+
+        //Top and bottom wall collision
+        if (this.y <= 0 || this.y + this.radius >= this.canvas.height)
+            this.yspeed = -this.yspeed;
+
+        //Left paddle (player) collision
+        if (this.x <= player.width && this.y + this.radius >= player.y
+            && this.y <= player.y + player.height)
+            this.xspeed = -this.xspeed;
+
+        //Right paddle (opponent) collision
+        else if (this.x + this.radius >= this.canvas.width - opponent.width
+            && this.y + this.radius >= opponent.y
+            && this.y <= opponent.y + opponent.height)
+            this.xspeed = -this.xspeed;
+
+        if (this.x <= 0)
+		{
+            opponent.scored(loopID);
+            this.resetPosition();
+        }
+        else if (this.x + this.radius >= this.canvas.width)
+		{
+            player.scored(loopID);
+            this.resetPosition();
+        }
+        const data = { type: "ballPosition", xpos: this.x, ypos: this.y };
+        if (socket.readyState === WebSocket.OPEN)
+            socket.send(JSON.stringify(data));
+        
     }
 }

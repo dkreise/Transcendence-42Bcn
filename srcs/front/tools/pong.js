@@ -13,8 +13,15 @@ opponent.draw(ctx);
 ball.draw(ctx);
 
 let	whoAmI = 0;
-
 let gameLoopId = null;
+let targetBallX = ball.x, targetBallY = ball.y;
+let socket = null;
+
+
+function interpolateBall() {
+    ball.x += (targetBallX - ball.x) * 0.1;  // Smooth interpolation factor
+    ball.y += (targetBallY - ball.y) * 0.1;
+}
 
 function handleScoreUpdate(data, player, opponent, ctx, gameLoopId) {
     if (data.player === "player1")
@@ -49,8 +56,6 @@ function handleRoleAssignment(data, player, opponent, ball, canvas)
 	else if (data.role === "player2")
 		whoAmI = 2;
 }
-
-let socket = null;
 
 function initializeWebSocket()
 {
@@ -94,7 +99,11 @@ function initializeWebSocket()
 					}
                 }
 				if (data.ball)
-					ball.update(data.ball.x, data.ball.y);
+				{
+					targetBallX = data.ball.x;
+        			targetBallY = data.ball.y;
+				}
+				//	ball.update(data.ball.x, data.ball.y);
                 break;
             case "scoreUpdate":
                 handleScoreUpdate(data, player, opponent, ctx, gameLoopId);
@@ -104,8 +113,6 @@ function initializeWebSocket()
         }
     };    
 }
-
-initializeWebSocket();
 
 // Keydown event
 window.addEventListener('keydown', (e) => {
@@ -129,11 +136,14 @@ function gameLoop() {
 
     player.draw(ctx);
     opponent.draw(ctx);
+	interpolateBall();
     ball.draw(ctx);
     //player.drawScore(ctx, 1);
     //opponent.drawScore(ctx, 2);
 
     player.move(socket);
+	ball.move(player, opponent, gameLoopId);
 }
 
+initializeWebSocket();
 gameLoop();
