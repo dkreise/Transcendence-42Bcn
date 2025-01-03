@@ -56,4 +56,7 @@ fclean:
 
 re: fclean all
 
+back:
+	docker restart ${OF}
+
 .SILENT: all build up stop down ps clean fclean
