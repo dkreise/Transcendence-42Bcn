@@ -110,7 +110,7 @@ export class Ball {
         this.y = this.canvas.height / 2;
     }
 
-	move(player, opponent, loopID) {
+	move(player, opponent, loopID, socket) {
         this.x += this.xspeed;
         this.y += this.yspeed;
 
