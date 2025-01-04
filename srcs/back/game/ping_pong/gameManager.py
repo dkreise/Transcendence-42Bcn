@@ -142,34 +142,6 @@ class GameManager:
 			task.cancel()
 			del GameManager.disconnect_tasks[room_id]
 
-	#@staticmethod
-	#def start_disconnect_countdown(room_id, remaining_player_id, role):
-	#	async def countdown():
-	#		logger.info(f"Starting disconnect countdown for room {room_id}.")
-	#		try:
-	#			logger.info(f"Countdown started for room {room_id}. Waiting 10 seconds.")
-	#			await asyncio.sleep(10)  # Wait for 10 seconds
-	#			logger.info(f"10 seconds passed for room {room_id}. Declaring winner.")
-	#			
-	#			winner_message = GameManager.declare_winner(room_id, remaining_player_id, role)
-	#			if winner_message:
-	#				await PongConsumer.channel_layer.group_send(
-	#					room_id,
-	#					{
-	#						"type": "game_endgame",
-	#						"message": winner_message
-	#					}
-	#				)
-	#		except asyncio.CancelledError:
-	#			logger.info(f"Disconnect countdown cancelled for room {room_id}.")
-	#	
-	#	# Check if a countdown is already running for the room
-	#	if room_id in GameManager.disconnect_tasks:
-	#		logger.warning(f"Countdown task already exists for room {room_id}. Overwriting previous task.")
-	#	
-	#	task = asyncio.create_task(countdown())
-	#	GameManager.disconnect_tasks[room_id] = task
-	
 	@staticmethod
 	async def start_disconnect_countdown(room_id, remaining_player_id, role):
 		async def countdown():
