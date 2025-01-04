@@ -26,11 +26,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 
             total_players = len(GameManager.games[self.room_id]["players"])
 
-            await self.send(json.dumps({
-                "type": "status",
-                "wait": 1 if total_players < 2 else 0
-            }))
-
             logger.info(f"Role: {self.role}, Players: {total_players}")
 
             # Send player's role to the client
@@ -38,6 +33,12 @@ class PongConsumer(AsyncWebsocketConsumer):
                 "type": "role",
                 "role": self.role,
                 "player_id": self.player_id
+            }))
+
+			# Send game status (waiting for player => wait: 1)
+            await self.send(json.dumps({
+                "type": "status",
+                "wait": 1 if total_players < 2 else 0
             }))
 
             # Notify all players if two players are ready
@@ -53,7 +54,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
                 # Start game loop if not running
                 if not GameManager.isGameLoopRunning(self.room_id):
-                    logger.info(f"isgamelooprunning")
+                    logger.info(f"player: {self.role} isgamelooprunning")
                     GameManager.setGameLoopRunning(self.room_id, True)
                     self.game_loop_task = asyncio.create_task(self.game_loop())
         except Exception as e:
@@ -63,12 +64,19 @@ class PongConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         if hasattr(self, 'game_loop_task'):
             self.game_loop_task.cancel()
+        await self.channel_layer.group_send(
+            self.room_id,
+            {
+                "type": "game_update",
+                "message": {"type": "status", "wait": 1}
+            }
+        )
 
         GameManager.leaveRoom(self.room_id, self.player_id)
+		# Remove player from the group so it can only send msg to the server
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
 
-        if GameManager.isRoomEmpty(self.room_id):
-            GameManager.setGameLoopRunning(self.room_id, False)
+        GameManager.setGameLoopRunning(self.room_id, False)
 
     async def receive(self, text_data):
         try:
@@ -93,13 +101,14 @@ class PongConsumer(AsyncWebsocketConsumer):
         await self.send(json.dumps({
             "type": "update",
             **event["message"],
-            "wait": 0
         }))
 
     async def game_loop(self):
         try:
             while True:
                 game_state = GameManager.games[self.room_id]
+                if len(game_state["players"]) < 2:
+                    break
                 GameManager.updateBallPos(game_state)
 
                 await self.channel_layer.group_send(
@@ -117,7 +126,7 @@ class PongConsumer(AsyncWebsocketConsumer):
                     }
                 )
 
-                await asyncio.sleep(1 / 15)  # 15 FPS
+                await asyncio.sleep(1 / 30)  # 15 FPS
         except asyncio.CancelledError:
             logger.info(f"Game loop cancelled for room: {self.room_id}")
         except Exception as e:

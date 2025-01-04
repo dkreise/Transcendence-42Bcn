@@ -4,19 +4,21 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const ball = new Ball(canvas);
-let whoAmI = 0;
-let gameLoopId = null;
+const ballCoef = 0.2;
+
 let targetBallX = ball.x, targetBallY = ball.y;
 let socket = null;
 
 let player = null;
 let opponent = null;
+let whoAmI = 0;
 
 let wait = 1;
+let gameLoopId = null;
 
 function interpolateBall() {
-    ball.x += (targetBallX - ball.x) * 0.1;
-    ball.y += (targetBallY - ball.y) * 0.1;
+    ball.x += (targetBallX - ball.x) * ballCoef;
+    ball.y += (targetBallY - ball.y) * ballCoef;
 }
 
 function handleScoreUpdate(data) {
@@ -72,15 +74,15 @@ function initializeWebSocket() {
 
     socket.onmessage = (event) => {
         const data = JSON.parse(event.data);
-        if (data.type !== "update")
-			console.log("data.type:", data.type);
 		if (data.hasOwnProperty("wait"))
 			wait = data.wait;
+        if (data.type !== "update")
+			console.log("post data.type: " + data.type + " wait: " + wait);
 
         switch (data.type) {
             case "status":
                 displayStatus(data.wait);
-                if (!data.wait && !gameLoopId)
+                if (!data.wait)
 					gameLoop();
                 break;
             case "role":
@@ -92,15 +94,9 @@ function initializeWebSocket() {
                 if (data.players)
 				{
                     if (whoAmI === 1)
-					{
-                        player.update(data.players.player1.y);
                         opponent.update(data.players.player2.y);
-                    }
 					else if (whoAmI === 2)
-					{
                         opponent.update(data.players.player1.y);
-                        player.update(data.players.player2.y);
-                    }
                 }
                 if (data.ball) {
                     targetBallX = data.ball.x;

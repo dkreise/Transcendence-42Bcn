@@ -50,7 +50,7 @@ class GameManager:
         for role, player in list(game["players"].items()):  # Safely iterate
             if player["id"] == player_id:
                 del game["players"][role]
-                logger.info(f"Player {player_id} left room {room_id}.")
+                logger.info(f"Player {role} left room {room_id}.")
                 break
 
         if not game["players"]:  # Delete room if empty
