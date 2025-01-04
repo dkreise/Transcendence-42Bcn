@@ -63,17 +63,13 @@ export class Player {
             socket.send(JSON.stringify(data));
     }
 
-    displayEndgameMessage(ctx, finalScore) {
-        const message =
-            this.score === this.maxScore
-                ? "Congratulations! You've won!"
-                : "Better luck next time!";
+    displayEndgameMessage(ctx, finalScore, msg) {
         ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         ctx.fillStyle = "white";
         ctx.font = "50px Calibri";
         ctx.textAlign = "center";
-        ctx.fillText(message, this.canvas.width / 2, this.canvas.height / 2 - 20);
+        ctx.fillText(msg, this.canvas.width / 2, this.canvas.height / 2 - 20);
         ctx.font = "40px Arial";
         ctx.fillText(finalScore, this.canvas.width / 2, this.canvas.height / 2 + 30);
     }

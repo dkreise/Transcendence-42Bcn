@@ -1,6 +1,7 @@
-from urllib.parse import parse_qs
 from channels.generic.websocket import AsyncWebsocketConsumer
+from urllib.parse import parse_qs
 from .gameManager import GameManager
+from datetime import datetime
 import json
 import logging
 import uuid
@@ -64,6 +65,7 @@ class PongConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         if hasattr(self, 'game_loop_task'):
             self.game_loop_task.cancel()
+        
         await self.channel_layer.group_send(
             self.room_id,
             {
@@ -71,12 +73,36 @@ class PongConsumer(AsyncWebsocketConsumer):
                 "message": {"type": "status", "wait": 1}
             }
         )
-
+        disc_role = self.role
+        logger.info(f"{disc_role} is leaving the room")
         GameManager.leaveRoom(self.room_id, self.player_id)
-		# Remove player from the group so it can only send msg to the server
+        
+        # Check if there's only one player left
+        game_state = GameManager.games.get(self.room_id)
+        if game_state and len(game_state["players"]) == 1:
+            remaining_player = next(iter(game_state["players"].values()))
+            
+            # Start the disconnect countdown instead of declaring the winner immediately
+            winner_msg = await GameManager.start_disconnect_countdown(self.room_id, remaining_player["id"], disc_role)
+            if winner_msg:
+                logger.info(f"\033[1;31mWinner message exists\033[0m")
+                await self.channel_layer.group_send(
+                    self.room_id,
+                    {
+                        "type": "game_endgame",
+                        "message": winner_msg
+                    }
+                )
+        logger.info(f"roomID: {self.room_id} + channel: {self.channel_name}");
         await self.channel_layer.group_discard(self.room_id, self.channel_name)
-
         GameManager.setGameLoopRunning(self.room_id, False)
+        
+    
+    # Handle reconnection logic (e.g., in a connect or specific message handler)
+    async def reconnect(self):
+        # Cancel the countdown if the player reconnects
+        GameManager.cancel_disconnect_task(self.room_id)
+        logger.info(f"Reconnection detected for room {self.room_id}. Countdown cancelled.")
 
     async def receive(self, text_data):
         try:
@@ -100,6 +126,12 @@ class PongConsumer(AsyncWebsocketConsumer):
     async def game_update(self, event):
         await self.send(json.dumps({
             "type": "update",
+            **event["message"],
+        }))
+
+    async def game_endgame(self, event):
+        await self.send(json.dumps({
+            "type": "endgame",
             **event["message"],
         }))
 
