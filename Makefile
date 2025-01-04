@@ -1,7 +1,7 @@
 
 #-f flag -> specify the name and path of one or more compose files
-
 #-d detach -> run containers in the background
+
 SHELL := /bin/bash
 
 D_PS = $(shell docker ps -aq)
@@ -33,6 +33,9 @@ ps:
 logs:
 	docker logs ${OF}
 
+back:
+	docker restart ${OF}
+
 fclean:
 	@if [ -n "$(D_PS)" ]; then \
 		echo "deleting containers"; \
@@ -55,8 +58,5 @@ fclean:
 
 
 re: fclean all
-
-back:
-	docker restart ${OF}
 
 .SILENT: all build up stop down ps clean fclean
