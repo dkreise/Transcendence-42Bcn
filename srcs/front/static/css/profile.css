@@ -149,4 +149,21 @@
     margin-bottom: 0px;
 }
 
+#match-history-container {
+    padding: 20px;
+}
 
+#match-history-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#match-history-container th, #match-history-container td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#match-history-container th {
+    background-color: #634b75;
+    text-align: left;
+}

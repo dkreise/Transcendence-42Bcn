@@ -129,6 +129,21 @@ const renderLastTenGamesChart = (gamesData, username) => {
     });
 };
 
+const loadMatchHistoryPage = () => {
+    makeAuthenticatedRequest(baseUrl + ":8000/api/match-history-page/", {method: "GET"})
+        .then(response => response.json())
+        .then(data => {
+            if (data.match_history_html) {
+                document.getElementById('content-area').innerHTML = data.match_history_html;
+            } else {
+                console.error('Error fetching settings:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching settings:', error);
+        });
+}
+
 const loadProfileSettingsPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {method: "GET"})
         .then(response => response.json())
@@ -202,6 +217,9 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             const form = document.querySelector("#profile-settings-container form");
             updateProfileSettings(form);
+        }
+        if (event.target && event.target.id == "match-history-button") {
+            loadMatchHistoryPage();
         }
         if (event.target && event.target.id == "back-to-profile-button") {
             loadProfilePage();
