@@ -16,7 +16,9 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 import json
 import re
-
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+import requests
 
 # def home(request):
 #     if not request.user.is_authenticated:
@@ -145,3 +147,12 @@ def logout(request):
     except Exception as e:
         return Response({"error": str(e)}, status=400)
 
+@api_view(['GET'])
+@login_required 
+def get_cookie_lang(request):
+    if request.user.is_authenticated:
+        lang = request.user.profile.language
+        print("getting language after login: ", lang)
+        return JsonResponse({'status': 'success', 'language': lang}, status=200)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Language not found for user.'}, status=404)

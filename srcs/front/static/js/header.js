@@ -36,18 +36,12 @@ document.addEventListener("DOMContentLoaded", () => {
         document.cookie = `language=${lang}; Secure; SameSite=None; path=/;`;
 
         // Send the request to update the language on the back-end
-        makeAuthenticatedRequest("http://localhost:8000/api/set-language", {
+        makeAuthenticatedRequest("http://localhost:8000/api/set-user-lang", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Language": lang,
-            },
-            body: JSON.stringify({ language: lang }), // Include the selected language
             credentials: "include"  // This ensures cookies are sent along with the request 
         })
             .then((response) => response.json())
             .then((data) => {
-                console.log('Language update response:', data);
                 if (data.status !== "success") {
                     console.error('Failed to update language on the server.');
                 }
@@ -56,6 +50,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 console.error('Error updating language:', error);
             });
     
+        //applyTranslations(lang); TODO
+        //window.location.reload() //NOT SPA!!!!!
+
         // Hide the menu
         languageMenu.classList.add("d-none");
     };

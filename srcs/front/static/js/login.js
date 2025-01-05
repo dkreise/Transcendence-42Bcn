@@ -94,6 +94,7 @@ const handleLogin = () => {
 
             localStorage.setItem('access_token', data.tokens.access);
             localStorage.setItem('refresh_token', data.tokens.refresh);
+            setUserLanguageInCookies();
             loadProfilePage(); //navigateTo later instead
         } else {
             displayLoginError('Invalid credentials. Please try again.', 'login-form');
@@ -103,6 +104,25 @@ const handleLogin = () => {
         console.error('Error logging in:', error);
         alert('An error occurred during login.');
     });
+};
+
+const setUserLanguageInCookies = () => {
+    console.log('Setting user language in cookies......... ')
+    makeAuthenticatedRequest(baseUrl + ":8000/api/get-cookie-lang/", {
+        method: "GET",
+    })
+        .then(response => response.json())    
+        .then((data) => {
+            if (data.language) {
+                document.cookie = `language=${data.language}; Secure; SameSite=None; path=/;`;
+            }
+            else {
+                console.error('Failed to get language preferences of user.');
+            }
+        })
+        .catch((error) => {
+            console.log("Error setting user language in cookies.", error);
+        });
 };
 
 const handleSignup = () => {

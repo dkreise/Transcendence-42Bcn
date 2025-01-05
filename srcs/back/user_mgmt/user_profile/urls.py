@@ -12,7 +12,7 @@ urlpatterns = [
     path("api/search-users/", views.search_users, name="search_users"),
     path("api/add-friend/<int:friend_id>/", views.add_friend, name="add_friend"),
     path("api/remove-friend/<int:friend_id>/", views.remove_friend, name="remove_friend"),
-    path("api/set-language", views.set_language, name="set_language"),
+    path("api/set-user-lang", views.set_user_lang, name="set_user_lang"),
 ] 
 
 if settings.DEBUG:
