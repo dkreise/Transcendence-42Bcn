@@ -39,7 +39,7 @@ export class Player {
 	drawScore(ctx, playerID) {
 		let x;
 		ctx.fillStyle = "white";
-		ctx.font = "40px Calibri";
+		ctx.font = "40px Arial";
 		if (playerID === 1)
 			x = this.canvas.width / 4;
 		else
@@ -56,7 +56,7 @@ export class Player {
 		ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
 		ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 		ctx.fillStyle = "white";
-		ctx.font = "50px Calibri";
+		ctx.font = "50px Arial";
 		ctx.textAlign = "center";
 		ctx.fillText(msg, this.canvas.width / 2, this.canvas.height / 2 - 20);
 		ctx.font = "40px Arial";

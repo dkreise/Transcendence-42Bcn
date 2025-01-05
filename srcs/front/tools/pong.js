@@ -92,7 +92,7 @@ function initializeWebSocket() {
 			case "update":
 				if (data.wait)
 					return;
-				console.log(data);
+				//console.log(data);
 				if (data.players)
 				{
 					if (player.role == "player1")
@@ -120,6 +120,8 @@ function gameLoop() {
 
 	player.draw(ctx);
 	opponent.draw(ctx);
+	player.drawScore(ctx, 1);
+	opponent.drawScore(ctx, 2);
 	interpolateBall();
 	ball.draw(ctx);
 

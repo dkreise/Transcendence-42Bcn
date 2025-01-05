@@ -37,12 +37,15 @@ class GameManager:
 			"game_loop_running": False
 		})
 
+		if player_id in game["players"]["id"]:
+			return role
+
 		if len(game["players"]) >= 2:  # Max 2 players
 			return None  # Room is full
 
 		role = "player1" if "player1" not in game["players"] else "player2"
 		logger.info(f"\033[1;33mjoinRoom game->players {game['players']}\033[0m")
-		game["players"][role] = {"id": player_id, "y": 0}  # Initial paddle position
+		game["players"][role] = {"id": player_id, "y": 250}  # Initial paddle position
 		return role
 
 	@staticmethod
@@ -51,11 +54,11 @@ class GameManager:
 		if not game:
 			return
 
-		for role, player in list(game["players"].items()):  # Safely iterate
-			if player["id"] == player_id:
-				del game["players"][role]
-				logger.info(f"Player {role} left room {room_id}.")
-				break
+		#for role, player in list(game["players"].items()):  # Safely iterate
+		#	if player["id"] == player_id:
+		#		del game["players"][role]
+		#		logger.info(f"Player {role} left room {room_id}.")
+		#		break
 
 		if not game["players"]:  # Delete room if empty
 			del GameManager.games[room_id]
@@ -149,7 +152,7 @@ class GameManager:
 	async def start_disconnect_countdown(room_id, remaining_player_id, role):
 		async def countdown():
 			try:
-				await asyncio.sleep(10)
+				await asyncio.sleep(COUNTDOWN)
 				msg = GameManager.declare_winner(room_id, remaining_player_id, role)
 				logger.info(f"\033[1;34m{msg}\033[0;m");
 				return msg
