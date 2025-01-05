@@ -41,6 +41,7 @@ class GameManager:
 			return None  # Room is full
 
 		role = "player1" if "player1" not in game["players"] else "player2"
+		logger.info(f"\033[1;33mjoinRoom game->players {game['players']}\033[0m")
 		game["players"][role] = {"id": player_id, "y": 0}  # Initial paddle position
 		return role
 
@@ -59,11 +60,6 @@ class GameManager:
 		if not game["players"]:  # Delete room if empty
 			del GameManager.games[room_id]
 			logger.info(f"Room {room_id} has been deleted.")
-
-	@staticmethod
-	def updatePaddlePos(game, player_num, position):
-		if player_num in game["players"]:
-			game["players"][player_num]["y"] = position
 
 	@staticmethod
 	def updateBallPos(game):
@@ -102,13 +98,20 @@ class GameManager:
 		ball.update({"x": 400, "y": 250, "xspeed": GameManager.BALL_SPEED * direction, "yspeed": GameManager.BALL_SPEED})
 
 	@staticmethod
-	def handleMessage(room_id, player_num, data):
+	def handleMessage(room_id, role, data):
 		game = GameManager.games.get(room_id)
 		if not game:
 			return {"type": "error", "message": "Game not found"}
-
-		if data["type"] == "paddleMove":
-			GameManager.updatePaddlePos(game, player_num, data["position"])
+		if data["type"] == "update":
+			if (role == data["role"]) and (role in game["players"]):
+				game["players"][role]["y"] = data["paddle"]
+			game["scores"][data["role"]] = data["score"]
+		elif data["type"] == "ballUpdate":
+			ball = game["ball"]
+			ball["x"] = data["x"]
+			ball["y"] = data["y"]
+			ball["xspeed"] = data["xspeed"]
+			ball["yspeed"] = data["yspeed"]
 
 		return {
 			"type": "update",
@@ -158,5 +161,4 @@ class GameManager:
 		task = asyncio.create_task(countdown())
 		GameManager.disconnect_tasks[room_id] = task
 		result = await task
-		logger.info(f"leaving start disc. countdown with return None")
 		return result

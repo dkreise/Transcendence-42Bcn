@@ -4,7 +4,7 @@ const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 const ball = new Ball(canvas);
-const ballCoef = 0.2;
+const ballCoef = 0.3;
 
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
@@ -16,7 +16,6 @@ let socket = null;
 
 let player = null;
 let opponent = null;
-let whoAmI = 0;
 
 let wait = 1;
 let gameLoopId = null;
@@ -26,31 +25,14 @@ function interpolateBall() {
 	ball.y += (targetBallY - ball.y) * ballCoef;
 }
 
-function handleScoreUpdate(data) {
-	const { player: scoringPlayer, score } = data;
-	if (scoringPlayer === "player1") player.score = score;
-	else opponent.score = score;
-
-	if (score >= player.maxScore) {
-		cancelAnimationFrame(gameLoopId);
-		const finalScore = `${player.score} - ${opponent.score}`;
-		const isWinner = (scoringPlayer === "player1" && player.x === 0) || 
-						 (scoringPlayer === "player2" && player.x > 0);
-
-		const displayMessage = isWinner ? player.displayEndgameMessage : opponent.displayEndgameMessage;
-		displayMessage(ctx, finalScore);
-	}
-}
-
 function handleRoleAssignment(role) {
+	console.log("Hi! I'm " + role);
 	if (role === "player1") {
-		whoAmI = 1;
-		player = new Player(canvas, 0);
-		opponent = new Player(canvas);
+		player = new Player(canvas, "player1", 0);
+		opponent = new Player(canvas, "player2");
 	} else if (role === "player2") {
-		whoAmI = 2;
-		opponent = new Player(canvas);
-		player = new Player(canvas, 0);
+		player = new Player(canvas, "player2");
+		opponent = new Player(canvas, "player1", 0);
 	}
 }
 
@@ -69,7 +51,7 @@ function handleEndgame(data) {
 
 	displayStatus(0);
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	if (loserRole == "player" + whoAmI)
+	if (loserRole == player.role)
 		player.displayEndgameMessage(ctx, finalScore, endgameMsg["loser"]);
 	else
 		player.displayEndgameMessage(ctx, finalScore, endgameMsg["winner"]);
@@ -92,11 +74,11 @@ function initializeWebSocket() {
 
 	socket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
-		console.log("data.type: " + data.type + " wait: " + wait);
+		//console.log("data.type: " + data.type);
 		if (data.hasOwnProperty("wait"))
 			wait = data.wait;
-		//if (data.type !== "update")
-			//console.log("data.type: " + data.type + " wait: " + wait);
+		//if (data.type == "role" && data.type != "update")
+		//	console.log("data.type: " + data.type + " role: " + data.role);
 
 		switch (data.type) {
 			case "status":
@@ -110,20 +92,18 @@ function initializeWebSocket() {
 			case "update":
 				if (data.wait)
 					return;
+				console.log(data);
 				if (data.players)
 				{
-					if (whoAmI === 1)
-						opponent.update(data.players.player2.y);
-					else if (whoAmI === 2)
-						opponent.update(data.players.player1.y);
+					if (player.role == "player1")
+						opponent.update(data.players.player2.y, data.scores.player2);
+					else if (player.role == "player2")
+						opponent.update(data.players.player1.y, data.scores.player1);
 				}
 				if (data.ball) {
 					targetBallX = data.ball.x;
 					targetBallY = data.ball.y;
 				}
-				break;
-			case "scoreUpdate":
-				handleScoreUpdate(data);
 				break;
 			case "endgame":
 				handleEndgame(data);
