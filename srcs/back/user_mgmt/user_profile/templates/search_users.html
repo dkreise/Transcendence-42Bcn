@@ -7,47 +7,88 @@
     </div>
 
     <!-- Search User Section -->
-    <form method="get" class="d-flex">
-        <input id="search-input" class="form-control me-2" type="search" name="q" placeholder="Search by username or email" value="{{ query }}">
-        <button class="btn btn-outline-success" type="submit" id="submit-search">Search</button>
-    </form>
-    {% if results %}
-        <ul>
-            {% for res in results %}
-                <li>
-                    {{ res.profile.user.username }}
-                    {% if res.profile.user.email %}
-                        ({{ res.profile.user.email }})
-                    {% endif %}
-                    {% if res.is_friend %}
-                        <button id="remove-friend-button" data-id="{{ res.profile.id }}" class="btn btn-danger">Remove Friend</button>
-                    {% else %}
-                        <button id="add-friend-button" data-id="{{ res.profile.id }}" class="btn btn-success">Add Friend</button>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No users found.</p>
-    {% endif %}
+     <div id="search-users-section">
+        <form method="get" class="d-flex">
+            <input id="search-input" class="form-control me-2" type="search" name="q" placeholder="Search by username or email" value="{{ query }}">
+            <button class="btn btn-outline-success" type="submit" id="submit-search">Search</button>
+        </form>
+        {% if results %}
+            <ul>
+                {% for res in results %}
+                    <li>
+                        {{ res.profile.user.username }}
+                        {% if res.profile.user.email %}
+                            ({{ res.profile.user.email }})
+                        {% endif %}
+
+                        <span class="d-flex align-items-center ms-3 me-3">
+                            <span 
+                                class="status-dot me-1 
+                                {% if res.profile.online_status %}
+                                    status-online
+                                {% else %}
+                                    status-offline
+                                {% endif %}">
+                            </span>
+                            <span>
+                                {% if res.profile.online_status %}
+                                    Online
+                                {% else %}
+                                    Offline
+                                {% endif %}
+                            </span>
+                        </span>
+
+                        {% if res.is_friend %}
+                            <button id="remove-friend-button" data-id="{{ res.profile.id }}" class="btn btn-danger">Remove Friend</button>
+                        {% else %}
+                            <button id="add-friend-button" data-id="{{ res.profile.id }}" class="btn btn-success">Add Friend</button>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No users found.</p>
+        {% endif %}
+    </div>
 
     <!-- Friends List Section -->
-    <h2>Your Friends</h2>
-    {% if friends %}
-        <ul>
-            {% for friend in friends %}
-                <li>
-                    
-                    <div class="user-info">
-                        {{ friend.user.username }}
-                        {% if friend.user.email %}
-                            ({{ friend.user.email }})
-                        {% endif %}
-                    </div>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>You have no friends yet..</p>
-    {% endif %}
+     <div id="friends-section">
+        <h2>My Friends</h2>
+        {% if friends %}
+            <ul>
+                {% for friend in friends %}
+                    <li>
+                        
+                        <div class="user-info">
+                            {{ friend.user.username }}
+                            {% if friend.user.email %}
+                                ({{ friend.user.email }})
+                            {% endif %}
+                        </div>
+                        <span class="d-flex align-items-center ms-3 me-3">
+                            <span 
+                                class="status-dot me-1 
+                                {% if friend.online_status %}
+                                    status-online
+                                {% else %}
+                                    status-offline
+                                {% endif %}">
+                            </span>
+                            <span>
+                                {% if friend.online_status %}
+                                    Online
+                                {% else %}
+                                    Offline
+                                {% endif %}
+                            </span>
+                        </span>
+
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>You have no friends yet..</p>
+        {% endif %}
+    </div>
 </div>

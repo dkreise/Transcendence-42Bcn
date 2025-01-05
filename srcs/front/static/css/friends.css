@@ -56,3 +56,32 @@
 #remove-friend-button:active {
     transform: scale(0.98); /* Slightly smaller on click */
 }
+
+#friends-section {
+    margin-top: 100px;
+}
+
+#friends-section h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 2px; /* Adds space between letters */
+    text-transform: uppercase; /* Makes the text uppercase */
+    margin-bottom: 0px;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+/* Online status: Green dot */
+.status-online {
+    background-color: green;
+}
+
+/* Offline status: Red dot */
+.status-offline {
+    background-color: red;
+}
