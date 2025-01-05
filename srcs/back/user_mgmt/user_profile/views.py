@@ -6,6 +6,7 @@ from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from .models import Profile
+from .translations import add_language_context 
 from rest_framework import status
 import json
 import requests
@@ -13,6 +14,7 @@ from django.conf import settings
 import re
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+from django.utils.translation import activate
 
 @api_view(['GET'])
 def user_info_api(request):
@@ -20,6 +22,7 @@ def user_info_api(request):
         context = {
             'user': request.user,  # Pass the user object to the template
         }
+        add_language_context(request, context)
         # Render the HTML with the user's data
         user_html = render_to_string('user.html', context)
         return JsonResponse({'user_html': user_html}, content_type="application/json")
@@ -84,6 +87,7 @@ def profile_page(request):
             'stats_tournaments': stats_tournaments,
             'MEDIA_URL': settings.MEDIA_URL,
         }
+        add_language_context(request, context)
         profile_html = render_to_string('profile.html', context)
         return JsonResponse({'profile_html': profile_html}, content_type="application/json")
     else:
@@ -95,6 +99,7 @@ def profile_settings_page(request):
         context = {
             'user': request.user,
         }
+        add_language_context(request, context)
         profile_settings_html = render_to_string('settings_profile.html', context)
         return JsonResponse({'profile_settings_html': profile_settings_html}, content_type="application/json")
     else:
@@ -156,6 +161,7 @@ def search_users(request):
         'friends': friends,
         'query': query
     }
+  #  add_language_context(request, context)
     search_users_html = render_to_string('search_users.html', context)
     return JsonResponse({'search_users_html': search_users_html}, content_type="application/json")
 
@@ -178,3 +184,16 @@ def remove_friend(request, friend_id):
         user_profile.remove_friend(friend_profile)
         return JsonResponse({'status': 'success', 'message': 'Friend removed successfully!'})
     return JsonResponse({'status': 'error', 'message': 'Is not a friend.'})
+
+@api_view(['POST'])
+def set_language(request):
+    lang = request.headers.get('Language', 'en')
+
+    # Activate the language
+    activate(lang)
+    print("Request data:", lang)
+    # Optionally store this in the session or cookies (already handled on the client)
+    response = JsonResponse({'message': 'Language updated successfully', 'status': 'success'})
+    response.set_cookie('language', lang, samesite='None', secure=False, path='/') # Mirror the cookie
+
+    return response

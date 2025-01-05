@@ -130,7 +130,10 @@ const renderLastTenGamesChart = (gamesData, username) => {
 };
 
 const loadProfileSettingsPage = () => {
-    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {method: "GET"})
+    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {
+        method: "GET",
+        credentials: 'include'
+    })
         .then(response => response.json())
         .then(data => {
             if (data.profile_settings_html) {
@@ -146,7 +149,10 @@ const loadProfileSettingsPage = () => {
 
 export const loadProfilePage = () => {
     console.log('Loading profile page..');
-    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {method: "GET"})
+    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {
+        method: "GET",
+        credentials: 'include'
+    })
         .then((response) => {
             if (response.ok) {
                 return response.json();
@@ -177,6 +183,7 @@ const updateProfileSettings = (form) => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/update-profile-settings/", {
         method: "POST",
         body: formData,
+        credentials: 'include',
     })
         .then((response) => response.json())
         .then((data) => {
