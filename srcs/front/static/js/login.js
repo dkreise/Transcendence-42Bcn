@@ -1,4 +1,5 @@
 import { loadProfilePage } from "./profile.js";
+import { updateLanguage } from "./langs.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -94,7 +95,7 @@ const handleLogin = () => {
 
             localStorage.setItem('access_token', data.tokens.access);
             localStorage.setItem('refresh_token', data.tokens.refresh);
-            setUserLanguageInCookies();
+            setUserPrefLanguage();
             loadProfilePage(); //navigateTo later instead
         } else {
             displayLoginError('Invalid credentials. Please try again.', 'login-form');
@@ -106,22 +107,39 @@ const handleLogin = () => {
     });
 };
 
-const setUserLanguageInCookies = () => {
-    console.log('Setting user language in cookies......... ')
-    makeAuthenticatedRequest(baseUrl + ":8000/api/get-cookie-lang/", {
+// const setUserPrefLanguage = () => {
+//     lang = getUserPrefLang();
+//     updateLanguage(lang);
+// };
+
+const setUserPrefLanguage = () => {
+    getUserPrefLang()
+        .then((lang) => {
+            updateLanguage(lang); // Use the resolved language value
+        })
+        .catch((error) => {
+            console.error("Error setting user language:", error);
+        });
+};
+
+const getUserPrefLang = () => {
+    return makeAuthenticatedRequest(baseUrl + ":8000/api/get-user-pref-lang/", {
         method: "GET",
     })
         .then(response => response.json())    
         .then((data) => {
             if (data.language) {
-                document.cookie = `language=${data.language}; Secure; SameSite=None; path=/;`;
+                //document.cookie = `language=${data.language}; Secure; SameSite=None; path=/;`; 
+                return data.language;
             }
             else {
                 console.error('Failed to get language preferences of user.');
+                return 'en';
             }
         })
         .catch((error) => {
             console.log("Error setting user language in cookies.", error);
+            return 'en';
         });
 };
 

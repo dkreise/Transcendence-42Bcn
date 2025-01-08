@@ -186,7 +186,7 @@ def remove_friend(request, friend_id):
     return JsonResponse({'status': 'error', 'message': 'Is not a friend.'})
 
 @api_view(['POST'])
-def set_user_lang(request):
+def save_user_pref_lang(request):
     lang = request.COOKIES.get('language', 'en')
     
     if request.user.is_authenticated:
@@ -195,4 +195,4 @@ def set_user_lang(request):
         user_profile.save()
        
     activate(lang)
-        return JsonResponse({'status': 'success', 'message': 'Language has been setted.'})
+    return JsonResponse({'status': 'success', 'message': 'Language has been setted.'})

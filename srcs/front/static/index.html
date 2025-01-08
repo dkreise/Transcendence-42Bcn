@@ -11,42 +11,13 @@
     </head>
     <body>
         <div id="particle-background"></div>
-        <header>
-            <!-- Language Menu -->
-            <div class="position-absolute top-0 end-0 mt-4 me-4">
-                <button 
-                    id="language-button" 
-                    class="bg-grey border-0 text-white p-2 rounded" 
-                    style="font-size: 16px; outline: none; background-color: black;">
-                    EN
-                </button>
-                <ul 
-                    id="language-menu"
-                    class="list-unstyled bg-grey text-white p-2 rounded d-none position-absolute" 
-                    style="top: 50px; right: 0; z-index: 1000;">
-                    <li class="border-bottom">
-                        <button class="btn btn-link text-white  text-decoration-none d-block p-2" onclick="setLanguage('ca')">CA</button>
-                    </li>
-                    <li class="border-bottom">
-                        <button class="btn btn-link text-white  text-decoration-none d-block p-2" onclick="setLanguage('en')">EN</button>
-                    </li>
-                    <li>
-                        <button class="btn btn-link text-white text-decoration-none p-2" onclick="setLanguage('es')">ES</button>
-                    </li>
-                    <li>
-                        <button class="btn btn-link text-white text-decoration-none p-2" onclick="setLanguage('lv')">LV</button>
-                    </li>
-                    <li>
-                        <button class="btn btn-link text-white text-decoration-none p-2" onclick="setLanguage('ru')">RU</button>
-                    </li>
-                </ul>
-            </div>
+        <header id="header-container">
+            <!-- Header menu will be injected here -->
         </header>
         <div id="app">
             <!-- main app content here, like the navigation, game, etc. -->
             <div id="content-area"></div> <!-- Dynamic content area where the login form will be rendered -->
         </div>
-
         <script src="js/particle_background.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script type="module" src="js/logout.js"></script>
@@ -56,5 +27,6 @@
         <script type="module" src="js/friends.js"></script>
         <script type="module" src="js/42auth.js"></script>
         <script type="module" src="js/main.js"></script>
+        <script type="module" src="js/langs.js"></script>      
     </body>
 </html>

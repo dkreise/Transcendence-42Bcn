@@ -16,5 +16,5 @@ urlpatterns = [
 	path("api/login-intra/", auth42.login_intra, name="login_intra"),
 	path("api/login-intra/callback", Callback42API.as_view(), name="callback"),
 	path("api/logout/", views.logout, name="logout"),
-	path("api/get-cookie-lang/", views.get_cookie_lang, name="get_cookie_lang"),
+	path("api/get-user-pref-lang/", views.get_user_pref_lang, name="get_user_pref_lang"),
 ]

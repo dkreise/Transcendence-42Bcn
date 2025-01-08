@@ -149,10 +149,9 @@ def logout(request):
 
 @api_view(['GET'])
 @login_required 
-def get_cookie_lang(request):
+def get_user_pref_lang(request):
     if request.user.is_authenticated:
         lang = request.user.profile.language
-        print("getting language after login: ", lang)
         return JsonResponse({'status': 'success', 'language': lang}, status=200)
     else:
         return JsonResponse({'status': 'error', 'message': 'Language not found for user.'}, status=404)

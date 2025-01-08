@@ -1,59 +1,26 @@
-import { makeAuthenticatedRequest } from "./login.js";
-import { addLogoutListener } from "./logout.js";
-
-var baseUrl = "http://localhost"; // change (parse) later
+import { updateLanguage } from "./langs.js";
 
 document.addEventListener("DOMContentLoaded", () => {
-    const languageButton = document.getElementById("language-button");
-    const languageMenu = document.getElementById("language-menu");
+    const headerContainer = document.getElementById("header-container");
+    console.log("header.js is loaded");
 
-    // Get current language from cookies or default to 'eng'
-    const getCookie = (name) => {
-        const cookies = document.cookie.split('; ');
-        for (const cookie of cookies) {
-            const [key, value] = cookie.split('=');
-            console.log('key ', key );
-            if (key === name) return value;
-        }
-        console.log('any cookie found');
-        return 'en'; // Default language
-    };
-
-    const currentLang = getCookie('language');
-
-    languageButton.textContent = currentLang.toUpperCase();
-
-    // Toggle the visibility of the language menu
-    languageButton.addEventListener("click", () => {
-        languageMenu.classList.toggle("d-none");
-    });
-
-    // Set the language on the button and hide the menu
-    window.setLanguage = (lang) => {
-        languageButton.textContent = lang.toUpperCase();
     
-        // Set the cookie locally
-        document.cookie = `language=${lang}; Secure; SameSite=None; path=/;`;
-
-        // Send the request to update the language on the back-end
-        makeAuthenticatedRequest("http://localhost:8000/api/set-user-lang", {
-            method: "POST",
-            credentials: "include"  // This ensures cookies are sent along with the request 
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.status !== "success") {
-                    console.error('Failed to update language on the server.');
+    if (headerContainer) {
+        fetch("../html/header.html")
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Failed to load header: ${response.statusText}`);
                 }
+                return response.text();
+            })
+            .then((html) => {
+                headerContainer.innerHTML = html;
+
+                // Dispatch an event to signal that the header has been loaded
+                document.dispatchEvent(new Event("headerLoaded"));
             })
             .catch((error) => {
-                console.error('Error updating language:', error);
+                console.error("Error loading header:", error);
             });
-    
-        //applyTranslations(lang); TODO
-        //window.location.reload() //NOT SPA!!!!!
-
-        // Hide the menu
-        languageMenu.classList.add("d-none");
-    };
+    }
 });
