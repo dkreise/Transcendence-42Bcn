@@ -1,30 +1,7 @@
+import { makeAuthenticatedRequest } from "./login.js";
+import { addLogoutListener } from "./logout.js";
+
 var baseUrl = "http://localhost"; // change (parse) later
-
-// some functions are repeated for now from main.js..
-const makeAuthenticatedRequest = (url, options = {}) => {
-    const accessToken = localStorage.getItem("access_token");
-    if (!accessToken) {
-        console.error("No access token available.");
-        return Promise.reject("No access token.");
-    }
-
-    options.headers = {
-        ...options.headers,
-        Authorization: `Bearer ${accessToken}`, // adding authorization header with the access token
-    };
-
-    return fetch(url, options).then((response) => {
-        if (response.status === 401) {
-            console.log("Access token expired, attempting refresh..");
-            return refreshAccessToken().then((newAccessToken) => {
-                options.headers["Authorization"] = `Bearer ${newAccessToken}`;
-                return fetch(url, options); //retry the original request
-            });
-        } else {
-            return response; // means that response is valid
-        }
-    });
-};
 
 const displayUpdatingError = (message, form) => {
     const profileSettingsContainer = document.getElementById('profile-settings-form');
@@ -44,50 +21,128 @@ const displayUpdatingError = (message, form) => {
     profileSettingsContainer.prepend(errorMessage); //adding at the top of the login container
 };
 
-const renderStatisticsGraph = () => {
-    const statsData = {
-        gamesPlayed: parseInt(document.getElementById('games-played').innerText) || 0,
-        gamesWon: parseInt(document.getElementById('games-won').innerText) || 0,
-        tournamentsPlayed: parseInt(document.getElementById('tournaments-played').innerText) || 0,
-        tournamentsScore: parseInt(document.getElementById('tournaments-won').innerText) || 0,
-    };
+const fetchLastTenGames = () => {
+    return makeAuthenticatedRequest(`${baseUrl}:8000/api/last-ten-games/`, {
+        method: "GET",
+    }).then((response) => response.json());
+}
 
+const renderLastTenGamesChart = (gamesData, username) => {
     let graphContainer = document.createElement('canvas');
-    graphContainer.id = 'stats-chart';
+    graphContainer.id = 'last-ten-games-chart';
     graphContainer.style.maxWidth = '600px';
     document.querySelector('.statistics-block').appendChild(graphContainer);
 
-    const ctx = document.getElementById('stats-chart').getContext('2d');
+    const ctx = document.getElementById('last-ten-games-chart').getContext('2d');
+    const labels = gamesData.map((game) => `Game ${game.id}`);
+    const scores = gamesData.map((game) => {
+        if (game.player1 === username) {
+            return game.score_player1;
+        } else if (game.player2 === username) {
+            return game.score_player2;
+        }
+        return 0;
+    });
+
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Games Played', 'Games Won', 'Tournaments Played', 'Avg Tournament Score'],
+            labels: labels,
             datasets: [{
-                label: 'Statistics',
-                data: [
-                    statsData.gamesPlayed,
-                    statsData.gamesWon,
-                    statsData.tournamentsPlayed,
-                    statsData.tournamentsScore,
-                ],
-                backgroundColor: [
-                    'rgba(255, 99, 132, 0.2)',
-                    'rgba(54, 162, 235, 0.2)',
-                    'rgba(255, 206, 86, 0.2)',
-                    'rgba(75, 192, 192, 0.2)',
-                ],
+                label: 'Scores',
+                data: scores,
+                backgroundColor: "rgba(187, 134, 252, 1)",
+                borderColor: "rgba(152, 40, 237, 0.5)",
                 borderWidth: 1,
-            }]
+            },]
         },
         options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    // enabled: true,
+                    // mode: 'index',
+                    callbacks: {
+                        label: (tooltipItem) => {
+                            const game = gamesData[tooltipItem.dataIndex];
+                            const opponent = 
+                                game.player1 === username
+                                    ? game.player2
+                                    : game.player1;
+                            const score = 
+                                game.player1 === username
+                                    ? game.score_player1
+                                    : game.score_player2;
+                            const winner = game.winner;
+                            const tournament =
+                                game.tournament_id >= 0
+                                    ? 'yes'
+                                    : 'no';
+                            return `Score: ${score}; Opponent: ${opponent}; Winner: ${winner}; Tournament: ${tournament}`;
+                        },
+                    },
+                    displayColors: false,
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    titleColor: 'white',
+                    bodyColor: 'white',
+                    bodyFont: { size: 14 },
+                    titleFont: { size: 16 },
+                },
+                title: {
+                    display: true,
+                    text: 'Last 10 Games Performance',
+                    font: {
+                        size: 18,
+                    },
+                },
+                legend: {
+                    display: false,
+                },
+            },
+            onClick: (event, elements) => {
+                if (elements.length > 0) {
+                    const gameIndex = elements[0].index;
+                    const game = gamesData[gameIndex];
+                    const opponent = 
+                        game.player1 === username
+                            ? game.player2
+                            : game.player1;
+                    const score = 
+                        game.player1 === username
+                            ? game.score_player1
+                            : game.score_player2;
+                    alert(
+                        `Game Details:\nOpponent: ${opponent}\nYour Score: ${score}\nWinner: ${game.winner}`
+                    );
+                }
+            },
             scales: {
                 y: {
-                    beginAtZero: true
-                }
-            }
-        }
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Score',
+                    }
+                },
+            },
+        },
     });
 };
+
+const loadMatchHistoryPage = () => {
+    makeAuthenticatedRequest(baseUrl + ":8000/api/match-history-page/", {method: "GET"})
+        .then(response => response.json())
+        .then(data => {
+            if (data.match_history_html) {
+                document.getElementById('content-area').innerHTML = data.match_history_html;
+            } else {
+                console.error('Error fetching settings:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching settings:', error);
+        });
+}
 
 const loadProfileSettingsPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {method: "GET"})
@@ -104,7 +159,7 @@ const loadProfileSettingsPage = () => {
         });
 };
 
-const loadProfilePage = () => {
+export const loadProfilePage = () => {
     console.log('Loading profile page..');
     makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {method: "GET"})
         .then((response) => {
@@ -119,23 +174,17 @@ const loadProfilePage = () => {
                 document.getElementById('content-area').innerHTML = data.profile_html;
                 addLogoutListener();
                 console.log('Profile page loaded');
-                renderStatisticsGraph();
+                fetchLastTenGames().then((gamesData) => {
+                    if (gamesData) {
+                        const { username, games } = gamesData;
+                        renderLastTenGamesChart(games, username);
+                    }
+                });
                 console.log('Statistics graph rendered');
             }
         })
         .catch((error) => console.error("Error loading user info:", error));
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-    const contentArea = document.getElementById("content-area");
-    contentArea.addEventListener("click", (event) => {
-        if (event.target.id == "save-settings-button") {
-            event.preventDefault();
-            const form = document.querySelector("#profile-settings-container form");
-            updateProfileSettings(form);
-        }
-    });
-});
+};
 
 const updateProfileSettings = (form) => {
     const formData = new FormData(form);
@@ -158,32 +207,22 @@ const updateProfileSettings = (form) => {
         });
 };
 
-const handleLogout = () => {
-    console.log('Logging out..');
-
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-
-    // there can be fetch to back if need to inform backend that user is logging out (optional)
-
-    document.getElementById('content-area').innerHTML = ''; // to clear user content
-    const loginButton = document.createElement('button');
-    loginButton.id = 'login-button';
-    loginButton.textContent = 'LOGIN';
-    loginButton.onclick = () => location.reload(); //reload the page to show the button
-    document.getElementById('content-area').appendChild(loginButton);
-};
-
-const addLogoutListener = () => {
-    const logoutButton = document.getElementById('logout-button');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
-};
-
-// document.addEventListener("DOMContentLoaded", () => {
-//     loadProfilePage();
-//     console.log('Profile page loaded');
-//     renderStatisticsGraph();
-// });
-
+document.addEventListener("DOMContentLoaded", () => {
+    const contentArea = document.getElementById("content-area");
+    contentArea.addEventListener("click", (event) => {
+        if (event.target && event.target.id == "profile-settings-button") {
+            loadProfileSettingsPage();
+        }
+        if (event.target && event.target.id == "save-settings-button") {
+            event.preventDefault();
+            const form = document.querySelector("#profile-settings-container form");
+            updateProfileSettings(form);
+        }
+        if (event.target && event.target.id == "match-history-button") {
+            loadMatchHistoryPage();
+        }
+        if (event.target && event.target.id == "back-to-profile-button") {
+            loadProfilePage();
+        }
+    });
+});

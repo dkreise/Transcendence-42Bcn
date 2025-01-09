@@ -61,7 +61,7 @@ class Callback42API(APIView):
 
     permission_classes = [AllowAny]
 
-    def get(self, request):
+    def post(self, request):
         # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         code = request.GET.get('code')
         state = request.GET.get('state')
