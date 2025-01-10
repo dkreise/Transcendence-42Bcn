@@ -1,10 +1,33 @@
 import { makeAuthenticatedRequest } from "./login.js";
 
-document.addEventListener("headerLoaded", () => {
+export function updateLanguage(lang) {
+
+    //Set language in cookies
+    document.cookie = `language=${lang}; Secure; SameSite=None; path=/;`;
+    
+    //Save lang in bbdd **ONLY IF UPDATED COMES FROM BUTTON 
+    makeAuthenticatedRequest("http://localhost:8000/api/save-user-pref-lang", {
+        method: "POST",
+        credentials: "include"  // This ensures cookies are sent along with the request 
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.status !== "success") {
+                console.error('Failed to update language on the server.');
+            }
+        })
+        .catch((error) => {
+            console.error('Error updating language:', error);
+        });
+
+    window.setLanguage(lang);
+}
+
+document.addEventListener("langButtonLoaded", () => {
     const languageButton = document.getElementById("language-button");
     const languageMenu = document.getElementById("language-menu");
 
-    // Get current language from cookies or default to 'eng'
+    // Get current language from cookies or default to 'en'
     const getCookie = (name) => {
         const cookies = document.cookie.split('; ');
         for (const cookie of cookies) {
@@ -12,7 +35,7 @@ document.addEventListener("headerLoaded", () => {
             console.log('key ', key );
             if (key === name) return value;
         }
-        return 'en'; // Default language
+        return 'en';
     };
 
     const currentLang = getCookie('language');
@@ -28,36 +51,16 @@ document.addEventListener("headerLoaded", () => {
         });
     }
 
+    languageMenu.addEventListener("click", event => {
+        const lang = event.target.getAttribute("data-lang");
+        if (lang) {
+            updateLanguage(lang);
+        }
+    });
+
     // Set the language on the button and hide the menu
     window.setLanguage = (lang) => {
         languageButton.textContent = lang.toUpperCase();
-    
-        // Set the cookie locally
-        document.cookie = `language=${lang}; Secure; SameSite=None; path=/;`;
-
-        // Send the request to update the language on the back-end
-        makeAuthenticatedRequest("http://localhost:8000/api/save-user-pref-lang", {
-            method: "POST",
-            credentials: "include"  // This ensures cookies are sent along with the request 
-        })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.status !== "success") {
-                    console.error('Failed to update language on the server.');
-                }
-            })
-            .catch((error) => {
-                console.error('Error updating language:', error);
-            });
-    
-        //applyTranslations(lang); TODO
-        //window.location.reload() //NOT SPA!!!!!
-
-        // Hide the menu
         languageMenu.classList.add("d-none");
     };
 });
-
-export function updateLanguage(lang) {
-    window.setLanguage(lang);
-}

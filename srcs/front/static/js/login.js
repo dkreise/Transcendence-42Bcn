@@ -107,40 +107,9 @@ const handleLogin = () => {
     });
 };
 
-// const setUserPrefLanguage = () => {
-//     lang = getUserPrefLang();
-//     updateLanguage(lang);
-// };
 
 const setUserPrefLanguage = () => {
-    getUserPrefLang()
-        .then((lang) => {
-            updateLanguage(lang); // Use the resolved language value
-        })
-        .catch((error) => {
-            console.error("Error setting user language:", error);
-        });
-};
-
-const getUserPrefLang = () => {
-    return makeAuthenticatedRequest(baseUrl + ":8000/api/get-user-pref-lang/", {
-        method: "GET",
-    })
-        .then(response => response.json())    
-        .then((data) => {
-            if (data.language) {
-                //document.cookie = `language=${data.language}; Secure; SameSite=None; path=/;`; 
-                return data.language;
-            }
-            else {
-                console.error('Failed to get language preferences of user.');
-                return 'en';
-            }
-        })
-        .catch((error) => {
-            console.log("Error setting user language in cookies.", error);
-            return 'en';
-        });
+    updateLanguage(""); //TODO: UPDATE
 };
 
 const handleSignup = () => {
