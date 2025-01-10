@@ -64,6 +64,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.close()
 
 	async def disconnect(self, close_code):
+		disc_role = self.role
 		logger.info("\033[1;32mDISCONNECT METHOD CALLED\033[0m")
 		logger.info(f"user with id: {self.player_id} is leaving")
 		if hasattr(self, 'game_loop_task'):
@@ -76,7 +77,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 				"message": {"type": "status", "wait": 1}
 			}
 		)
-		disc_role = self.role
 		logger.info(f"{disc_role} is leaving the room")
 		GameManager.leaveRoom(self.room_id, self.player_id)
 		
