@@ -1,9 +1,9 @@
 import { Ball, Player } from "./remoteClasses.js";
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+let canvas = null;
+let ctx = null;
 
-const ball = new Ball(canvas);
+let ball = null;
 const ballCoef = 0.3;
 
 const endgameMsg = {
@@ -11,7 +11,8 @@ const endgameMsg = {
 	"loser": "Better luck next time :')\n",
 }
 
-let targetBallX = ball.x, targetBallY = ball.y;
+let targetBallX = null;
+let targetBallY = null;
 let socket = null;
 
 let player = null;
@@ -19,6 +20,8 @@ let opponent = null;
 
 let wait = 1;
 let gameLoopId = null;
+
+console.log("Hi! This is remoteGame.js :D");
 
 function interpolateBall() {
 	ball.x += (targetBallX - ball.x) * ballCoef;
@@ -139,4 +142,14 @@ window.addEventListener('keyup', (e) => {
 	if (e.key === 's' || e.key === 'ArrowDown') player.down = false;
 });
 
-initializeWebSocket();
+//initializeWebSocket();
+
+export function startGame()
+{
+	canvas = document.getElementById('gameCanvas');
+	ctx = canvas.getContext('2d');
+	ball = new Ball(canvas);
+	targetBallX = ball.x;
+	targetBallY = ball.y;
+	initializeWebSocket();
+}

@@ -1,5 +1,6 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { addLogoutListener } from "./logout.js";
+import { startGame } from "./remoteGame.js"
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -195,6 +196,12 @@ export const loadGame = (contentArea) => {
             if (data) {
                     console.log('Game returned!');
                     contentArea.innerHTML = data;
+					const canvas = document.getElementById("gameCanvas");
+					if (canvas)
+						startGame();
+					else
+						console.log("Error: Canvas not found");
+						
             }
         })
         .catch(error => console.error('Error loading game:', error));
