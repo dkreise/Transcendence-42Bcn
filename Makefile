@@ -1,11 +1,12 @@
 
 #-f flag -> specify the name and path of one or more compose files
-
 #-d detach -> run containers in the background
+
 SHELL := /bin/bash
 
 D_PS = $(shell docker ps -aq)
 D_IMG = $(shell docker images -q)
+OF = game
 #D_VOL = $(shell docker volume ls -q --filter dangling=true)
 
 all: up
@@ -30,7 +31,10 @@ ps:
 	docker-compose -f ./srcs/docker-compose.yml ps
 
 logs:
-	docker logs $(CONTAINER)
+	docker logs ${OF}
+
+back:
+	docker restart ${OF}
 
 fclean:
 	docker-compose -f ./srcs/docker-compose.yml down
@@ -52,6 +56,7 @@ fclean:
 	@if [ -d ./srcs/postgres ]; then \
 		rm -rf ./srcs/postgres/*; \
 	fi
+	docker system prune --all --force --volumes
 
 
 re: fclean all

@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('ping_pong.urls')),
     path('', include('tournament.urls')),
+    path("ws/", include("ping_pong.routing")),
 ]
