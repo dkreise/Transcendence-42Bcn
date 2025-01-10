@@ -186,6 +186,22 @@ export const loadProfilePage = () => {
         .catch((error) => console.error("Error loading user info:", error));
 };
 
+//////////////////// TO DELETE ////////////////////////////////////////
+export const loadGame = (contentArea) => {
+    console.log('Loading game..');
+	fetch('html/game.html')  // Call the API endpoint to get the form as JSON
+        .then(response => response.text())
+        .then(data => {
+            if (data) {
+                    console.log('Game returned!');
+                    contentArea.innerHTML = data;
+            }
+        })
+        .catch(error => console.error('Error loading game:', error));
+};
+
+//////////////////////////////////////////////////////////////
+
 const updateProfileSettings = (form) => {
     const formData = new FormData(form);
 
@@ -223,6 +239,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (event.target && event.target.id == "back-to-profile-button") {
             loadProfilePage();
+        }
+        if (event.target && event.target.id == "game") {
+            loadGame(contentArea);
         }
     });
 });

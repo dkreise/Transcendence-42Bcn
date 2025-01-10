@@ -1,4 +1,4 @@
-import { Ball, Player } from "./classes.js";
+import { Ball, Player } from "./remoteClasses.js";
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
