@@ -34,7 +34,11 @@ const renderLastTenGamesChart = (gamesData, username) => {
     document.querySelector('.statistics-block').appendChild(graphContainer);
 
     const ctx = document.getElementById('last-ten-games-chart').getContext('2d');
-    const labels = gamesData.map((game) => `Game ${game.id}`);
+    const gameCnt = parseInt(document.getElementById('games-played').textContent, 10);
+    console.log(gameCnt);
+    const labels = gamesData.map((_, index) => {
+        return `Game ${gameCnt - (gamesData.length - 1 - index)}`;
+    });
     const scores = gamesData.map((game) => {
         if (game.player1 === username) {
             return game.score_player1;
@@ -144,6 +148,31 @@ const loadMatchHistoryPage = () => {
         });
 }
 
+const applyFilters = () => {
+    console.log('applying filters...');
+    const dateFilter = document.getElementById('filter-date').value;
+    const winnerFilter = document.getElementById('filter-winner').value.toLowerCase();
+    const tournamentFilter = document.getElementById('filter-tournament').value.toLowerCase();
+
+    let rows = document.querySelectorAll('#match-history-table-body tr');
+
+    rows.forEach(row => {
+        const date = row.children[0].textContent;
+        const winner = row.children[5].textContent.toLowerCase();
+        const tournament = row.children[6].textContent.toLowerCase();
+
+        let matchesDate = !dateFilter || date.startsWith(dateFilter);
+        let matchesWinner = !winnerFilter || winner.includes(winnerFilter);
+        let matchesTournament = !tournamentFilter || (tournamentFilter == tournament);
+
+        if (matchesDate && matchesWinner && matchesTournament) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
 const loadProfileSettingsPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {method: "GET"})
         .then(response => response.json())
@@ -220,6 +249,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (event.target && event.target.id == "match-history-button") {
             loadMatchHistoryPage();
+        }
+        if (event.target && event.target.id == "apply-filters") {
+            applyFilters();
         }
         if (event.target && event.target.id == "back-to-profile-button") {
             loadProfilePage();
