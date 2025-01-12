@@ -15,6 +15,7 @@ import re
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import activate
+from django.contrib.auth.decorators import login_required
 
 @api_view(['GET'])
 def user_info_api(request):
@@ -197,3 +198,12 @@ def save_user_pref_lang(request):
        
     activate(lang)
     return JsonResponse({'status': 'success', 'message': 'Language has been setted.'})
+
+@api_view(['GET'])
+@login_required 
+def get_user_pref_lang(request):
+    if request.user.is_authenticated:
+        lang = request.user.profile.language
+        return JsonResponse({'status': 'success', 'language': lang}, status=200)
+    else:
+        return JsonResponse({'status': 'error', 'message': 'Language not found for user.'}, status=404)
