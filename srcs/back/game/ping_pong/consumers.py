@@ -2,23 +2,56 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from urllib.parse import parse_qs
 from .gameManager import GameManager
 from datetime import datetime
+from django.conf import settings
 import json
 import logging
 import uuid
 import asyncio
+import jwt
 
 logger = logging.getLogger(__name__)
 
 class PongConsumer(AsyncWebsocketConsumer):
+
 	async def connect(self):
 		logger.info("\033[1;32mCONNECT METHOD CALLED\033[0m")
 		try:
+			self.role = None
+			# Get the room_id from the URL
 			self.room_id = self.scope['url_route']['kwargs']['room']
 			query_string = parse_qs(self.scope['query_string'].decode())
-			self.player_id = query_string.get('player_id', [str(uuid.uuid4())])[0]
+
+			# Extract the JWT token from the query string (pass the token as a query param 'token')
+			token = query_string.get('token', [None])[0]
+
+			if token:
+				try:
+					# Decode the JWT token (replace 'your_secret_key' with your actual secret key)
+					decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+					# Get user information from the decoded token
+					self.user = decoded_token.get('user', None)
+
+					if self.user:
+						logger.info(f"Authenticated user: {self.user}")
+					else:
+						logger.warning(f"Invalid token: {decoded_token}")
+						await self.close()
+						return
+				except jwt.ExpiredSignatureError:
+					logger.warning("JWT token has expired.")
+					await self.close()
+					return
+				except jwt.InvalidTokenError:
+					logger.warning("Invalid JWT token.")
+					await self.close()
+					return
+			else:
+				logger.warning("No token provided.")
+				await self.close()
+				return
 
 			# Player joins the room
-			self.role = GameManager.joinRoom(self.room_id, self.player_id)
+			self.role = GameManager.joinRoom(self.room_id, self.user)
 			if not self.role:
 				await self.close()
 				return
@@ -34,7 +67,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.send(json.dumps({
 				"type": "role",
 				"role": self.role,
-				"player_id": self.player_id
+				"user": self.user
 			}))
 
 			# Send game status (waiting for player => wait: 1)
@@ -64,12 +97,16 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.close()
 
 	async def disconnect(self, close_code):
+		logger.info("DISCONNECT METHOD CALLED")
+		if self.role is None:
+			logger.warning("Disconnect called before role assignment.")
+			return
+	
 		disc_role = self.role
-		logger.info("\033[1;32mDISCONNECT METHOD CALLED\033[0m")
-		logger.info(f"user with id: {self.player_id} is leaving")
+		logger.info(f"user with role {disc_role} is leaving")
 		if hasattr(self, 'game_loop_task'):
 			self.game_loop_task.cancel()
-		
+	
 		await self.channel_layer.group_send(
 			self.room_id,
 			{
@@ -77,18 +114,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 				"message": {"type": "status", "wait": 1}
 			}
 		)
-		logger.info(f"{disc_role} is leaving the room")
 		GameManager.leaveRoom(self.room_id, self.player_id)
-		
-		# Check if there's only one player left
+	
 		game_state = GameManager.games.get(self.room_id)
 		if game_state and len(game_state["players"]) == 1:
 			remaining_player = next(iter(game_state["players"].values()))
-			
-			# Start the disconnect countdown instead of declaring the winner immediately
 			winner_msg = await GameManager.start_disconnect_countdown(self.room_id, remaining_player["id"], disc_role)
 			if winner_msg:
-				logger.info(f"\033[1;31mWinner message exists\033[0m")
 				await self.channel_layer.group_send(
 					self.room_id,
 					{
@@ -96,10 +128,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"message": winner_msg
 					}
 				)
-		logger.info(f"roomID: {self.room_id} + channel: {self.channel_name}");
+	
 		await self.channel_layer.group_discard(self.room_id, self.channel_name)
 		GameManager.setGameLoopRunning(self.room_id, False)
-		
 	
 	async def receive(self, text_data):
 

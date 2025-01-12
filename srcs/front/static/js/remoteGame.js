@@ -63,7 +63,14 @@ function handleEndgame(data) {
 
 function initializeWebSocket() {
 	const roomID = new URLSearchParams(window.location.search).get("room") || "default";
-	socket = new WebSocket(`ws://localhost:8001/ws/ping_pong/${roomID}/`);
+	const token = localStorage.getItem("access_token");
+	if (!token)
+	{
+		console.warn("No access token found");
+		return ;
+	}
+	console.log("token is: " + token);
+	socket = new WebSocket(`ws://localhost:8001/ws/ping_pong/${roomID}/?token=${token}`);
 
 	socket.onopen = () => console.log("WebSocket connection established.");
 	socket.onerror = (error) => {

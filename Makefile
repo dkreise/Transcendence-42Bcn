@@ -37,7 +37,7 @@ back:
 	docker restart ${OF}
 
 fclean:
-	docker-compose -f ./srcs/docker-compose.yml down
+	#docker-compose -f ./srcs/docker-compose.yml down
 	@if [ -n "$(D_PS)" ]; then \
 		echo "deleting containers"; \
 		docker stop $(D_PS); \
