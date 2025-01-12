@@ -95,7 +95,7 @@ const handleLogin = () => {
 
             localStorage.setItem('access_token', data.tokens.access);
             localStorage.setItem('refresh_token', data.tokens.refresh);
-            setUserPrefLanguage();
+            updateLanguage();
             loadProfilePage(); //navigateTo later instead
         } else {
             displayLoginError('Invalid credentials. Please try again.', 'login-form');
@@ -105,11 +105,6 @@ const handleLogin = () => {
         console.error('Error logging in:', error);
         alert('An error occurred during login.');
     });
-};
-
-
-const setUserPrefLanguage = () => {
-    updateLanguage(""); //TODO: UPDATE
 };
 
 const handleSignup = () => {

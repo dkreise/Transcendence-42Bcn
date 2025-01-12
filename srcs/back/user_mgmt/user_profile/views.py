@@ -187,8 +187,9 @@ def remove_friend(request, friend_id):
 
 @api_view(['POST'])
 def save_user_pref_lang(request):
-    lang = request.COOKIES.get('language', 'en')
-    
+    data = json.loads(request.body)
+    lang = data.get('language', 'en')
+
     if request.user.is_authenticated:
         user_profile = request.user.profile
         user_profile.language = lang
