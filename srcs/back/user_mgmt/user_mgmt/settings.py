@@ -70,6 +70,9 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8443",  # Allow your frontend's origin
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True  # FOR TESTING ONLY; restrict in production
+
+
 ROOT_URLCONF = 'user_mgmt.urls'
 CORS_ALLOW_CREDENTIALS = True  # This allows all origins, useful for dev.
 

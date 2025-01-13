@@ -172,3 +172,9 @@
     /* flex-grow: 1;   Ensures the input takes the remaining space */
     max-width: 150px;
 }
+
+#profile-settings-container img {
+    width: 150px;
+    height: 150px;
+    border-radius: 10%;
+}

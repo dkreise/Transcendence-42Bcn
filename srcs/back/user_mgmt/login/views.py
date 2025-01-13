@@ -161,32 +161,47 @@ def enable_2fa(request):
         qr_image = TwoFA.generate_qrcode(provisioning_uri)
         qr_base64 = base64.b64encode(qr_image.getvalue()).decode()
 
+        print("QR Image:", qr_image)
+        print("QR Base64:", qr_base64)
+
+
         setup_html = render_to_string("2fa_setup.html", {"qr_code": qr_base64})
         return JsonResponse({
             "success": True,
             "message": "2FA enabled successfully.",
             "setup_html": setup_html,
+            "qr_code": qr_base64,
         })
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
     
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def verify_2fa(request):
+    print("-----------in verify function")
     if request.user.is_authenticated:
+        print("---------authenticated")
         user = request.user
         profile = user.profile
         secret = profile.totp_secret
-        code = request.POST.get("code")
+        # code = request.code
+        print(f"----- Request body: {request.body}")
+        data = json.loads(request.body)
+        code = data.get("code")
+        print(code)
 
         if not secret:
             return JsonResponse({"success": False, "error": "2FA is not enabled for this account."}, status=400)
         
         try:
+            print("----- before verify")
             if TwoFA.verify_code(secret, code):
                 return JsonResponse({"success": True, "message": "2FA verification successful."})
             else:
+                print("----code is wrong")
                 return JsonResponse({"success": False, "error": "Invalid or expired TOTP code."}, status=400)
         except ValueError as e:
+            print("---some exception....")
             return JsonResponse({"success": False, "error": str(e)}, status=400)
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
