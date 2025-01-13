@@ -71,6 +71,32 @@ def player_last_ten_games(request):
     else:
         return JsonResponse({'error': 'User not authenticated.'}, status=401)
 
+def player_all_games(player_id):
+    game_service_url = 'http://game:8001'
+    endpoint = f'{game_service_url}/api/player/{player_id}/all_games/'
+
+    try:
+        response = requests.get(endpoint)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        print(f"Error fetching statistics: {e}")
+        return {}
+
+@api_view(['GET'])
+def match_history_page(request):
+    if request.user.is_authenticated:
+        user_id = request.user.id
+        all_games = player_all_games(user_id)
+        context = {
+            'match_history': all_games,
+        }
+        match_history_html = render_to_string('match_history.html', context)
+        return JsonResponse({'match_history_html': match_history_html}, content_type="application/json")
+    else:
+        return JsonResponse({'error': 'user not authenticated'}, status=401)
+
+
 @api_view(['GET'])
 def profile_page(request):
     if request.user.is_authenticated:
@@ -139,7 +165,7 @@ def search_users(request):
     print("query: *" + query + "*")
     friends = request.user.profile.friends.all()
     if query:
-        users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query))
+        users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query)).exclude(id=request.user.id)
         
         results = [
             {

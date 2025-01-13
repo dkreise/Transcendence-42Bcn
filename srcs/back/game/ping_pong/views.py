@@ -114,3 +114,30 @@ def get_player_last_ten_games(request, player_id):
 
     except Exception as e:
         return Response({"error": f"An unexpected error ocurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def get_player_all_games(request, player_id):
+    try:
+        games = (
+            Game.objects.filter(Q(player1_id=player_id) | Q(player2_id=player_id))
+            .order_by('id')
+        )
+
+        games_data = [
+            {
+                "id": game.id,
+                "date": game.date.strftime("%Y-%m-%d %H:%M"),
+                "player1": game.player1.username if game.player1 else "Unknown",
+                "score_player1": game.score_player1,
+                "player2": game.player2.username if game.player2 else "Unknown",
+                "score_player2": game.score_player2,
+                "winner": game.winner.username if game.winner else "Draw", #?
+                "tournament_id": game.tournament_id,
+            }
+            for game in games
+        ]
+
+        return Response(games_data, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({"error": f"An unexpected error ocurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
