@@ -33,6 +33,7 @@ logs:
 	docker logs $(CONTAINER)
 
 fclean:
+	docker-compose -f ./srcs/docker-compose.yml down
 	@if [ -n "$(D_PS)" ]; then \
 		echo "deleting containers"; \
 		docker stop $(D_PS); \
@@ -45,6 +46,7 @@ fclean:
 	@if [ -n "$$(docker volume ls -q --filter dangling=true)" ]; then \
 		echo "deleting volumes"; \
 		docker volume rm $$(docker volume ls -q --filter dangling=true); \
+		docker system prune -a --volumes; \
 		echo "volumes deleted"; \
 	fi
 	@if [ -d ./srcs/postgres ]; then \

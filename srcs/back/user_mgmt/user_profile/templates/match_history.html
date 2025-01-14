@@ -1,0 +1,56 @@
+<div id="match-history-container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Match History</h1>
+        <div>
+            <button id="back-to-profile-button">My profile</button>
+        </div>
+    </div>
+
+    <div id="filters" class="mb-3">
+        <label for="filter-date">Date:</label>
+        <input type="date" id="filter-date">
+
+        <label for="filter-winner">Winner:</label>
+        <input type="text" id="filter-winner" placeholder="Enter winner username">
+
+        <label for="filter-tournament">Tournament:</label>
+        <select id="filter-tournament">
+            <option value="">All</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select>
+
+        <button id="apply-filters">Apply Filters</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Player 1</th>
+                <th>Score 1</th>
+                <th>Player 2</th>
+                <th>Score 2</th>
+                <th>Winner</th>
+                <th>Tournament</th>
+            </tr>
+        </thead>
+        <tbody id="match-history-table-body">
+            {% for game in match_history %}
+                <tr>
+                    <td>{{ game.date }}</td>
+                    <td>{{ game.player1 }}</td>
+                    <td>{{ game.score_player1 }}</td>
+                    <td>{{ game.player2 }}</td>
+                    <td>{{ game.score_player2 }}</td>
+                    <td>{{ game.winner }}</td>
+                    <td>{% if game.tournament_id >= 0 %}Yes{% else %}No{% endif %}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7">No match history available.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>

@@ -19,20 +19,22 @@ services:
        - trs_net
 
   user_mgmt:
-   build:
-     context: ./back/user_mgmt
-   container_name: user_mgmt
-   depends_on:
-     - db
-   environment:
-     - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
-   networks:
+    build:
+      context: ./back/user_mgmt
+    container_name: user_mgmt
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
+    env_file:
+      - .env
+    networks:
       - trs_net
-   restart: always
-   volumes:
-     - user-mgmt:/usr/src/app
-   ports:
-     - "8000:8000"
+    restart: always
+    volumes:
+      - user-mgmt:/usr/src/app
+    ports:
+      - "8000:8000"
 
   game:
     build:
@@ -48,16 +50,16 @@ services:
     ports:
       - "8001:8001"
 
-  redis:
-    container_name: redis
-    build: ./back/redis
-    restart: always
-    networks:
-       - trs_net
-    env_file:
-      - .env
-    expose:
-      - '6379'
+  # redis:
+  #   container_name: redis
+  #   build: ./back/redis
+  #   restart: always
+  #   networks:
+  #      - trs_net
+  #   env_file:
+  #     - .env
+  #   expose:
+  #     - '6379'
 
   front:
     build:
@@ -70,15 +72,15 @@ services:
       - trs_net
     restart: always
     volumes:
-      - ./front/tools:/usr/share/nginx/html # Mapea archivos locales a dentro del contenedor
+      - ./front/static:/usr/share/nginx/html/static # Mapea archivos locales a dentro del contenedor
 
 volumes:
-  front_data:
-    driver: local
-    driver_opts:
-      device: "./front/tools"
-      o: bind
-      type: none
+  # front_data:
+  #   driver: local
+  #   driver_opts:
+  #     device: "./front/static"
+  #     o: bind
+  #     type: none
 
   db_data:
     driver: local

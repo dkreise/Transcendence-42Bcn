@@ -9,17 +9,12 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-import os
+
 from pathlib import Path
-from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 42 USER API
-UID = os.environ.get('UID')
-SECRET = os.environ.get('SECRET')
-REDIRECT_URI = os.environ.get('REDIRECT_URI')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -43,11 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.postgres',
     'rest_framework',
-    'rest_framework.authtoken',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
 	'login',
     'user_profile',
 ]
@@ -62,16 +54,12 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.locale.LocaleMiddleware',
 ]
 
 # Allow the frontend origin
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8443",  # Allow your frontend's origin
 ]
-
-CORS_ALLOW_ALL_ORIGINS = True  # FOR TESTING ONLY; restrict in production
-
 
 ROOT_URLCONF = 'user_mgmt.urls'
 CORS_ALLOW_CREDENTIALS = True  # This allows all origins, useful for dev.
@@ -162,33 +150,5 @@ CSRF_COOKIE_SECURE = False  # Set to True for HTTPS in production
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'login.authentication.Intra42Authentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
     ),
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',  # Restricts access to authenticated users
-    ],
 }
-
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
-    'ROTATE_REFRESH_TOKENS': True, 
-    'BLACKLIST_AFTER_ROTATION': True,
-    'ALGORITHM': 'HS256',
-    'SIGNING_KEY': SECRET_KEY,
-    'VERIFYING_KEY': None,
-    'AUTH_HEADER_TYPES': ('Bearer',),
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'user_id',
-    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
-    'TOKEN_TYPE_CLAIM': 'token_type',
-    'TOKEN_BLACKLIST_ENABLED': True,  # Enable blacklist feature
-}
-
-
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media' #os.path.join(BASE_DIR, 'media')
-
