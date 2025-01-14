@@ -3,9 +3,10 @@ import logging
 from channels.auth import AuthMiddlewareStack
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .models import User
+from django.contrib.auth.models import User
 from rest_framework.exceptions import AuthenticationFailed
 from asgiref.sync import sync_to_async
+from django.utils.deprecation import MiddlewareMixin
 
 class UpdateLastActivityMiddleware:
     """"Upgrade last_activity en cada solicitud del usuario"""
@@ -14,6 +15,18 @@ class UpdateLastActivityMiddleware:
         self.get_response = get_response
 
 logger = logging.getLogger(__name__)
+
+class NoCacheMiddleware(MiddlewareMixin):
+    """
+    Middleware to add no-cache headers to all responses.
+    """
+    def process_response(self, request, response):
+        # Set caching headers
+        response['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        print("@@@@@@@@@@@@@@@@@@@@@@@  HA PASADO POR MIDDLEWARE @@@@@@@@@@@@@@@@@")
+        return response
 
 class JwtAuthMiddleware:
     def __init__(self, inner):
@@ -58,3 +71,4 @@ class JwtAuthMiddleware:
 # Apilar el middleware
 def JwtAuthMiddlewareStack(inner):
     return JwtAuthMiddleware(AuthMiddlewareStack(inner))
+

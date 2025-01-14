@@ -2,8 +2,11 @@ import { loadLoginPage, handleSignup } from "./login.js";
 import { loadProfilePage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
 
+const historyTracker = [];
+
 const routes = {
     '/': homePage,
+    '/login': homePage,
     // '/login': (args) => loadLoginPage(args),
     '/signup': handleSignup,
     '/login-intra': handleLoginIntra, 
@@ -18,9 +21,9 @@ const routes = {
 
 function router() {
     const path = window.location.pathname;
-    if (routes[path] && path === '/login')
-        routes[path](document.getElementById('content-area'));
-    else if (routes[path]) {
+    // if (routes[path] && path === '/login')
+    //     routes[path](document.getElementById('content-area'));
+    if (routes[path]) {
         routes[path](); // Call the function associated with the path
     } else {
         console.log(`Route ${path} not handled`);
@@ -29,13 +32,18 @@ function router() {
 }
 
 export function navigateTo(path, replace = false) {
+    console.log(`navigating to ${path}`)
     if (replace) {
-        history.replaceState(null, null, path);
+        history.replaceState({ path }, null, path);
+        historyTracker.push({ action: 'replaceState', path });
+        console.log(`${path} is replaced in history`)
     }
     else {
-        history.pushState(null, null, path);
+        history.pushState({ path }, null, path);
+        historyTracker.push({ action: 'pushState', path });
+        console.log(`${path} is pushed to history`)
     }
-
+    console.log('History Tracker:', JSON.stringify(historyTracker, null, 2)); // Log the history
     router();
 }
 
@@ -58,8 +66,9 @@ function homePage() {
         console.log('we do not have access token..');
         // console.log('navigating to login..');
         // navigateTo('/login');
-        loadLoginPage(contentArea);
         console.log('loading login..');
+        loadLoginPage(contentArea);
+        
     }
 }
 // window.addEventListener('popstate', router);
@@ -73,12 +82,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // window.addEventListener('popstate', router);
 
     window.addEventListener('popstate', (event) => {
+
+        console.log('Back/Forward navigation:', event.state);
+        console.log('Current History:', JSON.stringify(historyTracker, null, 2));
         if (event.state?.fromOAuth) {
             console.log('Skipping OAuth redirect in history');
             const previousPath = event.state.previousPath || '/';
             // const previousPath = '/';
             navigateTo(previousPath, true);
         } else {
+            console.log('Popstate is routing');
             router();
         }
     })
@@ -90,13 +103,15 @@ document.addEventListener('DOMContentLoaded', () => {
         // Check if the clicked element has the 'data-route' attribute
         if (target && target.hasAttribute('data-route')) {
             const route = target.getAttribute('data-route');
-            navigateTo(route, true);
+            console.log(`a data rout clicked... ${route}`)
+            navigateTo(route);
         }
     });
 
+    console.log(history.state)
     router();
 
-
+    
     // Function to handle route changes based on data-route
     // const handleRoute = (route) => {
     //     switch (route) {

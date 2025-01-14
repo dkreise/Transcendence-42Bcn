@@ -12,9 +12,10 @@ var baseUrl = "http://localhost";
 // }
 
 export const handleLoginIntra = () => {
-    console.log('login 42 clicked');
-    const currentPath = window.location.pathname;
+    console.log(`login 42 clicked: ${window.location.pathname}`);
+    const currentPath = '/';
     window.history.replaceState({ fromOAuth: true, previousPath: currentPath  }, null, '/');
+    console.log(history.state)
     window.location.href = "http://localhost:8000/api/login-intra";
 }
 
@@ -22,6 +23,8 @@ export const handle42Callback = () => {
     const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
         const state = urlParams.get('state');
+        console.log(`Windows location is ${window.location.href}`)
+        window.history.replaceState(null, null, '/');
         if (code && state){
             const queryParams = new URLSearchParams({code , state}).toString();
             console.log(code, state);
@@ -41,7 +44,9 @@ export const handle42Callback = () => {
                     localStorage.setItem('refresh_token', data.refresh_token);
                     localStorage.setItem('intra_token', data.intra_token);
                     clearURL();
+                    console.log(history.state)
                     navigateTo('/profile', true);
+                    
                     // loadProfilePage();
                 }else{
                     clearURL();

@@ -168,7 +168,7 @@ export const loadProfilePage = () => {
             } else {
                 console.error("Failed to load user info");
             }
-        })
+        }) 
         .then((data) => {
             if (data && data.profile_html) {
                 document.getElementById('content-area').innerHTML = data.profile_html;

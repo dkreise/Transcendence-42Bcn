@@ -71,6 +71,6 @@ fclean: down
 	fi
 
 
-re: fclean all
+re: fclean all mi up
 
 .SILENT: all build up stop down ps clean fclean
