@@ -1,7 +1,7 @@
 import { loadProfilePage } from "./profile.js";
 import { displayLoginError } from "./login.js";
 import { clearURL, navigateTo } from "./main.js"
-
+ 
 
 var baseUrl = "http://localhost";
 

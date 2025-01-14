@@ -124,7 +124,7 @@ const handleLogin = () => {
     });
 };
 
-const handleSignup = () => {
+export const handleSignup = () => {
     const contentArea = document.getElementById("content-area");
     const loginForm = document.getElementById('login-form');
     if (loginForm)

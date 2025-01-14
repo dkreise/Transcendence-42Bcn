@@ -22,8 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-#SECRET_KEY = 'django-insecure-d0#pa6x9j=zb@!d&8#pe@x97)2o3qv#op6b((0r53-f^4k4&i@'
-SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = 'django-insecure-d0#pa6x9j=zb@!d&8#pe@x97)2o3qv#op6b((0r53-f^4k4&i@'
+# SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # 42 USER API
 UID = os.environ.get('UID')

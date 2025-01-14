@@ -60,7 +60,7 @@ function homePage() {
     if (accessToken) {
         console.log('we have access token');
         loadHomePage();
-//       navigateTo('/profile');
+        // navigateTo('/profile');
         // loadProfilePage();
     }
     else {
