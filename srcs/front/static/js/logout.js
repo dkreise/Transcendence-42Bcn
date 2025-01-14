@@ -1,8 +1,9 @@
 import { loadLoginPage } from "./login.js";
+import { navigateTo } from "./main.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
-const handleLogout = () => {
+export const handleLogout = () => {
     const contentArea = document.getElementById("content-area");
     console.log('Logging out..');
     const refreshToken = localStorage.getItem('refresh_token');
@@ -30,9 +31,13 @@ const handleLogout = () => {
     localStorage.removeItem('refresh_token');
 
     contentArea.innerHTML = ''; // to clear user content
-    loadLoginPage(contentArea);
+    window.history.replaceState(null, null, '/');
+    navigateTo('/');
+    // loadLoginPage(contentArea);
+
 };
 
+// ADD DATA-ROUTE INSTEAD
 export const addLogoutListener = () => {
     const logoutButton = document.getElementById('logout-button');
     if (logoutButton) {

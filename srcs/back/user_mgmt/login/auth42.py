@@ -31,36 +31,6 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-# View to check if the user is authenticated
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def check_auth(request):
-#     try:
-#         data = json.loads(request.body)  # Parse the JSON body
-#         username = data.get('username')  # Get the username from the request
-#         print("USERNAME: ", username)
-#     except json.JSONDecodeError:
-#         return JsonResponse({'error': 'Invalid JSON'}, status=400)
-
-#     if not username:
-#         return JsonResponse({'error': 'Username is required'}, status=400)
-
-#     try:
-#         user = User.objects.get(username=username)  # Check if the user exists
-#         if user.is_authenticated:
-#             print("AUTHENTICATED")
-#             return JsonResponse({
-#                 'is_authenticated': True,
-#                 # 'is_staff': str(user.is_staff),  # Return 'true'/'false' as string
-#             })
-#         else:
-#             return JsonResponse({
-#                 'is_authenticated': False
-#             })
-#     except User.DoesNotExist:
-#         return JsonResponse({'error': 'User not found'}, status=404)
-
-
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def login_intra(request):
@@ -69,7 +39,8 @@ def login_intra(request):
     go_to_api = (
         "https://api.intra.42.fr/oauth/authorize"
         f"?client_id={settings.UID}"
-        f"&redirect_uri={settings.REDIRECT_URI}"
+        # f"&redirect_uri={settings.REDIRECT_URI}"
+        f"&redirect_uri=http://localhost:8443/callback"
         f"&response_type=code"
         f"&scope=public"
         f"&state={state}"
@@ -90,9 +61,8 @@ class Callback42API(APIView):
 
     permission_classes = [AllowAny]
 
-    def get(self, request):
-        # return ("HOLA!")
-        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    def post(self, request):
+        # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         code = request.GET.get('code')
         state = request.GET.get('state')
         print(f"Code: {code}, State: {state}")
@@ -100,55 +70,31 @@ class Callback42API(APIView):
             raise AuthenticationFailed("Invalid authentication parameters")
         try:
             response = post42("/oauth/token", defaultParams(code, state))
-            logger.info("Response 42: %s", response.content)
-            print("1111!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", response.content)
+            # print("1111!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", response.content)
             if response.status_code != 200:
                 raise AuthenticationFailed("Bad response code while authentication")
-            print("222!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
+            # print("222!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
             data = response.json()
             intra_token = data.get("access_token")
-            res_front = saveUser(str(intra_token))
-            print("333!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
-            data_res_front = json.loads(res_front.content)
-            print("444!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!:", res_front.content)
-            if res_front.status_code == 500:
-                raise AuthenticationFailed(res_front.content['Error'])
-            try:
-                user = User.objects.get(username=data_res_front.get('username'))
-            except User.DoesNotExist:
-                raise Exception("No users found with the same username")
-            except User.MultipleObjectsReturned:
-                raise Exception("Multiple users found with the same username")
-            print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
-            # user.is_active = True
-            #####
-            # refresh_intra_token = RefreshToken(intra_token)
-            # BLOCKLIST.add(str(intra_token))  # Replace with your blocklist logic (e.g., saving to DB/Redis)
-            # refresh_intra_token.blacklist()  # Use if you enabled Django REST Framework SimpleJWT's blacklist app
-            #####
+            user = saveUser(str(intra_token))
+            # print("333!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
+            if user == AnonymousUser:
+                raise AuthenticationFailed("Authentication failed")
+            print("42 username !!!!!!!!!!!!!!!!!!:", user.username)
+            # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
             django_login(request, user)
-            # Test user authentication immediately after login
             if request.user.is_authenticated:
                 print("User authenticated successfully:", request.user.username)
             else:
                 print("User authentication failed")
-            
+            # print("777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user.profile.photo)
             refresh_token = RefreshToken.for_user(user)
-            formatResponse = data_res_front | {
+            loginResponse = {
                 'refresh_token': str(refresh_token),
-                'access': str(refresh_token.access_token),
-                # 'intra_token': str(intra_token), 
-                # 'id': user.id
-                #USER ID!!!
-
+                'access_token': str(refresh_token.access_token), 
+                'intra_token': str(intra_token)
             }
-            # print("FINAL JSON: ", formatResponse)
-                        #####
-            # refresh_intra_token = RefreshToken(intra_token)
-            # BLOCKLIST.add(str(intra_token))  # Replace with your blocklist logic (e.g., saving to DB/Redis)
-            # refresh_intra_token.blacklist()  # Use if you enabled Django REST Framework SimpleJWT's blacklist app
-            #####
-            return JsonResponse(formatResponse)
+            return JsonResponse(loginResponse)
         except Exception as e:
             return JsonResponse({'Error': str(e)}, status=400)
 
@@ -158,50 +104,31 @@ def saveUser(token):
         if user_res.status_code != 200:
             raise AuthenticationFailed("Bad response code while authentication")
         user_data = user_res.json()
-        print("55555!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user_data.get('login'))  
+        # print("55555!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user_data.get('login'))  
         if not user_data.get('login'):
             raise AuthenticationFailed("Couldn't recognize the user")
-        print("7777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
-        exist = User.objects.filter(username=user_data.get('login')).exists() # try catch
-        print("888!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", exist)  
-        if not exist:
-            user = User(username=user_data.get('login'), email=user_data.get('email'))
-            user.save()
+        # print("7777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
+        name42 = '@42' + user_data.get('login')
+        # print("42 username !!!!!!!!!!!!!!!!!!:", name42)  
+        try:
+            exist = User.objects.filter(username=name42).exists() # try catch
+            # print("888!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", exist)  
+            if exist:
+                return User.objects.get(username=name42)
+        except Exception as e:
+            print("Database empty, creating a user...")
+        user = User(username=name42, email=user_data.get('email'), first_name=user_data.get('first_name'), last_name=user_data.get('last_name')) # add first_name, last_name, photo
+        user.save()
         user_img = None # here the default
         if user_data['image']['link']:
             user_img = user_data['image']['link']
-        # print("BEFORECOAL: ", user_img)
-        print("6666!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user_img)  
-        coal_data = getCoalition(defaultUser(user_data.get('login'), user_data.get('staff?'), user_img), user_data.get('login'), token)
-        # piscine / student / alumni
-        return JsonResponse(coal_data)
+        user.profile.photo = user_img
+        # print("777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user.profile.photo)  
+        user.profile.save()
+        return user
     except Exception as e:
-        return JsonResponse({"Error": str(e)}, status=500)
-
-def defaultUser(login, is_staff, user_img):
-    default =  {
-        # 'status': 200,
-        'username': login,
-        'is_staff': is_staff,
-        'user_img': user_img,
-        'coalition': None,
-        'color': "#00BABC",
-        'coalition_img': None,
-        'title': ""     
-    }
-    return default
-
-def getCoalition(default, login, token):
-    url_coal = "/v2/users/" + login + "/coalitions"
-    coal_res = get42(url_coal, None, token)
-    if coal_res.status_code != 200:
-        return default
-    coal_data = coal_res.json()
-    if coal_data:
-        default['coalition'] = coal_data[0]['name']
-        default['color'] = coal_data[0]['color']
-        default['coalition_img'] = coal_data[0]['cover_url']
-    return default
+        print("RETURNING Anonimous")
+        return AnonymousUser()
 
 def defaultParams(code, state):
     params = {
@@ -209,7 +136,8 @@ def defaultParams(code, state):
         'client_id': os.environ['UID'],
         'client_secret': os.environ['SECRET'],
         'code': code,
-        'redirect_uri': os.environ['REDIRECT_URI'],
+        # 'redirect_uri': os.environ['REDIRECT_URI'],
+        'redirect_uri': 'http://localhost:8443/callback',
         'state': state
     }
     return params

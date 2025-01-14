@@ -8,12 +8,30 @@ D_PS = $(shell docker ps -aq)
 D_IMG = $(shell docker images -q)
 OF = game
 #D_VOL = $(shell docker volume ls -q --filter dangling=true)
+# Macros
+# DOCKER_COMPOSE = docker compose
+DOCKER_COMPOSE = docker-compose -f ./srcs/docker-compose.yml
 
-all: up
+DC_RUN_GAME= run --rm game sh -c
+DC_RUN_USER= run --rm user_mgmt sh -c
+
+all: build
+
+build:
+	@$(DOCKER_COMPOSE) build 
+# @$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py wait_for_db"
+# # @$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py wait_for_db"
 
 #up -> pulls base image, builds image, starts services
 up:
-	docker-compose -f ./srcs/docker-compose.yml up -d --build --remove-orphans
+	docker-compose -f ./srcs/docker-compose.yml up --detach --remove-orphans
+
+mi:
+	@echo "Running Migrations..."
+	@$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py makemigrations"
+	@$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py makemigrations"
+	@$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py migrate"
+	@$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py migrate"
 
 #stop -> stops services
 stop:
@@ -24,7 +42,7 @@ down:
 	docker-compose -f ./srcs/docker-compose.yml down
 
 #rm -> removes stopped service containers
-clean:
+clean: down
 	docker-compose -f ./srcs/docker-compose.yml rm 
 
 ps:
@@ -36,8 +54,7 @@ logs:
 back:
 	docker restart ${OF}
 
-fclean:
-	#docker-compose -f ./srcs/docker-compose.yml down
+fclean: down
 	@if [ -n "$(D_PS)" ]; then \
 		echo "deleting containers"; \
 		docker stop $(D_PS); \
@@ -56,9 +73,9 @@ fclean:
 	@if [ -d ./srcs/postgres ]; then \
 		rm -rf ./srcs/postgres/*; \
 	fi
-	docker system prune --all --force --volumes
+#docker system prune --all --force --volumes
 
 
-re: fclean all
+re: fclean all mi up
 
 .SILENT: all build up stop down ps clean fclean

@@ -2,6 +2,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { addLogoutListener } from "./logout.js";
 import { startGame } from "./remoteGame.js"
 
+
 var baseUrl = "http://localhost"; // change (parse) later
 
 const displayUpdatingError = (message, form) => {
@@ -35,11 +36,13 @@ const renderLastTenGamesChart = (gamesData, username) => {
     document.querySelector('.statistics-block').appendChild(graphContainer);
 
     const ctx = document.getElementById('last-ten-games-chart').getContext('2d');
+
     const gameCnt = parseInt(document.getElementById('games-played').textContent, 10);
     console.log(gameCnt);
     const labels = gamesData.map((_, index) => {
         return `Game ${gameCnt - (gamesData.length - 1 - index)}`;
     });
+
     const scores = gamesData.map((game) => {
         if (game.player1 === username) {
             return game.score_player1;
@@ -131,6 +134,7 @@ const renderLastTenGamesChart = (gamesData, username) => {
                 },
             },
         },
+
     });
 };
 
@@ -171,8 +175,10 @@ const applyFilters = () => {
         } else {
             row.style.display = 'none';
         }
+
     });
 }
+
 
 export const loadProfileSettingsPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {
@@ -204,7 +210,7 @@ export const loadProfilePage = () => {
             } else {
                 console.error("Failed to load user info");
             }
-        })
+        }) 
         .then((data) => {
             if (data && data.profile_html) {
                 document.getElementById('content-area').innerHTML = data.profile_html;
@@ -221,6 +227,7 @@ export const loadProfilePage = () => {
         })
         .catch((error) => console.error("Error loading user info:", error));
 };
+
 
 //////////////////// TO DELETE ////////////////////////////////////////
 export const loadGame = (contentArea) => {
@@ -243,6 +250,7 @@ export const loadGame = (contentArea) => {
 };
 
 //////////////////////////////////////////////////////////////
+
 
 const updateProfileSettings = (form) => {
     const formData = new FormData(form);
@@ -291,3 +299,4 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 });
+

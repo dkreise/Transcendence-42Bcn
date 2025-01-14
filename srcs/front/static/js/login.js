@@ -1,5 +1,8 @@
-import { loadHomePage } from "./home.js";
+
 import { loadProfilePage } from "./profile.js";
+import { handleLogout } from "./logout.js"
+import { navigateTo } from "./main.js";
+import { loadHomePage } from "./home.js";
 import { updateLanguage } from "./langs.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
@@ -55,6 +58,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
         ...options.headers,
         Authorization: `Bearer ${accessToken}`, // adding authorization header with the access token
     };
+  
     // if (url == baseUrl + ":8000/api/2fa/verify/" || url == baseUrl + ":8000/api/2fa/enable/") {
     //     alert("here");
     // }
@@ -68,9 +72,11 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
                 return fetch(url, options); //retry the original request
             });
         } else {
+
             if (url == baseUrl + ":8000/api/2fa/verify/")
                 alert("response ok");
-            return response; // means that response is valid
+
+          return response; // means that response is valid
         }
     });
 };
@@ -105,6 +111,7 @@ const handleLogin = () => {
           
             updateLanguage();
             // loadProfilePage(); //navigateTo later instead
+            // navigateTo('/profile'); // change to navigate to home
             loadHomePage();
 
         } else {
@@ -143,6 +150,7 @@ const handleSignup = () => {
                             localStorage.setItem('access_token', data.tokens.access);
                             localStorage.setItem('refresh_token', data.tokens.refresh);
                             loadProfilePage();
+                          // NAVIGATE TO
                         } else {
                             displayLoginError(data.error + ' Please try again.', 'signup-form');
                         }
@@ -188,13 +196,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    contentArea.addEventListener('click', (event) => {
-        if (event.target && event.target.id === 'signup-link') {
-            event.preventDefault();
-            console.log('Sign up button clicked!');
+    // contentArea.addEventListener('click', (event) => {
+    //     if (event.target && event.target.id === 'signup-link') {
+    //         event.preventDefault();
+    //         console.log('Sign up button clicked!');
 
-            handleSignup(); // navigateTo ??
-        }
-    });  
+    //         navigateTo('/signup')
+    //         // handleSignup(); // navigateTo ??
+    //     }
+    // });  
 });
 

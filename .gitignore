@@ -5,7 +5,12 @@ __pycache__/*
 # Ignorar migraciones compiladas
 */migrations/__pycache__/
 srcs/postgres/*
+srcs/.env
+
+**/__pycache__/
+
 .env
 
 # Ignorar archivos temporales
 *.*.swp
+
