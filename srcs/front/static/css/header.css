@@ -1,0 +1,55 @@
+.language-menu {
+    position: absolute;
+    top: 100px;
+    right: 1000px;
+}
+
+.hamburger-icon {
+    font-size: 24px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #333;
+    padding: 10px;
+    transition: color 0.3s ease;
+}
+
+.hamburger-icon:hover {
+    color: gray;
+}
+
+/* Menu is hidden by default */
+.menu.hidden {
+    display: none;
+}
+
+/* Menu becomes visible when the hidden class is removed */
+.menu {
+    list-style: none;
+    margin-top: 10px;
+    padding: 0;
+    background-color: blue;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    position: absolute;
+    width: 150px;
+    z-index: 1000;
+}
+
+.menu li:last-child {
+    border-bottom: none;
+}
+
+.menu a {
+    display: block;
+    text-decoration: none;
+    color: #333;
+    padding: 10px;
+}
+
+.menu a:hover {
+    color: white;
+    background-color: #444;  /* Change background color on hover */
+}

@@ -16,6 +16,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework import status
 import json
 import re
+import requests
 from user_profile.models import Profile
 from .twoFA import TwoFA  
 import base64

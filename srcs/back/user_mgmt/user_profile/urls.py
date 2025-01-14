@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import include, path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -13,6 +13,8 @@ urlpatterns = [
     path("api/search-users/", views.search_users, name="search_users"),
     path("api/add-friend/<int:friend_id>/", views.add_friend, name="add_friend"),
     path("api/remove-friend/<int:friend_id>/", views.remove_friend, name="remove_friend"),
+    path("api/save-user-pref-lang", views.save_user_pref_lang, name="save_user_pref_lang"),
+    path("api/get-user-pref-lang/", views.get_user_pref_lang, name="get_user_pref_lang"),
 ] 
 
 if settings.DEBUG:
