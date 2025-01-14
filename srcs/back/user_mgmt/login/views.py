@@ -176,11 +176,11 @@ def enable_2fa(request):
         return JsonResponse({'error': 'user not authenticated'}, status=401)
     
 @api_view(['POST'])
-@permission_classes([AllowAny])
 def verify_2fa(request):
     print("-----------in verify function")
     if request.user.is_authenticated:
         print("---------authenticated")
+        print(f"--------- Request method: {request.method}")
         user = request.user
         profile = user.profile
         secret = profile.totp_secret
@@ -203,6 +203,22 @@ def verify_2fa(request):
         except ValueError as e:
             print("---some exception....")
             return JsonResponse({"success": False, "error": str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'user not authenticated'}, status=401)
+
+@api_view(['POST'])
+def disable_2fa(request):
+    if request.user.is_authenticated:
+        user = request.user
+        profile = user.profile
+
+        if profile.two_fa:
+            profile.totp_secret = None
+            profile.two_fa = False
+            profile.save()
+            return JsonResponse({"success": True, "message": "2FA disabled successfully."})
+        else:
+            return JsonResponse({"success": False, "error": "2FA is not enabled for this account."}, status=400)
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
 

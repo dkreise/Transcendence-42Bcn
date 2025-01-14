@@ -1,5 +1,15 @@
-<div id="2fa-setup-container"> 
-	<h1>Set Up Two-Factor Authentication</h1>
-    <p>Scan this QR code with your Google Authenticator app:</p>
-    <img src="{{ qr_code }}" alt="QR Code">
+<div id="twoFA-container">
+    <div id="2fa-setup-container"> 
+        <h1>Set Up Two-Factor Authentication</h1>
+        <p>Scan this QR code with your Google Authenticator app:</p>
+        <img id="2fa-qr-code" src="{{ qr_code }}" alt="QR Code">
+    </div>
+    <div id="2fa-verify-container"> 
+        <h1>Verify Two-Factor Authentication</h1>
+        <form method="post">
+            <label for="code">Enter the 6-digit code:</label>
+            <input type="text" id="2fa-code" name="code" required placeholder="Verification Code">
+            <button id="verify-2fa-button" type="submit">Verify</button>
+        </form>
+    </div>
 </div>

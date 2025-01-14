@@ -53,8 +53,12 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
         ...options.headers,
         Authorization: `Bearer ${accessToken}`, // adding authorization header with the access token
     };
-
+    // if (url == baseUrl + ":8000/api/2fa/verify/" || url == baseUrl + ":8000/api/2fa/enable/") {
+    //     alert("here");
+    // }
     return fetch(url, options).then((response) => {
+        if (url == baseUrl + ":8000/api/2fa/verify/")
+            alert("hereee");
         if (response.status === 401) {
             console.log("Access token expired, attempting refresh..");
             return refreshAccessToken().then((newAccessToken) => {
@@ -62,6 +66,8 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
                 return fetch(url, options); //retry the original request
             });
         } else {
+            if (url == baseUrl + ":8000/api/2fa/verify/")
+                alert("response ok");
             return response; // means that response is valid
         }
     });

@@ -173,7 +173,7 @@ const applyFilters = () => {
     });
 }
 
-const loadProfileSettingsPage = () => {
+export const loadProfileSettingsPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {method: "GET"})
         .then(response => response.json())
         .then(data => {

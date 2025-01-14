@@ -34,4 +34,6 @@ class TwoFA:
         print("---- **veriying...**")
         totp = pyotp.TOTP(secret)
         print(totp.verify(code))
+        print("--- Expected code:", pyotp.TOTP(secret).now())
+        # return totp.verify(pyotp.TOTP(secret).now())
         return totp.verify(code)
