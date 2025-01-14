@@ -6,6 +6,23 @@
         </div>
     </div>
 
+    <div id="filters" class="mb-3">
+        <label for="filter-date">Date:</label>
+        <input type="date" id="filter-date">
+
+        <label for="filter-winner">Winner:</label>
+        <input type="text" id="filter-winner" placeholder="Enter winner username">
+
+        <label for="filter-tournament">Tournament:</label>
+        <select id="filter-tournament">
+            <option value="">All</option>
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select>
+
+        <button id="apply-filters">Apply Filters</button>
+    </div>
+
     <table>
         <thead>
             <tr>
@@ -18,7 +35,7 @@
                 <th>Tournament</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="match-history-table-body">
             {% for game in match_history %}
                 <tr>
                     <td>{{ game.date }}</td>

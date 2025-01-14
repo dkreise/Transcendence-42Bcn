@@ -167,3 +167,14 @@
     background-color: #634b75;
     text-align: left;
 }
+
+#match-history-container button {
+    /* flex-grow: 1;   Ensures the input takes the remaining space */
+    max-width: 150px;
+}
+
+#twoFA-container img {
+    width: 150px;
+    height: 150px;
+    border-radius: 10%;
+}
