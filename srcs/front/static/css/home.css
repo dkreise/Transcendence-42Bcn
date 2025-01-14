@@ -1,0 +1,66 @@
+body {
+    background: #1d1f21;
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+}
+.navbar {
+    background-color: #121416;
+    border-bottom: 1px solid #444;
+}
+.navbar-brand {
+    font-weight: bold;
+    color: #f8f9fa !important;
+}
+.hero-section {
+    text-align: center;
+    padding: 6rem 1rem;
+    background: radial-gradient(circle, rgba(36,37,38,1) 0%, rgba(18,20,22,1) 100%);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    margin-bottom: 3rem;
+    width: 85%; /* Ampliar ancho del contenido */
+    margin-left: auto;
+    margin-right: auto;
+}
+.hero-section h1 {
+    color: #a29bfe;
+    font-size: 3rem; /* Incrementar tamaño del título */
+    margin-bottom: 1.5rem;
+}
+.hero-section p {
+    color: #dfe6e9;
+    font-size: 1.2rem;
+}
+.btn-large {
+    width: 100%; /* Aumentar ancho de los botones */
+    margin-bottom: 1.5rem;
+    padding: 1.2rem;
+    font-size: 1.2rem; /* Reducir tamaño de la fuente */
+    border: none;
+    border-radius: 8px;
+    transition: transform 0.2s, background 0.3s;
+    white-space: nowrap; /* Evitar que el texto se divida en dos líneas */
+}
+.btn-large:hover {
+    transform: scale(1.05);
+}
+.btn-primary {
+    background-color: #3498db;
+}
+.btn-success {
+    background-color: #2ecc71;
+}
+.btn-warning {
+    background-color: #f1c40f;
+}
+.btn-danger {
+    background-color: #e74c3c;
+}
+.footer {
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 3rem;
+    background-color: #121416;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}

@@ -9,3 +9,8 @@ srcs/.env
 
 **/__pycache__/
 
+.env
+
+# Ignorar archivos temporales
+*.*.swp
+

@@ -1,5 +1,7 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { addLogoutListener } from "./logout.js";
+import { startGame } from "./remoteGame.js"
+
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -34,7 +36,13 @@ const renderLastTenGamesChart = (gamesData, username) => {
     document.querySelector('.statistics-block').appendChild(graphContainer);
 
     const ctx = document.getElementById('last-ten-games-chart').getContext('2d');
-    const labels = gamesData.map((game) => `Game ${game.id}`);
+
+    const gameCnt = parseInt(document.getElementById('games-played').textContent, 10);
+    console.log(gameCnt);
+    const labels = gamesData.map((_, index) => {
+        return `Game ${gameCnt - (gamesData.length - 1 - index)}`;
+    });
+
     const scores = gamesData.map((game) => {
         if (game.player1 === username) {
             return game.score_player1;
@@ -126,6 +134,7 @@ const renderLastTenGamesChart = (gamesData, username) => {
                 },
             },
         },
+
     });
 };
 
@@ -144,8 +153,38 @@ const loadMatchHistoryPage = () => {
         });
 }
 
-const loadProfileSettingsPage = () => {
-    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {method: "GET"})
+const applyFilters = () => {
+    console.log('applying filters...');
+    const dateFilter = document.getElementById('filter-date').value;
+    const winnerFilter = document.getElementById('filter-winner').value.toLowerCase();
+    const tournamentFilter = document.getElementById('filter-tournament').value.toLowerCase();
+
+    let rows = document.querySelectorAll('#match-history-table-body tr');
+
+    rows.forEach(row => {
+        const date = row.children[0].textContent;
+        const winner = row.children[5].textContent.toLowerCase();
+        const tournament = row.children[6].textContent.toLowerCase();
+
+        let matchesDate = !dateFilter || date.startsWith(dateFilter);
+        let matchesWinner = !winnerFilter || winner.includes(winnerFilter);
+        let matchesTournament = !tournamentFilter || (tournamentFilter == tournament);
+
+        if (matchesDate && matchesWinner && matchesTournament) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+
+    });
+}
+
+
+export const loadProfileSettingsPage = () => {
+    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {
+        method: "GET",
+        credentials: 'include'
+    })
         .then(response => response.json())
         .then(data => {
             if (data.profile_settings_html) {
@@ -161,7 +200,10 @@ const loadProfileSettingsPage = () => {
 
 export const loadProfilePage = () => {
     console.log('Loading profile page..');
-    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {method: "GET"})
+    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {
+        method: "GET",
+        credentials: 'include'
+    })
         .then((response) => {
             if (response.ok) {
                 return response.json();
@@ -186,12 +228,37 @@ export const loadProfilePage = () => {
         .catch((error) => console.error("Error loading user info:", error));
 };
 
+
+//////////////////// TO DELETE ////////////////////////////////////////
+export const loadGame = (contentArea) => {
+    console.log('Loading game..');
+	fetch('html/game.html')  // Call the API endpoint to get the form as JSON
+        .then(response => response.text())
+        .then(data => {
+            if (data) {
+                    console.log('Game returned!');
+                    contentArea.innerHTML = data;
+					const canvas = document.getElementById("gameCanvas");
+					if (canvas)
+						startGame();
+					else
+						console.log("Error: Canvas not found");
+						
+            }
+        })
+        .catch(error => console.error('Error loading game:', error));
+};
+
+//////////////////////////////////////////////////////////////
+
+
 const updateProfileSettings = (form) => {
     const formData = new FormData(form);
 
     makeAuthenticatedRequest(baseUrl + ":8000/api/update-profile-settings/", {
         method: "POST",
         body: formData,
+        credentials: 'include',
     })
         .then((response) => response.json())
         .then((data) => {
@@ -221,8 +288,15 @@ document.addEventListener("DOMContentLoaded", () => {
         if (event.target && event.target.id == "match-history-button") {
             loadMatchHistoryPage();
         }
+        if (event.target && event.target.id == "apply-filters") {
+            applyFilters();
+        }
         if (event.target && event.target.id == "back-to-profile-button") {
             loadProfilePage();
         }
+        if (event.target && event.target.id == "game") {
+            loadGame(contentArea);
+        }
     });
 });
+

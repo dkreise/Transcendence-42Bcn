@@ -5,12 +5,6 @@ import { clearURL, navigateTo } from "./main.js"
 
 var baseUrl = "http://localhost";
 
-// function clearURL() {
-//     const url = new URL(window.location.href);
-//     url.search = '';
-//     window.history.replaceState({}, document.title, url.toString());
-// }
-
 export const handleLoginIntra = () => {
     console.log(`login 42 clicked: ${window.location.pathname}`);
     const currentPath = '/';
@@ -61,14 +55,3 @@ export const handle42Callback = () => {
 };
 
 
-// document.addEventListener("DOMContentLoaded", () => {
-//     const contentArea = document.getElementById("content-area");
-
-//     contentArea.addEventListener('click', (event) => {
-//         if (event.target && event.target.id === "login_intra_button") {
-//             console.log('login 42 clicked');
-
-//             window.location.href = "http://localhost:8000/api/login-intra";
-//         }
-//     });
-// });

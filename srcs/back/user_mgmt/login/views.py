@@ -10,12 +10,16 @@ from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 import json
 import re
+import requests
+from user_profile.models import Profile
+from .twoFA import TwoFA  
+import base64
 
 
 # def home(request):
@@ -118,17 +122,113 @@ def register_user(request):
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 		
-# def login_view(request):
-# 	if request.method == "POST":
-# 		username = request.POST["username"]
-# 		password = request.POST["password"]
-# 		user = authenticate(request, username=username, password=password)
-# 		if user is not None: # means authentication was successful
-# 			login(request, user)
-# 			return HttpResponseRedirect(reverse("home"))
-# 		else:
-# 			return render(request, "login.html", {
-# 				"message": "Invalid credentials."
-# 			})
-# 	return render(request, "login.html")
-	
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def logout(request):
+    try:
+        print("trying logout")
+        refresh_token = request.data.get('refresh_token')
+        if not refresh_token:
+            return Response({"error": "No refresh token provided"}, status=400)
+
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        print("refresh blacklisted")
+        # access_token = request.data.get('access_token')
+        # if not access_token:
+        #     print("no access token")
+        #     return Response({"error": "No access token provided"}, status=400)
+        # print("we have access token")
+        # print(f"access token: *{access_token}*")
+        # token = AccessToken(access_token)
+        # print("we converted access token")
+        # token.blacklist()
+        # print("access blacklisted")
+
+        return Response({"message": "Logged out successfully"}, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=400)
+
+@api_view(['POST'])
+def enable_2fa(request):
+    if request.user.is_authenticated:
+        user = request.user
+        profile = user.profile
+        secret = TwoFA.generate_secret()
+        profile.totp_secret = secret
+        profile.save()
+
+        provisioning_uri = TwoFA.get_provisioning_uri(secret, user.username)
+        qr_image = TwoFA.generate_qrcode(provisioning_uri)
+        qr_base64 = base64.b64encode(qr_image.getvalue()).decode()
+
+        print("QR Image:", qr_image)
+        print("QR Base64:", qr_base64)
+
+
+        setup_html = render_to_string("2fa_setup.html", {"qr_code": qr_base64})
+        return JsonResponse({
+            "success": True,
+            "message": "2FA enabled successfully.",
+            "setup_html": setup_html,
+            "qr_code": qr_base64,
+        })
+    else:
+        return JsonResponse({'error': 'user not authenticated'}, status=401)
+    
+@api_view(['POST'])
+def verify_2fa(request):
+    print("-----------in verify function")
+    if request.user.is_authenticated:
+        print("---------authenticated")
+        print(f"--------- Request method: {request.method}")
+        user = request.user
+        profile = user.profile
+        secret = profile.totp_secret
+        # code = request.code
+        print(f"----- Request body: {request.body}")
+        data = json.loads(request.body)
+        code = data.get("code")
+        print(code)
+
+        if not secret:
+            return JsonResponse({"success": False, "error": "2FA is not enabled for this account."}, status=400)
+        
+        try:
+            print("----- before verify")
+            if TwoFA.verify_code(secret, code):
+                return JsonResponse({"success": True, "message": "2FA verification successful."})
+            else:
+                print("----code is wrong")
+                return JsonResponse({"success": False, "error": "Invalid or expired TOTP code."}, status=400)
+        except ValueError as e:
+            print("---some exception....")
+            return JsonResponse({"success": False, "error": str(e)}, status=400)
+    else:
+        return JsonResponse({'error': 'user not authenticated'}, status=401)
+
+@api_view(['POST'])
+def disable_2fa(request):
+    if request.user.is_authenticated:
+        user = request.user
+        profile = user.profile
+
+        if profile.two_fa:
+            profile.totp_secret = None
+            profile.two_fa = False
+            profile.save()
+            return JsonResponse({"success": True, "message": "2FA disabled successfully."})
+        else:
+            return JsonResponse({"success": False, "error": "2FA is not enabled for this account."}, status=400)
+    else:
+        return JsonResponse({'error': 'user not authenticated'}, status=401)
+
+@api_view(['GET'])
+def check_status_2fa(request):
+    if request.user.is_authenticated:
+        user = request.user
+        profile = user.profile
+        is_enabled = profile.two_fa
+        return JsonResponse({"success": True, "2fa_enabled": is_enabled})
+    else:
+        return JsonResponse({'error': 'user not authenticated'}, status=401)

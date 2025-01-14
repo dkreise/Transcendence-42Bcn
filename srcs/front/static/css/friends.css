@@ -1,0 +1,87 @@
+#search-users-container {
+    display: block;
+    margin: 0 auto;
+    max-width: 1200px;
+    min-width: 500px;
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+    margin-top: 100px;
+    /* border: 3px dashed red; */
+}
+
+#search-users-container h1 {
+    font-size: 3rem;
+    font-weight: bold;
+    letter-spacing: 2px; /* Adds space between letters */
+    text-transform: uppercase; /* Makes the text uppercase */
+    margin-bottom: 0px;
+}
+
+#search-users-container form {
+    margin-bottom: 30px;
+}
+
+#search-users-container ul {
+    list-style-type: none; /* Remove default bullet points */
+    padding-left: 0;
+    margin: 0;
+}
+
+#search-users-container li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Space between username/email and button */
+    margin-bottom: 15px; /* Added gap between items */
+    padding: 10px;
+    border-bottom: 1px solid #f0f0f0; /* Soft border for separation */
+}
+
+#add-friend-button,
+#remove-friend-button {
+    padding: 5px 12px; /* Smaller padding for smaller buttons */
+    font-size: 0.875rem; /* Smaller text size */
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s; /* Added transform for hover effect */
+    margin-left: 100px; /* Space between buttons */
+}
+
+#add-friend-button:hover,
+#remove-friend-button:hover {
+    transform: scale(1.05); /* Slightly larger on hover */
+}
+
+#add-friend-button:active,
+#remove-friend-button:active {
+    transform: scale(0.98); /* Slightly smaller on click */
+}
+
+#friends-section {
+    margin-top: 100px;
+}
+
+#friends-section h2 {
+    font-size: 2rem;
+    font-weight: bold;
+    letter-spacing: 2px; /* Adds space between letters */
+    text-transform: uppercase; /* Makes the text uppercase */
+    margin-bottom: 0px;
+}
+
+.status-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+/* Online status: Green dot */
+.status-online {
+    background-color: green;
+}
+
+/* Offline status: Red dot */
+.status-offline {
+    background-color: red;
+}

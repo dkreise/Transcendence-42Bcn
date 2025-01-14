@@ -34,8 +34,10 @@ export const handleLogout = () => {
     window.history.replaceState(null, null, '/');
     navigateTo('/');
     // loadLoginPage(contentArea);
+
 };
 
+// ADD DATA-ROUTE INSTEAD
 export const addLogoutListener = () => {
     const logoutButton = document.getElementById('logout-button');
     if (logoutButton) {
