@@ -16,4 +16,8 @@ urlpatterns = [
 	path("api/login-intra/", auth42.login_intra, name="login_intra"),
 	path("api/login-intra/callback", Callback42API.as_view(), name="callback"),
 	path("api/logout/", views.logout, name="logout"),
+	path("api/2fa/enable/", views.enable_2fa, name="enable_2fa"),
+    path("api/2fa/verify/", views.verify_2fa, name="verify_2fa"),
+	path("api/2fa/disable/", views.disable_2fa, name="disable_2fa"),
+    path("api/2fa/status/", views.check_status_2fa, name="check_2fa_status"),
 ]

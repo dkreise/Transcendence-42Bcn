@@ -149,4 +149,32 @@
     margin-bottom: 0px;
 }
 
+#match-history-container {
+    padding: 20px;
+}
 
+#match-history-container table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#match-history-container th, #match-history-container td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#match-history-container th {
+    background-color: #634b75;
+    text-align: left;
+}
+
+#match-history-container button {
+    /* flex-grow: 1;   Ensures the input takes the remaining space */
+    max-width: 150px;
+}
+
+#twoFA-container img {
+    width: 150px;
+    height: 150px;
+    border-radius: 10%;
+}

@@ -14,7 +14,7 @@ from pathlib import Path
 from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+# BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 42 USER API
 UID = os.environ.get('UID')
@@ -30,7 +30,7 @@ SECRET_KEY = 'django-insecure-^)=g1^6d1@)ddwk@+k*jnjh$63+j%m3!zng%yex8x*f7qi_&w6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', 'transcendence'] #rarete tambien
 
 
 # Application definition
@@ -70,13 +70,19 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:8443",  # Allow your frontend's origin
 ]
 
+CORS_ALLOW_ALL_ORIGINS = True  # FOR TESTING ONLY; restrict in production
+
+
 ROOT_URLCONF = 'user_mgmt.urls'
 CORS_ALLOW_CREDENTIALS = True  # This allows all origins, useful for dev.
+
+
+BASE_DIR = Path(__file__).resolve().parent #rarete
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
