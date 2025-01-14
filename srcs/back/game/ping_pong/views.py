@@ -20,9 +20,6 @@ def score_list(request):
     serializer = GameSerializer(scores, many=True)  # Serialize the players
     return Response(serializer.data)  # Return the serialized data in the response
 
-def game_button(request):
-    return render(request, 'game.html')
-
 @api_view(['GET'])
 def get_current_players(request):
     try:

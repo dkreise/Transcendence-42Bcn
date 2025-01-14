@@ -1,5 +1,6 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { addLogoutListener } from "./logout.js";
+import { startGame } from "./remoteGame.js"
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -215,6 +216,28 @@ export const loadProfilePage = () => {
         .catch((error) => console.error("Error loading user info:", error));
 };
 
+//////////////////// TO DELETE ////////////////////////////////////////
+export const loadGame = (contentArea) => {
+    console.log('Loading game..');
+	fetch('html/game.html')  // Call the API endpoint to get the form as JSON
+        .then(response => response.text())
+        .then(data => {
+            if (data) {
+                    console.log('Game returned!');
+                    contentArea.innerHTML = data;
+					const canvas = document.getElementById("gameCanvas");
+					if (canvas)
+						startGame();
+					else
+						console.log("Error: Canvas not found");
+						
+            }
+        })
+        .catch(error => console.error('Error loading game:', error));
+};
+
+//////////////////////////////////////////////////////////////
+
 const updateProfileSettings = (form) => {
     const formData = new FormData(form);
 
@@ -255,6 +278,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (event.target && event.target.id == "back-to-profile-button") {
             loadProfilePage();
+        }
+        if (event.target && event.target.id == "game") {
+            loadGame(contentArea);
         }
     });
 });
