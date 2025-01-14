@@ -1,5 +1,6 @@
 import { loadLoginPage } from "./login.js";
 import { loadProfilePage } from "./profile.js";
+import { loadHomePage } from "./home.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -12,11 +13,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (accessToken) {
         console.log('we have access token');
-        loadProfilePage();
+        loadHomePage();
+        // loadProfilePage();
     }
     else {
         console.log('we do not have access token..');
+        loadLoginPage(contentArea);
     }
 
-    loadLoginPage(contentArea);
 });
