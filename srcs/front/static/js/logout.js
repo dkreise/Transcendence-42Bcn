@@ -31,16 +31,14 @@ export const handleLogout = () => {
     localStorage.removeItem('refresh_token');
 
     contentArea.innerHTML = ''; // to clear user content
-    window.history.replaceState(null, null, '/');
-    navigateTo('/');
-    // loadLoginPage(contentArea);
-
+    window.history.replaceState(null, null, '/'); // ????
+    navigateTo('/login', replace=true);
 };
 
 // ADD DATA-ROUTE INSTEAD
-export const addLogoutListener = () => {
-    const logoutButton = document.getElementById('logout-button');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
-};
+// export const addLogoutListener = () => {
+//     const logoutButton = document.getElementById('logout-button');
+//     if (logoutButton) {
+//         logoutButton.addEventListener('click', handleLogout);
+//     }
+// };

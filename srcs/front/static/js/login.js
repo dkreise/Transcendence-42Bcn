@@ -81,7 +81,8 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
     });
 };
 
-export const loadLoginPage = (contentArea) => {
+export const loadLoginPage = () => {
+    const contentArea = document.getElementById("content-area");
     fetch('html/login_form.html')  // Call the API endpoint to get the form as JSON
         .then(response => response.text())
         .then(data => {
@@ -112,7 +113,8 @@ const handleLogin = () => {
             updateLanguage();
             // loadProfilePage(); //navigateTo later instead
             // navigateTo('/profile'); // change to navigate to home
-            loadHomePage();
+            // loadHomePage();
+            navigateTo('/home');
 
         } else {
             displayLoginError('Invalid credentials. Please try again.', 'login-form');
@@ -149,8 +151,7 @@ export const handleSignup = () => {
                         if (data.success) {
                             localStorage.setItem('access_token', data.tokens.access);
                             localStorage.setItem('refresh_token', data.tokens.refresh);
-                            loadProfilePage();
-                          // NAVIGATE TO
+                            navigateTo('/home', replace=true);
                         } else {
                             displayLoginError(data.error + ' Please try again.', 'signup-form');
                         }

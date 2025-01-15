@@ -52,16 +52,16 @@ services:
     ports:
       - "8001:8001"
 
-  redis:
-    container_name: redis
-    build: ./back/redis
-    restart: always
-    networks:
-       - trs_net
-    env_file:
-      - .env
-    expose:
-      - '6379'
+  # redis:
+  #   container_name: redis
+  #   build: ./back/redis
+  #   restart: always
+  #   networks:
+  #      - trs_net
+  #   env_file:
+  #     - .env
+  #   expose:
+  #     - '6379'
 
   front:
     build:

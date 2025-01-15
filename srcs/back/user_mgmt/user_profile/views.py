@@ -185,10 +185,10 @@ def search_users(request):
     context = {
         'user': request.user,
         'results': results,
-        'friends': friends,
+        'friends_list': friends,
         'query': query
     }
-  #  add_language_context(request, context)
+    add_language_context(request, context)
     search_users_html = render_to_string('search_users.html', context)
     return JsonResponse({'search_users_html': search_users_html}, content_type="application/json")
 
@@ -199,7 +199,16 @@ def add_friend(request, friend_id):
 
     if not user_profile.is_friend_already(friend_profile):
         user_profile.add_friend(friend_profile)
-        return JsonResponse({'status': 'success', 'message': 'Friend added successfully!'})
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Friend added successfully!',
+            'friend': {
+                'id': friend_profile.id,
+                'username': friend_profile.user.username,
+                'email': friend_profile.user.email if friend_profile.user.email else None,
+                'online_status': friend_profile.online_status,  # Assuming this is a boolean field in Profile
+            }
+            })
     return JsonResponse({'status': 'error', 'message': 'Is a friend already.'})
 
 @api_view(['POST'])
