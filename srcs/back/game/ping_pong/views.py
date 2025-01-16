@@ -7,12 +7,13 @@ from .serializers import PlayerSerializer, GameSerializer
 from django.contrib.auth.models import User
 import random
 from django.db.models import Q
-
+ 
 @api_view(['GET'])
 def player_list(request):
     players = User.objects.all()  # Get all players from the database
     serializer = PlayerSerializer(players, many=True)  # Serialize the players
     return Response(serializer.data)  # Return the serialized data in the response
+
 
 @api_view(['GET'])
 def score_list(request):
@@ -39,6 +40,7 @@ def get_current_players(request):
         })
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+
 
 @api_view(['POST'])
 def send_score(request):

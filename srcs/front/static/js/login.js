@@ -196,14 +196,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // contentArea.addEventListener('click', (event) => {
-    //     if (event.target && event.target.id === 'signup-link') {
-    //         event.preventDefault();
-    //         console.log('Sign up button clicked!');
-
-    //         navigateTo('/signup')
-    //         // handleSignup(); // navigateTo ??
-    //     }
-    // });  
 });
 
