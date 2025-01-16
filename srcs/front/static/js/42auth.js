@@ -37,9 +37,10 @@ export const handle42Callback = () => {
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('refresh_token', data.refresh_token);
                     localStorage.setItem('intra_token', data.intra_token);
+                    localStorage.setItem('username', data.username);
                     clearURL();
                     console.log(history.state)
-                    navigateTo('/profile', true);
+                    navigateTo('/home', true);
                     
                     // loadProfilePage();
                 }else{
