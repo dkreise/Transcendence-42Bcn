@@ -5,10 +5,14 @@ import { loadHomePage } from "./home.js";
 
 const historyTracker = [];
 
+// The routes object maps URL paths to their respective handler functions:
+// Each key is a path (e.g., /, /profile).
+// Each value is a function that handles what should happen when the app navigates to that path.
+
 const routes = {
     '/': homePage,
     '/login': homePage,
-    // '/login': (args) => loadLoginPage(args),
+    '/home': loadHomePage,
     '/signup': handleSignup,
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,
@@ -17,8 +21,16 @@ const routes = {
     // '/options': optionsPage,
     // '/localgame': localGamePage,
     // '/aigame': aiGamePage,
-    // '/tournament': tournamentPage
+    // '/tournament': tournamentPage,
+
+    // EXAMPLE how to announce a function that receives parameters:
+    // '/login': (args) => loadLoginPage(args),
 };
+
+
+// The router() function determines which handler function to call 
+// based on the current path (window.location.pathname).
+// If the path exists in the routes object, its associated function is executed.
 
 function router() {
     const path = window.location.pathname;
@@ -30,6 +42,16 @@ function router() {
         // renderNotFound(); // Handle unknown routes
     }
 }
+
+// The navigateTo() function is responsible for programmatically changing 
+// the browser's history and triggering the router.
+// history.pushState(): Adds a new entry to the browser's history stack and 
+// changes the URL in the address bar.
+// history.replaceState(): Updates the current history entry instead of 
+// creating a new one.
+// After modifying the browser's history, router() is called to render the appropriate page.
+// Additionally, a historyTracker array is maintained for debugging, which logs every navigation event 
+// (pushState or replaceState).
 
 export function navigateTo(path, replace = false) {
     console.log(`navigating to ${path}`)
@@ -47,6 +69,10 @@ export function navigateTo(path, replace = false) {
     router();
 }
 
+// The clearURL() function removes query parameters from the URL 
+// without reloading the page.
+// Useful for cleaning up callback URLs (e.g., after OAuth authentication).
+
 export function clearURL() {
     const url = new URL(window.location.href);
     url.search = '';
@@ -59,8 +85,8 @@ function homePage() {
 
     if (accessToken) {
         console.log('we have access token');
-        loadHomePage();
-        // navigateTo('/profile');
+        // loadHomePage();
+        navigateTo('/home');
         // loadProfilePage();
     }
     else {
@@ -71,6 +97,11 @@ function homePage() {
 
 
 var baseUrl = "http://localhost"; // change (parse) later
+
+// popstate: Ensures navigation works when the user uses the browser's 
+// back or forward buttons.
+// data-route Click Handling: Intercepts clicks on elements with the 
+// data-route attribute and calls navigateTo() with the target route.
 
 console.log('main.js is loaded');
 document.addEventListener('DOMContentLoaded', () => {

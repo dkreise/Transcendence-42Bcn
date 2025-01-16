@@ -33,6 +33,10 @@ mi:
 	@$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py migrate"
 	@$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py migrate"
 
+fill:
+	@$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py shell < createUserList.py"
+	@$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py shell < createGameList.py"
+
 #stop -> stops services
 stop:
 	docker-compose -f ./srcs/docker-compose.yml stop
