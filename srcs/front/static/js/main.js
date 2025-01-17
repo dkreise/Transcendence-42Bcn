@@ -2,7 +2,7 @@ import { loadLoginPage, handleSignup } from "./login.js";
 import { loadProfilePage, loadProfileSettingsPage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage } from "./home.js";
-import { playLocal, playAI, playOnline } from "./localGame.js"
+import { playLocal, playAI, playOnline, gameLocal } from "./game.js"
 
 const historyTracker = [];
 
@@ -22,6 +22,7 @@ const routes = {
     '/play-local': playLocal,
     '/play-ai': playAI,
     '/play-online': playOnline,
+    '/play-local/game': gameLocal,
     // '/tournament': playTournament,
 
 
