@@ -92,7 +92,8 @@ class Callback42API(APIView):
             loginResponse = {
                 'refresh_token': str(refresh_token),
                 'access_token': str(refresh_token.access_token), 
-                'intra_token': str(intra_token)
+                'intra_token': str(intra_token),
+                'username': user.first_name
             }
             return JsonResponse(loginResponse)
         except Exception as e:

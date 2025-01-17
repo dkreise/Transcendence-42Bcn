@@ -11,5 +11,5 @@ class Game(models.Model):
     player2 = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='games_as_player2', null=True)
     alias2 = models.CharField(max_length=100, blank=True, null=True)
     score_player2 = models.IntegerField(default=0)
-    # winner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='games_as_winner', null=True) #winner
+    winner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, related_name='games_as_winner', null=True) #winner
     tournament_id = models.IntegerField(default=-1)
