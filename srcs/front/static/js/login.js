@@ -114,7 +114,7 @@ const handleLogin = () => {
             // loadProfilePage(); //navigateTo later instead
             // navigateTo('/profile'); // change to navigate to home
             // loadHomePage();
-            navigateTo('/home');
+            navigateTo('/home', true);
 
         } else {
             displayLoginError('Invalid credentials. Please try again.', 'login-form');
@@ -151,7 +151,7 @@ export const handleSignup = () => {
                         if (data.success) {
                             localStorage.setItem('access_token', data.tokens.access);
                             localStorage.setItem('refresh_token', data.tokens.refresh);
-                            navigateTo('/home', replace=true);
+                            navigateTo('/home', true);
                         } else {
                             displayLoginError(data.error + ' Please try again.', 'signup-form');
                         }

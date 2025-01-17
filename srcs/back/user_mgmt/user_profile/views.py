@@ -169,10 +169,16 @@ def update_profile_settings(request):
 def search_users(request):
     query = request.GET.get('q', '') 
     print("query: *" + query + "*")
+    if (not hasattr(request.user, 'profile')):
+        Profile.objects.create(user=request.user)
     friends = request.user.profile.friends.all()
     if query:
         users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query)).exclude(id=request.user.id)
-        
+        print(users)
+        if (hasattr(users[0], 'profile')):
+            print("has attr")
+        else    :
+            print("doesnt have attr")
         results = [
             {
                 'profile': user.profile,
@@ -188,6 +194,7 @@ def search_users(request):
         'friends_list': friends,
         'query': query
     }
+    print(results)
     add_language_context(request, context)
     search_users_html = render_to_string('search_users.html', context)
     return JsonResponse({'search_users_html': search_users_html}, content_type="application/json")

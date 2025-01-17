@@ -30,9 +30,9 @@ export const handleLogout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
 
-    contentArea.innerHTML = ''; // to clear user content
+    //contentArea.innerHTML = ''; // to clear user content
     window.history.replaceState(null, null, '/'); // ????
-    navigateTo('/login', replace=true);
+    navigateTo('/login', true);
 };
 
 // ADD DATA-ROUTE INSTEAD
