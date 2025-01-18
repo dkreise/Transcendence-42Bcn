@@ -1,4 +1,5 @@
 import { Ball, Player } from "./remoteClasses.js";
+import { makeAuthenticatedRequest } from "./login.js";
 
 let canvas = null;
 let ctx = null;
@@ -63,6 +64,22 @@ function handleEndgame(data) {
 
 function initializeWebSocket() {
 	const roomID = new URLSearchParams(window.location.search).get("room") || "default";
+
+	//makeAuthenticatedRequest("http://localhost:8001/api/user-info/", {method: "GET"})
+	//	.then((response) => response.json().catch((error) => {
+    //   		console.error("Error parsing JSON:", error);
+    //    	throw error; // Rethrow to propagate the error
+    //	}))
+	//	.then(data => {
+	//		console.log(data);
+	//	})
+	//	.catch(error => {
+	//		console.error("Error fetching: ", error);
+	//	})
+	//	.finally(() => {
+	//	console.warn("Request completed.");
+	//	});
+
 	const token = localStorage.getItem("access_token");
 	if (!token)
 	{
@@ -70,7 +87,7 @@ function initializeWebSocket() {
 		return ;
 	}
 	console.log("token is: " + token);
-	socket = new WebSocket(`ws://localhost:8001/ws/ping_pong/${roomID}/?token=${token}`);
+	socket = new WebSocket(`ws://localhost:8001/ws/ping_pong/default/?token=${token}`);
 
 	socket.onopen = () => console.log("WebSocket connection established.");
 	socket.onerror = (error) => {
