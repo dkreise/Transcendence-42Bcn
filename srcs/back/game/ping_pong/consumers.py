@@ -7,46 +7,51 @@ import json
 import logging
 import uuid
 import asyncio
-import jwt
+import httpx
 
 logger = logging.getLogger(__name__)
 
 class PongConsumer(AsyncWebsocketConsumer):
-
 	async def connect(self):
 		logger.info("\033[1;32mCONNECT METHOD CALLED\033[0m")
 		try:
 			self.role = None
-			# Get the room_id from the URL
 			self.room_id = self.scope['url_route']['kwargs']['room']
 			query_string = parse_qs(self.scope['query_string'].decode())
 
-			# Extract the JWT token from the query string (pass the token as a query param 'token')
+			# Extract the token from the query string
 			token = query_string.get('token', [None])[0]
+			logger.info(f"\033[1;33mtoken is: {token}\033[0m")
 
-			if token:
-				try:
-					# Decode the JWT token (replace 'your_secret_key' with your actual secret key)
-					decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-					# Get user information from the decoded token
-					self.user = decoded_token.get('user', None)
+			if not token:
+				logger.warning("No token provided.")
+				await self.close()
+				return
 
-					if self.user:
-						logger.info(f"Authenticated user: {self.user}")
-					else:
-						logger.warning(f"Invalid token: {decoded_token}")
+			# Query the user-info API
+			try:
+				logger.info("let's query the user-info API")
+				api_url = "http://user_mgmt:8000/api/user-info/"
+				headers = {"Authorization": f"Bearer {token}"}
+				logger.info(f"\033[1;32mHEADERS: {headers}\033[0m")
+				async with httpx.AsyncClient() as client:
+					response = await client.get(api_url, headers=headers)
+				logger.info(f"\033[1;33mStatus Code: {response.status_code}\033[0m")
+
+				if response.status_code == 200:
+					data = response.json()
+					self.user = data.get("username")
+					if not self.user:
+						logger.warning("Username not found in response.")
 						await self.close()
 						return
-				except jwt.ExpiredSignatureError:
-					logger.warning("JWT token has expired.")
+					logger.info(f"Authenticated user: {self.user}")
+				else:
+					logger.warning(f"Failed to fetch user info: {response.status_code}")
 					await self.close()
 					return
-				except jwt.InvalidTokenError:
-					logger.warning("Invalid JWT token.")
-					await self.close()
-					return
-			else:
-				logger.warning("No token provided.")
+			except Exception as e:
+				logger.error(f"Error querying user-info API: {e}")
 				await self.close()
 				return
 
@@ -63,22 +68,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 			logger.info(f"Role: {self.role}, Players: {total_players}")
 
-			# Send player's role to the client
+			# Notify the client of their role
 			await self.send(json.dumps({
 				"type": "role",
 				"role": self.role,
 				"user": self.user
 			}))
 
-			# Send game status (waiting for player => wait: 1)
-			await self.send(json.dumps({
-				"type": "status",
-				"wait": 1 if total_players < 2 else 0
-			}))
-
 			# Notify all players if two players are ready
 			if total_players == 2:
-				logger.info(f"total players = 2")
 				await self.channel_layer.group_send(
 					self.room_id,
 					{
@@ -86,12 +84,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"message": {"type": "status", "wait": 0}
 					}
 				)
-
-				# Start game loop if not running
-				if not GameManager.isGameLoopRunning(self.room_id):
-					logger.info(f"player: {self.role} isgamelooprunning")
-					GameManager.setGameLoopRunning(self.room_id, True)
-					self.game_loop_task = asyncio.create_task(self.game_loop())
 		except Exception as e:
 			logger.error(f"Error during WebSocket connect: {e}")
 			await self.close()
