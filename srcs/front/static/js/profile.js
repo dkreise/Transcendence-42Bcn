@@ -4,7 +4,7 @@ import { startGame } from "./remoteGame.js"
 
 var baseUrl = "http://localhost"; // change (parse) later
 
-const displayUpdatingError = (message, form) => {
+const displayUpdatingMessage = (message, color) => {
     const profileSettingsContainer = document.getElementById('profile-settings-form');
     if (!profileSettingsContainer)
         return;
@@ -15,7 +15,7 @@ const displayUpdatingError = (message, form) => {
 
     const errorMessage = document.createElement('div');
     errorMessage.id = 'settings-update-error';
-    errorMessage.style.color = 'red';
+    errorMessage.style.color = color;
     errorMessage.style.marginBottom = '15px';
     errorMessage.textContent = message;
 
@@ -262,10 +262,11 @@ const updateProfileSettings = (form) => {
         .then((response) => response.json())
         .then((data) => {
             if (data.success) {
-                alert("settings updated successfully!");
-                loadProfileSettingsPage();
+                // alert("settings updated successfully!");
+                displayUpdatingMessage("Settings were updated!", 'green');
+                // loadProfileSettingsPage();
             } else {
-                displayUpdatingError(data.error + ' Please try again.', form);
+                displayUpdatingMessage(data.error + ' Please try again.', 'red');
             }
         })
         .catch((error) => {

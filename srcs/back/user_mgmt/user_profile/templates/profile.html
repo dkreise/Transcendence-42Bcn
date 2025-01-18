@@ -13,8 +13,15 @@
     <!-- Profile content -->
     <div class="d-flex flex-column align-items-center mb-4">
         <!-- Photo and user info -->
-         {% if user.profile.photo %}
-            <img src="http://localhost:8000{{ user.profile.photo.url }}" alt="Profile Photo" class="profile-photo">
+         <!-- {% if user.profile.photo %}
+            {% if is_external_photo %}
+                <img src="{{ photo_url }}" alt="Profile Photo" class="profile-photo">
+            {% else %}
+                <img src="http://localhost:8000{{ photo_url }}" alt="Profile Photo" class="profile-photo">
+            {% endif %} 
+            {% endif %}-->
+        {% if photo_url %}
+            <img src="{{ photo_url }}" alt="Profile Photo" class="profile-photo">
         {% else %}
             <div class="photo-placeholder mb-3"></div>
         {% endif %}

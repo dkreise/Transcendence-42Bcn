@@ -104,12 +104,25 @@ def match_history_page(request):
 @api_view(['GET'])
 def profile_page(request):
     if request.user.is_authenticated:
-        user_id = request.user.id
+        user = request.user
+        user_id = user.id
+        photo_url = None
+        # is_external_photo = False
         stats_games = player_game_statistics(user_id)
         stats_tournaments = player_tournament_statistics(user_id)
-        print(stats_games)
+
+        if hasattr(user, 'profile'):
+            if user.profile.external_photo_url:
+                photo_url = user.profile.external_photo_url
+            elif user.profile.photo:
+                photo_url = "http://localhost:8000" + user.profile.photo.url
+        else:
+            Profile.objects.create(user=request.user)
+        
         context = {
-            'user': request.user,
+            'user': user,
+            'photo_url': photo_url,
+            # 'is_external_photo': is_external_photo,
             'stats_games': stats_games,
             'stats_tournaments': stats_tournaments,
             'MEDIA_URL': settings.MEDIA_URL,
@@ -141,10 +154,7 @@ def update_profile_settings(request):
         first_name = data.get('first_name', '')
         last_name = data.get('last_name', '')
 
-        # if not username or not email or not password or not name:
-        #     return JsonResponse({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if not re.match(r'^[a-zA-Z0-9.]+$', username):
+        if not re.match(r'^[a-zA-Z0-9.]+$', username) and not user.username.startswith('@42'):
             return JsonResponse({'success': False, "error": "Username should consist only of letters, digits and dots(.)."}, status=status.HTTP_400_BAD_REQUEST)
 
         if User.objects.filter(username=username).exclude(id=request.user.id).exists():
@@ -153,10 +163,13 @@ def update_profile_settings(request):
         user.username = username
         user.first_name = first_name
         user.last_name = last_name
+        print("PHOTO:::: ", user.profile.photo)
 
         if 'photo' in request.FILES:
             profile = user.profile  # to access related profile object
             profile.photo = request.FILES['photo']
+            if user.profile.external_photo_url:
+                user.profile.external_photo_url = None
             profile.save()
 
         user.save()

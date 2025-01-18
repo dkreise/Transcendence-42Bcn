@@ -123,7 +123,8 @@ def saveUser(token):
         user_img = None # here the default
         if user_data['image']['link']:
             user_img = user_data['image']['link']
-        user.profile.photo = user_img
+        # user.profile.photo = user_img
+        user.profile.external_photo_url = user_img
         # print("777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user.profile.photo)  
         user.profile.save()
         return user
