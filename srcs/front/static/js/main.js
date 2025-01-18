@@ -1,7 +1,9 @@
 import { loadLoginPage, handleSignup } from "./login.js";
-import { loadProfilePage } from "./profile.js";
+import { loadProfilePage, loadProfileSettingsPage, loadMatchHistoryPage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage } from "./home.js";
+import { loadFriendsSearchPage } from "./friends.js"
+import { handleLogout } from "./logout.js"
 
 const historyTracker = [];
 
@@ -11,13 +13,16 @@ const historyTracker = [];
 
 const routes = {
     '/': homePage,
-    '/login': homePage,
-    '/home': loadHomePage,
+    '/login': loadLoginPage,
     '/signup': handleSignup,
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,
+    '/home': loadHomePage,
     '/profile': loadProfilePage,
-    // '/logout':  
+    '/profile-settings': loadProfileSettingsPage,
+    '/friends': loadFriendsSearchPage,
+    '/match-history': loadMatchHistoryPage,
+    '/logout': handleLogout,
     // '/options': optionsPage,
     // '/localgame': localGamePage,
     // '/aigame': aiGamePage,
@@ -85,13 +90,11 @@ function homePage() {
 
     if (accessToken) {
         console.log('we have access token');
-        // loadHomePage();
         navigateTo('/home');
-        // loadProfilePage();
     }
     else {
         console.log('we do not have access token..');
-        loadLoginPage(contentArea);
+        navigateTo('/login');
     }
 }
 

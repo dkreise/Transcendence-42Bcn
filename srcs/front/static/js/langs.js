@@ -82,22 +82,25 @@ export async function updateLanguage(lang) {
     //STEP 5: TODO: Update page (Pending Dina code)
 }
 
-document.addEventListener("langButtonLoaded", () => {
-    const languageButton = document.getElementById("language-button");
-    const languageMenu = document.getElementById("language-menu");
+document.addEventListener("DOMContentLoaded", () => {
+    const headerContainer = document.getElementById("header-container");
 
-    // Toggle the visibility of the language menu
-    if (languageButton && languageMenu) {
-        languageButton.addEventListener("click", () => {
-            languageMenu.classList.toggle("d-none");
+    if (headerContainer) {
+        const languageButton = document.getElementById("language-button");
+        const languageMenu = document.getElementById("language-menu");
+    
+        // Toggle the visibility of the language menu
+        if (languageButton && languageMenu) {
+            languageButton.addEventListener("click", () => {
+                languageMenu.classList.toggle("d-none");
+            });
+        }
+    
+        languageMenu.addEventListener("click", event => {
+            const lang = event.target.getAttribute("data-lang");
+            if (lang) {
+                updateLanguage(lang);
+            }
         });
     }
-
-    languageMenu.addEventListener("click", event => {
-        const lang = event.target.getAttribute("data-lang");
-        if (lang) {
-            updateLanguage(lang);
-        }
-    });
 });
-

@@ -1,5 +1,4 @@
 import { makeAuthenticatedRequest } from "./login.js";
-import { addLogoutListener } from "./logout.js";
 import { startGame } from "./remoteGame.js"
 
 
@@ -138,7 +137,7 @@ const renderLastTenGamesChart = (gamesData, username) => {
     });
 };
 
-const loadMatchHistoryPage = () => {
+export const loadMatchHistoryPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/match-history-page/", {method: "GET"})
         .then(response => response.json())
         .then(data => {
@@ -214,7 +213,7 @@ export const loadProfilePage = () => {
         .then((data) => {
             if (data && data.profile_html) {
                 document.getElementById('content-area').innerHTML = data.profile_html;
-                addLogoutListener();
+                // addLogoutListener();
                 console.log('Profile page loaded');
                 fetchLastTenGames().then((gamesData) => {
                     if (gamesData) {
@@ -277,26 +276,25 @@ const updateProfileSettings = (form) => {
 document.addEventListener("DOMContentLoaded", () => {
     const contentArea = document.getElementById("content-area");
     contentArea.addEventListener("click", (event) => {
-        if (event.target && event.target.id == "profile-settings-button") {
-            loadProfileSettingsPage();
-        }
+        // if (event.target && event.target.id == "profile-settings-button") {
+        //     loadProfileSettingsPage();
+        // }
         if (event.target && event.target.id == "save-settings-button") {
             event.preventDefault();
             const form = document.querySelector("#profile-settings-container form");
             updateProfileSettings(form);
         }
-        if (event.target && event.target.id == "match-history-button") {
-            loadMatchHistoryPage();
-        }
+        // if (event.target && event.target.id == "match-history-button") {
+        //     loadMatchHistoryPage();
+        // }
         if (event.target && event.target.id == "apply-filters") {
             applyFilters();
         }
-        if (event.target && event.target.id == "back-to-profile-button") {
-            loadProfilePage();
-        }
+        // if (event.target && event.target.id == "back-to-profile-button") {
+        //     loadProfilePage();
+        // }
         if (event.target && event.target.id == "game") {
             loadGame(contentArea);
         }
     });
 });
-

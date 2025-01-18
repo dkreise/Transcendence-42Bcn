@@ -20,7 +20,7 @@ import requests
 from user_profile.models import Profile
 from .twoFA import TwoFA  
 import base64
-
+from user_mgmt.utils.translations import add_language_context
 
 # def home(request):
 #     if not request.user.is_authenticated:
@@ -52,10 +52,26 @@ def login_view(request):
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def login_form_api(request):
+def login_form(request):
+    print("Login method called")
     if request.method == "GET":
         print("Login form API called")
-        form_html = render_to_string('login.html')
+        context = {}
+        add_language_context(request, context)
+        form_html = render_to_string('login_form.html', context)
+        return JsonResponse({'form_html': form_html}, content_type="application/json")
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def signup_form(request):
+    print("Signup method called")
+    if request.method == "GET":
+        print("Signup form API called")
+        context = {}
+        add_language_context(request, context)
+        form_html = render_to_string('signup_form.html', context)
         return JsonResponse({'form_html': form_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
@@ -72,6 +88,17 @@ def login_form_api(request):
 #     else:
 #         return JsonResponse({'error': 'user not authenticated'}, status=401)
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def signup_form(request):
+    if request.method == "GET":
+        print("Login form API called")
+        context = {}
+        add_language_context(request, context)
+        form_html = render_to_string('signup_form.html', context)
+        return JsonResponse({'form_html': form_html}, content_type="application/json")
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @api_view(['POST'])
 @permission_classes([AllowAny])

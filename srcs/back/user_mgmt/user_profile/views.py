@@ -6,7 +6,6 @@ from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
 from .models import Profile
-from .translations import add_language_context 
 from rest_framework import status
 import json
 import requests
@@ -16,6 +15,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import activate
 from django.contrib.auth.decorators import login_required
+from user_mgmt.utils.translations import add_language_context
 
 @api_view(['GET'])
 def user_info_api(request):

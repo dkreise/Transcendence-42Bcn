@@ -1,6 +1,6 @@
 <div id="login-container">
 	<div class="container">
-		<h1>Sign Up</h1>
+		<h1>{{sign_up}}</h1>
 		<form id="signup-form" method="post" action="http://localhost:8000/api/register/">
 			<div style="display: flex; align-items: center; justify-content: space-between;">
 				<label for="username">{{username}}:</label>
@@ -22,7 +22,8 @@
 				<label for="email">{{email}}:</label>
 				<input type="text" id="email" name="email">
 			</div>
-			<button id="signup-submit" type="submit" value="submit">Submit</button>
+			<button id="signup-submit" type="submit" value="submit">{{submit}}</button>
+			<p id="loginlink" style="margin: 7px;">{{dont_have_account}}<a href="/login" data-route="/login" id="login-link">{{click_here}}</a></p>
 		</form>
 	</div>
 </div>
