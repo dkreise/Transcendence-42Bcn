@@ -4,7 +4,7 @@ import { startGame } from "./remoteGame.js"
 
 var baseUrl = "http://localhost"; // change (parse) later
 
-const displayUpdatingMessage = (message, color) => {
+export const displayUpdatingMessage = (message, color) => {
     const profileSettingsContainer = document.getElementById('profile-settings-form');
     if (!profileSettingsContainer)
         return;
@@ -188,6 +188,9 @@ export const loadProfileSettingsPage = () => {
         .then(data => {
             if (data.profile_settings_html) {
                 document.getElementById('content-area').innerHTML = data.profile_settings_html;
+                // if (msg) {
+                //     displayUpdatingMessage(msg, 'green');
+                // }
             } else {
                 console.error('Error fetching settings:', data.error);
             }

@@ -136,8 +136,11 @@ def profile_page(request):
 @api_view(['GET'])
 def profile_settings_page(request):
     if request.user.is_authenticated:
+        two_fa_enabled = request.user.profile.two_fa
+        print("TWO FA :::::", two_fa_enabled)
         context = {
             'user': request.user,
+            'two_fa_enabled': two_fa_enabled
         }
         add_language_context(request, context)
         profile_settings_html = render_to_string('settings_profile.html', context)

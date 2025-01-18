@@ -4,6 +4,7 @@ import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
+import { enable2FA, disable2FA } from "./twoFA.js";
 
 const historyTracker = [];
 
@@ -20,6 +21,8 @@ const routes = {
     '/home': loadHomePage,
     '/profile': loadProfilePage,
     '/profile-settings': loadProfileSettingsPage,
+    '/two-fa-setup': enable2FA,
+    '/two-fa-disable': disable2FA,
     '/friends': loadFriendsSearchPage,
     '/match-history': loadMatchHistoryPage,
     '/logout': handleLogout,
@@ -38,11 +41,14 @@ const routes = {
 // If the path exists in the routes object, its associated function is executed.
 
 function router() {
-    const path = window.location.pathname;
+    let path = window.location.pathname;
 
     if (routes[path]) {
+        // if (path === '/profile')
+        //     path = '/two-fa-setup';
         routes[path](); // Call the function associated with the path
     } else {
+        alert("rerer");
         console.log(`Route ${path} not handled`);
         // renderNotFound(); // Handle unknown routes
     }

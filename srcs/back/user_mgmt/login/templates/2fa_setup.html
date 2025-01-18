@@ -6,10 +6,11 @@
     </div>
     <div id="2fa-verify-container"> 
         <h1>Verify Two-Factor Authentication</h1>
-        <form method="post">
+        <form id="two-fa-form" method="post">
             <label for="code">Enter the 6-digit code:</label>
             <input type="text" id="2fa-code" name="code" required placeholder="Verification Code">
-            <button id="verify-2fa-button" type="submit">Verify</button>
+            <button id="verify-2fa-button" type="submit" >Verify</button>
         </form>
     </div>
+    <button data-route="/profile-settings">Back to Settings</button>
 </div>
