@@ -51,7 +51,8 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
     const accessToken = localStorage.getItem("access_token");
     if (!accessToken) {
         console.error("No access token available.");
-        return Promise.reject("No access token.");
+        // return Promise.reject("No access token.");
+        navigateTo('/login', true); // + maybe remove everything from local storage? or just handleLogout?
     }
 
     options.headers = {
@@ -98,18 +99,21 @@ const handleLogin = () => {
     .then(data => {
         if (data.success) {
 
-            localStorage.setItem('access_token', data.tokens.access);
-            localStorage.setItem('refresh_token', data.tokens.refresh);
-          
-            updateLanguage();
-            // loadProfilePage(); //navigateTo later instead
-            // navigateTo('/profile'); // change to navigate to home
-            // loadHomePage();
-            navigateTo('/home', true);
-
+            if (data.two_fa_required) {
+                // displayLoginError('2fa required...', 'login-form');
+                localStorage.setItem('temp_token', data.temp_token);
+                navigateTo('/two-fa-login', true);
+            } else {
+                localStorage.setItem('access_token', data.tokens.access);
+                localStorage.setItem('refresh_token', data.tokens.refresh);
+            
+                updateLanguage();
+                navigateTo('/home', true);
+            }
+                
         } else {
             displayLoginError('Invalid credentials. Please try again.', 'login-form');
-            }
+        }
         })
     .catch(error => {
         console.error('Error logging in:', error);

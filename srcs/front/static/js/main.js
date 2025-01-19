@@ -4,7 +4,7 @@ import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
-import { enable2FA, disable2FA } from "./twoFA.js";
+import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 
 const historyTracker = [];
 
@@ -18,6 +18,7 @@ const routes = {
     '/signup': handleSignup,
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,
+    '/two-fa-login': loadLogin2FAPage,
     '/home': loadHomePage,
     '/profile': loadProfilePage,
     '/profile-settings': loadProfileSettingsPage,

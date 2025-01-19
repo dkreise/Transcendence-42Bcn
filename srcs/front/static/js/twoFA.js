@@ -4,8 +4,8 @@ import { navigateTo } from "./main.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
-const display2FAMessage = (message, color) => {
-    const twoFAForm = document.getElementById('two-fa-form');
+const display2FAMessage = (form, message, color) => {
+    const twoFAForm = document.getElementById(form);
     if (!twoFAForm)
         return;
 
@@ -22,6 +22,19 @@ const display2FAMessage = (message, color) => {
     twoFAForm.prepend(errorMessage); //adding at the top of the login container
 };
 
+export const loadLogin2FAPage = () => {
+    const contentArea = document.getElementById("content-area");
+    fetch(baseUrl + ":8000/api/2fa-login/", {method: "GET"})
+        .then(response => response.json())
+        .then(data => {
+            if (data.form_html) {
+                    console.log('2FA form html returned!');
+                    contentArea.innerHTML = data.form_html;
+            }
+        })
+        .catch(error => console.error('Error loading 2FA login form:', error));
+}
+
 export const enable2FA = () => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/2fa/enable/", {
         method: "POST",
@@ -33,7 +46,6 @@ export const enable2FA = () => {
                 document.getElementById('content-area').innerHTML = data.setup_html;
                 document.getElementById("2fa-qr-code").src = `data:image/png;base64,${data.qr_code}`;
             } else {
-                // alert(data.error || "Failed to enable 2FA.");
                 console.error("Error while enabling 2FA.")
             }
         })
@@ -62,12 +74,10 @@ const  verify2FA = () => {
     const codeInput = document.getElementById("2fa-code");
     const code = codeInput.value;
     if (!code) {
-        // alert("Please enter the verification code."); // change to error message
         display2FAMessage("Please enter the verification code.", 'red');
         return;
     }
 
-    // alert(code);
     makeAuthenticatedRequest(baseUrl + ":8000/api/2fa/verify/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -81,27 +91,37 @@ const  verify2FA = () => {
                 displayUpdatingMessage("2FA has been enabled.", 'green');
             } else {
                 console.log("Invalid or expired 2fa code.");
-                display2FAMessage("Invalid or expired verification code.", 'red');
-                // navigateTo('/profile-settings', true); // stay instead
+                display2FAMessage('two-fa-form', "Invalid or expired verification code.", 'red');
             }
         })
-        .catch((error) => console.error("Error verifying 2FA:", error));
-    
-
-    // fetch("http://localhost:8000/api/2fa/verify/", {
-    //     method: "POST",
-    //     headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-    //     },
-    //     body: JSON.stringify({ code: "123456" }),
-    // })
-    //     .then((response) => response.json())
-    //     .then((data) => console.log("Response data:", data))
-    //     .catch((error) => console.error("Fetch error:", error));
-    //     alert("afaf");
-    
+        .catch((error) => console.error("Error verifying 2FA:", error));    
 };
+
+const verify2FALogin = () => {
+    const codeInput = document.getElementById("2fa-code");
+    const code = codeInput.value;
+    const temp_token = localStorage.getItem("temp_token");
+
+    fetch(baseUrl + ":8000/api/2fa-login/verify/", {
+        method: "POST",
+        body: JSON.stringify({ code: code, temp_token: temp_token }),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.success) {
+            console.log("2fa code CORRECT !!");
+            localStorage.setItem('access_token', data.tokens.access);
+            localStorage.setItem('refresh_token', data.tokens.refresh);
+            localStorage.removeItem('temp_token');
+            // updateLanguage();
+            navigateTo('/home', true);
+        } else {
+            console.log("Invalid or expired 2fa code.");
+            display2FAMessage('two-fa-login-form', "Invalid or expired verification code.", 'red');
+        }
+    })
+    .catch((error) => console.error("Error verifying 2FA:", error));
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     const contentArea = document.getElementById("content-area");
@@ -109,6 +129,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (event.target && event.target.id == "two-fa-form") {
             event.preventDefault();
             verify2FA();
+        }
+        if (event.target && event.target.id == "two-fa-login-form") {
+            event.preventDefault();
+            verify2FALogin();
         }
     });
 });
