@@ -9,8 +9,7 @@ urlpatterns = [
 	# path("logout/", views.logout_view, name="logout"),
 
 	path("api/login/", views.login_view, name="login_api"),
-	path("api/login-form/", views.login_form, name="login_form"),
-	path("api/signup-form/", views.signup_form, name="signup_form"),
+	path("api/login-form/", views.login_form_api, name="login_form_api"),
 	# path("api/user-info/", views.user_info_api, name="user_info_api"),
 	path("api/register/", views.register_user, name='register_user'),
 	path("api/token/refresh/", TokenRefreshView.as_view(), name='token_refresh'),
@@ -22,4 +21,3 @@ urlpatterns = [
 	path("api/2fa/disable/", views.disable_2fa, name="disable_2fa"),
     path("api/2fa/status/", views.check_status_2fa, name="check_2fa_status"),
 ]
-

@@ -2,7 +2,7 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1>{{friends}}</h1>
         <div>
-            <button data-route="/profile" id="back-to-profile-button">{{my_profile}}</button>
+            <button id="back-to-profile-button">{{my_profile}}</button>
         </div>
     </div>
 
@@ -55,10 +55,10 @@
     <!-- Friends List Section -->
      <div id="friends-section">
         <h2>My Friends</h2>
-        {% if friends_list %}
+        {% if friends %}
             <ul>
-                {% for friend in friends_list %}
-                    <li id="friend-item" data-id="{{ friend.id }}">
+                {% for friend in friends %}
+                    <li>
                         
                         <div class="user-info">
                             {{ friend.user.username }}
