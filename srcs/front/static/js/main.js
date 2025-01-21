@@ -1,4 +1,4 @@
-import { loadLoginPage, handleSignup } from "./login.js";
+import { loadLoginPage, handleLogin, handleSignup } from "./login.js";
 import { loadProfilePage, loadProfileSettingsPage, loadMatchHistoryPage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage } from "./home.js";
@@ -15,6 +15,7 @@ const historyTracker = [];
 const routes = {
     '/': homePage,
     '/login': loadLoginPage,
+    // '/handle-login': handleLogin,
     '/signup': handleSignup,
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,
@@ -45,8 +46,6 @@ function router() {
     let path = window.location.pathname;
 
     if (routes[path]) {
-        // if (path === '/profile')
-        //     path = '/two-fa-setup';
         routes[path](); // Call the function associated with the path
     } else {
         alert("rerer");

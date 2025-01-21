@@ -86,7 +86,7 @@ export const loadLoginPage = () => {
         .catch(error => console.error('Error loading login form:', error));
 };
 
-const handleLogin = () => {
+export const handleLogin = () => {
     const loginForm = document.getElementById('login-form');
     const formData = new FormData(loginForm);
     fetch(baseUrl + ":8000/api/login/", {

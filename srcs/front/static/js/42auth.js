@@ -43,7 +43,12 @@ export const handle42Callback = () => {
                     navigateTo('/home', true);
                     
                     // loadProfilePage();
-                }else{
+                } else if (data.two_fa_required) {
+                    localStorage.setItem('temp_token', data.temp_token);
+                    localStorage.setItem('intra_token', data.intra_token);
+                    localStorage.setItem('username', data.username);
+                    navigateTo('/two-fa-login', true);
+                } else {
                     clearURL();
                     displayLoginError('Invalid credentials. Please try again.', 'login-form');
                 }

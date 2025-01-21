@@ -26,6 +26,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework import status
 from django.templatetags.static import static
 import re
+from .views import generate_temp_token
 
 from datetime import datetime
 
@@ -83,6 +84,19 @@ class Callback42API(APIView):
             print("42 username !!!!!!!!!!!!!!!!!!:", user.username)
             # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
             django_login(request, user)
+
+            profile = user.profile
+            if profile.two_fa:
+                temp_token = generate_temp_token(user)
+                return Response({
+                    'success': True,
+                    'two_fa_required': True,
+                    'temp_token': temp_token,
+                    'intra_token': str(intra_token),
+                    'username': user.first_name,
+                    'message': '2FA required. Provide the verification code.'
+                })
+
             if request.user.is_authenticated:
                 print("User authenticated successfully:", request.user.username)
             else:
@@ -90,6 +104,8 @@ class Callback42API(APIView):
             # print("777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user.profile.photo)
             refresh_token = RefreshToken.for_user(user)
             loginResponse = {
+                'success': True,
+                'two_fa_required': False,
                 'refresh_token': str(refresh_token),
                 'access_token': str(refresh_token.access_token), 
                 'intra_token': str(intra_token),
