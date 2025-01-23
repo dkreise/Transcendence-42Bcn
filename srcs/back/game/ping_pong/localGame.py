@@ -22,12 +22,11 @@ from django.contrib.auth.decorators import login_required
 
 logger = logging.getLogger(__name__)
 
-
-# @permission_classes([IsAuthenticated])
 @api_view(['GET'])
-def get_second_name(request)
-    print("In get second name api")
-    if request.user.is_authenticated:
+def get_second_name(request):
+    print("In get second name headers: ", request.headers)
+    print("In get second name api: ", request.user)
+    if request.user:
         context = {
             'user': request.user,
         }
@@ -35,4 +34,4 @@ def get_second_name(request)
         get_second_name_html = render_to_string('get_name.html', context)
         return JsonResponse({'get_name.html': get_second_name_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'}, status=402)

@@ -9,7 +9,7 @@ urlpatterns = [
     path('scores/', views.score_list, name='score_list'),
     path('winner/', views.winner_page, name='winner'),
 
-    path('api/game/local-game/get-name/', localGame.get_second_name, name='get_name'),
+    path('api/local-game/get-name/', localGame.get_second_name, name='get_second_name'),
     # path('api/save-score')
 
     path('api/player/<int:player_id>/game_statistics/', views.get_player_game_statistics, name='player_game_statistics'),

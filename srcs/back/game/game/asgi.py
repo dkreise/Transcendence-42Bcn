@@ -5,6 +5,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from game.routing import websocket_urlpatterns
 from ping_pong.gameManager import GameManager  # Import your GameManager class
+# from game.middleware import JwtAuthMiddlewareStack
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "game.settings")
 
@@ -14,6 +15,22 @@ application = ProtocolTypeRouter({
         URLRouter(websocket_urlpatterns)
     ),
 })
+
+# django_asgi_app = get_asgi_application()
+
+# application = ProtocolTypeRouter({
+#     "http": JwtAuthMiddlewareStack(django_asgi_app),
+#     "websocket": JwtAuthMiddlewareStack(
+#         URLRouter(websocket_urlpatterns)
+#     ),
+# })
+
+# application = ProtocolTypeRouter({
+#     "http": get_asgi_application(),
+#     "websocket": wtAuthMiddlewareStack(
+#         URLRouter(websocket_urlpatterns)
+#     ),
+# })
 
 # Define a function to start the background game loop
 async def start_game_loop():

@@ -20,6 +20,7 @@ from django.contrib.auth.decorators import login_required
 @api_view(['GET'])
 def user_info_api(request):
     if request.user.is_authenticated:
+        print("USER AUthenticated")
         context = {
             'user': request.user,  # Pass the user object to the template
         }
@@ -89,6 +90,7 @@ def player_all_games(player_id):
 
 @api_view(['GET'])
 def match_history_page(request):
+    print("In match history api: ", request.user)
     if request.user.is_authenticated:
         user_id = request.user.id
         all_games = player_all_games(user_id)
@@ -104,6 +106,7 @@ def match_history_page(request):
 @api_view(['GET'])
 def profile_page(request):
     if request.user.is_authenticated:
+        print("USER AUthenticated")
         user_id = request.user.id
         stats_games = player_game_statistics(user_id)
         stats_tournaments = player_tournament_statistics(user_id)

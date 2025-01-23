@@ -10,18 +10,30 @@ export const playLocal = () => {
         navigateTo('/login');
     } else {
 
+        const accessToken = localStorage.getItem("access_token");
         console.log('Loading get second name page...')
-        makeAuthenticatedRequest(baseUrl + ":8001/api/game/local-game/get-name/", {method: "GET"})
-            .then(respose => respose.json())
+        makeAuthenticatedRequest(baseUrl + ":8001/api/local-game/get-name/", {
+            method: "GET",
+        })
+            .then((response) => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    console.log("Response: ", response);
+                    console.error("Failed to fetch second player");
+                    throw error;
+                }
+            }) 
             .then(data => {
                 if (data.get_second_name_html) {
                     document.getElementById('content-area').innerHTML = data.get_second_name_html;
                 } else {
-                    console.error('Error fetching second player page:', data.error);
+                    
+                    console.error('2Error fetching second player page:', data.error);
                 }
             })
             .catch(error => {
-                console.error('Error fetching second player page:', error);
+                console.error('Catch error fetching second player page:', error);
             });
 
         // const contentArea = document.getElementById('content-area');

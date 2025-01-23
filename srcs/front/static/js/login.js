@@ -54,11 +54,19 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
         return Promise.reject("No access token.");
     }
 
-    options.headers = {
-        ...options.headers,
-        Authorization: `Bearer ${accessToken}`, // adding authorization header with the access token
+    options = {
+        ...options,
+        headers: {
+            ...options.headers,
+            "Authorization": `Bearer ${accessToken}`, // adding authorization header with the access token
+            "Content-Type": "application/json",
+        },
+        credencials: 'include',
+        // mode: 'no-cors',
     };
-  
+
+
+    console.log("Request in makeauthenticated request: ", options);
     // if (url == baseUrl + ":8000/api/2fa/verify/" || url == baseUrl + ":8000/api/2fa/enable/") {
     //     alert("here");
     // }
