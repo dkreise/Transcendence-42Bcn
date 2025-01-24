@@ -11,7 +11,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.auth.hashers import make_password
 from rest_framework import status
 import json
@@ -234,8 +234,10 @@ def check_status_2fa(request):
         return JsonResponse({'error': 'user not authenticated'}, status=401)
 
 @api_view(['GET'])
-@permission_classes(['AllowAny'])
+@permission_classes([AllowAny])
 def verify_token(request):
+
+    print('fooooo')
     print("SUCCESFULLY ENTERED, VERIFYING TOKEN...")
     if request.user == AnonymousUser() or not request.user:
         return JsonResponse({'error': 'no token'}, status=498)

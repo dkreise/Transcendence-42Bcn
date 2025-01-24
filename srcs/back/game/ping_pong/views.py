@@ -81,6 +81,7 @@ def winner_page(request):
 
 @api_view(['GET'])
 def get_player_game_statistics(request, player_id):
+    print("GAME stats request: ", request)
     games_played = Game.objects.filter(Q(player1_id=player_id) | Q(player2_id=player_id)).count()
     games_won = Game.objects.filter(winner_id=player_id).count()
 
