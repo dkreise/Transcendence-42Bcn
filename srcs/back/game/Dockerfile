@@ -16,6 +16,7 @@ RUN chmod 777 entrypoint.sh
 
 # Set Python to unbuffered mode
 ENV PYTHONUNBUFFERED=1
+ENV DJANGO_SETTINGS_MODULE=game.settings
 
 # Expose the application port (adjust according to your app's port)
 EXPOSE 8001

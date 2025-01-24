@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import environ
 import os
+from datetime import timedelta
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,25 +40,27 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'game']
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
+    'ping_pong',
+    'tournament',
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'corsheaders',
     'django.contrib.admin',
-    'django.contrib.auth',
+    'django.contrib.auth', 
+    'rest_framework_simplejwt.token_blacklist',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     # 'django.contrib.staticfiles',
     'django.contrib.postgres',
     'channels',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
-    'tournament',
-    'ping_pong',
     'django_extensions',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -64,8 +68,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
+    # 'game.middleware.JwtAuthMiddleware',
 ]
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8443",  # Allow your frontend's origin
+]
+
+CORS_ALLOW_CREDENTIALS = True  # This allows all origins, useful for dev.
 
 ROOT_URLCONF = 'game.urls'
 
@@ -163,8 +175,39 @@ CHANNEL_LAYERS = {
     },
 }
 
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Allow cookies to be sent with each request
+SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to the session cookie
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Use database-backed sessions
+SESSION_COOKIE_SECURE = False  # Set to True for HTTPS in production
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to access CSRF token
+CSRF_COOKIE_SECURE = False  # Set to True for HTTPS in production
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # 'game.middleware.CustomAuthentication',
+        'game.authentication.CustomAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
     ),
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',  # Restricts access to authenticated users
+    ],
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=300),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True, 
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'TOKEN_BLACKLIST_ENABLED': True,  # Enable blacklist feature
 }
