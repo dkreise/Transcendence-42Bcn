@@ -3,9 +3,11 @@ import logging
 from asgiref.sync import sync_to_async
 from channels.auth import AuthMiddlewareStack
 # from django.contrib.auth.models import AnonymousUser
-# from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist
 # from django.contrib.auth import get_user_model
 import aiohttp
+from rest_framework.exceptions import AuthenticationFailed
+
 
 # logger = logging.getLogger(__name__)
 
@@ -82,12 +84,13 @@ async def get_user_from_token(username):
 # Middleware for both WebSocket and HTTP requests
 class JwtAuthMiddleware:
     
-    def __init__(self, get_response=None):
+    def __init__(self, inner):
         """
         Initializes the middleware. 
         For HTTP requests, `get_response` is the next middleware in the chain.
         """
-        self.get_response = get_response
+        # self.get_response = get_response
+        self.inner = inner
 
     # Ensure Django apps are ready
         # if not apps.ready:
@@ -114,50 +117,78 @@ class JwtAuthMiddleware:
             print(f"HTTP error during token verification: {e}")
             return None
 
-    async def handle_websocket(self, scope, receive, send):
-        """
-        Handles WebSocket authentication.
-        Extracts the token from the query string, verifies it, and attaches the user to the scope.
-        Closes the WebSocket if authentication fails.
-        """
-        from urllib.parse import parse_qs
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
+    # async def handle_websocket(self, scope, receive, send):
+    #     """
+    #     Handles WebSocket authentication.
+    #     Extracts the token from the query string, verifies it, and attaches the user to the scope.
+    #     Closes the WebSocket if authentication fails.
+    #     """
+    #     from urllib.parse import parse_qs
+    #     from django.contrib.auth import get_user_model
+    #     User = get_user_model()
 
-        query_string = scope.get('query_string', b'').decode('utf-8')
-        query_params = parse_qs(query_string)
-        token = query_params.get('token', [None])[0]
-        print("@@@@@@@@@@@@@@@@@@@@@@@  1!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
-        if token:
-            print("@@@@@@@@@@@@@@@@@@@@@@@  2!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
-            username = await self.verify_token(token)
-            if username:
-                scope['user'] = await get_user_from_token(username)
-                print("USER FOUND: ", scope['user'])
-            else:
-                print("Invalid or expired token for WebSocket connection.")
-                await send({'type': 'websocket.close', 'code': 4001})
-                return
-        else:
-            print("No token provided for WebSocket connection.")
-            await send({'type': 'websocket.close', 'code': 4001})
-            return
+    #     query_string = scope.get('query_string', b'').decode('utf-8')
+    #     query_params = parse_qs(query_string)
+    #     token = query_params.get('token', [None])[0]
+    #     print("@@@@@@@@@@@@@@@@@@@@@@@  1!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
+    #     if token:
+    #         print("@@@@@@@@@@@@@@@@@@@@@@@  2!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
+    #         username = await self.verify_token(token)
+    #         if username:
+    #             scope['user'] = await get_user_from_token(username)
+    #             print("USER FOUND: ", scope['user'])
+    #         else:
+    #             print("Invalid or expired token for WebSocket connection.")
+    #             await send({'type': 'websocket.close', 'code': 4001})
+    #             return
+    #     else:
+    #         print("No token provided for WebSocket connection.")
+    #         await send({'type': 'websocket.close', 'code': 4001})
+    #         return
 
     
     async def __call__(self, scope, receive=None, send=None):
         """Entry point for WebSocket and HTTP requests."""
         print("@@@@@@@@@@@@@@@@@@@@@@@  TOKEN: HA PASADO POR MIDDLEWARE @@@@@@@@@@@@@@@@@")
         print("SCOPE: ", scope)
-        # Import models or settings here, not globally
-        # User = apps.get_model('auth', 'User')  # Example
-        # query_string = scope.get('query_string', b'').decode('utf-8')
-        # query_params = parse_qs(query_string)
-        # token = query_params.get('token', [None])[0]
-        # print("Query string:", query_string)
-        
-        if scope['type'] == 'websocket':
-            # For WebSocket connections
-            await self.handle_websocket(scope, receive, send)
+
+        try:
+            query_string = scope.get('query_string', b'').decode('utf-8')
+            query_params = parse_qs(query_string)
+            token = query_params.get('token', [None])[0]
+            print("@@@@@@@@@@@@@@@@@@@@@@@  1!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
+            if token:
+                print("@@@@@@@@@@@@@@@@@@@@@@@  2!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
+                username = await self.verify_token(token)
+                if username:
+                    scope['user'] = await get_user_from_token(username)
+                    print("USER FOUND: ", scope['user'])
+                else:
+                    print("Invalid or expired token for WebSocket connection.")
+                    await send({'type': 'websocket.close', 'code': 4001})
+                    return
+            else:
+                print("No token provided for WebSocket connection.")
+                await send({'type': 'websocket.close', 'code': 4001})
+                return
+                # For WebSocket connections
+            
+            return await self.inner(scope, receive, send)
+
+        except AuthenticationFailed as e:
+            logger.error(f"Authentication failed: {e}")
+            close_message = {
+                'type': 'websocket.close',
+                'code': 4001
+            }
+            await send(close_message)
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            close_message = {
+                'type': 'websocket.close',
+                'code': 4000
+            }
+            await send(close_message)
 
 # Middleware wrapper for Django Channels
 def JwtAuthMiddlewareStack(inner):
