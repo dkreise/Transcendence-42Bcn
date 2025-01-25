@@ -13,4 +13,4 @@ Werkzeug
 django-environ
 black
 flake8
-httpx
+aiohttp

@@ -1,7 +1,8 @@
 import { loadLoginPage, handleSignup } from "./login.js";
-import { loadProfilePage } from "./profile.js";
+import { loadProfilePage, loadProfileSettingsPage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage } from "./home.js";
+import { playLocal, playAI, playOnline, gameLocal } from "./game.js"
 
 const historyTracker = [];
 
@@ -17,11 +18,13 @@ const routes = {
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,
     '/profile': loadProfilePage,
-    // '/logout':  
-    // '/options': optionsPage,
-    // '/localgame': localGamePage,
-    // '/aigame': aiGamePage,
-    // '/tournament': tournamentPage,
+    '/settings': loadProfileSettingsPage,
+    '/play-local': playLocal,
+    '/play-ai': playAI,
+    '/play-online': playOnline,
+    '/play-local/game': gameLocal,
+    // '/tournament': playTournament,
+
 
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
@@ -39,9 +42,19 @@ function router() {
         routes[path](); // Call the function associated with the path
     } else {
         console.log(`Route ${path} not handled`);
-        // renderNotFound(); // Handle unknown routes
+        // showNotFound(); // Handle unknown routes
     }
 }
+
+// function showNotFound() {
+//     console.log("Rendering 404 Page");
+//     contentArea.innerHTML = `
+//         <div>
+//             <h1>404 - Page Not Found</h1>
+//             <p>The requested page does not exist.</p>
+//         </div>
+//     `;
+// }
 
 // The navigateTo() function is responsible for programmatically changing 
 // the browser's history and triggering the router.
@@ -79,22 +92,28 @@ export function clearURL() {
     window.history.replaceState({}, document.title, url.toString());
 }
 
-function homePage() {
-    const contentArea = document.getElementById('content-area');
+export function checkPermission () {
     const accessToken = localStorage.getItem('access_token');
 
-    if (accessToken) {
-        console.log('we have access token');
-        // loadHomePage();
+    if (!accessToken) {
+        console.log(`Permissions: No access token, permission denied`);
+        return false;
+    }
+    console.log(`Permissions: We have access token, congrats!`);
+    return true;
+}
+
+function homePage() {
+    const contentArea = document.getElementById('content-area');
+    
+    if (checkPermission ()) {
         navigateTo('/home');
-        // loadProfilePage();
     }
     else {
-        console.log('we do not have access token..');
+        // console.log('we do not have access token..');
         loadLoginPage(contentArea);
     }
 }
-
 
 var baseUrl = "http://localhost"; // change (parse) later
 

@@ -30,8 +30,13 @@ SECRET_KEY = 'django-insecure-^)=g1^6d1@)ddwk@+k*jnjh$63+j%m3!zng%yex8x*f7qi_&w6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+<<<<<<< HEAD
 ALLOWED_HOSTS = ['localhost', 'transcendence', 'user_mgmt'] 
 
+=======
+# ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'user_mgmt', 'user_mgmt:8000'] #rarete tambien
+ALLOWED_HOSTS = ['*']
+>>>>>>> main
 
 # Application definition
 
@@ -63,13 +68,16 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'user_mgmt.middleware.NoCacheMiddleware',
+    # 'user_mgmt.middleware.NoCacheMiddleware',
 ]
 
-# Allow the frontend origin
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8443",  # Allow your frontend's origin
-]
+# # Allow the frontend origin
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:8443",  # Allow your frontend's origin
+#     "http://localhost:8001",
+#     "http://game:8001",
+
+# ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # FOR TESTING ONLY; restrict in production
 
@@ -166,7 +174,7 @@ CSRF_COOKIE_SECURE = False  # Set to True for HTTPS in production
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'login.authentication.Intra42Authentication',
+        # 'login.authentication.Intra42Authentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',
@@ -177,7 +185,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=300),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'ROTATE_REFRESH_TOKENS': True, 
     'BLACKLIST_AFTER_ROTATION': True,

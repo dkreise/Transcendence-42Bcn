@@ -18,10 +18,10 @@ services:
     networks:
        - trs_net
 
-  user_mgmt:
+  user-mgmt:
     build:
       context: ./back/user_mgmt
-    container_name: user_mgmt
+    container_name: user-mgmt
     depends_on:
       - db
     environment:

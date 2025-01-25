@@ -22,6 +22,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			# Extract the token from the query string
 			token = query_string.get('token', [None])[0]
 			logger.info(f"\033[1;33mtoken is: {token}\033[0m")
+			logger.info(f"scope user: {self.scope['user']}")
 
 			if not token:
 				logger.warning("No token provided.")
