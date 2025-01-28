@@ -7,7 +7,7 @@ from .serializers import PlayerSerializer, GameSerializer
 from django.contrib.auth.models import User
 import random
 from django.db.models import Q
-from game.utils.translations import add_language_context 
+from game.utils.translations import add_language_context
  
 @api_view(['GET'])
 def player_list(request):

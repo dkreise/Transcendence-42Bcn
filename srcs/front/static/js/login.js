@@ -62,7 +62,6 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
             "Content-Type": "application/json",
         },
         credencials: 'include',
-        // mode: 'no-cors',
     };
 
 

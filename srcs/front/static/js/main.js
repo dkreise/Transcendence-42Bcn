@@ -3,6 +3,7 @@ import { loadProfilePage, loadProfileSettingsPage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage } from "./home.js";
 import { playLocal, playAI, playOnline, gameLocal } from "./game.js"
+// import { gameLocal } from "./localGame.js"
 
 const historyTracker = [];
 
@@ -137,6 +138,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target && target.hasAttribute('data-route')) {
             const route = target.getAttribute('data-route');
             console.log(`a data rout clicked... ${route}`)
+            console.log(`Type is ${target.type}, tag is ${target.tagName}`)
+
+            if (target.tagName === 'BUTTON' && target.type === 'submit') {
+                console.log(`An event is prevented!  ${route}`)
+                event.preventDefault();
+            }
+
             navigateTo(route);
         }
     });

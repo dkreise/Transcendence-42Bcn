@@ -32,6 +32,42 @@ def get_second_name(request):
         }
         add_language_context(request, context)
         get_second_name_html = render_to_string('get_name.html', context)
-        return JsonResponse({'get_name.html': get_second_name_html}, content_type="application/json")
+        return JsonResponse({'get_name_html': get_second_name_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=402)
+
+@api_view(['POST'])
+def play_game(request):
+    print("In play game: ", request.user)
+    print("In play game, request: ", request.data)
+    second_player = request.data.get('second-player')
+    if not request.user:
+        return JsonResponse({'error': 'User not authenticated'}, status=402)
+    elif not second_player:
+        return JsonResponse({'error': 'No second player'}, status=403)
+    
+    context = {
+        'user': request.user,
+        'player1': request.user.username,
+        'player2': second_player,    
+    }
+    resp = {
+        'main_user': 1,
+        # 'player1': request.user,
+        # 'player2': request['second-player'],
+    }
+
+    if random.randint(1, 2) == 1:
+        context['player1'] = second_player
+        context['player2'] = request.user.username
+        # resp['player1'] = request['second-player']
+        # resp['player2'] = request.user
+        resp['main_user'] = 2
+    
+    resp['player1'] = context['player1']
+    resp['player2'] = context['player2']
+    add_language_context(request, context)
+    game_html = render_to_string('local_game.html', context)
+    resp['game_html'] = game_html
+    resp['Content-Type'] = 'application/json'
+    return JsonResponse(resp)

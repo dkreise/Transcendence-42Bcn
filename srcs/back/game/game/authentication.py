@@ -15,11 +15,7 @@ class CustomAuthentication(BaseAuthentication):
             return None
         headers = {"Authorization": auth_header}
         print("@@@@@@@@@@@@@@@@@@@@@@ AUTH MIDDLEWARE @@@@@@@@")
-        # print("header: ", headers)
-        # login_url = 'http://user_mgmt:8000'
-        # endpoint = f'{login_url}/api/player/{player_id}/game_statistics/'
         req = requests.get('http://user-mgmt:8000/api/user-mgmt/verify-token/', headers=headers)
-        # req = requests.get('http://user-mgmt:8000/api/user-mgmt/verify-token/')
         if req.status_code == 200:
             username = req.json()['user']
             if username:
@@ -28,5 +24,5 @@ class CustomAuthentication(BaseAuthentication):
                     user = User.objects.get(username=username)
                     return (user, None)
                 except User.DoesNotExist:
-                    raise AuthenticationFailed('Invalid or expired token')
+                    raise AuthenticationFailed('Invalid or expired token: User does not exist')
         raise AuthenticationFailed('Invalid or expired token')

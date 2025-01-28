@@ -41,4 +41,10 @@ def get_lang_words(lang):
 			'my_profile': "My Profile",
 			'enter_name': "Enter second player's name:",
             'start_game': "Start the game",
+			'restart': "Restart",
+			'play again': "Play again",
+			'back': "Back",
+			'logout': "Logout",
+			'waiting_message': "The game is ready! Let’s play!",
+			'game_title': "CRRRRAAAZZZY PONG!",
 		}
