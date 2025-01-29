@@ -1,4 +1,5 @@
 import { Ball, Player } from "./remoteClasses.js";
+import { setupControls } from "./localGame.js"
 
 let canvas = null;
 let ctx = null;
@@ -20,7 +21,7 @@ let opponent = null;
 
 let wait = 1;
 let gameLoopId = null;
-
+ 
 console.log("Hi! This is remoteGame.js :D");
 
 function interpolateBall() {
@@ -94,6 +95,7 @@ function initializeWebSocket() {
 			case "status":
 				displayStatus(data.wait);
 				if (!data.wait)
+					setupControls()
 					gameLoop();
 				break;
 			case "role":
@@ -139,15 +141,15 @@ function gameLoop() {
 	ball.move(player, opponent, gameLoopId, socket);
 }
 
-window.addEventListener('keydown', (e) => {
-	if (e.key === 'w' || e.key === 'ArrowUp') player.up = true;
-	if (e.key === 's' || e.key === 'ArrowDown') player.down = true;
-});
+// window.addEventListener('keydown', (e) => {
+// 	if (e.key === 'w' || e.key === 'ArrowUp') player.up = true;
+// 	if (e.key === 's' || e.key === 'ArrowDown') player.down = true;
+// });
 
-window.addEventListener('keyup', (e) => {
-	if (e.key === 'w' || e.key === 'ArrowUp') player.up = false;
-	if (e.key === 's' || e.key === 'ArrowDown') player.down = false;
-});
+// window.addEventListener('keyup', (e) => {
+// 	if (e.key === 'w' || e.key === 'ArrowUp') player.up = false;
+// 	if (e.key === 's' || e.key === 'ArrowDown') player.down = false;
+// });
 
 //initializeWebSocket();
 

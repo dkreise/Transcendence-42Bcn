@@ -4,9 +4,9 @@ export class Player {
 	height = 80;
 	maxScore = 5;
 
-    constructor(canvas, role, initPos = (canvas.width - this.width)) {
-        // this.width = 10;
-        // this.height = 80;
+    constructor(canvas, role, name, initPos = (canvas.width - this.width)) {
+        this.width = 10;
+        this.height = 80;
         this.x = initPos;
         this.y = canvas.height / 2 - this.height / 2;
         this.speed = 5;
@@ -14,7 +14,8 @@ export class Player {
         this.up = false;
         this.down = false;
         this.score = 0;
-        this.role = role;
+        this.role = role; // 1 - right or 0 - left
+        this.name = name;
         this.canvas = canvas;
     }
 
@@ -34,15 +35,14 @@ export class Player {
 	// 	this.score = newScore;
 	// }
 
-    drawScore(ctx, playerID) {
-        let x;
-		ctx.fillStyle = "white";
-		ctx.font = "40px Arial";
-		if (playerID === 1)
-			x = this.canvas.width / 4;
-		else
-			x = this.canvas.width * 3 / 4;
-		ctx.fillText(`Score: ${this.score}`, x, 30);
+    drawScore(ctx) {
+        ctx.fillStyle = 'white';
+        ctx.font = '20px Arial';
+        if (this.role === 0) {
+            ctx.fillText(`${this.name}: ${this.score}`, 20, 20);
+        } else {
+            ctx.fillText(`${this.name}: ${this.score}`, this.canvas.width - 150, 20);
+        }
     }
 
     scored() {

@@ -5,42 +5,7 @@ import { Ball, Player } from "./localClasses.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
-// export const gameLocal = () => {
 
-//     if (!checkPermission) {
-//         navigateTo('/login');
-//     } else {
-//         console.log("Navigating to /play-local/game");
-
-//     // Retrieve the second player's name from the form
-//         const playerNameInput = document.getElementById("player-name");
-//         const secondPlayerName = playerNameInput ? playerNameInput.value.trim() : null;
-//         console.log(`Stored second player name: ${secondPlayerName}`);
-        
-//         makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
-//             method: "GET",
-//         })
-//         .then(response => response.json())
-//         .then(data => {
-//             if (data.get_name_html) {
-//                 document.getElementById('content-area').innerHTML = data.get_name_html;
-//             } else {
-//                 console.log('Response: ', data);
-//                 console.error('Failed to fetch second player:', data.error);
-//             }
-//         })
-//         .catch(error => {
-//             console.error('Catch error fetching second player page: ', error);
-//         });
-//         // const contentArea = document.getElementById('content-area');
-//         // contentArea.innerHTML = '';
-//         // const heading = document.createElement('h2');
-//         // heading.textContent = 'Here will be the game board'
-//         // contentArea.appendChild(heading);
-//         // console.log(`Here will be the game board`);
-//     }
-//     // makeAuthenticatedRequest() //.py to POST the results
-// }
 
 // Game Initialization
 let canvas = null;
@@ -51,8 +16,8 @@ let ball = null;
 let gameLoopId = null;
 
 // Game loop
-function gameLoop() {
-    gameLoopId = requestAnimationFrame(gameLoop);
+function gameLocalLoop() {
+    gameLoopId = requestAnimationFrame(gameLocalLoop);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     // Draw players and ball
@@ -60,9 +25,11 @@ function gameLoop() {
     player2.draw(ctx);
     ball.draw(ctx);
 
+    console.log('In local game loop!');
+
     // Draw scores
-    player1.drawScore(ctx, 1);
-    player2.drawScore(ctx, 2);
+    player1.drawScore(ctx);
+    player2.drawScore(ctx);
 
     // Move players and ball
     player1.move();
@@ -79,7 +46,7 @@ function gameLoop() {
 }
 
 // Event listeners for player controls
-function setupControls() {
+export function setupControls() {
     window.addEventListener("keydown", (e) => {
         if (e.key === "w") player1.up = true;
         if (e.key === "s") player1.down = true;
@@ -101,10 +68,12 @@ export function startLocalGame(playerName1, playerName2) {
     ctx = canvas.getContext("2d");
 
     // Initialize players and ball
-    player1 = new Player(canvas, playerName1, 0);
-    player2 = new Player(canvas, playerName2, canvas.width - 10);
+    console.log('Starting local game...');
+    console.log(`Canvas: ${canvas.width} x ${canvas.height}`);
+    player1 = new Player(canvas, 0, playerName1, 0);
+    player2 = new Player(canvas, 1, playerName2, canvas.width - 10);
     ball = new Ball(canvas);
 
     setupControls();
-    gameLoop();
+    gameLocalLoop();
 }

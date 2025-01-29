@@ -25,6 +25,8 @@ export const playLocal = () => {
         })
         .catch(error => {
             console.error('Catch error fetching second player page: ', error);
+            if (error == "No access token.")
+                navigateTo('/login');
         });
     }
 } 

@@ -94,6 +94,7 @@ export function clearURL() {
 }
 
 export function checkPermission () {
+    console.log(`Permissions: checking permissions`);
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken) {
