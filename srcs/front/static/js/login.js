@@ -51,7 +51,8 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
     const accessToken = localStorage.getItem("access_token");
     if (!accessToken) {
         console.error("No access token available.");
-        return Promise.reject("No access token.");
+        // return Promise.reject("No access token.");
+        navigateTo('/login', true); // + maybe remove everything from local storage? or just handleLogout?
     }
 
     options = {
@@ -65,14 +66,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
         // mode: 'no-cors',
     };
 
-
-    console.log("Request in makeauthenticated request: ", options);
-    // if (url == baseUrl + ":8000/api/2fa/verify/" || url == baseUrl + ":8000/api/2fa/enable/") {
-    //     alert("here");
-    // }
     return fetch(url, options).then((response) => {
-        if (url == baseUrl + ":8000/api/2fa/verify/")
-            alert("hereee");
         if (response.status === 401) {
             console.log("Access token expired, attempting refresh..");
             return refreshAccessToken().then((newAccessToken) => {
@@ -80,16 +74,13 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
                 return fetch(url, options); //retry the original request
             });
         } else {
-
-            if (url == baseUrl + ":8000/api/2fa/verify/")
-                alert("response ok");
-
           return response; // means that response is valid
         }
     });
 };
 
-export const loadLoginPage = (contentArea) => {
+export const loadLoginPage = () => {
+    const contentArea = document.getElementById("content-area");
     fetch('html/login_form.html')  // Call the API endpoint to get the form as JSON
         .then(response => response.text())
         .then(data => {
@@ -101,7 +92,7 @@ export const loadLoginPage = (contentArea) => {
         .catch(error => console.error('Error loading login form:', error));
 };
 
-const handleLogin = () => {
+export const handleLogin = () => {
     const loginForm = document.getElementById('login-form');
     const formData = new FormData(loginForm);
     fetch(baseUrl + ":8000/api/login/", {
@@ -114,17 +105,21 @@ const handleLogin = () => {
     .then(data => {
         if (data.success) {
 
-            localStorage.setItem('access_token', data.tokens.access);
-            localStorage.setItem('refresh_token', data.tokens.refresh);
-          
-            updateLanguage();
-            // loadProfilePage(); //navigateTo later instead
-            // navigateTo('/profile'); // change to navigate to home
-            loadHomePage();
-
+            if (data.two_fa_required) {
+                // displayLoginError('2fa required...', 'login-form');
+                localStorage.setItem('temp_token', data.temp_token);
+                navigateTo('/two-fa-login', true);
+            } else {
+                localStorage.setItem('access_token', data.tokens.access);
+                localStorage.setItem('refresh_token', data.tokens.refresh);
+            
+                updateLanguage();
+                navigateTo('/home', true);
+            }
+                
         } else {
             displayLoginError('Invalid credentials. Please try again.', 'login-form');
-            }
+        }
         })
     .catch(error => {
         console.error('Error logging in:', error);
@@ -157,8 +152,7 @@ export const handleSignup = () => {
                         if (data.success) {
                             localStorage.setItem('access_token', data.tokens.access);
                             localStorage.setItem('refresh_token', data.tokens.refresh);
-                            loadProfilePage();
-                          // NAVIGATE TO
+                            navigateTo('/home', true);
                         } else {
                             displayLoginError(data.error + ' Please try again.', 'signup-form');
                         }
@@ -200,7 +194,8 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             console.log('Submit button clicked!');
 
-            handleLogin();
+            // handleLogin();
+            navigateTo('/handle-login', true);
         }
     });
 

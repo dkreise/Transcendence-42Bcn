@@ -4,16 +4,24 @@
         <h1>{{profile}}</h1>
         <div>
             <!-- <button id="profile-home-button">Home</button> -->
-            <button id="profile-settings-button">{{settings}}</button>
-            <button id="friends-button">{{friends}}</button>
+            <button data-route="/profile-settings" id="profile-settings-button">{{settings}}</button>
+            <button data-route="/friends" id="friends-button">{{friends}}</button>
+            <button data-route="/home" id="home-button">Home</button>
         </div>
     </div>
 
     <!-- Profile content -->
     <div class="d-flex flex-column align-items-center mb-4">
         <!-- Photo and user info -->
-         {% if user.profile.photo %}
-            <img src="http://localhost:8000{{ user.profile.photo.url }}" alt="Profile Photo" class="profile-photo">
+         <!-- {% if user.profile.photo %}
+            {% if is_external_photo %}
+                <img src="{{ photo_url }}" alt="Profile Photo" class="profile-photo">
+            {% else %}
+                <img src="http://localhost:8000{{ photo_url }}" alt="Profile Photo" class="profile-photo">
+            {% endif %} 
+            {% endif %}-->
+        {% if photo_url %}
+            <img src="{{ photo_url }}" alt="Profile Photo" class="profile-photo">
         {% else %}
             <div class="photo-placeholder mb-3"></div>
         {% endif %}
@@ -32,12 +40,12 @@
             <li>{{tournaments_played}}: <span id="tournaments-played">{{ stats_tournaments.tournaments_played }}</span></li>
             <li>{{tournament_average_score}}: <span id="tournaments-won">{{ stats_tournaments.tournament_score }} %</span></li>   
         </ul>
-        <button id="match-history-button">Match History</button>        
+        <button data-route="/match-history" id="match-history-button">Match History</button>        
     </div>
 
     <!-- Last 10 Games Chart -->
 
 
-	<button id="logout-button">Logout</button>
+	<button data-route="/logout" id="logout-button">Logout</button>
 	<button id="game">Play!</button>
 </div>

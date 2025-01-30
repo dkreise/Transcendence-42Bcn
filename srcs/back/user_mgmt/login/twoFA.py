@@ -31,9 +31,8 @@ class TwoFA:
     def verify_code(secret, code):
         if not secret or not code:
             raise ValueError("Both secret and code are required for verification.")
-        print("---- **veriying...**")
         totp = pyotp.TOTP(secret)
-        print(totp.verify(code))
-        print("--- Expected code:", pyotp.TOTP(secret).now())
+        # print(totp.verify(code))
+        # print("--- Expected code:", pyotp.TOTP(secret).now())
         # return totp.verify(pyotp.TOTP(secret).now())
         return totp.verify(code)

@@ -2,7 +2,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
-const loadFriendsSearchPage = () => {
+export const loadFriendsSearchPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/search-users", {method: "GET"})
         .then((response) => response.json())
         .then(data => {
@@ -52,6 +52,34 @@ const addFriend = (friendId) => {
                     button.classList.remove('btn-success');
                     button.classList.add('btn-danger');
                 }
+
+                const friendsSection = document.querySelector("#friends-section");
+                let friendsList = friendsSection.querySelector("ul");
+                if (!friendsList) {
+                    friendsList = document.createElement("ul");
+                    friendsSection.appendChild(friendsList);
+                    const noFriendsMessage = friendsSection.querySelector("p");
+                    if (noFriendsMessage) {
+                        noFriendsMessage.remove();
+                    }
+                }
+                
+                const newFriendItem = document.createElement("li");
+                newFriendItem.id = "friend-item";
+                newFriendItem.setAttribute("data-id", friendId);
+                
+                newFriendItem.innerHTML = `
+                    <img src="${ data.friend.photo_url }" alt="Profile Photo" class="friend-photo">
+                    <div class="user-info">
+                        ${data.friend.username}
+                        ${data.friend.email ? `(${data.friend.email})` : ""}
+                    </div>
+                    <span class="d-flex align-items-center ms-3 me-3">
+                        <span class="status-dot me-1 ${data.friend.online_status ? 'status-online' : 'status-offline'}"></span>
+                        <span>${data.friend.online_status ? 'Online' : 'Offline'}</span>
+                    </span>
+                `;
+                friendsSection.appendChild(newFriendItem);
             } else {
                 console.log('error while adding friend :(');
             }
@@ -68,7 +96,6 @@ const removeFriend = (friendId) => {
             if (data.status == "success") {
                 console.log('friend removed!!');
 
-                // better to reload the page maybe (?)..
                 const button = document.querySelector(`#remove-friend-button[data-id="${friendId}"]`);
                 if (button) {
                     button.textContent = 'Add Friend';
@@ -76,8 +103,13 @@ const removeFriend = (friendId) => {
                     button.classList.remove('btn-danger');
                     button.classList.add('btn-success');
                 }
+
+                const friendItem = document.querySelector(`#friend-item[data-id="${friendId}"]`);
+                if (friendItem) {
+                    friendItem.remove();
+                }
             } else {
-                console.log('error while removing friend :(');
+                console.log('error while removing friend :(' + data.message);
             }
         })
         .catch(error => {
@@ -88,9 +120,9 @@ const removeFriend = (friendId) => {
 document.addEventListener("DOMContentLoaded", () => {
     const contentArea = document.getElementById("content-area");
     contentArea.addEventListener("click", (event) => {
-        if (event.target && event.target.id == "friends-button") {
-            loadFriendsSearchPage();
-        }
+        // if (event.target && event.target.id == "friends-button") {
+        //     loadFriendsSearchPage();
+        // }
         if (event.target && event.target.id == "submit-search") {
             event.preventDefault();
             performSearch();

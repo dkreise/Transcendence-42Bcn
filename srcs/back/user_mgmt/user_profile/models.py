@@ -3,8 +3,9 @@ from django.contrib.auth.models import User
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    photo = models.ImageField(upload_to='user_photos', blank=True, null=True)
+    photo = models.ImageField(upload_to='user_photos', blank=True, null=True, default='defaults/user.jpg')
     # Uploaded photos go to 'media/user_photos/'
+    external_photo_url = models.URLField(blank=True, null=True)
     friends = models.ManyToManyField('self', symmetrical=False, related_name='friend_of', blank=True)
     online_status = models.BooleanField(default=False)
     language = models.CharField(max_length=10, default="en")
