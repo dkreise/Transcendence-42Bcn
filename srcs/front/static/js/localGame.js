@@ -12,8 +12,33 @@ let canvas = null;
 let ctx = null;
 let player1 = null;
 let player2 = null;
+let mainUser = null; // if the main user is player 1 or 2
 let ball = null;
 let gameLoopId = null;
+let maxScore = 2;
+
+export function saveScore() {
+
+    makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/save-local-score/", {
+        method: "POST",
+        body: JSON.stringify({
+            // 'player1': player1.name,
+            'score1': player1.score,
+            // 'player2': player1.name,
+            'score2': player2.score,
+            
+            'main_user': mainUser, 
+        }),
+    })
+    .then((response) => {
+        if (response.ok) {
+            console.log('Score saved successfully');
+        }
+    })
+    .catch(error => {
+        console.error('Catch error saving score: ', error);
+    });
+}
 
 // Game loop
 function gameLocalLoop() {
@@ -37,11 +62,12 @@ function gameLocalLoop() {
     ball.move(player1, player2);
 
     // Endgame check
-    if (player1.score >= 5 || player2.score >= 5) {
-        const winner = player1.score > player2.score ? "Player 1 Wins!" : "Player 2 Wins!";
+    if (player1.score >= maxScore || player2.score >= maxScore) {
+        const winner = player1.score > player2.score ? `${player1.name} Wins!` : `${player2.name} Wins!`;
         const finalScore = `${player1.score} - ${player2.score}`;
         cancelAnimationFrame(gameLoopId);
         player1.displayEndgameMessage(ctx, finalScore, winner);
+        saveScore();
     }
 }
 
@@ -63,9 +89,14 @@ export function setupControls() {
 }
 
 // Start game function
-export function startLocalGame(playerName1, playerName2) {
-    canvas = document.getElementById("gameCanvas");
+export function startLocalGame(playerName1, playerName2, mainUserNmb) {
+    canvas = document.getElementById("newGameCanvas");
     ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth * 0.65; // % of screen width
+    canvas.height = canvas.width * 0.5; // % of screen height
+
+    mainUser = mainUserNmb;
 
     // Initialize players and ball
     console.log('Starting local game...');

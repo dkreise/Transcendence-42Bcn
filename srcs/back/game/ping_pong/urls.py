@@ -11,6 +11,7 @@ urlpatterns = [
 
     path('api/game/local/get-name/', localGame.get_second_name, name='get_second_name'),
     path('api/game/local/play/', localGame.play_game, name='play_game'),
+    path('api/game/local/save-local-score/', localGame.save_local_score, name='save_local_score'),
     # path('api/game/local/save-score')
 
     path('api/player/<int:player_id>/game_statistics/', views.get_player_game_statistics, name='player_game_statistics'),

@@ -1,22 +1,10 @@
 <div id="game-container">
-    <div class="container">
+    <div class="gameStatus">
         <h1>{{ game_title }}</h1> <!-- Game title dynamically rendered from the context -->
 
-        <!-- <div id="players-info">
-            <div id="player1-info">
-                <p>{{ player1 }}</p> 
-            </div>
-            <div id="player2-info">
-                <p>{{ player2 }}</p> 
-            </div>
-        </div> -->
-
-        <div id="gameBoard">
-            <canvas id="gameCanvas" width="1200" height="600"></canvas> <!-- Game playfield -->
+        <div id="newGameBoard">
+            <canvas id="newGameCanvas" width="1200" height="600" style="display: flex;"></canvas> <!-- Game playfield --> 
         </div>
-
-        <!-- <div id="gameStatus">
-            <p>{{ waiting_message }}</p> A message for waiting or game state, based on language -->
-        <!-- </div> -->
+        <button id="play-again" data-route="/play-local">{{ restart }}</button>
     </div>
 </div>

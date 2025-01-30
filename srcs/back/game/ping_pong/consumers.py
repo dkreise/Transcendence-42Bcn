@@ -19,37 +19,38 @@ class PongConsumer(AsyncWebsocketConsumer):
 			self.role = None
 			# Get the room_id from the URL
 			self.room_id = self.scope['url_route']['kwargs']['room']
-			query_string = parse_qs(self.scope['query_string'].decode())
+			self.user = self.scope['user']
+			# query_string = parse_qs(self.scope['query_string'].decode())
 
-			# Extract the JWT token from the query string (pass the token as a query param 'token')
-			token = query_string.get('token', [None])[0]
-			logger.info(f"scope user: {self.scope['user']}")
+			# # Extract the JWT token from the query string (pass the token as a query param 'token')
+			# token = query_string.get('token', [None])[0]
+			logger.info(f"user: {self.user}")
 
-			if token:
-				try:
-					# Decode the JWT token (replace 'your_secret_key' with your actual secret key)
-					decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
-					# Get user information from the decoded token
-					self.user = decoded_token.get('user', None)
+			# if token:
+			# 	try:
+			# 		# Decode the JWT token (replace 'your_secret_key' with your actual secret key)
+			# 		decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=['HS256'])
+			# 		# Get user information from the decoded token
+			# 		self.user = decoded_token.get('user', None)
 
-					if self.user:
-						logger.info(f"Authenticated user: {self.user}")
-					else:
-						logger.warning(f"Invalid token: {decoded_token}")
-						await self.close()
-						return
-				except jwt.ExpiredSignatureError:
-					logger.warning("JWT token has expired.")
-					await self.close()
-					return
-				except jwt.InvalidTokenError:
-					logger.warning("Invalid JWT token.")
-					await self.close()
-					return
-			else:
-				logger.warning("No token provided.")
-				await self.close()
-				return
+			# 		if self.user:
+			# 			logger.info(f"Authenticated user: {self.user}")
+			# 		else:
+			# 			logger.warning(f"Invalid token: {decoded_token}")
+			# 			await self.close()
+			# 			return
+			# 	except jwt.ExpiredSignatureError:
+			# 		logger.warning("JWT token has expired.")
+			# 		await self.close()
+			# 		return
+			# 	except jwt.InvalidTokenError:
+			# 		logger.warning("Invalid JWT token.")
+			# 		await self.close()
+			# 		return
+			# else:
+			# 	logger.warning("No token provided.")
+			# 	await self.close()
+			# 	return
 
 			# Player joins the room
 			self.role = GameManager.joinRoom(self.room_id, self.user)

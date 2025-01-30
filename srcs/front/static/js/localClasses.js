@@ -2,7 +2,7 @@ export class Player {
 
     width = 10;
 	height = 80;
-	maxScore = 5;
+	// maxScore = 2;
 
     constructor(canvas, role, name, initPos = (canvas.width - this.width)) {
         this.width = 10;

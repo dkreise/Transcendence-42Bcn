@@ -42,6 +42,12 @@ export const gameLocal = () => {
         const playerNameInput = document.getElementById("player-name");
         const secondPlayerName = playerNameInput ? playerNameInput.value.trim() : null;
         console.log(`Stored second player name: ${secondPlayerName}`);
+        console.log(`Username: ${localStorage.getItem('username')}`);
+        if (secondPlayerName === localStorage.getItem('username')) {
+            alert("Both names cannot be equal. Set another name");
+            navigateTo('/play-local');
+            return ;
+        }
         
         makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
             method: "POST",
@@ -57,9 +63,9 @@ export const gameLocal = () => {
             if (data.game_html) {
                 console.log('Local game returned!');
                 document.getElementById('content-area').innerHTML = data.game_html;
-                const canvas = document.getElementById("gameCanvas");
+                const canvas = document.getElementById("newGameCanvas");
                 if (canvas)
-                    startLocalGame(data['player1'], data['player2']);
+                    startLocalGame(data['player1'], data['player2'], data['main_user']);
                 else
                 console.log("Error: Canvas not found");
 

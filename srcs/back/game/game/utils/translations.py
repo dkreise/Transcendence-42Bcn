@@ -47,4 +47,5 @@ def get_lang_words(lang):
 			'logout': "Logout",
 			'waiting_message': "The game is ready! Let’s play!",
 			'game_title': "CRRRRAAAZZZY PONG!",
+			'restart': "Restart"
 		}
