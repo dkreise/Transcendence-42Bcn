@@ -16,6 +16,9 @@
             <ul>
                 {% for res in results %}
                     <li>
+                        {% if res.photo_url %}
+                            <img src="{{ res.photo_url }}" alt="Profile Photo" class="friend-photo">
+                        {% endif %}    
                         {{ res.profile.user.username }}
                         {% if res.profile.user.email %}
                             ({{ res.profile.user.email }})
@@ -58,8 +61,10 @@
         {% if friends_list %}
             <ul>
                 {% for friend in friends_list %}
-                    <li id="friend-item" data-id="{{ friend.id }}">
-                        
+                    <li id="friend-item" data-id="{{ friend.profile.id }}">
+                        {% if friend.photo_url %}
+                            <img src="{{ friend.photo_url }}" alt="Profile Photo" class="friend-photo">
+                        {% endif %}
                         <div class="user-info">
                             {{ friend.user.username }}
                             {% if friend.user.email %}
@@ -76,7 +81,7 @@
                                 {% endif %}">
                             </span>
                             <span>
-                                {% if friend.online_status %}
+                                {% if friend.profile.online_status %}
                                     Online
                                 {% else %}
                                     Offline

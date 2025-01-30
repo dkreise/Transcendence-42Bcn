@@ -188,7 +188,8 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             console.log('Submit button clicked!');
 
-            handleLogin();
+            // handleLogin();
+            navigateTo('/handle-login', true);
         }
     });
 

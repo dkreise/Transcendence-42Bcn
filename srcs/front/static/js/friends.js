@@ -69,6 +69,7 @@ const addFriend = (friendId) => {
                 newFriendItem.setAttribute("data-id", friendId);
                 
                 newFriendItem.innerHTML = `
+                    <img src="${ data.friend.photo_url }" alt="Profile Photo" class="friend-photo">
                     <div class="user-info">
                         ${data.friend.username}
                         ${data.friend.email ? `(${data.friend.email})` : ""}
@@ -95,7 +96,6 @@ const removeFriend = (friendId) => {
             if (data.status == "success") {
                 console.log('friend removed!!');
 
-                // better to reload the page maybe (?)..
                 const button = document.querySelector(`#remove-friend-button[data-id="${friendId}"]`);
                 if (button) {
                     button.textContent = 'Add Friend';
@@ -109,7 +109,7 @@ const removeFriend = (friendId) => {
                     friendItem.remove();
                 }
             } else {
-                console.log('error while removing friend :(');
+                console.log('error while removing friend :(' + data.message);
             }
         })
         .catch(error => {

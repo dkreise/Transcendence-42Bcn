@@ -15,7 +15,7 @@ const historyTracker = [];
 const routes = {
     '/': homePage,
     '/login': loadLoginPage,
-    // '/handle-login': handleLogin,
+    '/handle-login': handleLogin,
     '/signup': handleSignup,
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,

@@ -17,6 +17,15 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import activate
 from django.contrib.auth.decorators import login_required
 
+def get_photo_url(user):
+    photo_url = None
+    if (hasattr(user, 'profile')):
+        if user.profile.external_photo_url:
+            photo_url = user.profile.external_photo_url
+        elif user.profile.photo:
+            photo_url = "http://localhost:8000" + user.profile.photo.url
+    return photo_url
+
 @api_view(['GET'])
 def user_info_api(request):
     if request.user.is_authenticated:
@@ -112,10 +121,7 @@ def profile_page(request):
         stats_tournaments = player_tournament_statistics(user_id)
 
         if hasattr(user, 'profile'):
-            if user.profile.external_photo_url:
-                photo_url = user.profile.external_photo_url
-            elif user.profile.photo:
-                photo_url = "http://localhost:8000" + user.profile.photo.url
+            photo_url = get_photo_url(user)
         else:
             Profile.objects.create(user=request.user)
         
@@ -157,7 +163,7 @@ def update_profile_settings(request):
         first_name = data.get('first_name', '')
         last_name = data.get('last_name', '')
 
-        if not re.match(r'^[a-zA-Z0-9.]+$', username) and not user.username.startswith('@42'):
+        if not re.match(r'^[a-zA-Z0-9.]+$', username) and not (user.username.startswith('@42') and user.username == username):
             return JsonResponse({'success': False, "error": "Username should consist only of letters, digits and dots(.)."}, status=status.HTTP_400_BAD_REQUEST)
 
         if User.objects.filter(username=username).exclude(id=request.user.id).exists():
@@ -190,13 +196,9 @@ def search_users(request):
     friends = request.user.profile.friends.all()
     if query:
         users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query)).exclude(id=request.user.id)
-        print(users)
-        if (hasattr(users[0], 'profile')):
-            print("has attr")
-        else    :
-            print("doesnt have attr")
         results = [
             {
+                'photo_url': get_photo_url(user),
                 'profile': user.profile,
                 'is_friend': request.user.profile.is_friend_already(user.profile) if hasattr(request.user, 'profile') else False
             }
@@ -204,10 +206,18 @@ def search_users(request):
         ]
     else:
         results = []
+    friend_list = [
+        {
+            'photo_url': get_photo_url(friend.user),
+            'profile': friend,
+            'user': friend.user
+        }
+        for friend in friends if hasattr(friend.user, 'profile')
+    ]
     context = {
         'user': request.user,
         'results': results,
-        'friends_list': friends,
+        'friends_list': friend_list,
         'query': query
     }
     print(results)
@@ -230,6 +240,7 @@ def add_friend(request, friend_id):
                 'username': friend_profile.user.username,
                 'email': friend_profile.user.email if friend_profile.user.email else None,
                 'online_status': friend_profile.online_status,  # Assuming this is a boolean field in Profile
+                'photo_url': get_photo_url(friend_profile.user),
             }
             })
     return JsonResponse({'status': 'error', 'message': 'Is a friend already.'})
