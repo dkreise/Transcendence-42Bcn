@@ -1,5 +1,5 @@
 import { makeAuthenticatedRequest } from "./login.js";
-import { addLogoutListener } from "./logout.js";
+// import { addLogoutListener } from "./logout.js";
 import { navigateTo, checkPermission } from "./main.js"
 
 var baseUrl = "http://localhost"; // change (parse) later

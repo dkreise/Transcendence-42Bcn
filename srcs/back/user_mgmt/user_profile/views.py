@@ -158,11 +158,10 @@ def profile_settings_page(request):
 @api_view(['POST'])
 def update_profile_settings(request):
     if request.user.is_authenticated:
-        data = request.data
         user = request.user
-        username = data.get('username', user.username)
-        first_name = data.get('first_name', '')
-        last_name = data.get('last_name', '')
+        username = request.POST.get('username', user.username)
+        first_name = request.POST.get('first_name', '')
+        last_name = request.POST.get('last_name', '')
 
         if not re.match(r'^[a-zA-Z0-9.]+$', username) and not (user.username.startswith('@42') and user.username == username):
             return JsonResponse({'success': False, "error": "Username should consist only of letters, digits and dots(.)."}, status=status.HTTP_400_BAD_REQUEST)

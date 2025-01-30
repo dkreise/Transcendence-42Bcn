@@ -257,7 +257,7 @@ export const loadGame = (contentArea) => {
 
 const updateProfileSettings = (form) => {
     const formData = new FormData(form);
-
+    console.log(formData);
     makeAuthenticatedRequest(baseUrl + ":8000/api/update-profile-settings/", {
         method: "POST",
         body: formData,
@@ -266,9 +266,7 @@ const updateProfileSettings = (form) => {
         .then((response) => response.json())
         .then((data) => {
             if (data.success) {
-                // alert("settings updated successfully!");
                 displayUpdatingMessage("Settings were updated!", 'green');
-                // loadProfileSettingsPage();
             } else {
                 displayUpdatingMessage(data.error + ' Please try again.', 'red');
             }

@@ -60,7 +60,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
         headers: {
             ...options.headers,
             "Authorization": `Bearer ${accessToken}`, // adding authorization header with the access token
-            "Content-Type": "application/json",
+            // "Content-Type": "application/json",
         },
         credencials: 'include',
         // mode: 'no-cors',
