@@ -5,6 +5,8 @@ import { loadHomePage } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
+import { playLocal, playAI, playOnline, gameLocal } from "./game.js"
+
 
 const historyTracker = [];
 
@@ -28,10 +30,12 @@ const routes = {
     '/friends': loadFriendsSearchPage,
     '/match-history': loadMatchHistoryPage,
     '/logout': handleLogout,
-    // '/options': optionsPage,
-    // '/localgame': localGamePage,
-    // '/aigame': aiGamePage,
-    // '/tournament': tournamentPage,
+    '/settings': loadProfileSettingsPage,
+    '/play-local': playLocal,
+    '/play-ai': playAI,
+    '/play-online': playOnline,
+    '/play-local/game': gameLocal,
+    // '/tournament': playTournament,
 
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
@@ -50,9 +54,19 @@ function router() {
     } else {
         alert("rerer");
         console.log(`Route ${path} not handled`);
-        // renderNotFound(); // Handle unknown routes
+        // showNotFound(); // Handle unknown routes
     }
 }
+
+// function showNotFound() {
+//     console.log("Rendering 404 Page");
+//     contentArea.innerHTML = `
+//         <div>
+//             <h1>404 - Page Not Found</h1>
+//             <p>The requested page does not exist.</p>
+//         </div>
+//     `;
+// }
 
 // The navigateTo() function is responsible for programmatically changing 
 // the browser's history and triggering the router.
@@ -90,20 +104,28 @@ export function clearURL() {
     window.history.replaceState({}, document.title, url.toString());
 }
 
-function homePage() {
-    const contentArea = document.getElementById('content-area');
+export function checkPermission () {
     const accessToken = localStorage.getItem('access_token');
 
-    if (accessToken) {
-        console.log('we have access token');
+    if (!accessToken) {
+        console.log(`Permissions: No access token, permission denied`);
+        return false;
+    }
+    console.log(`Permissions: We have access token, congrats!`);
+    return true;
+}
+
+function homePage() {
+    const contentArea = document.getElementById('content-area');
+    
+    if (checkPermission ()) {
         navigateTo('/home');
     }
     else {
-        console.log('we do not have access token..');
+        // console.log('we do not have access token..');
         navigateTo('/login');
     }
 }
-
 
 var baseUrl = "http://localhost"; // change (parse) later
 

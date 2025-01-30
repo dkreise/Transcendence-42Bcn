@@ -55,11 +55,17 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
         navigateTo('/login', true); // + maybe remove everything from local storage? or just handleLogout?
     }
 
-    options.headers = {
-        ...options.headers,
-        Authorization: `Bearer ${accessToken}`, // adding authorization header with the access token
+    options = {
+        ...options,
+        headers: {
+            ...options.headers,
+            "Authorization": `Bearer ${accessToken}`, // adding authorization header with the access token
+            "Content-Type": "application/json",
+        },
+        credencials: 'include',
+        // mode: 'no-cors',
     };
-  
+
     return fetch(url, options).then((response) => {
         if (response.status === 401) {
             console.log("Access token expired, attempting refresh..");
@@ -193,14 +199,5 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // contentArea.addEventListener('click', (event) => {
-    //     if (event.target && event.target.id === 'signup-link') {
-    //         event.preventDefault();
-    //         console.log('Sign up button clicked!');
-
-    //         navigateTo('/signup')
-    //         // handleSignup(); // navigateTo ??
-    //     }
-    // });  
 });
 

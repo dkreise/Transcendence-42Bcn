@@ -180,6 +180,7 @@ const applyFilters = () => {
 
 
 export const loadProfileSettingsPage = () => {
+    console.log("LOADING PROFILE...")
     makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {
         method: "GET",
         credentials: 'include'

@@ -7,12 +7,14 @@ from .serializers import PlayerSerializer, GameSerializer
 from django.contrib.auth.models import User
 import random
 from django.db.models import Q
-
+from game.utils.translations import add_language_context 
+ 
 @api_view(['GET'])
 def player_list(request):
     players = User.objects.all()  # Get all players from the database
     serializer = PlayerSerializer(players, many=True)  # Serialize the players
     return Response(serializer.data)  # Return the serialized data in the response
+
 
 @api_view(['GET'])
 def score_list(request):
@@ -39,6 +41,7 @@ def get_current_players(request):
         })
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+
 
 @api_view(['POST'])
 def send_score(request):
@@ -78,6 +81,7 @@ def winner_page(request):
 
 @api_view(['GET'])
 def get_player_game_statistics(request, player_id):
+    print("GAME stats request: ", request)
     games_played = Game.objects.filter(Q(player1_id=player_id) | Q(player2_id=player_id)).count()
     games_won = Game.objects.filter(winner_id=player_id).count()
 

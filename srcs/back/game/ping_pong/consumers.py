@@ -23,6 +23,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 			# Extract the JWT token from the query string (pass the token as a query param 'token')
 			token = query_string.get('token', [None])[0]
+			logger.info(f"scope user: {self.scope['user']}")
 
 			if token:
 				try:
