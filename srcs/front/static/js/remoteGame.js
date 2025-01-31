@@ -1,4 +1,5 @@
 import { Ball, Player } from "./remoteClasses.js";
+import { setupControls } from "./localGame.js"
 
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
@@ -13,6 +14,8 @@ let player, opponent = null;
 
 let socket = null;
 let gameLoopId = null;
+ 
+console.log("Hi! This is remoteGame.js :D");
 
 function interpolateBall() {
 	ball.x += (targetBallX - ball.x) * ballCoef;
@@ -76,16 +79,12 @@ function initializeWebSocket() {
 
 	socket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
-		//console.log("data.type: " + data.type);
-		//if (data.hasOwnProperty("wait"))
-		//	wait = data.wait;
-		//if (data.type == "role" && data.type != "update")
-		//	console.log("data.type: " + data.type + " role: " + data.role);
 
 		switch (data.type) {
 			case "status":
 				displayStatus(data.wait);
 				if (!data.wait)
+					setupControls()
 					gameLoop();
 				break;
 			case "role":
@@ -131,7 +130,7 @@ function gameLoop() {
 	ball.move(player, opponent, gameLoopId, socket);
 }
 
-function resizeCanvas() {
+/*function resizeCanvas() {
 	const oldWidth = canvas.width;
 	const oldHeight = canvas.height;
 	canvas.width = canvas.parentElement.offsetWidth;
@@ -145,21 +144,21 @@ function resizeCanvas() {
 }
 
 window.addEventListener("resize", () => resizeCanvas());
+*/
 
+//window.addEventListener('keydown', (e) => {
+//	if (e.key === 'w' || e.key == 'W' || e.key === 'ArrowUp') player.up = true;
+//	if (e.key === 's' || e.key == 'S' || e.key === 'ArrowDown') player.down = true;
+//});
 
-window.addEventListener('keydown', (e) => {
-	if (e.key === 'w' || e.key === 'ArrowUp') player.up = true;
-	if (e.key === 's' || e.key === 'ArrowDown') player.down = true;
-});
-
-window.addEventListener('keyup', (e) => {
-	if (e.key === 'w' || e.key === 'ArrowUp') player.up = false;
-	if (e.key === 's' || e.key === 'ArrowDown') player.down = false;
-});
+// window.addEventListener('keyup', (e) => {
+// 	if (e.key === 'w' || e.key === 'ArrowUp') player.up = false;
+// 	if (e.key === 's' || e.key === 'ArrowDown') player.down = false;
+// });
 
 export function startGame()
 {
-	canvas = document.getElementById('gameCanvas');
+	canvas = document.getElementById('newGameCanvas');
 	ctx = canvas.getContext('2d');
 	ball = new Ball(canvas);
 	targetBallX = ball.x;

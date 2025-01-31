@@ -16,18 +16,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 		try:
 			self.role = None
 			self.room_id = self.scope['url_route']['kwargs']['room']
-			#query_string = parse_qs(self.scope['query_string'].decode())
-
-			# Extract the token from the query string
-			#token = query_string.get('token', [None])[0]
-			#logger.info(f"\033[1;33mtoken is: {token}\033[0m")
+				
 			logger.info(f"scope user: {self.scope['user']}")
 			self.user = self.scope['user'].username
 
-			#if not token:
-			#	logger.warning("No token provided.")
-			#	await self.close()
-			#	return
 
 			# Player joins the room
 			self.role = GameManager.joinRoom(self.room_id, self.user)

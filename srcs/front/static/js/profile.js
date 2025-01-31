@@ -1,11 +1,10 @@
 import { makeAuthenticatedRequest } from "./login.js";
-import { addLogoutListener } from "./logout.js";
 import { startGame } from "./remoteGame.js"
 
 
 var baseUrl = "http://localhost"; // change (parse) later
 
-const displayUpdatingError = (message, form) => {
+export const displayUpdatingMessage = (message, color) => {
     const profileSettingsContainer = document.getElementById('profile-settings-form');
     if (!profileSettingsContainer)
         return;
@@ -16,7 +15,7 @@ const displayUpdatingError = (message, form) => {
 
     const errorMessage = document.createElement('div');
     errorMessage.id = 'settings-update-error';
-    errorMessage.style.color = 'red';
+    errorMessage.style.color = color;
     errorMessage.style.marginBottom = '15px';
     errorMessage.textContent = message;
 
@@ -138,7 +137,7 @@ const renderLastTenGamesChart = (gamesData, username) => {
     });
 };
 
-const loadMatchHistoryPage = () => {
+export const loadMatchHistoryPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8000/api/match-history-page/", {method: "GET"})
         .then(response => response.json())
         .then(data => {
@@ -190,6 +189,9 @@ export const loadProfileSettingsPage = () => {
         .then(data => {
             if (data.profile_settings_html) {
                 document.getElementById('content-area').innerHTML = data.profile_settings_html;
+                // if (msg) {
+                //     displayUpdatingMessage(msg, 'green');
+                // }
             } else {
                 console.error('Error fetching settings:', data.error);
             }
@@ -215,7 +217,7 @@ export const loadProfilePage = () => {
         .then((data) => {
             if (data && data.profile_html) {
                 document.getElementById('content-area').innerHTML = data.profile_html;
-                addLogoutListener();
+                // addLogoutListener();
                 console.log('Profile page loaded');
                 fetchLastTenGames().then((gamesData) => {
                     if (gamesData) {
@@ -255,7 +257,7 @@ export const loadGame = (contentArea) => {
 
 const updateProfileSettings = (form) => {
     const formData = new FormData(form);
-
+    console.log(formData);
     makeAuthenticatedRequest(baseUrl + ":8000/api/update-profile-settings/", {
         method: "POST",
         body: formData,
@@ -264,10 +266,9 @@ const updateProfileSettings = (form) => {
         .then((response) => response.json())
         .then((data) => {
             if (data.success) {
-                alert("settings updated successfully!");
-                loadProfileSettingsPage();
+                displayUpdatingMessage("Settings were updated!", 'green');
             } else {
-                displayUpdatingError(data.error + ' Please try again.', form);
+                displayUpdatingMessage(data.error + ' Please try again.', 'red');
             }
         })
         .catch((error) => {
@@ -278,23 +279,23 @@ const updateProfileSettings = (form) => {
 document.addEventListener("DOMContentLoaded", () => {
     const contentArea = document.getElementById("content-area");
     contentArea.addEventListener("click", (event) => {
-        if (event.target && event.target.id == "profile-settings-button") {
-            loadProfileSettingsPage();
-        }
+        // if (event.target && event.target.id == "profile-settings-button") {
+        //     loadProfileSettingsPage();
+        // }
         if (event.target && event.target.id == "save-settings-button") {
             event.preventDefault();
             const form = document.querySelector("#profile-settings-container form");
             updateProfileSettings(form);
         }
-        if (event.target && event.target.id == "match-history-button") {
-            loadMatchHistoryPage();
-        }
+        // if (event.target && event.target.id == "match-history-button") {
+        //     loadMatchHistoryPage();
+        // }
         if (event.target && event.target.id == "apply-filters") {
             applyFilters();
         }
-        if (event.target && event.target.id == "back-to-profile-button") {
-            loadProfilePage();
-        }
+        // if (event.target && event.target.id == "back-to-profile-button") {
+        //     loadProfilePage();
+        // }
         if (event.target && event.target.id == "game") {
             loadGame(contentArea);
         }

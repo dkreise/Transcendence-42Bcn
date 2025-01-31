@@ -186,13 +186,12 @@ CSRF_COOKIE_SECURE = False  # Set to True for HTTPS in production
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        # 'game.middleware.CustomAuthentication',
         'game.authentication.CustomAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.AllowAny',  # Restricts access to authenticated users
+        'rest_framework.permissions.IsAuthenticated',  # Restricts access to authenticated users
     ],
 }
 

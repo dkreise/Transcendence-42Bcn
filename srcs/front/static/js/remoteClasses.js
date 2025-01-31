@@ -4,10 +4,8 @@ export class Player {
 	hFactor = 0.1;
 	sFactor = 0.02;
 
-	constructor(canvas, role, initPos = canvas.width - canvas.width * 0.01) {
-		this.canvas = canvas;
-		this.width = canvas.width * wFactor; // Paddle width scales with canvas width
-		this.height = canvas.height * hFactor; // Paddle height scales with canvas height
+	constructor(canvas, role, initPos = (canvas.width - this.width)) {
+		console.log(`Canvas size: ${canvas.width} x ${canvas.hight}`)
 		this.x = initPos;
 		this.y = canvas.height / 2 - this.height / 2;
 		this.speed = canvas.height * sFactor; // Speed scales with canvas height
@@ -16,8 +14,9 @@ export class Player {
 		this.down = false;
 		this.score = 0;
 		this.role = role; // "player1" or "player2"
+		this.canvas = canvas;
 	}
-
+ 
 	draw(ctx) {
 		ctx.fillStyle = this.color;
 		ctx.fillRect(this.x, this.y, this.width, this.height);

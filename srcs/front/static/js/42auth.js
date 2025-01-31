@@ -38,12 +38,18 @@ export const handle42Callback = () => {
                     localStorage.setItem('refresh_token', data.refresh_token);
                     localStorage.setItem('intra_token', data.intra_token);
                     localStorage.setItem('username', data.username);
+                    localStorage.setItem('name', data.name);
                     clearURL();
                     console.log(history.state)
                     navigateTo('/home', true);
                     
                     // loadProfilePage();
-                }else{
+                } else if (data.two_fa_required) {
+                    localStorage.setItem('temp_token', data.temp_token);
+                    localStorage.setItem('intra_token', data.intra_token);
+                    localStorage.setItem('username', data.username);
+                    navigateTo('/two-fa-login', true);
+                } else {
                     clearURL();
                     displayLoginError('Invalid credentials. Please try again.', 'login-form');
                 }

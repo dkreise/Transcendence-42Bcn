@@ -29,18 +29,19 @@ export const handleLogout = () => {
 
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('intra_token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('name');
 
-    contentArea.innerHTML = ''; // to clear user content
-    window.history.replaceState(null, null, '/');
-    navigateTo('/');
-    // loadLoginPage(contentArea);
-
+    //contentArea.innerHTML = ''; // to clear user content
+    window.history.replaceState(null, null, '/'); // ????
+    navigateTo('/login', true);
 };
 
 // ADD DATA-ROUTE INSTEAD
-export const addLogoutListener = () => {
-    const logoutButton = document.getElementById('logout-button');
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
-};
+// export const addLogoutListener = () => {
+//     const logoutButton = document.getElementById('logout-button');
+//     if (logoutButton) {
+//         logoutButton.addEventListener('click', handleLogout);
+//     }
+// };

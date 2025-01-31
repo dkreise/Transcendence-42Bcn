@@ -1,8 +1,8 @@
 <div id="2fa-verify-container"> 
-	<h1>Verify Two-Factor Authentication</h1>
-    <form method="post">
+    <h1>Verify Two-Factor Authentication</h1>
+    <form id="two-fa-login-form" method="post">
         <label for="code">Enter the 6-digit code:</label>
-        <input type="text" id="code" name="code" required>
-        <button type="submit">Verify</button>
+        <input type="text" id="2fa-code" name="code" required placeholder="Verification Code">
+        <button id="verify-2fa-login-button" type="submit" >Verify</button>
     </form>
 </div>

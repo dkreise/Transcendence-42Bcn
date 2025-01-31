@@ -9,22 +9,6 @@ from game.middleware import JwtAuthMiddlewareStack
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "game.settings")
 
-# application = ProtocolTypeRouter({
-#     "http": get_asgi_application(),
-#     "websocket": AuthMiddlewareStack(
-#         URLRouter(websocket_urlpatterns)
-#     ),
-# })
-
-# django_asgi_app = get_asgi_application()
-
-# application = ProtocolTypeRouter({
-#     "http": JwtAuthMiddlewareStack(django_asgi_app),
-#     "websocket": JwtAuthMiddlewareStack(
-#         URLRouter(websocket_urlpatterns)
-#     ),
-# })
-
 application = ProtocolTypeRouter({
     "http": get_asgi_application(),
     "websocket": JwtAuthMiddlewareStack(

@@ -10,7 +10,8 @@ urlpatterns = [
 
 	path("api/login/", views.login_view, name="login_api"),
 	path("api/login-form/", views.login_form_api, name="login_form_api"),
-	# path("api/user-info/", views.user_info_api, name="user_info_api"),
+	path("api/2fa-login/", views.verify_2fa_login_form, name="login_2fa_form"),
+	path("api/2fa-login/verify/", views.verify_login_2fa, name="verify_login_2fa"),
 	path("api/register/", views.register_user, name='register_user'),
 	path("api/token/refresh/", TokenRefreshView.as_view(), name='token_refresh'),
 	path("api/login-intra/", auth42.login_intra, name="login_intra"),

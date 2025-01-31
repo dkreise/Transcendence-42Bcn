@@ -85,3 +85,11 @@
 .status-offline {
     background-color: red;
 }
+
+.friend-photo {
+    width: 30px;
+    height: 30px;
+    border-radius: 25%;
+    object-fit: cover;
+    margin-right: 15px;
+}

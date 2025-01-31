@@ -17,6 +17,15 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import activate
 from django.contrib.auth.decorators import login_required
 
+def get_photo_url(user):
+    photo_url = None
+    if (hasattr(user, 'profile')):
+        if user.profile.external_photo_url:
+            photo_url = user.profile.external_photo_url
+        elif user.profile.photo:
+            photo_url = "http://localhost:8000" + user.profile.photo.url
+    return photo_url
+
 @api_view(['GET'])
 def user_info_api(request):
     if request.user.is_authenticated:
@@ -31,24 +40,28 @@ def user_info_api(request):
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
 
-def player_game_statistics(player_id):
+def player_game_statistics(request, player_id):
     game_service_url = 'http://game:8001'
     endpoint = f'{game_service_url}/api/player/{player_id}/game_statistics/'
 
+    auth_header = request.headers.get('Authorization')
+    headers = {"Authorization": auth_header}
     try:
-        response = requests.get(endpoint)
+        response = requests.get(endpoint, headers=headers)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
         print(f"Error fetching statistics: {e}")
         return {'games_played': 0, 'games_won': 0}
 
-def player_tournament_statistics(player_id):
+def player_tournament_statistics(request, player_id):
     game_service_url = 'http://game:8001'
     endpoint = f'{game_service_url}/api/player/{player_id}/tournament_statistics/'
 
+    auth_header = request.headers.get('Authorization')
+    headers = {"Authorization": auth_header}
     try:
-        response = requests.get(endpoint)
+        response = requests.get(endpoint, headers=headers)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
@@ -63,8 +76,10 @@ def player_last_ten_games(request):
         game_service_url = 'http://game:8001'
         endpoint = f'{game_service_url}/api/player/{player_id}/last_ten_games'
 
+        auth_header = request.headers.get('Authorization')
+        headers = {"Authorization": auth_header}
         try:
-            response = requests.get(endpoint)
+            response = requests.get(endpoint, headers=headers)
             response.raise_for_status()
             game_data = response.json()
             return JsonResponse({
@@ -76,12 +91,14 @@ def player_last_ten_games(request):
     else:
         return JsonResponse({'error': 'User not authenticated.'}, status=401)
 
-def player_all_games(player_id):
+def player_all_games(request, player_id):
     game_service_url = 'http://game:8001'
     endpoint = f'{game_service_url}/api/player/{player_id}/all_games/'
 
+    auth_header = request.headers.get('Authorization')
+    headers = {"Authorization": auth_header}
     try:
-        response = requests.get(endpoint)
+        response = requests.get(endpoint, headers=headers)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
@@ -93,7 +110,7 @@ def match_history_page(request):
     print("In match history api: ", request.user)
     if request.user.is_authenticated:
         user_id = request.user.id
-        all_games = player_all_games(user_id)
+        all_games = player_all_games(request, user_id)
         context = {
             'match_history': all_games,
         }
@@ -106,13 +123,23 @@ def match_history_page(request):
 @api_view(['GET'])
 def profile_page(request):
     if request.user.is_authenticated:
-        print("USER AUthenticated")
-        user_id = request.user.id
-        stats_games = player_game_statistics(user_id)
-        stats_tournaments = player_tournament_statistics(user_id)
-        print(stats_games)
+        user = request.user
+        user_id = user.id
+        photo_url = None
+
+        print("!!!in profile page back")
+        stats_games = player_game_statistics(request, user_id)
+        print("!!! game stats: ", stats_games)
+        stats_tournaments = player_tournament_statistics(request, user_id)
+
+        if hasattr(user, 'profile'):
+            photo_url = get_photo_url(user)
+        else:
+            Profile.objects.create(user=request.user)
+        
         context = {
-            'user': request.user,
+            'user': user,
+            'photo_url': photo_url,
             'stats_games': stats_games,
             'stats_tournaments': stats_tournaments,
             'MEDIA_URL': settings.MEDIA_URL,
@@ -126,8 +153,11 @@ def profile_page(request):
 @api_view(['GET'])
 def profile_settings_page(request):
     if request.user.is_authenticated:
+        two_fa_enabled = request.user.profile.two_fa
+        print("TWO FA :::::", two_fa_enabled)
         context = {
             'user': request.user,
+            'two_fa_enabled': two_fa_enabled
         }
         add_language_context(request, context)
         profile_settings_html = render_to_string('settings_profile.html', context)
@@ -138,16 +168,12 @@ def profile_settings_page(request):
 @api_view(['POST'])
 def update_profile_settings(request):
     if request.user.is_authenticated:
-        data = request.data
         user = request.user
-        username = data.get('username', user.username)
-        first_name = data.get('first_name', '')
-        last_name = data.get('last_name', '')
+        username = request.POST.get('username', user.username)
+        first_name = request.POST.get('first_name', '')
+        last_name = request.POST.get('last_name', '')
 
-        # if not username or not email or not password or not name:
-        #     return JsonResponse({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        if not re.match(r'^[a-zA-Z0-9.]+$', username):
+        if not re.match(r'^[a-zA-Z0-9.]+$', username) and not (user.username.startswith('@42') and user.username == username):
             return JsonResponse({'success': False, "error": "Username should consist only of letters, digits and dots(.)."}, status=status.HTTP_400_BAD_REQUEST)
 
         if User.objects.filter(username=username).exclude(id=request.user.id).exists():
@@ -156,10 +182,13 @@ def update_profile_settings(request):
         user.username = username
         user.first_name = first_name
         user.last_name = last_name
+        print("PHOTO:::: ", user.profile.photo)
 
         if 'photo' in request.FILES:
             profile = user.profile  # to access related profile object
             profile.photo = request.FILES['photo']
+            if user.profile.external_photo_url:
+                user.profile.external_photo_url = None
             profile.save()
 
         user.save()
@@ -172,12 +201,14 @@ def update_profile_settings(request):
 def search_users(request):
     query = request.GET.get('q', '') 
     print("query: *" + query + "*")
+    if (not hasattr(request.user, 'profile')):
+        Profile.objects.create(user=request.user)
     friends = request.user.profile.friends.all()
     if query:
         users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query)).exclude(id=request.user.id)
-        
         results = [
             {
+                'photo_url': get_photo_url(user),
                 'profile': user.profile,
                 'is_friend': request.user.profile.is_friend_already(user.profile) if hasattr(request.user, 'profile') else False
             }
@@ -185,13 +216,22 @@ def search_users(request):
         ]
     else:
         results = []
+    friend_list = [
+        {
+            'photo_url': get_photo_url(friend.user),
+            'profile': friend,
+            'user': friend.user
+        }
+        for friend in friends if hasattr(friend.user, 'profile')
+    ]
     context = {
         'user': request.user,
         'results': results,
-        'friends': friends,
+        'friends_list': friend_list,
         'query': query
     }
-  #  add_language_context(request, context)
+    print(results)
+    add_language_context(request, context)
     search_users_html = render_to_string('search_users.html', context)
     return JsonResponse({'search_users_html': search_users_html}, content_type="application/json")
 
@@ -202,7 +242,17 @@ def add_friend(request, friend_id):
 
     if not user_profile.is_friend_already(friend_profile):
         user_profile.add_friend(friend_profile)
-        return JsonResponse({'status': 'success', 'message': 'Friend added successfully!'})
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Friend added successfully!',
+            'friend': {
+                'id': friend_profile.id,
+                'username': friend_profile.user.username,
+                'email': friend_profile.user.email if friend_profile.user.email else None,
+                'online_status': friend_profile.online_status,  # Assuming this is a boolean field in Profile
+                'photo_url': get_photo_url(friend_profile.user),
+            }
+            })
     return JsonResponse({'status': 'error', 'message': 'Is a friend already.'})
 
 @api_view(['POST'])

@@ -1,8 +1,13 @@
-import { loadLoginPage, handleSignup } from "./login.js";
-import { loadProfilePage, loadProfileSettingsPage } from "./profile.js";
+import { loadLoginPage, handleLogin, handleSignup } from "./login.js";
+import { loadProfilePage, loadProfileSettingsPage, loadMatchHistoryPage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage } from "./home.js";
+import { loadFriendsSearchPage } from "./friends.js"
+import { handleLogout } from "./logout.js"
+import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { playLocal, playAI, playOnline, gameLocal } from "./game.js"
+// import { gameLocal } from "./localGame.js"
+
 
 const historyTracker = [];
 
@@ -12,19 +17,26 @@ const historyTracker = [];
 
 const routes = {
     '/': homePage,
-    '/login': homePage,
-    '/home': loadHomePage,
+    '/login': loadLoginPage,
+    '/handle-login': handleLogin,
     '/signup': handleSignup,
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,
+    '/two-fa-login': loadLogin2FAPage,
+    '/home': loadHomePage,
     '/profile': loadProfilePage,
+    '/profile-settings': loadProfileSettingsPage,
+    '/two-fa-setup': enable2FA,
+    '/two-fa-disable': disable2FA,
+    '/friends': loadFriendsSearchPage,
+    '/match-history': loadMatchHistoryPage,
+    '/logout': handleLogout,
     '/settings': loadProfileSettingsPage,
     '/play-local': playLocal,
     '/play-ai': playAI,
     '/play-online': playOnline,
     '/play-local/game': gameLocal,
     // '/tournament': playTournament,
-
 
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
@@ -36,11 +48,12 @@ const routes = {
 // If the path exists in the routes object, its associated function is executed.
 
 function router() {
-    const path = window.location.pathname;
+    let path = window.location.pathname;
 
     if (routes[path]) {
         routes[path](); // Call the function associated with the path
     } else {
+        alert("rerer");
         console.log(`Route ${path} not handled`);
         // showNotFound(); // Handle unknown routes
     }
@@ -93,6 +106,7 @@ export function clearURL() {
 }
 
 export function checkPermission () {
+    console.log(`Permissions: checking permissions`);
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken) {
@@ -111,7 +125,7 @@ function homePage() {
     }
     else {
         // console.log('we do not have access token..');
-        loadLoginPage(contentArea);
+        navigateTo('/login');
     }
 }
 
@@ -137,6 +151,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target && target.hasAttribute('data-route')) {
             const route = target.getAttribute('data-route');
             console.log(`a data rout clicked... ${route}`)
+            console.log(`Type is ${target.type}, tag is ${target.tagName}`)
+
+            if (target.tagName === 'BUTTON' && target.type === 'submit') {
+                console.log(`An event is prevented!  ${route}`)
+                event.preventDefault();
+            }
+
             navigateTo(route);
         }
     });

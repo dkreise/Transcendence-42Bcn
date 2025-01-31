@@ -13,7 +13,8 @@
 
 /* Top navigation */
 #profile-container .d-flex {
-    margin-bottom: 20px;
+    margin-top: 50px;
+    /* margin-bottom: 20px; */
 }
 
 #profile-container h1 {
@@ -59,6 +60,11 @@
 #stats-list li {
     font-size: 1.1em; /* Adjust font size */
     margin-bottom: 10px;
+}
+
+#profile-container button {
+    padding: 5px 12px; /* Smaller padding for smaller buttons */
+    font-size: 0.875rem; /* Smaller text size */
 }
 
 /* Logout button */
