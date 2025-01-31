@@ -1,6 +1,7 @@
 from collections import defaultdict
 import logging
 import asyncio
+from .views import save_remote_score
 
 logger = logging.getLogger(__name__)
 
@@ -138,9 +139,23 @@ class GameManager:
 	@staticmethod
 	def declare_winner(room_id, winner_id, role):
 		game = GameManager.games.get(room_id)
-		if not game:
+		if not game: 
 			return
-	
+		# here goes saving score 
+		# Prepare player data
+		players = {
+			"player1": game["players"].get("player1", {}).get("id"),
+			"alias1": game["players"].get("player1", {}).get("alias", "Guest"),
+			"player2": game["players"].get("player2", {}).get("id"),
+			"alias2": game["players"].get("player2", {}).get("alias", "Guest"),
+		}
+
+		# Save the game result
+		saved_game = save_game_result(room_id, winner_id, game["scores"], players)
+
+		if saved_game:
+			logger.info(f"Game saved successfully: {saved_game}")
+
 		logger.info(f"Player {winner_id} wins in room {room_id}!")
 		return {
 			"type": "endgame",
