@@ -5,8 +5,7 @@ from django.contrib.auth import authenticate, login
 from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
-from .models import Profile
-from .translations import add_language_context 
+from user_mgmt.utils.translations import add_language_context
 from rest_framework import status
 import json
 import requests
@@ -16,6 +15,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import activate
 from django.contrib.auth.decorators import login_required
+from rest_framework_simplejwt.tokens import AccessToken
 
 def get_photo_url(user):
     photo_url = None
@@ -106,6 +106,7 @@ def match_history_page(request):
         context = {
             'match_history': all_games,
         }
+        add_language_context(request, context)
         match_history_html = render_to_string('match_history.html', context)
         return JsonResponse({'match_history_html': match_history_html}, content_type="application/json")
     else:
@@ -273,7 +274,35 @@ def save_user_pref_lang(request):
 def get_user_pref_lang(request):
     if request.user.is_authenticated:
         lang = request.user.profile.language
-        return JsonResponse({'status': 'success', 'language': lang}, status=200)
-    else:
-        return JsonResponse({'status': 'error', 'message': 'Language not found for user.'}, status=404)
+        if (lang == ""):
+            lang = request.COOKIES.get('language') or 'en'
+    return JsonResponse({'status': 'success', 'language': lang}, status=200)
 
+# def root_view(request):
+#     #print('------->entro root_view<-------')
+#     jwt_token = request.COOKIES.get('csrftoken')
+#     if jwt_token:
+#         print('there is a token')
+#         try:
+#             AccessToken(jwt_token) # throw exception if token is not valid
+#             return render(request, 'profile.html')
+#         except Exception as e:
+#             print(f"Token error: {e}") #invalid token or expired
+
+#     return render(request, 'login.html')
+
+@api_view(['GET'])
+@login_required 
+def home_page(request):
+    print('Home page api called')
+    if request.user.is_authenticated:
+        # context = {
+        #     'user': request.user,  # Pass the user object to the template
+        # }
+        # Render the HTML with the user's data
+        context = {}
+        add_language_context(request, context)
+        home_html = render_to_string('home_page.html', context)
+        return JsonResponse({'home_html': home_html}, content_type="application/json")
+    else:
+        return JsonResponse({'error': 'user not authenticated'}, status=401)

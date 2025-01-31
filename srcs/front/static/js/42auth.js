@@ -27,6 +27,7 @@ export const handle42Callback = () => {
             console.log(`Sending GET request to: ${url}`);
             fetch(url, {
                 method: 'POST',
+                credentials: "include", 
                 headers: {
                     'Content-Type': 'application/json'
                 },

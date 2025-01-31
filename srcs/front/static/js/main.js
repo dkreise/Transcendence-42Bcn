@@ -87,11 +87,12 @@ export function navigateTo(path, replace = false) {
         console.log(`${path} is replaced in history`)
     }
     else {
+
         history.pushState({ path }, null, path);
         historyTracker.push({ action: 'pushState', path });
         console.log(`${path} is pushed to history`)
     }
-    console.log('History Tracker:', JSON.stringify(historyTracker, null, 2)); // Log the history
+    //console.log('History Tracker:', JSON.stringify(historyTracker, null, 2)); // Log the history
     router();
 }
 

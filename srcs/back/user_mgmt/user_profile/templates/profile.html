@@ -6,7 +6,7 @@
             <!-- <button id="profile-home-button">Home</button> -->
             <button data-route="/profile-settings" id="profile-settings-button">{{settings}}</button>
             <button data-route="/friends" id="friends-button">{{friends}}</button>
-            <button data-route="/home" id="home-button">Home</button>
+            <button data-route="/home" id="home-button">{{home}}</button>
         </div>
     </div>
 
@@ -40,12 +40,12 @@
             <li>{{tournaments_played}}: <span id="tournaments-played">{{ stats_tournaments.tournaments_played }}</span></li>
             <li>{{tournament_average_score}}: <span id="tournaments-won">{{ stats_tournaments.tournament_score }} %</span></li>   
         </ul>
-        <button data-route="/match-history" id="match-history-button">Match History</button>        
+        <button data-route="/match-history" id="match-history-button">{{match_history}}</button>        
     </div>
 
     <!-- Last 10 Games Chart -->
 
 
 	<button data-route="/logout" id="logout-button">Logout</button>
-	<button id="game">Play!</button>
+	<button id="game">{{play}}!</button>
 </div>

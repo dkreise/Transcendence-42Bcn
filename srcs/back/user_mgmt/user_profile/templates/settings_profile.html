@@ -33,11 +33,11 @@
     </form>
     {% if two_fa_enabled %}
         <div id="turn-off-2fa-div">
-            <button data-route="/two-fa-disable" id="two-fa-button">Disable 2FA</button>
+            <button data-route="/two-fa-disable" id="two-fa-button">{{disable_2FA}}</button>
         </div>
     {% else %}
         <div id="turn-on-2fa-div">
-            <button data-route="/two-fa-setup" id="two-fa-button">Add 2FA</button>
+            <button data-route="/two-fa-setup" id="two-fa-button">{{add_2FA}}</button>
         </div>
     {% endif %}
 </div>
