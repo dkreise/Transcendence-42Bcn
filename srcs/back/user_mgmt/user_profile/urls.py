@@ -15,6 +15,7 @@ urlpatterns = [
     path("api/remove-friend/<int:friend_id>/", views.remove_friend, name="remove_friend"),
     path("api/save-user-pref-lang", views.save_user_pref_lang, name="save_user_pref_lang"),
     path("api/get-user-pref-lang/", views.get_user_pref_lang, name="get_user_pref_lang"),
+    path('api/home-page/', views.home_page, name='home'),
 ] 
 
 if settings.DEBUG:

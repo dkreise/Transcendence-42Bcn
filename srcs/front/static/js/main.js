@@ -80,6 +80,7 @@ function router() {
 // (pushState or replaceState).
 
 export function navigateTo(path, replace = false) {
+    console.log('JULIAAAAAAAAA navigate to method');
     console.log(`navigating to ${path}`)
     if (replace) {
         history.replaceState({ path }, null, path);
@@ -87,11 +88,12 @@ export function navigateTo(path, replace = false) {
         console.log(`${path} is replaced in history`)
     }
     else {
+
         history.pushState({ path }, null, path);
         historyTracker.push({ action: 'pushState', path });
         console.log(`${path} is pushed to history`)
     }
-    console.log('History Tracker:', JSON.stringify(historyTracker, null, 2)); // Log the history
+    //console.log('History Tracker:', JSON.stringify(historyTracker, null, 2)); // Log the history
     router();
 }
 
@@ -118,6 +120,7 @@ export function checkPermission () {
 }
 
 function homePage() {
+    console.log(' JULIAAAAAAAAA navigating homepage method');
     const contentArea = document.getElementById('content-area');
     
     if (checkPermission ()) {

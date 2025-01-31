@@ -143,8 +143,9 @@ def signup_form(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def verify_2fa_login_form(request):
-    form_html = render_to_string('2fa_verify.html')
-    # set languages..
+    context = {}
+    add_language_context(request, context)
+    form_html = render_to_string('2fa_verify.html', context)
     return JsonResponse({'form_html': form_html}, content_type="application/json")
 
 @api_view(['POST'])
@@ -238,9 +239,9 @@ def enable_2fa(request):
 
         # print("QR Image:", qr_image)
         # print("QR Base64:", qr_base64)
-
-
-        setup_html = render_to_string("2fa_setup.html", {"qr_code": qr_base64})
+        context = {}
+        add_language_context(request, context)
+        setup_html = render_to_string("2fa_setup.html", {"qr_code": qr_base64}, context)
         return JsonResponse({
             "success": True,
             "setup_html": setup_html,
