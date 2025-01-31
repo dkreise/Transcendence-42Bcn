@@ -54,6 +54,7 @@ export const gameLocal = () => {
             body: JSON.stringify({
                 'second-player': secondPlayerName,  // Stringify the body data
             }),
+            headers: {"Content-Type": "application/json"},
         })
         .then(response => {
             console.log('Raw response:', response);  // Add this line to inspect the raw response

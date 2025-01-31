@@ -1,5 +1,5 @@
 import { makeAuthenticatedRequest } from "./login.js";
-import { addLogoutListener } from "./logout.js";
+// import { addLogoutListener } from "./logout.js";
 import { navigateTo, checkPermission } from "./main.js"
 import { Ball, Player } from "./localClasses.js";
 
@@ -29,6 +29,7 @@ export function saveScore() {
             
             'main_user': mainUser, 
         }),
+        headers: {"Content-Type": "application/json"},
     })
     .then((response) => {
         if (response.ok) {
