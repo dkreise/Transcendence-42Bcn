@@ -1,28 +1,18 @@
 import { Ball, Player } from "./remoteClasses.js";
-import { makeAuthenticatedRequest } from "./login.js";
-
-let canvas = null;
-let ctx = null;
-
-let ball = null;
-const ballCoef = 0.3;
 
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
 	"loser": "Better luck next time :')\n",
 }
 
-let targetBallX = null;
-let targetBallY = null;
+let canvas, ctx = null;
+
+const ballCoef = 0.3;
+let ball, targetBallX, targetBallY = null;
+let player, opponent = null;
+
 let socket = null;
-
-let player = null;
-let opponent = null;
-
-let wait = 1;
 let gameLoopId = null;
-
-console.log("Hi! This is remoteGame.js :D");
 
 function interpolateBall() {
 	ball.x += (targetBallX - ball.x) * ballCoef;
@@ -65,21 +55,6 @@ function handleEndgame(data) {
 function initializeWebSocket() {
 	const roomID = new URLSearchParams(window.location.search).get("room") || "default";
 
-	//makeAuthenticatedRequest("http://localhost:8001/api/user-info/", {method: "GET"})
-	//	.then((response) => response.json().catch((error) => {
-    //   		console.error("Error parsing JSON:", error);
-    //    	throw error; // Rethrow to propagate the error
-    //	}))
-	//	.then(data => {
-	//		console.log(data);
-	//	})
-	//	.catch(error => {
-	//		console.error("Error fetching: ", error);
-	//	})
-	//	.finally(() => {
-	//	console.warn("Request completed.");
-	//	});
-
 	const token = localStorage.getItem("access_token");
 	if (!token)
 	{
@@ -102,8 +77,8 @@ function initializeWebSocket() {
 	socket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
 		//console.log("data.type: " + data.type);
-		if (data.hasOwnProperty("wait"))
-			wait = data.wait;
+		//if (data.hasOwnProperty("wait"))
+		//	wait = data.wait;
 		//if (data.type == "role" && data.type != "update")
 		//	console.log("data.type: " + data.type + " role: " + data.role);
 
@@ -156,6 +131,22 @@ function gameLoop() {
 	ball.move(player, opponent, gameLoopId, socket);
 }
 
+function resizeCanvas() {
+	const oldWidth = canvas.width;
+	const oldHeight = canvas.height;
+	canvas.width = canvas.parentElement.offsetWidth;
+	canvas.height = canvas.parentElement.offsetHeight;
+	const wScale = canvas.width / oldWidth;
+	const hScale = canvas.height / oldHeight;
+
+	player.resize(canvas, wScale, hScale);
+	opponent.resize(canvas, wScale, hScale);
+	ball.resize(canvas, wScale, hScale);
+}
+
+window.addEventListener("resize", () => resizeCanvas());
+
+
 window.addEventListener('keydown', (e) => {
 	if (e.key === 'w' || e.key === 'ArrowUp') player.up = true;
 	if (e.key === 's' || e.key === 'ArrowDown') player.down = true;
@@ -165,8 +156,6 @@ window.addEventListener('keyup', (e) => {
 	if (e.key === 'w' || e.key === 'ArrowUp') player.up = false;
 	if (e.key === 's' || e.key === 'ArrowDown') player.down = false;
 });
-
-//initializeWebSocket();
 
 export function startGame()
 {

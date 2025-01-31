@@ -9,7 +9,7 @@ import aiohttp
 from rest_framework.exceptions import AuthenticationFailed
 
 
-# logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 # async def get_user_from_token(username):
 #     try:

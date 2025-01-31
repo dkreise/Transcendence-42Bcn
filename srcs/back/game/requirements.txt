@@ -14,3 +14,4 @@ django-environ
 black
 flake8
 aiohttp
+requests

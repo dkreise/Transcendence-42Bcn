@@ -9,7 +9,7 @@ class GameManager:
 	BOARD_WIDTH = 800
 	BOARD_HEIGHT = 500
 	BALL_SPEED = 5
-	COUNTDOWN = 100 #seconds a player can be disconnected before losing
+	COUNTDOWN = 10 #seconds a player can be disconnected before losing
 
 	# Store all games
 	games = {}
@@ -60,11 +60,11 @@ class GameManager:
 		if not game:
 			return
 
-		#for role, player in list(game["players"].items()):  # Safely iterate
-		#	if player["id"] == player_id:
-		#		del game["players"][role]
-		#		logger.info(f"Player {role} left room {room_id}.")
-		#		break
+		for role, player in list(game["players"].items()):  # Safely iterate
+			if player["id"] == player_id:
+				del game["players"][role]
+				logger.info(f"Player {role} left room {room_id}.")
+				break
 
 		if not game["players"]:  # Delete room if empty
 			del GameManager.games[room_id]
@@ -158,7 +158,7 @@ class GameManager:
 	async def start_disconnect_countdown(room_id, remaining_player_id, role):
 		async def countdown():
 			try:
-				await asyncio.sleep(COUNTDOWN)
+				await asyncio.sleep(GameManager.COUNTDOWN)
 				msg = GameManager.declare_winner(room_id, remaining_player_id, role)
 				logger.info(f"\033[1;34m{msg}\033[0;m");
 				return msg

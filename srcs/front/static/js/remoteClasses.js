@@ -1,18 +1,21 @@
 export class Player {
-	width = 10;
-	height = 80;
 	maxScore = 5;
+	wFactor = 0.03;
+	hFactor = 0.1;
+	sFactor = 0.02;
 
-	constructor(canvas, role, initPos = (canvas.width - this.width)) {
+	constructor(canvas, role, initPos = canvas.width - canvas.width * 0.01) {
+		this.canvas = canvas;
+		this.width = canvas.width * wFactor; // Paddle width scales with canvas width
+		this.height = canvas.height * hFactor; // Paddle height scales with canvas height
 		this.x = initPos;
 		this.y = canvas.height / 2 - this.height / 2;
-		this.speed = 5;
+		this.speed = canvas.height * sFactor; // Speed scales with canvas height
 		this.color = "white";
 		this.up = false;
 		this.down = false;
 		this.score = 0;
-		this.canvas = canvas;
-		this.role = role;
+		this.role = role; // "player1" or "player2"
 	}
 
 	draw(ctx) {
@@ -75,19 +78,32 @@ export class Player {
 			socket.send(JSON.stringify(data));
 		}
 	}
+	resize(canvas, wScale, hScale)
+	{
+		this.width = canvas.width * this.wFactor;
+		this.height = canvas.height * this.hFactor;
+		if (this.role == "player2")
+			this.x = canvas.width - canvas.width * 0.01
+		this.x *= wScale;
+		this.y *= hScale;
+		this.speed = canvas.height * this.sFactor;
+		this.canvas = canvas;
+	}
 }
 
 
 export class Ball {
-	radius = 10;
+	radFactor = 0.01;
+	sFactor = 0.01;
 
 	constructor(canvas) {
+		this.canvas = canvas;
+		this.radius = canvas.width * this.radFactor; // Ball radius scales with canvas width
 		this.x = canvas.width / 2;
 		this.y = canvas.height / 2;
-		this.xspeed = 5;
-		this.yspeed = 5;
+		this.xspeed = canvas.width * 0.01; // Speed scales with canvas width
+		this.yspeed = canvas.height * 0.01; // Speed scales with canvas height
 		this.color = "white";
-		this.canvas = canvas;
 	}
 
 	draw(ctx) {
@@ -158,5 +174,14 @@ export class Ball {
 			};
 			socket.send(JSON.stringify(data));
 		}
+	}
+	resize(canvas, wScale, hScale)
+	{
+		this.radius = canvas.width * this.radFactor;
+		this.x *= wScale;
+		this.y *= hScale;
+		this.xspeed *= wScale;
+		this.yspeed *= hScale;
+		this.canvas = canvas;
 	}
 }

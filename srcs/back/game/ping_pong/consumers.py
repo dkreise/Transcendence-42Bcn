@@ -7,7 +7,6 @@ import json
 import logging
 import uuid
 import asyncio
-import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -17,44 +16,18 @@ class PongConsumer(AsyncWebsocketConsumer):
 		try:
 			self.role = None
 			self.room_id = self.scope['url_route']['kwargs']['room']
-			query_string = parse_qs(self.scope['query_string'].decode())
+			#query_string = parse_qs(self.scope['query_string'].decode())
 
 			# Extract the token from the query string
-			token = query_string.get('token', [None])[0]
-			logger.info(f"\033[1;33mtoken is: {token}\033[0m")
+			#token = query_string.get('token', [None])[0]
+			#logger.info(f"\033[1;33mtoken is: {token}\033[0m")
 			logger.info(f"scope user: {self.scope['user']}")
+			self.user = self.scope['user'].username
 
-			if not token:
-				logger.warning("No token provided.")
-				await self.close()
-				return
-
-			# Query the user-info API
-			try:
-				logger.info("let's query the user-info API")
-				api_url = "http://user_mgmt:8000/api/user-info/"
-				headers = {"Authorization": f"Bearer {token}"}
-				logger.info(f"\033[1;32mHEADERS: {headers}\033[0m")
-				async with httpx.AsyncClient() as client:
-					response = await client.get(api_url, headers=headers)
-				logger.info(f"\033[1;33mStatus Code: {response.status_code}\033[0m")
-
-				if response.status_code == 200:
-					data = response.json()
-					self.user = data.get("username")
-					if not self.user:
-						logger.warning("Username not found in response.")
-						await self.close()
-						return
-					logger.info(f"Authenticated user: {self.user}")
-				else:
-					logger.warning(f"Failed to fetch user info: {response.status_code}")
-					await self.close()
-					return
-			except Exception as e:
-				logger.error(f"Error querying user-info API: {e}")
-				await self.close()
-				return
+			#if not token:
+			#	logger.warning("No token provided.")
+			#	await self.close()
+			#	return
 
 			# Player joins the room
 			self.role = GameManager.joinRoom(self.room_id, self.user)
@@ -66,6 +39,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.accept()
 
 			total_players = len(GameManager.games[self.room_id]["players"])
+			if total_players == 2 and not GameManager.isGameLoopRunning(self.room_id):
+				GameManager.setGameLoopRunning(self.room_id, True)
+				self.game_loop_task = asyncio.create_task(self.game_loop())
+
 
 			logger.info(f"Role: {self.role}, Players: {total_players}")
 
@@ -89,42 +66,83 @@ class PongConsumer(AsyncWebsocketConsumer):
 			logger.error(f"Error during WebSocket connect: {e}")
 			await self.close()
 
+	#async def disconnect(self, close_code):
+	#	logger.info("DISCONNECT METHOD CALLED")
+	#	if self.role is None:
+	#		logger.warning("Disconnect called before role assignment.")
+	#		return
+	#
+	#	disc_role = self.role
+	#	logger.info(f"user with role {disc_role} is leaving")
+	#	if hasattr(self, 'game_loop_task'):
+	#		self.game_loop_task.cancel()
+	#
+	#	await self.channel_layer.group_send(
+	#		self.room_id,
+	#		{
+	#			"type": "game_update",
+	#			"message": {"type": "status", "wait": 1}
+	#		}
+	#	)
+	#	GameManager.leaveRoom(self.room_id, self.player_id)
+	#
+	#	game_state = GameManager.games.get(self.room_id)
+	#	if game_state and len(game_state["players"]) == 1:
+	#		remaining_player = next(iter(game_state["players"].values()))
+	#		winner_msg = await GameManager.start_disconnect_countdown(self.room_id, remaining_player["id"], disc_role)
+	#		if winner_msg:
+	#			await self.channel_layer.group_send(
+	#				self.room_id,
+	#				{
+	#					"type": "game_endgame",
+	#					"message": winner_msg
+	#				}
+	#			)
+	#
+	#	await self.channel_layer.group_discard(self.room_id, self.channel_name)
+	#	GameManager.setGameLoopRunning(self.room_id, False)
+	
 	async def disconnect(self, close_code):
 		logger.info("DISCONNECT METHOD CALLED")
 		if self.role is None:
 			logger.warning("Disconnect called before role assignment.")
 			return
-	
+
 		disc_role = self.role
 		logger.info(f"user with role {disc_role} is leaving")
+
 		if hasattr(self, 'game_loop_task'):
 			self.game_loop_task.cancel()
-	
+
+		# Notify other players of the disconnection
 		await self.channel_layer.group_send(
-			self.room_id,
+		self.room_id,
 			{
 				"type": "game_update",
 				"message": {"type": "status", "wait": 1}
 			}
 		)
-		GameManager.leaveRoom(self.room_id, self.player_id)
-	
+
+		# Start countdown for disconnection
 		game_state = GameManager.games.get(self.room_id)
 		if game_state and len(game_state["players"]) == 1:
 			remaining_player = next(iter(game_state["players"].values()))
 			winner_msg = await GameManager.start_disconnect_countdown(self.room_id, remaining_player["id"], disc_role)
-			if winner_msg:
-				await self.channel_layer.group_send(
-					self.room_id,
-					{
-						"type": "game_endgame",
-						"message": winner_msg
-					}
-				)
-	
+		if winner_msg:
+			await self.channel_layer.group_send(
+			self.room_id,
+				{
+					"type": "game_endgame",
+					"message": winner_msg
+				}
+			)
+		else:
+			logger.info("Countdown was canceled, no winner declared.")
+
 		await self.channel_layer.group_discard(self.room_id, self.channel_name)
 		GameManager.setGameLoopRunning(self.room_id, False)
-	
+
+
 	async def receive(self, text_data):
 
 		try:
