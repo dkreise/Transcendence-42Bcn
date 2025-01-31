@@ -5,8 +5,7 @@ from django.contrib.auth import authenticate, login
 from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
-from .models import Profile
-from .translations import add_language_context 
+from user_mgmt.utils.translations import add_language_context
 from rest_framework import status
 import json
 import requests
@@ -273,7 +272,7 @@ def save_user_pref_lang(request):
 def get_user_pref_lang(request):
     if request.user.is_authenticated:
         lang = request.user.profile.language
-        return JsonResponse({'status': 'success', 'language': lang}, status=200)
-    else:
-        return JsonResponse({'status': 'error', 'message': 'Language not found for user.'}, status=404)
+        if (lang == ""):
+            lang = request.COOKIES.get('language') or 'en'
+    return JsonResponse({'status': 'success', 'language': lang}, status=200)
 
