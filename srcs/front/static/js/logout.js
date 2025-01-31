@@ -29,6 +29,9 @@ export const handleLogout = () => {
 
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('intra_token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('name');
 
     //contentArea.innerHTML = ''; // to clear user content
     window.history.replaceState(null, null, '/'); // ????

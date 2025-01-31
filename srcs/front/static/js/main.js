@@ -6,6 +6,7 @@ import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { playLocal, playAI, playOnline, gameLocal } from "./game.js"
+// import { gameLocal } from "./localGame.js"
 
 
 const historyTracker = [];
@@ -105,6 +106,7 @@ export function clearURL() {
 }
 
 export function checkPermission () {
+    console.log(`Permissions: checking permissions`);
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken) {
@@ -149,6 +151,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target && target.hasAttribute('data-route')) {
             const route = target.getAttribute('data-route');
             console.log(`a data rout clicked... ${route}`)
+            console.log(`Type is ${target.type}, tag is ${target.tagName}`)
+
+            if (target.tagName === 'BUTTON' && target.type === 'submit') {
+                console.log(`An event is prevented!  ${route}`)
+                event.preventDefault();
+            }
+
             navigateTo(route);
         }
     });

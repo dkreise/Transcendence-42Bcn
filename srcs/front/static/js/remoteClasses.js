@@ -4,6 +4,7 @@ export class Player {
 	maxScore = 5;
 
 	constructor(canvas, role, initPos = (canvas.width - this.width)) {
+		console.log(`Canvas size: ${canvas.width} x ${canvas.hight}`)
 		this.x = initPos;
 		this.y = canvas.height / 2 - this.height / 2;
 		this.speed = 5;
@@ -11,10 +12,10 @@ export class Player {
 		this.up = false;
 		this.down = false;
 		this.score = 0;
-		this.canvas = canvas;
+		this.canvas.width = canvas;
 		this.role = role;
 	}
-
+ 
 	draw(ctx) {
 		ctx.fillStyle = this.color;
 		ctx.fillRect(this.x, this.y, this.width, this.height);
