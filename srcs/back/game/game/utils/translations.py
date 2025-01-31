@@ -45,7 +45,7 @@ def get_lang_words(lang):
 			'play again': "Play again",
 			'back': "Back",
 			'logout': "Logout",
-			'waiting_message': "The game is ready! Let’s play!",
+			'waiting_message': "Waiting for player...",
 			'game_title': "CRRRRAAAZZZY PONG!",
 			'restart': "Restart"
 		}

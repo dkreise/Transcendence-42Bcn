@@ -38,16 +38,20 @@ class GameManager:
 		})
 
 		logger.info(f"\033[1;31mJOIN ROOM: game[players] = {game['players']}\033[0m")
-		if game["players"]:
-			player1 = game["players"].get("player1")
-			player2 = game["players"].get("player2")
-			if player1 and (player_id == player1["id"]):
-				return "player1"
-			elif player2 and (player_id == player2["id"]):
-				return "player2"
+		try:
+			if game["players"]:
+				player1 = game["players"].get("player1")
+				player2 = game["players"].get("player2")
+				if player1 and (player_id == player1["id"]):
+					return "player1"
+				elif player2 and (player_id == player2["id"]):
+					return "player2"
 
-			if len(game["players"]) >= 2:  # Max 2 players
-				return None  # Room is full
+				if len(game["players"]) >= 2:  # Max 2 players
+					logger.info(f"\033[1;33mI'm FUCKING FULL\033[0m")
+					return None  # Room is full
+		except Exception as e:
+			logger.info(str(e))
 
 		role = "player1" if "player1" not in game["players"] else "player2"
 		logger.info(f"\033[1;33mjoinRoom game->players {game['players']}\033[0m")

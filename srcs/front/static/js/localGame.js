@@ -102,8 +102,8 @@ export function startLocalGame(playerName1, playerName2, mainUserNmb) {
     // Initialize players and ball
     console.log('Starting local game...');
     console.log(`Canvas: ${canvas.width} x ${canvas.height}`);
-    player1 = new Player(canvas, 0, playerName1, 0);
-    player2 = new Player(canvas, 1, playerName2, canvas.width - 10);
+    player1 = new Player(canvas, 0, playerName1);
+    player2 = new Player(canvas, 1, playerName2);
     ball = new Ball(canvas);
 
     setupControls();
