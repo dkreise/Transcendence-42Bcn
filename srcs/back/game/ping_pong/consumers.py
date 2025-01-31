@@ -23,6 +23,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 			# Player joins the room
 			self.role = GameManager.joinRoom(self.room_id, self.user)
+			logger.info(f"self.role: {self.role}")
 			if not self.role:
 				await self.close()
 				return
@@ -31,6 +32,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			await self.accept()
 
 			total_players = len(GameManager.games[self.room_id]["players"])
+			logger.info(f"total_players: {total_players}")
 			if total_players == 2 and not GameManager.isGameLoopRunning(self.room_id):
 				GameManager.setGameLoopRunning(self.room_id, True)
 				self.game_loop_task = asyncio.create_task(self.game_loop())
@@ -117,10 +119,16 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 		# Start countdown for disconnection
 		game_state = GameManager.games.get(self.room_id)
-		if game_state and len(game_state["players"]) == 1:
-			remaining_player = next(iter(game_state["players"].values()))
-			winner_msg = await GameManager.start_disconnect_countdown(self.room_id, remaining_player["id"], disc_role)
+		logger.info(f"CONSUMERS game_state: {game_state}")
+		logger.info(f"CONSUMERS len game_state: {len(game_state['players'])}")
+		#if game_state and len(game_state["players"]) == 1:
+		# 	remaining_player = next(iter(game_state["players"].values()))
+		# 	winner_msg = await GameManager.start_disconnect_countdown(self.room_id, remaining_player["id"], disc_role)
+		winner_msg = await GameManager.start_disconnect_countdown(self.room_id, remaining_player["id"], disc_role)
 		if winner_msg:
+			game_state = GameManager.games.get(selff.room_id)
+			if game_state and len(game_state["players"]) == 1:
+		 		remaining_player = next(iter(game_state["players"].values()))
 			await self.channel_layer.group_send(
 			self.room_id,
 				{
@@ -175,6 +183,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def game_loop(self):
 		try:
+			logger.info("game_loop is up and running")
 			while True:
 				game_state = GameManager.games[self.room_id]
 				if len(game_state["players"]) < 2:

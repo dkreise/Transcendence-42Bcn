@@ -73,7 +73,7 @@ function gameLocalLoop() {
 }
 
 // Event listeners for player controls
-export function setupControls() {
+export function setupControls(player1, player2) {
     window.addEventListener("keydown", (e) => {
         if (e.key === "w" || e.key === "W") player1.up = true;
         if (e.key === "s" || e.key === "S") player1.down = true;
@@ -106,6 +106,6 @@ export function startLocalGame(playerName1, playerName2, mainUserNmb) {
     player2 = new Player(canvas, 1, playerName2);
     ball = new Ball(canvas);
 
-    setupControls();
+    setupControls(player1, player2);
     gameLocalLoop();
 }

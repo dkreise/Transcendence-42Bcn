@@ -6,8 +6,8 @@ logger = logging.getLogger(__name__)
 
 class GameManager:
 	PADDLE_HEIGHT = 80
-	BOARD_WIDTH = 800
-	BOARD_HEIGHT = 500
+	BOARD_WIDTH = 1200
+	BOARD_HEIGHT = 600
 	BALL_SPEED = 5
 	COUNTDOWN = 10 #seconds a player can be disconnected before losing
 
@@ -64,7 +64,7 @@ class GameManager:
 		if not game:
 			return
 
-		for role, player in list(game["players"].items()):  # Safely iterate
+		for role, player in list(game["players"].items()):
 			if player["id"] == player_id:
 				del game["players"][role]
 				logger.info(f"Player {role} left room {room_id}.")
@@ -137,6 +137,7 @@ class GameManager:
 
 	@staticmethod
 	def declare_winner(room_id, winner_id, role):
+		logger.info("let's declare the winner")
 		game = GameManager.games.get(room_id)
 		if not game:
 			return
@@ -162,7 +163,9 @@ class GameManager:
 	async def start_disconnect_countdown(room_id, remaining_player_id, role):
 		async def countdown():
 			try:
+				logger.info(f"\033[1;31mPre-countdown: {GameManager.COUNTDOWN}")
 				await asyncio.sleep(GameManager.COUNTDOWN)
+				logger.info(f"\033[1;31mPost-countdown")
 				msg = GameManager.declare_winner(room_id, remaining_player_id, role)
 				logger.info(f"\033[1;34m{msg}\033[0;m");
 				return msg
@@ -174,4 +177,5 @@ class GameManager:
 		task = asyncio.create_task(countdown())
 		GameManager.disconnect_tasks[room_id] = task
 		result = await task
+		logger.info(f"winner_msg: {result}");
 		return result

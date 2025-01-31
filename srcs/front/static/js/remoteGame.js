@@ -84,8 +84,11 @@ function initializeWebSocket() {
 			case "status":
 				displayStatus(data.wait);
 				if (!data.wait)
-					setupControls()
+				{
+					//console.log("player: " + player + " p.role: " + player.role);
+					setupControls(player, opponent)
 					gameLoop();
+				}
 				break;
 			case "role":
 				handleRoleAssignment(data.role);
@@ -93,7 +96,6 @@ function initializeWebSocket() {
 			case "update":
 				if (data.wait)
 					return;
-				//console.log(data);
 				if (data.players)
 				{
 					if (player.role == "player1")
@@ -141,10 +143,13 @@ function gameLoop() {
 	player.resize(canvas, wScale, hScale);
 	opponent.resize(canvas, wScale, hScale);
 	ball.resize(canvas, wScale, hScale);
-}
+}*/
 
-window.addEventListener("resize", () => resizeCanvas());
-*/
+window.addEventListener("resize", () => {
+	console.log("player canvas width: " + player.canvas.width);
+	console.log("actual canvas width: " + canvas.width);
+});
+
 
 //window.addEventListener('keydown', (e) => {
 //	if (e.key === 'w' || e.key == 'W' || e.key === 'ArrowUp') player.up = true;

@@ -4,11 +4,16 @@ export class Player {
 	hFactor = 0.1;
 	sFactor = 0.02;
 
-	constructor(canvas, role, initPos = (canvas.width - this.width)) {
-		console.log(`Canvas size: ${canvas.width} x ${canvas.hight}`)
-		this.x = initPos;
+	constructor(canvas, role) {
+		console.log(`Canvas size: ${canvas.width} x ${canvas.height}`)
+		this.width = canvas.width * 0.01;
+		this.height = canvas.height * 0.2;
+		if (role === "player1")
+			this.x = 0;
+		else
+			this.x = canvas.width - this.width;
 		this.y = canvas.height / 2 - this.height / 2;
-		this.speed = canvas.height * sFactor; // Speed scales with canvas height
+		this.speed = canvas.height * this.sFactor; // Speed scales with canvas height
 		this.color = "white";
 		this.up = false;
 		this.down = false;
@@ -20,6 +25,8 @@ export class Player {
 	draw(ctx) {
 		ctx.fillStyle = this.color;
 		ctx.fillRect(this.x, this.y, this.width, this.height);
+		//if (this.role === "player1")
+		//	console.log("paddles: x " + this.x + "\ny: " + this.y + "\nwidth: " + this.width + "\nheight: " + this.height);
 	}
 
 	move(socket) {
@@ -106,6 +113,7 @@ export class Ball {
 	}
 
 	draw(ctx) {
+		//console.log("ball x: " + this.x + " y: " + this.y + " rad: " + this.radius);
 		ctx.fillStyle = this.color;
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
