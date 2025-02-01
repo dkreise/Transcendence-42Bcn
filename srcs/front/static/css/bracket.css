@@ -1,0 +1,61 @@
+.tournament-bracket {
+    display: block;
+    margin: 0 auto;
+    max-width: 1200px; /* Max width to avoid excessive expansion */
+    width: 100%; /* Allow it to shrink to fit content */
+    min-width: 800px; /* Set minimum width */
+    position: relative;
+    margin-top: 100px;
+}
+
+.tournament-bracket .bracket {
+    display: flex;
+    align-items: flex-start; /* Align the rounds at the top */
+    justify-content: space-between; /* Space between rounds */
+    position: relative;
+}
+
+.tournament-bracket .round {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+}
+
+.tournament-bracket .match {
+    position: relative;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tournament-bracket .connector {
+    position: absolute;
+    width: 80px; /* Horizontal line width */
+    height: 4px; /* Horizontal line thickness */
+    background-color: white;
+    top: 50%; /* Align vertically in the middle */
+    left: 100%; /* Align to the right of the match box */
+    transform: translateY(-50%);
+}
+
+.tournament-bracket .vertical {
+    height: 76px; /* Vertical line height */
+    width: 4px; /* Vertical line thickness */
+    background-color: white;
+    position: absolute;
+    top: 115%; /* Align vertically with the match box */
+    left: -100px; /* Position it to the left of the match box */
+    transform: translateY(-50%);
+}
+
+.tournament-bracket .round:nth-child(2) .match {
+    margin-top: 40px; /* Push the second round down for proper alignment */
+}
+
+.tournament-bracket .round:nth-child(3) .match {
+    margin-top: 60px; /* Push the final round further down for alignment */
+}

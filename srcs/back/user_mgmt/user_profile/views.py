@@ -261,21 +261,17 @@ def save_user_pref_lang(request):
     data = json.loads(request.body)
     lang = data.get('language', 'en')
 
-    if request.user.is_authenticated:
-        user_profile = request.user.profile
-        user_profile.language = lang
-        user_profile.save()
-       
+    user_profile = request.user.profile
+    user_profile.language = lang
+    user_profile.save()
+    
     activate(lang)
     return JsonResponse({'status': 'success', 'message': 'Language has been setted.'})
 
 @api_view(['GET'])
 @login_required 
 def get_user_pref_lang(request):
-    if request.user.is_authenticated:
-        lang = request.user.profile.language
-        if (lang == ""):
-            lang = request.COOKIES.get('language') or 'en'
+    lang = request.user.profile.language
     return JsonResponse({'status': 'success', 'language': lang}, status=200)
 
 # def root_view(request):

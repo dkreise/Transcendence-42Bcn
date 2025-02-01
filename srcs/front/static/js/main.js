@@ -6,8 +6,8 @@ import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { playLocal, playAI, playOnline, gameLocal } from "./game.js"
+import { loadTournamentHomePage, loadTournamentCreatorPage, loadJoinTournamentPage, loadBracketTournamentPage } from "./tournament.js";
 // import { gameLocal } from "./localGame.js"
-
 
 const historyTracker = [];
 
@@ -36,7 +36,10 @@ const routes = {
     '/play-ai': playAI,
     '/play-online': playOnline,
     '/play-local/game': gameLocal,
-    // '/tournament': playTournament,
+    '/tournament': loadTournamentHomePage,
+    '/tournament-creator': loadTournamentCreatorPage,
+    '/join-tournament': loadJoinTournamentPage,
+    '/tournament-bracket': loadBracketTournamentPage,
 
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
