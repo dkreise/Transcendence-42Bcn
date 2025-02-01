@@ -42,9 +42,6 @@ function saveUserPreferenceLanguageToDB(lang) {
             console.error('Failed to update language on the server.');
         }
     })
-    .catch((error) => {
-        console.error('Error updating language:', error);
-    });
 }
 
 function updateLanguageButtonUI(lang) {
@@ -65,17 +62,14 @@ export async function updateLanguage(lang) {
     
     //STEP 1: Get user language preference when login (no lang passed as parameter)
     if (!lang){ //when login /signin
-        lang_is_defined = false; //when login/signin 
+        lang_is_defined = false;
         lang = await getUserPreferenceLanguageFromDB();
     }
 
     //STEP 2: Set language cookies
     setCookie("language", lang);
 
-    //STEP 3: Save lang in bbdd (only if update comes from button - not login)
-    if (lang_is_defined) {
-        saveUserPreferenceLanguageToDB(lang);
-    }
+    saveUserPreferenceLanguageToDB(lang);
 
     //STEP 4: Update button UI
     updateLanguageButtonUI(lang);
