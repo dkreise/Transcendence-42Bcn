@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from .models import Game
 from .serializers import PlayerSerializer, GameSerializer
@@ -8,6 +9,7 @@ from django.contrib.auth.models import User
 import random
 from django.db.models import Q
 from game.utils.translations import add_language_context
+from django.template.loader import render_to_string
  
 @api_view(['GET'])
 def player_list(request):
@@ -142,3 +144,16 @@ def get_player_all_games(request, player_id):
 
     except Exception as e:
         return Response({"error": f"An unexpected error ocurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def get_difficulty_level(request):
+    print("we are inside")
+    if request.user:
+        context = {
+            'user': request.user,
+        }
+        add_language_context(request, context)
+        get_difficulty_html = render_to_string('get_difficulty.html', context)
+        return JsonResponse({'get_difficulty_html': get_difficulty_html}, content_type="application/json")
+    else:
+        return JsonResponse({'error': 'user not authenticated'}, status=402)

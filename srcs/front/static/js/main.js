@@ -5,7 +5,8 @@ import { loadHomePage } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
-import { playLocal, playAI, playOnline, gameLocal } from "./game.js"
+import { playLocal, playAI, playOnline, gameLocal, gameAI } from "./game.js"
+// import { setDifficulty } from "./AIGame.js"
 // import { gameLocal } from "./localGame.js"
 
 
@@ -36,6 +37,8 @@ const routes = {
     '/play-ai': playAI,
     '/play-online': playOnline,
     '/play-local/game': gameLocal,
+    '/play-ai/game': gameAI,
+    // '/play-ai/set-difficulty/': setDifficulty,
     // '/tournament': playTournament,
 
     // EXAMPLE how to announce a function that receives parameters:

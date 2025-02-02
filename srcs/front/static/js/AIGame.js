@@ -11,58 +11,65 @@ let gameLoopId = null;
 let maxScore = 2;
 let intervalID = null;
 let targetY = null;
+let difficulty = 3; // 0.5-1 => easy, 3 => already low chance for ai to lose, 5 => almost impossible; 
+let errorRange = null;
 
-// if mainUser == 1, we need to focus on right wall, else -- on left wall
-// ball.xspeed > 0 -- right, < 0 -- left
-// ball.yspeed > 0 -- down, < 0 -- up
+// when the ball will hit the top or bottom walls
+function getTimeToTopBottom(yspeed, y) {
+    return (yspeed > 0) 
+        ? (canvas.height - (y + ball.radius)) / yspeed  // bottom wall
+        : -(y - ball.radius) / yspeed;                  // top wall
+}
+
+// when the ball will hit the left or right walls
+function getTimeToLeftRight(xspeed, x) {
+    return (xspeed > 0) 
+        ? (canvas.width - (x + ball.radius)) / xspeed   // right wall
+        : -(x - ball.radius) / xspeed;                  // left wall
+}
+
+// if mainUser == 1 => we need to focus on right wall, else => on left wall
+// ball.xspeed > 0 => right, < 0 => left
+// ball.yspeed > 0 => down, < 0 => up
 function predictBallY() {
     let tempX = ball.x;
     let tempY = ball.y;
     let tempXspeed = ball.xspeed;
     let tempYspeed = ball.yspeed;
 
+    // if the ball is going toward opposite wall => return random just for moving & replicating human behaviour
     if (tempXspeed > 0 && mainUser == 2)
-        return null;
+        return Math.floor(Math.random() * (canvas.height + 1)); //null;
     if (tempXspeed < 0 && mainUser == 1)
-        return null;
+        return Math.floor(Math.random() * (canvas.height + 1)); //null;
 
-    // when the ball will hit the top or bottom walls
-    let timeToTopBottom = (tempYspeed > 0) 
-        ? (canvas.height - (tempY + ball.radius)) / tempYspeed  // bottom wall
-        : -(tempY - ball.radius) / tempYspeed;                  // top wall
-
-    // when the ball will hit the left or right walls
-    let timeToLeftRight = (tempXspeed > 0) 
-        ? (canvas.width - (tempX + ball.radius)) / tempXspeed   // right wall
-        : -(tempX - ball.radius) / tempXspeed;                  // left wall
+    let timeToTopBottom = getTimeToTopBottom(tempYspeed, tempY);
+    let timeToLeftRight = getTimeToLeftRight(tempXspeed, tempX);
 
     while (timeToTopBottom < timeToLeftRight) {
-    // for (let i = 0; i < 3; i++) {
-        console.log('IN THE LOOOOOOPP');
         tempX = tempX + tempXspeed * timeToTopBottom;
         if (tempYspeed < 0) {
-            tempY = 0;//ball.radius;
+            tempY = 0; //ball.radius;
         } else {
             tempY = canvas.height - ball.radius;
         }
         tempYspeed = -tempYspeed;
 
-        timeToTopBottom = (tempYspeed > 0) 
-        ? (canvas.height - (tempY + ball.radius)) / tempYspeed  // bottom wall
-        : -(tempY - ball.radius) / tempYspeed;                  // top wall
-
-        timeToLeftRight = (tempXspeed > 0) 
-            ? (canvas.width - (tempX + ball.radius)) / tempXspeed   // right wall
-            : -(tempX - ball.radius) / tempXspeed;  
-        
-        // if (timeToTopBottom > timeToLeftRight)
-        //     break;
+        timeToTopBottom = getTimeToTopBottom(tempYspeed, tempY);
+        timeToLeftRight = getTimeToLeftRight(tempXspeed, tempX);
     }
 
     tempY = tempY + tempYspeed * timeToLeftRight;
-    console.log('ESTIMATED Y:');
-    console.log(tempY);
-    return tempY;
+
+    let error = Math.random() * errorRange - errorRange ;/// 2;  // Random error between ±errorRange/2
+    console.log('DIFFICULTY:');
+    console.log(difficulty);
+    console.log('ERROR-RANGE:');
+    console.log(errorRange);
+    console.log('ERROR:');
+    console.log(error);
+    return Math.max(0, Math.min(canvas.height, tempY + error));
+    // return tempY;
 }
 
 function doMovesAI() {
@@ -183,7 +190,56 @@ export function startAIGame(playerName1, playerName2, mainUserNmb) {
     console.log(canvas.width);
     console.log(canvas.height);
 
+    errorRange = (canvas.height / 10) * (2 / difficulty);  // Higher difficulty = smaller error
+
     setupControlsAI();
     intervalID = setInterval(doMovesAI, 1000);
     gameAILoop();
 }
+
+document.addEventListener("click", function (event) {
+    if (event.target.classList.contains("difficulty-btn")) {
+        const difficultyButtons = document.querySelectorAll(".difficulty-btn");
+        const difficultyInput = document.getElementById("difficulty-level");
+
+        // Remove active class from all buttons
+        difficultyButtons.forEach(btn => btn.classList.remove("active"));
+
+        // Add active class to selected button
+        event.target.classList.add("active");
+
+        // Set the hidden input value
+        difficultyInput.value = event.target.getAttribute("data-value");
+        console.log("LEVEL SELECTED:");
+        console.log(difficultyInput.value);
+        difficulty = difficultyInput.value;
+    }
+});
+
+
+// document.addEventListener("DOMContentLoaded", function () {
+//     const difficultyButtons = document.querySelectorAll(".difficulty-btn");
+//     const difficultyInput = document.getElementById("difficulty-level");
+
+//     difficultyButtons.forEach(button => {
+//         button.addEventListener("click", function () {
+//             // Remove active class from all buttons
+//             difficultyButtons.forEach(btn => btn.classList.remove("active"));
+
+//             // Add active class to selected button
+//             this.classList.add("active");
+
+//             // Set the hidden input value
+//             difficultyInput.value = this.getAttribute("data-value");
+//             console.log("LEVEL SELECTED:");
+//             console.log(difficultyInput.value);
+//         });
+//     });
+
+//     // document.getElementById("play-ai-form").addEventListener("submit", function (event) {
+//     //     if (!difficultyInput.value) {
+//     //         event.preventDefault(); // Prevent form submission if no difficulty is selected
+//     //         alert("Please select a difficulty level before starting the game.");
+//     //     }
+//     // });
+// });

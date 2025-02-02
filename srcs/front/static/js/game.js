@@ -32,6 +32,32 @@ export const playLocal = () => {
     }
 } 
 
+export const playAI = () => {
+
+    if (!checkPermission) {
+        navigateTo('/login');
+    } else {
+        console.log('Loading get difficulty page...')
+        makeAuthenticatedRequest(baseUrl + ":8001/api/game/ai/get-difficulty", {
+            method: "GET",
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.get_difficulty_html) {
+                document.getElementById('content-area').innerHTML = data.get_difficulty_html;
+            } else {
+                console.log('Response: ', data);
+                console.error('Failed to fetch difficulty:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Catch error fetching difficulty page: ', error);
+            if (error == "No access token.")
+                navigateTo('/login');
+        });
+    }
+} 
+
 export const gameLocal = () => {
 
     if (!checkPermission) {
@@ -89,7 +115,7 @@ export const gameLocal = () => {
     // makeAuthenticatedRequest() //.py to POST the results
 }
 
-export const playAI = () => {
+export const gameAI = () => {
 
     if (!checkPermission) {
         navigateTo('/login');
