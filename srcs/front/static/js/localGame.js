@@ -1,11 +1,7 @@
 import { makeAuthenticatedRequest } from "./login.js";
-// import { addLogoutListener } from "./logout.js";
-import { navigateTo, checkPermission } from "./main.js"
 import { Ball, Player } from "./localClasses.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
-
-
 
 // Game Initialization
 let canvas = null;

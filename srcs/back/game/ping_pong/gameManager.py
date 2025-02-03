@@ -1,7 +1,15 @@
 from collections import defaultdict
 import logging
 import asyncio
-from .views import save_remote_score
+# from .views import save_remote_score
+from django.contrib.auth import get_user_model
+# from .models import Game
+from django.db import transaction
+
+def get_game_model():
+    from .models import Game  # Import inside function
+    return Game
+
 
 logger = logging.getLogger(__name__)
 
@@ -137,6 +145,41 @@ class GameManager:
 		}
 
 	@staticmethod
+	def save_remote_score(room_id, winner_id, scores, players):
+		try:
+			Game = get_game_model()
+			with transaction.atomic():  # Ensure atomicity
+				player1_id = players.get("player1")
+				player2_id = players.get("player2")
+
+				# Fetch users (set to None if they don't exist)
+				# player1 = User.objects.filter(id=player1_id).first()
+				# player2 = User.objects.filter(id=player2_id).first()
+				winner = User.objects.filter(id=winner_id).first()
+				player1 = winner
+				player2 = User.objects.filter(id=player1_id).first() if player1_id == winner_id else User.objects.filter(id=player2_id).first()
+				score1 = scores["player1"] if scores["player1"] > scores["player2"] else scores["player2"]
+				score2 = scores["player1"] if scores["player1"] < scores["player2"] else scores["player2"]
+				# Save the game result
+				game = Game.objects.create(
+					player1=player1,
+					# alias1=players.get("alias1", "Guest" if not player1 else player1.username),
+					score_player1=score1,
+					player2=player2,
+					# alias2=players.get("alias2", "Guest" if not player2 else player2.username),
+					score_player2=score2,
+					winner=winner,
+					tournament_id=-1  # Set tournament_id accordingly if needed
+				)
+				game.save()
+
+				return game  # Return the saved game instance
+
+		except Exception as e:
+			print(f"Error saving game result: {e}")
+			return None
+
+	@staticmethod
 	def declare_winner(room_id, winner_id, role):
 		game = GameManager.games.get(room_id)
 		if not game: 
@@ -150,8 +193,10 @@ class GameManager:
 			"alias2": game["players"].get("player2", {}).get("alias", "Guest"),
 		}
 
+		Game = get_game_model()
+
 		# Save the game result
-		saved_game = save_game_result(room_id, winner_id, game["scores"], players)
+		saved_game = GameManager.save_game_result(room_id, winner_id, game["scores"], players)
 
 		if saved_game:
 			logger.info(f"Game saved successfully: {saved_game}")

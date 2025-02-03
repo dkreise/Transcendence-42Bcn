@@ -2,6 +2,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 // import { addLogoutListener } from "./logout.js";
 import { navigateTo, checkPermission } from "./main.js"
 import { startLocalGame } from "./localGame.js";
+// import { startLocalGame } from "./3dlocalGame.js";
 import { startGame } from "./remoteGame.js"; 
 
 var baseUrl = "http://localhost"; // change (parse) later
@@ -79,14 +80,7 @@ export const gameLocal = () => {
         .catch(error => {
             console.error('Catch error loading local game: ', error);
         });
-        // const contentArea = document.getElementById('content-area');
-        // contentArea.innerHTML = '';
-        // const heading = document.createElement('h2');
-        // heading.textContent = 'Here will be the game board'
-        // contentArea.appendChild(heading);
-        // console.log(`Here will be the game board`);
     }
-    // makeAuthenticatedRequest() //.py to POST the results
 }
 
 export const playAI = () => {

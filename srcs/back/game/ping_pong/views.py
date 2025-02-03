@@ -4,14 +4,17 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Game
 from .serializers import PlayerSerializer, GameSerializer
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 import random
 from django.db.models import Q
 from game.utils.translations import add_language_context
 from django.utils.translation import activate
 from django.template.loader import render_to_string
 from django.http import JsonResponse
-from django.db import transaction
+# from django.db import transaction
+# from django.contrib.auth import get_user_model
+
+# User = get_user_model()
  
 @api_view(['GET'])
 def player_list(request):
