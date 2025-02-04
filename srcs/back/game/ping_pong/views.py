@@ -97,8 +97,8 @@ def get_player_last_ten_games(request, player_id):
     try:
         games = (
             Game.objects.filter(Q(player1_id=player_id) | Q(player2_id=player_id))
-            .order_by('id')[:10]
-        )
+            .order_by('-id')[:10]
+        )[::-1]
 
         games_data = [
             {
@@ -123,7 +123,7 @@ def get_player_all_games(request, player_id):
     try:
         games = (
             Game.objects.filter(Q(player1_id=player_id) | Q(player2_id=player_id))
-            .order_by('id')
+            .order_by('-id')
         )
 
         games_data = [
