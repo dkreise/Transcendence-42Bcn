@@ -1,35 +1,42 @@
 import * as THREE from "three";
 import { CapsuleGeometry, MeshNormalMaterial } from 'three';
 import { Vector3 } from 'three';
+import { Raycaster } from 'three';
+import { SphereGeometry,  MeshBasicMaterial, Mesh} from 'three';
 
-const GEOMETRY = new CapsuleGeometry(0.25,5,20,20);
+const paddle = {
+    radius: 0.25,
+    length: 5,
+    capSeg: 20,
+    radSeg: 20,
+    speed: 0.5,
+    color: "white",
+}
+
+const ballParams = {
+    speed: 20,
+    velocity: new Vector3(1,0,0.5),
+    radius: 0.5,
+    color: "white",
+}
+
+const GEOMETRY = new CapsuleGeometry(paddle.radius, paddle.length, paddle.capSeg, paddle.radSeg);
 GEOMETRY.rotateZ(Math.PI * 0.5)
 // GEOMETRY.rotateY(Math.PI * 0.5)
 const MATERIAL = new MeshNormalMaterial();
 
+const HELPER_GEO = new CapsuleGeometry(paddle.radius + ballParams.radius, paddle.length, paddle.capSeg, 8)
+HELPER_GEO.rotateZ(Math.PI * 0.5)
+HELPER_GEO.rotateX(Math.PI / 8)
+
 export class Player {
 
-    speed = 0.5;
-    velocity = new Vector3(0, 0, 1);
+    speed = paddle.speed;
+    color = paddle.color;
+    // velocity = new Vector3(0, 0, 1);
 
-    constructor(canvas, scene, role, name, position) {
-        this.width = window.innerWidth * 0.01;
-        this.height = window.innerWidth * 0.1;
-        this.depth = this.width; // Depth for the 3D paddle
-        // this.width = 1;  // 3D width of the paddle
-        // this.height = 5; // 3D height of the paddle
-        // this.depth = 1;  // Depth for the 3D paddle
-        if (!role) {
-            this.x = -window.innerWidth * 0.65 / 2;
-        } else {
-            this.x = window.innerWidth * 0.65  / 2 - this.width;
-        }
-        console.log(`player width: ${this.x}`)
-        // this.y = canvas.height / 2 - this.height / 2;
-        // this.z = 1; // Depth (optional)
-        this.y = 0; // Vertical center
-        this.z = 0; // Depth (optional)
-        this.color = "white";
+    constructor(limits, scene, role, name, position) {
+        this.limits = limits;
         this.up = false;
         this.down = false;
         this.score = 0;
@@ -41,22 +48,26 @@ export class Player {
         this.geometry = GEOMETRY //new THREE.BoxGeometry(this.width, this.height, this.depth);
         this.material = MATERIAL //new THREE.MeshBasicMaterial({ color: this.color });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-
+        this.collitionMesh = new THREE.Mesh(
+            HELPER_GEO,
+            new THREE.MeshNormalMaterial({ transparent: true, opacity: 0.5 }) 
+        )
+        this.mesh.add(this.collitionMesh);
         // Set paddle position
         this.mesh.position.copy(position);
         this.scene.add(this.mesh);
     }
 
-    // draw(ctx) {
-    //     ctx.fillStyle = this.color;
-    //     ctx.fillRect(this.x, this.y, this.width, this.height);
+    // setX(x) {
+    //     if (x > )
     // }
 
     move() {
-        if (this.up) {
+        // console.log(`limits.x: ${this.limits.x}, position.x: ${this.mesh.position.x}`)
+        if (this.up && -1 * (this.mesh.position.x - paddle.length / 2) < this.limits.x) {
             this.mesh.position.x -= this.speed;
         }
-        if (this.down) {
+        if (this.down && (this.mesh.position.x + paddle.length / 2) < this.limits.x) {
             this.mesh.position.x += this.speed;
         }
     }
@@ -93,34 +104,44 @@ export class Player {
 
 export class Ball {
 
-    speed = 9;
-    velocity = new Vector3(1,0,0.5)
+    speed = ballParams.speed;
+    velocity = ballParams.velocity;
+    radius = ballParams.radius;
+    color = ballParams.color;
+    ray = new Raycaster();
+    // tPos = null;
     
-    constructor(scene, limits) {
-        this.radius = 0.5; // 3D radius
+    constructor(scene, limits, players) {
         this.limits = limits;
-        this.x = 0;
-        this.y = 0;
-        this.z = 0;
-        this.xspeed = 0.1;
-        this.yspeed = 0.1;
-        this.zspeed = 0.1; // Optional depth speed
-        this.color = "white";
         this.scene = scene;
+        this.players = players;
+        this.ray.near = 0;
+        this.ray.far = limits.y * 2.5;
+        this.pointCollision = new Mesh(new SphereGeometry(0.1), new MeshBasicMaterial({ color: 'red' }))
 
         this.geometry = new THREE.SphereGeometry(this.radius, 32, 32);
         this.material = new THREE.MeshNormalMaterial({ wireframe: false, flatShading: true });
-        // change for standard or phong material later
+        // change later for standard or phong material later
         this.mesh = new THREE.Mesh(this.geometry, this.material);
 
         this.velocity.multiplyScalar(this.speed);
-        // this.ball.position.set(this.x, this.y, this.z);
-        this.scene.add(this.mesh);
+        this.scene.add(this.mesh, this.pointCollision);
+    }
+
+    resetVelocity() {
+        this.speed = ballParams.speed;
+        this.velocity.z *= -1;
+        this.velocity.normalize().multiplyScalar(this.speed);
     }
 
     update(dt) {
-        const s = this.velocity.clone().multiplyScalar(dt);
-        const tPos = this.mesh.position.clone().add(s);
+
+        const dir = this.velocity.clone().normalize();
+        this.ray.set(this.mesh.position, dir);
+
+        const s = this.velocity.clone().multiplyScalar(dt); // A displacement vector representing how far the object will move in this frame.
+
+        const tPos = this.mesh.position.clone().add(s); // The target position of the moving object after applying the displacement.
 
         // collitions here
         const dx = this.limits.x - this.radius - Math.abs(this.mesh.position.x)
@@ -131,63 +152,66 @@ export class Ball {
             tPos.x = (this.limits.x - this.radius + dx) * Math.sign(this.mesh.position.x)
             this.velocity.x *= -1;
         }
-        if (dz <= 0) {
+        else if (dz < 0) {
             console.log('Z hit!!');
+            if (this.mesh.position.z > 0) {
+                this.players[0].scored();
+                // player1.scored();
+                console.log(`Player1 scored: ${this.players[0].score}`);
+            } else {
+                this.players[1].scored();
+                // player2.scored();
+                console.log(`Player2 scored: ${this.players[1].score}`);
+            }
             tPos.set(0, 0, 0);
-            this.velocity.z *= -1;
+            this.resetVelocity();
         }
+
+        // Find the Paddle the Ball is Moving Towards:
+        // Math.sign(paddle.mesh.position.z) checks if the paddle is on the positive or negative Z-axis.
+        // Math.sign(this.velocity.z) checks if the ball is moving forward or backward along the Z-axis.
+        const paddle = this.players.find((paddle) => {
+            return Math.sign(paddle.mesh.position.z) === Math.sign(this.velocity.z);
+        })
+        // This ensures the code only checks for collisions with the paddle the ball is heading towards.
+        // The paddle might have multiple child objects (e.g., visual components), and the ray checks all of them for intersections.
+        // Destructures the first intersection from the array of intersected objects (if any).
+        const [intersection] = this.ray.intersectObjects(paddle.mesh.children)
+
+        if (intersection) {
+            console.log(`Intersection: ${intersection}`);
+            this.pointCollision.position.copy(intersection.point);
+
+        // Check If the Collision Happens Before the Ball Fully Moves
+        //If the intersection distance is less than the intended movement:
+        // A collision will occur within this frame, so the code handles the collision.
+            if (intersection.distance < s.length()) {
+                console.log('Collision with paddle');
+
+                // Handle the Collision (Bounce Effect):
+                tPos.copy(intersection.point); // Move the ball to the exact collision point
+                const d = s.length() - intersection.distance; // Remaining distance after the collision
+                const normal = intersection.normal;
+                normal.y = 0;
+                normal.normalize();
+                // Reflect the velocity to simulate a bounce
+                // Reflects the ball's velocity vector across the paddle's surface normal, causing it to bounce off in the opposite direction.
+                this.velocity.reflect(normal); // Reflect velocity (bounce off)
+                const dS = this.velocity.clone().normalize().multiplyScalar(d); // Remaining movement after bouncing
+                tPos.add(dS); // Move the ball the remaining distance in the new direction
+
+                this.speed *= 1.05;
+                this.velocity.normalize().multiplyScalar(this.speed);
+                
+            }
+        }
+        // } else {
+        //     this.pointCollision.position.set(0, 0, 0);
+        // }
+
         this.mesh.position.copy(tPos);
     }
 
-    // draw(ctx) {
-    //     ctx.fillStyle = this.color;
-    //     ctx.beginPath();
-    //     ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-    //     ctx.fill();
-    // }
+    
 
-    resetPosition() {
-        this.x = 0;
-        this.y = 0;
-        this.z = 0;
-        this.xspeed = -this.xspeed;
-    }
-
-    move(player1, player2) {
-        this.x += this.xspeed;
-        this.y += this.yspeed;
-        this.z += this.zspeed;
-
-        // Top and bottom wall collision
-        if (this.y + this.radius >= window.innerHeight || this.y - this.radius <= 0) {
-            this.yspeed = -this.yspeed;
-        }
-
-        // Left and right wall collision
-        if (this.x + this.radius >= window.innerWidth || this.x - this.radius <= 0) {
-            this.xspeed = -this.xspeed;
-        }
-
-        // Paddle collision check (use 3D logic here)
-        if (
-            (this.x - this.radius <= player1.paddle.position.x + player1.width &&
-            this.y >= player1.paddle.position.y - player1.height / 2 &&
-            this.y <= player1.paddle.position.y + player1.height / 2)
-            ||
-            (this.x + this.radius >= player2.paddle.position.x - player2.width &&
-            this.y >= player2.paddle.position.y - player2.height / 2 &&
-            this.y <= player2.paddle.position.y + player2.height / 2)
-        ) {
-            this.xspeed = -this.xspeed;
-        }
-
-        // Scoring conditions
-        if (this.x - this.radius <= 0) {
-            player2.scored();
-            this.resetPosition();
-        } else if (this.x + this.radius >= window.innerWidth) {
-            player1.scored();
-            this.resetPosition();
-        }
-    }
 }

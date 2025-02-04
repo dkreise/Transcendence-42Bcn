@@ -54,8 +54,8 @@ function router() {
     cleanup3D();
 
     let path = window.location.pathname;
-    // const contentArea = document.getElementById('content-area');
-    // contentArea.innerHTML = ''; // Clear previous content
+// const contentArea = document.getElementById('content-area');
+// contentArea.innerHTML = ''; // Clear previous content
 
     console.log(`Content cleared in router`);
 

@@ -14,6 +14,16 @@ let limits, planeGeo, planeMat, plane, controls;
 const clock = new THREE.Clock();
 const ray = new THREE.Raycaster();
 
+export const field = {
+    x: 15,
+    y: 20,
+    width: 0.5,
+    height: 2,
+    // depth: limits.y * 2,
+    radius: 5,
+    seg: 0.25
+}
+
 // cursor
 // const cursor = new THREE.Vector2(0,0);
 
@@ -247,9 +257,9 @@ export function startLocalGame(playerName1, playerName2, mainUserNmb) {
     // Initialize players and ball
     // console.log('Starting local game...');
     // console.log(`Canvas: ${canvas.width} x ${canvas.height}`);
-    player1 = new Player(canvas, scene, 0, playerName1, new THREE.Vector3(0, 0, 18));
-    player2 = new Player(canvas, scene, 1, playerName2, new THREE.Vector3(0, 0, -18));
-    ball = new Ball(scene, limits);
+    player1 = new Player(limits, scene, 0, playerName1, new THREE.Vector3(0, 0, field.y - 2));
+    player2 = new Player(limits, scene, 1, playerName2, new THREE.Vector3(0, 0, -field.y + 2));
+    ball = new Ball(scene, limits, [player1, player2]);
     controls = new OrbitControls(camera, renderer.domElement);
     setupControls();
     gameLocalLoop();
@@ -258,7 +268,7 @@ export function startLocalGame(playerName1, playerName2, mainUserNmb) {
 }
 
 function setupField() {
-    limits = new THREE.Vector2(15, 20);
+    limits = new THREE.Vector2(field.x, field.y);
     planeGeo = new THREE.PlaneGeometry(
         limits.x * 2,
         limits.y * 2,
@@ -267,15 +277,15 @@ function setupField() {
     );
 
     planeGeo.rotateX(Math.PI * 0.5);
-    planeMat = new THREE.MeshNormalMaterial({ wireframe: true });
+    planeMat = new THREE.MeshNormalMaterial({ wireframe: true, transparent: true, opacity: 0.7 });
 
     plane = new THREE.Mesh(planeGeo, planeMat);
     scene.add(plane)
 
-    const boundGeo = new RoundedBoxGeometry(0.5, 2, limits.y * 2, 5, 0.25);
+    const boundGeo = new RoundedBoxGeometry(field.width, field.height, limits.y * 2, field.radius, field.seg);
     const boundMat = new THREE.MeshNormalMaterial();
     const leftBound = new THREE.Mesh(boundGeo, boundMat);
-    leftBound.position.x = -limits.x - 0.25;
+    leftBound.position.x = -limits.x - field.width / 2;
 
     const rightBound = leftBound.clone();
     rightBound.position.x *= -1;
