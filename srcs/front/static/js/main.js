@@ -6,7 +6,7 @@ import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { playLocal, playAI, playOnline, gameLocal } from "./game.js"
-import { loadTournamentHomePage, loadTournamentCreatorPage, loadJoinTournamentPage, loadBracketTournamentPage } from "./tournament.js";
+import { loadTournamentHomePage, loadTournamentCreatorPage, loadJoinTournamentPage, loadBracketTournamentPage, loadWaitingRoomPage, handleJoinTournament  } from "./tournament.js";
 // import { gameLocal } from "./localGame.js"
 
 const historyTracker = [];
@@ -38,9 +38,10 @@ const routes = {
     '/play-local/game': gameLocal,
     '/tournament': loadTournamentHomePage,
     '/tournament-creator': loadTournamentCreatorPage,
-    '/join-tournament': loadJoinTournamentPage,
+    '/join-tournament-page': loadJoinTournamentPage,
+    '/join-tournament': handleJoinTournament,
     '/tournament-bracket': loadBracketTournamentPage,
-
+    '/waiting-room': loadWaitingRoomPage,
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
 };
@@ -56,7 +57,7 @@ function router() {
     if (routes[path]) {
         routes[path](); // Call the function associated with the path
     } else {
-        alert("rerer");
+        alert("path doesn't exists");
         console.log(`Route ${path} not handled`);
         // showNotFound(); // Handle unknown routes
     }

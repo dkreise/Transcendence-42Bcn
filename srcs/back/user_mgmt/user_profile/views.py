@@ -296,8 +296,7 @@ def home_page(request):
         #     'user': request.user,  # Pass the user object to the template
         # }
         # Render the HTML with the user's data
-        context = {}
-        add_language_context(request, context)
+        context = add_language_context(request)
         home_html = render_to_string('home_page.html', context)
         return JsonResponse({'home_html': home_html}, content_type="application/json")
     else:

@@ -1,10 +1,11 @@
+import { loadHomePage } from "./home.js";
 import { makeAuthenticatedRequest } from "./login.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
 export const loadTournamentHomePage = () => {
     makeAuthenticatedRequest(baseUrl + ":8001/api/tournament-home-page/", 
-        {method: "GET"})
+        {method: "GET", credentials: "include"})
     .then((response) => response.json())
     .then(data => {
         if (data.tournament_home_page_html) {
@@ -20,12 +21,12 @@ export const loadTournamentHomePage = () => {
 
 export const loadTournamentCreatorPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8001/api/tournament-creator/", 
-        {method: "GET"})
+        {method: "GET", credentials: "include"})
     .then((response) => response.json())
     .then(data => {
         if (data.tournament_creator_html) {
             document.getElementById('content-area').innerHTML = data.tournament_creator_html;
-            waitingUntilTournamentStarts(data.id);
+            waitingUntilTournamentStarts(data.tournamentId);
         } else {
             console.error('Create tournament page HTML not found in response:', data);
         }
@@ -41,14 +42,12 @@ const waitingUntilTournamentStarts = (tournamentId) => {
 
     const intervalId = setInterval(() => {
         makeAuthenticatedRequest(`${baseUrl}:8001/api/get-players-count/${tournamentId}`, 
-            {method: "GET"})
+            {method: "GET", credentials: "include"})
         .then(response => response.json())
         .then(data => {
-            if (data.player_count !== undefined) {
+            if (data.players_count !== undefined) {
 
-                // document.querySelector(".tournament-value").textContent = data.player_count;
-
-                if (data.player_count >= 4) {
+                if (data.players_count >= 4) {
                     clearInterval(intervalId);
                     loadBracketTournamentPage(tournamentId);
                 }
@@ -66,23 +65,22 @@ const waitingUntilTournamentStarts = (tournamentId) => {
 
     homeButton.addEventListener('click', () => {
         clearInterval(intervalId);
-        window.location.href = '/home';
+        loadHomePage();
     });
 };
 
 export const loadJoinTournamentPage = () => {
     makeAuthenticatedRequest(baseUrl + ":8001/api/join-tournament-page/", 
-        {method: "GET"})
+        {method: "GET", credentials: "include"})
     .then((response) => response.json())
     .then(data => {
         if (data.join_tournament_html) {
             document.getElementById('content-area').innerHTML = data.join_tournament_html;
             
-            // Add event listener to the "Join Tournament" button
-            const joinButton = document.getElementById('join-tournament-button');
-            if (joinButton) {
-                joinButton.addEventListener('click', handleJoinTournament);
-            }
+            // const joinButton = document.getElementById('join-tournament-button');
+            // if (joinButton) {
+            //     joinButton.addEventListener('click', handleJoinTournament);
+            // }
         } else {
             console.error('Join tournament page HTML not found in response:', data);
         }
@@ -92,40 +90,55 @@ export const loadJoinTournamentPage = () => {
     });
 };
 
-const handleJoinTournament = () => {
-    const tournamentId = document.getElementById('tournament-id-input').value;
-    const playerCount = document.getElementById('number-of-players') ? document.getElementById('number-of-players').value : null;
+export const handleJoinTournament = () => {
+    const tournamentId = document.getElementById('tournament-id-input').value.trim();
 
     if (!tournamentId) {
-        console.error('Tournament ID is required'); //TODO: POPUP
+        alert("Please enter a tournament ID.");
         return;
     }
 
-    const accessToken = localStorage.getItem("access_token");
-
-    makeAuthenticatedRequest(baseUrl + ":8001/api/join-tournament/", {
-        method: "POST",
-        body: JSON.stringify({
-            tournament_id: tournamentId,
-            player_count: playerCount
-        }),
-    })
+    makeAuthenticatedRequest(`${baseUrl}:8001/api/join-tournament/${tournamentId}/`,
+        {method: "POST", credentials: "include"})
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            console.log('Successfully joined the tournament');
-            // Do something after joining, like updating UI
+            //alert("Successfully joined the tournament!");
+            console.log('TOURNAMENT IDDDDDDDDD: ', tournamentId);
+            loadWaitingRoomPage(tournamentId);
         } else {
-            console.error('Error joining the tournament:', data.error);
+            alert(data.error || "Failed to join tournament.");
         }
     })
     .catch(error => {
-        console.error('Error sending join tournament request', error);
+        console.error('Error joining tournament', error);
+        alert("An error occurred. Please try again.");
     });
 };
 
+export const loadWaitingRoomPage = (tournamentId) => {
+
+    makeAuthenticatedRequest(`${baseUrl}:8001/api/waiting-room-page/${tournamentId}`, 
+        {method: "GET", 
+        credentials: "include"})
+    .then((response) => response.json())
+    .then(data => {
+        if (data.waiting_room_html) {
+            document.getElementById('content-area').innerHTML = data.waiting_room_html;
+        } else {
+            console.error('Waiting room page HTML not found in response:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading page', error);
+    });
+};
+
+
 export const loadBracketTournamentPage = (tournamentId) => {
-    makeAuthenticatedRequest(`${baseUrl}:8001/api/tournament-bracket-page/${tournamentId}`, {method: "GET"})
+    makeAuthenticatedRequest(`${baseUrl}:8001/api/tournament-bracket-page/${tournamentId}`, 
+        {method: "GET",
+        credentials: "include"})
     .then((response) => response.json())
     .then(data => {
         if (data.tournament_bracket_html) {
