@@ -1,8 +1,8 @@
 import * as THREE from "three";
-import { CapsuleGeometry, MeshNormalMaterial } from 'three';
-import { Vector3 } from 'three';
-import { Raycaster } from 'three';
-import { SphereGeometry,  MeshBasicMaterial, Mesh} from 'three';
+import { CapsuleGeometry, MeshNormalMaterial, Vector3, Raycaster } from 'three';
+import { SphereGeometry,  MeshBasicMaterial, 
+    Mesh, MathUtils, EventDispatcher} from 'three';
+
 
 const paddle = {
     radius: 0.25,
@@ -14,7 +14,7 @@ const paddle = {
 }
 
 const ballParams = {
-    speed: 20,
+    speed: 25,
     velocity: new Vector3(1,0,0.5),
     radius: 0.5,
     color: "white",
@@ -50,7 +50,11 @@ export class Player {
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.collitionMesh = new THREE.Mesh(
             HELPER_GEO,
-            new THREE.MeshNormalMaterial({ transparent: true, opacity: 0.5 }) 
+            new THREE.MeshNormalMaterial({ 
+                transparent: true, 
+                opacity: 0.5, 
+                visible: false 
+            }) 
         )
         this.mesh.add(this.collitionMesh);
         // Set paddle position
@@ -58,9 +62,15 @@ export class Player {
         this.scene.add(this.mesh);
     }
 
-    // setX(x) {
-    //     if (x > )
-    // }
+    setX(x) {
+		if (x > this.limits.x - 3) {
+			x = this.limits.x - 3
+		} else if (x < -this.limits.x + 3) {
+			x = -this.limits.x + 3
+		}
+
+		this.mesh.position.x = x
+	}
 
     move() {
         // console.log(`limits.x: ${this.limits.x}, position.x: ${this.mesh.position.x}`)
@@ -112,6 +122,8 @@ export class Ball {
     // tPos = null;
     
     constructor(scene, limits, players) {
+        // super();
+
         this.limits = limits;
         this.scene = scene;
         this.players = players;
@@ -138,9 +150,7 @@ export class Ball {
 
         const dir = this.velocity.clone().normalize();
         this.ray.set(this.mesh.position, dir);
-
         const s = this.velocity.clone().multiplyScalar(dt); // A displacement vector representing how far the object will move in this frame.
-
         const tPos = this.mesh.position.clone().add(s); // The target position of the moving object after applying the displacement.
 
         // collitions here
@@ -163,6 +173,8 @@ export class Ball {
                 // player2.scored();
                 console.log(`Player2 scored: ${this.players[1].score}`);
             }
+            const msg = this.mesh.position.z > 0 ? this.players[0].name : this.players[1].name;
+            // this.dispatchEvent({ type: 'ongoal', message: msg });
             tPos.set(0, 0, 0);
             this.resetVelocity();
         }
@@ -191,9 +203,9 @@ export class Ball {
                 // Handle the Collision (Bounce Effect):
                 tPos.copy(intersection.point); // Move the ball to the exact collision point
                 const d = s.length() - intersection.distance; // Remaining distance after the collision
-                const normal = intersection.normal;
-                normal.y = 0;
-                normal.normalize();
+                const normal = intersection.normal; // Get the surface normal at the point of collision
+                normal.y = 0; // Prevent vertical reflections (lock movement in the XZ)
+                normal.normalize(); // Normalize the normal vector to ensure it has a unit length for accurate reflection
                 // Reflect the velocity to simulate a bounce
                 // Reflects the ball's velocity vector across the paddle's surface normal, causing it to bounce off in the opposite direction.
                 this.velocity.reflect(normal); // Reflect velocity (bounce off)
@@ -214,4 +226,25 @@ export class Ball {
 
     
 
+}
+
+export class AIController {
+    constructor(paddle, target) {
+        this.paddle = paddle;
+        this.target = target;
+        this.simplex = new SimplexNoise();
+        this.time = 0;
+    }
+
+    update(dt) {
+
+        let x = this.target.mesh.position.x;
+
+        this.time += dt;
+        const dx = this.simplex.noise2D(this.time * 0.5, 1) * 5.5;
+
+        x = MathUtils.lerp(this.paddle.mesh.position.x, x + dx, 0.4)
+
+        this.paddle.setX(x);
+    }
 }

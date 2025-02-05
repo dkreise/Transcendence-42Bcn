@@ -3,16 +3,18 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo, checkPermission } from "./main.js"
 import { OrbitControls } from '../three/examples/jsm/controls/OrbitControls.js'
 import { RoundedBoxGeometry } from '../three/examples/jsm/geometries/RoundedBoxGeometry.js'
-import { Ball, Player } from "./3DClasses.js";
+import { Ball, Player, AIController } from "./3DClasses.js";
 import * as THREE from "three";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
-let renderer, scene, camera, animationId, cube, canvas;
-let limits, planeGeo, planeMat, plane, controls;
+let renderer, scene, camera, animationId, cube;
+let limits, planeGeo, planeMat, plane, controls, ai;
+
+let ifAI = false;
 
 const clock = new THREE.Clock();
-const ray = new THREE.Raycaster();
+// const ray = new THREE.Raycaster();
 
 export const field = {
     x: 15,
@@ -102,41 +104,6 @@ export function play3D() {
  
 }
 
-// function threeGame() {
-//    // Create a scene
-//    const scene = new THREE.Scene();
-
-//    // Set up a camera (PerspectiveCamera: FOV, aspect ratio, near, far)
-//    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-//    camera.position.z = 5;
-
-//    // Create a WebGL renderer
-//    const renderer = new THREE.WebGLRenderer();
-//    renderer.setSize(window.innerWidth, window.innerHeight);
-//    const contentArea = document.getElementById("newGameCanvas");
-// //    contentArea.innerHTML = '';
-// //    document.body.appendChild(renderer.domElement);
-
-//    // Add a cube (geometry, material, and mesh)
-//    const geometry = new THREE.BoxGeometry();
-//    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-//    const cube = new THREE.Mesh(geometry, material);
-//    scene.add(cube);
-
-//    // Animation loop
-//    function animate() {
-//        animationId = requestAnimationFrame(animate);
-//        cube.rotation.x += 0.01;
-//        cube.rotation.y += 0.01;
-//        renderer.render(scene, camera);
-       
-//    }
-//    // // Start the animation
-//    animate();
-// }
-
-
-
 // Game Initialization
 // let canvas = null;
 let ctx = null;
@@ -178,18 +145,25 @@ function gameLocalLoop() {
    
     const deltaTime = clock.getDelta();
     
-    ray.setFromCamera(player1.mesh.position, camera);
-    const [intersection] = ray.intersectObject(plane);
+    // ray.setFromCamera(player1.mesh.position, camera);
+    // const [intersection] = ray.intersectObject(plane);
 
-    if (intersection) {
-        const nextX = intersection.point.x;
-        const prevX = player1.mesh.position.x;
-        player1.mesh.position.x = THREE.MathUtils.lerp(prevX, nextX, 0.1);
-    }
+    // if (intersection) {
+    //     const nextX = intersection.point.x;
+    //     const prevX = player1.mesh.position.x;
+    //     player1.mesh.position.x = THREE.MathUtils.lerp(prevX, nextX, 0.1);
+    // }
     // 1:19:19 
 
     ball.update(deltaTime);
     controls.update();  // Required if you have damping enabled
+    if (ifAI) {
+        ai.update(deltaTime);
+    } else {
+        player1.move();
+    }
+    // player1.move();
+    player2.move();
     // Update scene and render
     renderer.render(scene, camera);
     gameLoopId = requestAnimationFrame(gameLocalLoop);
@@ -205,8 +179,7 @@ function gameLocalLoop() {
     // player2.drawScore(ctx);
 
     // Move players and ball
-    player1.move();
-    player2.move();
+    
     // ball.move(player1, player2);
 
     // // Endgame check
@@ -252,14 +225,24 @@ export function startLocalGame(playerName1, playerName2, mainUserNmb) {
     document.getElementById('content-area').appendChild(renderer.domElement);
 
     mainUser = mainUserNmb;
+    playerName1 = null;
 
     setupField();
     // Initialize players and ball
     // console.log('Starting local game...');
     // console.log(`Canvas: ${canvas.width} x ${canvas.height}`);
-    player1 = new Player(limits, scene, 0, playerName1, new THREE.Vector3(0, 0, field.y - 2));
+    
+    if (!playerName1) {
+        player1 = new Player(limits, scene, 0, "AI Enemy", new THREE.Vector3(0, 0, field.y - 2));
+        ifAI = true;
+    } else {
+        player1 = new Player(limits, scene, 0, playerName1, new THREE.Vector3(0, 0, field.y - 2));
+    }
     player2 = new Player(limits, scene, 1, playerName2, new THREE.Vector3(0, 0, -field.y + 2));
     ball = new Ball(scene, limits, [player1, player2]);
+    if (ifAI) {
+        ai = new AIController(player1, ball);
+    }
     controls = new OrbitControls(camera, renderer.domElement);
     setupControls();
     gameLocalLoop();
@@ -312,6 +295,10 @@ function handleResize() {
     const pixelRatio = Math.min(window.devicePixelRatio, 2);
     renderer.setPixelRatio(pixelRatio);
 }
+
+// ball.addEventListener('ongoal', (e) => {
+//     // HERE SCORE GEOMETRY
+// })
 
 //  Initialize Three.js Scene
 // function initThreeJS() {
