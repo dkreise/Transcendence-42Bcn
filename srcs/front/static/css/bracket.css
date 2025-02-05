@@ -1,61 +1,28 @@
-.tournament-bracket {
-    display: block;
-    margin: 0 auto;
-    max-width: 1200px; /* Max width to avoid excessive expansion */
-    width: 100%; /* Allow it to shrink to fit content */
-    min-width: 800px; /* Set minimum width */
-    position: relative;
-    margin-top: 100px;
-}
 
-.tournament-bracket .bracket {
-    display: flex;
-    align-items: flex-start; /* Align the rounds at the top */
-    justify-content: space-between; /* Space between rounds */
-    position: relative;
-}
+.hero {position:relative; text-align: center; overflow: hidden; color: #fcfcfc; }
+.hero h1 {font-family: 'Abel', serif;font-weight: normal;font-size: 5.4em;margin:0 0 20px; color: black}
+.hero p {font-family: 'Abel', sans-serif;text-transform: uppercase; color: #5CCA87; letter-spacing: 6px;text-shadow:0 0 12px rgba(0, 0, 0, 0.5);font-size: 1.2em;}
+.hero-wrap {padding: 3.5em 10px;}
+.hero p.intro {font-family: 'Holtwood One SC', serif;text-transform: uppercase;letter-spacing: 1px;font-size: 3em;margin-bottom:-40px;}
+.hero p.year {color: #fff; letter-spacing: 20px; font-size: 34px; margin: -25px 0 25px;}
+.hero p.year i {font-size: 14px;vertical-align: middle;}
+#bracket {overflow:hidden;background-color: #e1e1e1;background-color:rgba(225,225,225,0.9);font-size: 12px;padding: 40px 0;margin:40px 100px}
 
-.tournament-bracket .round {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-}
+.container {max-width: 1100px;margin: 0 auto;display:block;display: -webkit-box;display: -moz-box;display: -ms-flexbox;display: -webkit-flex;display: -webkit-flex;display: flex;-webkit-flex-direction:row;flex-direction: row;} /*position of bracket*/
 
-.tournament-bracket .match {
-    position: relative;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
+.split {display:block;float:left;display: -webkit-box;display: -ms-flexbox;display:flex;width: 100%;-webkit-flex-direction:row;-moz-flex-direction:row;flex-direction:row;}
+.round {display:block;float:left;display: -webkit-box;display: -moz-box;display: -ms-flexbox;display: -webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;width:95%;width:30.8333%\3;}
 
-.tournament-bracket .connector {
-    position: absolute;
-    width: 80px; /* Horizontal line width */
-    height: 4px; /* Horizontal line thickness */
-    background-color: white;
-    top: 50%; /* Align vertically in the middle */
-    left: 100%; /* Align to the right of the match box */
-    transform: translateY(-50%);
-}
+.split-one .round {margin: 0 2.5% 0 0;} /*separation between colons */
+.split-two .round {margin: 0 0 0 2.5%;} /*separation between colons */
 
-.tournament-bracket .vertical {
-    height: 76px; /* Vertical line height */
-    width: 4px; /* Vertical line thickness */
-    background-color: white;
-    position: absolute;
-    top: 115%; /* Align vertically with the match box */
-    left: -100px; /* Position it to the left of the match box */
-    transform: translateY(-50%);
-}
+.matchup {margin:0;width: 100%;padding: 10px 0;height:60px;-webkit-transition: all 0.2s;transition: all 0.2s;} /*width columns*/
 
-.tournament-bracket .round:nth-child(2) .match {
-    margin-top: 40px; /* Push the second round down for proper alignment */
-}
+.team {padding: 0 5px;margin: 3px 0;height: 25px; line-height: 25px;white-space: nowrap; overflow: hidden;position: relative;} /*about squares*/
+.round-two .matchup {margin:0; height: 60px;padding: 50px 0;}
+.round-three .matchup {margin:0; height: 60px; padding: 130px 0;}
 
-.tournament-bracket .round:nth-child(3) .match {
-    margin-top: 60px; /* Push the final round further down for alignment */
-}
+.round-details {font-family: 'Roboto Condensed', sans-serif; font-size: 13px; color: #2C7399;text-transform: uppercase;text-align: center;height: 40px;} /*round title*/
+
+.round li {background-color: #fff;box-shadow: none; opacity: 0.45;} /*color of square*/
+.current li {opacity: 1;}

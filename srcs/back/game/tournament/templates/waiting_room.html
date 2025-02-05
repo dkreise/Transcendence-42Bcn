@@ -1,6 +1,14 @@
 <div id="waiting-room-container">
+
+    <!-- It will be added header -->
+    <div class="d-flex justify-content-center">
+        <div class="col-12 col-md-6">
+            <button id="home-button" class="btn btn-grey-purple btn-large w-100">{{ home }}</button>
+        </div>
+    </div>
+
     <div class="text-center mb-4">
-        <h1 class="tournament-title">{{ tournament }}</h1>
+        <h1 class="tournament-title">Tournament - ...waiting room...</h1>
     </div>
 
     <!-- Tournament Details Section -->
@@ -15,13 +23,6 @@
         <div class="tournament-info-box p-3">
             <h3 class="tournament-subtitle d-inline">{{ number_players }}</h3>
             <p class="tournament-value d-inline">{{ player_count }}</p>
-        </div>
-    </div>
-
-    <!-- FINISH Start Tournament Button -->
-    <div class="d-flex justify-content-center">
-        <div class="col-12 col-md-6">
-            <button id="home-button" class="btn btn-grey-purple btn-large w-100" data-route="/home">{{ home }}</button>
         </div>
     </div>
 </div>

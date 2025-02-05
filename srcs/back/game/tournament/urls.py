@@ -10,5 +10,5 @@ urlpatterns = [
     path('api/join-tournament-page/', views.join_tournament_page, name="join_tournament_page"),
     path('api/join-tournament/<str:tournament_id>/', views.join_tournament, name="join_tournament"),
     path('api/waiting-room-page/<str:tournament_id>/', views.waiting_room_page, name="waiting_room_page"),
-   # path('api/tournament-bracket-page/', views.tournament_bracket_page, name="tournament_bracket_page"),
+    path('api/tournament-bracket-page/<str:tournament_id>/', views.tournament_bracket_page, name="tournament_bracket_page"),
 ]

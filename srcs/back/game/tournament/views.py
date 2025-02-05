@@ -65,29 +65,23 @@ def get_next_tournament_id():
 
 @api_view(['GET'])
 def tournament_creator(request):
+    username = request.user.username
     tournament_id = get_next_tournament_id()
-    players = [request.user.username]
-    scores = {}
+    players = [username]
+    # scores = {}
 
     tournament_data = {
         "tournament_id": tournament_id,
+        "user_creator": username,
         "players": players,
         "status": "waiting",
-        "score": score,
+        # "score": score,
         #"rounds": [[user1 : user2][user3: use3]]] [[user2 : user3]] [round3]
     }
     
     cache.set(f"tournament:{tournament_id}", tournament_data, timeout=3600)
-
-    context = {
-        'tournament_id': tournament_id,
-        'player_count': len(players),
-    }
-    add_language_context(request, context)
-    tournament_creator_html = render_to_string('tournament_creator.html', context)
-
     return JsonResponse({
-        'tournament_creator_html': tournament_creator_html,
+        "success": True,
         "message": "Tournament created",
         "tournament_id": tournament_id
     }, content_type="application/json")
@@ -135,10 +129,8 @@ def join_tournament(request, tournament_id):
     
     # Add the user (player) to the tournament's player list
     user = request.user.username
-    # if user in tournament_data["players"]:
-    #     return JsonResponse({'error': 'You have already joined this tournament'}, status=400) TODO: adddd
-    
-    tournament_data["players"].append(user)
+    if user not in tournament_data["players"]:
+        tournament_data["players"].append(user)
     
     # Save the updated data back into the cache, set a new expiry (1 hour)
     cache.set(f"tournament:{tournament_id}", tournament_data, timeout=3600)
@@ -158,32 +150,39 @@ def waiting_room_page(request, tournament_id):
     }
     add_language_context(request, context)
     waiting_room_html = render_to_string('waiting_room.html', context)
-    return JsonResponse({'waiting_room_html': waiting_room_html}, content_type="application/json")
-
-# @api_view(['GET'])
-# def tournament_bracket_page(request, tournament_id):
-#     tournament_data = cache.get(f"tournament:{tournament_id}")
     
-#     if tournament_data:
-#         player_count = tournament_data.get("player_count", 0)
-
-#         # Add tournament data to context
-#         context = {
-#             "tournament_id": tournament_id,
-#             "players": tournament_data.get("players", []),
-#             'player_count': len(players_list),
-#         }
-
-#         add_language_context(request, context)
-
-#         # Render the correct template based on player count
-#         if player_count == 4:
-#             tournament_bracket_html = render_to_string("tournament_bracket4.html", context)
-#         elif player_count == 8:
-#             tournament_bracket_html = render_to_string("tournament_bracket8.html", context)
-#         else:
-#             return JsonResponse({"error": "Invalid player count"}, status=400)
-
-#         return JsonResponse({"tournament_bracket_html": tournament_bracket_html}, content_type="application/json")
+    user = request.user.username
+    if "user_creator" in tournament_data and user == tournament_data["user_creator"]:
+        waiting_room_creator_button = render_to_string('waiting_room_creator_button.html', context)
+        waiting_room_html += waiting_room_creator_button
     
-#     return JsonResponse({"error": "Tournament not found"}, status=404)
+    return JsonResponse({
+        'waiting_room_html': waiting_room_html,
+        "tournament_id": tournament_id
+    }, content_type="application/json")
+
+@api_view(['GET'])
+def tournament_bracket_page(request, tournament_id):
+    tournament_data = cache.get(f"tournament:{tournament_id}")
+    
+    if tournament_data:
+        players_count = len(tournament_data["players"])
+
+        # Add tournament data to context
+        context = {
+            "tournament_id": tournament_id,
+        }
+
+        add_language_context(request, context)
+
+        # Render the correct template based on player count
+        # # if player_count == 4:
+        #     tournament_bracket_html = render_to_string("tournament_bracket4.html", context)
+        # elif player_count == 8:
+        tournament_bracket_html = render_to_string("tournament_bracket8.html", context)
+        # else:
+        #     return JsonResponse({"error": "Invalid player count"}, status=400)
+
+        return JsonResponse({"tournament_bracket_html": tournament_bracket_html}, content_type="application/json")
+    
+    return JsonResponse({"error": "Tournament not found"}, status=404)
