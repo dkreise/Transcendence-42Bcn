@@ -2,6 +2,8 @@ import * as THREE from "three";
 import { CapsuleGeometry, MeshNormalMaterial, Vector3, Raycaster } from 'three';
 import { SphereGeometry,  MeshBasicMaterial, 
     Mesh, MathUtils, EventDispatcher} from 'three';
+import { TextGeometry } from '../three/examples/jsm/geometries/TextGeometry.js';
+import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
 
 
 const paddle = {
@@ -11,13 +13,25 @@ const paddle = {
     radSeg: 20,
     speed: 0.5,
     color: "white",
+    fontPath: "../three/examples/fonts/helvetiker_regular.typeface.json",
 }
 
 const ballParams = {
     speed: 25,
-    velocity: new Vector3(1,0,0.5),
+    velocity: new Vector3(1, 0, 0.5),
     radius: 0.5,
     color: "white",
+}
+
+const TEXT_PARAMS = {
+    size: 3,
+    depth: 0.5,
+    curveSegments: 12,
+    bevelEnabled: true,
+    bevelThickness: 0.1,
+    bevelSize: 0.05,
+    bevelOffset: 0,
+    bevelSegments: 5
 }
 
 const GEOMETRY = new CapsuleGeometry(paddle.radius, paddle.length, paddle.capSeg, paddle.radSeg);
@@ -33,20 +47,27 @@ export class Player {
 
     speed = paddle.speed;
     color = paddle.color;
+    loader = new FontLoader();
+    textMesh = null;
+    fontPath = paddle.fontPath;
+    loadedFont = null;
     // velocity = new Vector3(0, 0, 1);
 
-    constructor(limits, scene, role, name, position) {
+    constructor(limits, scene, role, name, position, ifAI) {
         this.limits = limits;
+        this.ifAI = ifAI;
         this.up = false;
         this.down = false;
         this.score = 0;
-        this.role = role; // 1 - right or 0 - left
+        this.role = role; // 1 - right or -1 - left (AI)
         this.name = name;
         this.scene = scene;
+        this.setText();
+        this.initial = position;
 
         // Create the 3D paddle
-        this.geometry = GEOMETRY //new THREE.BoxGeometry(this.width, this.height, this.depth);
-        this.material = MATERIAL //new THREE.MeshBasicMaterial({ color: this.color });
+        this.geometry = GEOMETRY; //new THREE.BoxGeometry(this.width, this.height, this.depth);
+        this.material = MATERIAL; //new THREE.MeshBasicMaterial({ color: this.color });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.collitionMesh = new THREE.Mesh(
             HELPER_GEO,
@@ -59,7 +80,37 @@ export class Player {
         this.mesh.add(this.collitionMesh);
         // Set paddle position
         this.mesh.position.copy(position);
+
         this.scene.add(this.mesh);
+        if (!ifAI) {
+            // Here will be this.setupText()
+        } else {
+            this.setupTextAI();
+        }
+    }
+
+    resetPos() {
+        this.mesh.position.copy(this.initial);
+    }
+    setupTextAI() {
+    
+        this.loader.load(this.fontPath, ( font ) => {
+            this.loadedFont = font;
+            const textGeo = this.createTextGeometry(this.loadedFont);
+            // textGeo.center();
+            this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
+            this.textMesh.position.set(0, 3, (this.limits.y + 10) * this.role);
+            this.scene.add(this.textMesh);
+        } );
+    }
+
+    createTextGeometry(font) {
+        const textGeo = new TextGeometry(this.text, {
+                font: font,
+                ...TEXT_PARAMS
+        })
+        textGeo.center();
+        return textGeo;
     }
 
     setX(x) {
@@ -82,22 +133,20 @@ export class Player {
         }
     }
 
-    // update(newScore) {
-	// 	this.score = newScore;
-	// }
 
-    // drawScore(ctx) {
-    //     ctx.fillStyle = 'white';
-    //     ctx.font = '20px Arial';
-    //     if (this.role === 0) {
-    //         ctx.fillText(`${this.name}: ${this.score}`, 20, 20);
-    //     } else {
-    //         ctx.fillText(`${this.name}: ${this.score}`, window.innerWidth - 150, 20);
-    //     }
-    // }
+    setText() {
+        this.text = `${this.name} - ${this.score}`;
+        if (this.role === 1 && this.ifAI) {
+            this.text = `you - ${this.score}`
+        }
+    }
 
     scored() {
         this.score++;
+        this.setText();
+        // const geo = this.createTextGeometry(this.loadedFont);
+        this.textMesh.geometry = this.createTextGeometry(this.loadedFont);
+        this.textMesh.geometry.getAttribute('position').needsUpdate = true
     }
 
     // displayEndgameMessage(ctx, finalScore, msg) {
@@ -112,32 +161,38 @@ export class Player {
     // }
 }
 
-export class Ball {
+export class Ball extends EventDispatcher {
 
-    speed = ballParams.speed;
-    velocity = ballParams.velocity;
-    radius = ballParams.radius;
-    color = ballParams.color;
-    ray = new Raycaster();
+    
+    
     // tPos = null;
     
     constructor(scene, limits, players) {
-        // super();
+        super();
+
+        this.speed = ballParams.speed;
+        this.velocity = ballParams.velocity;
+        this.velocity = this.velocity.normalize();
+        this.radius = ballParams.radius;
+        this.color = ballParams.color;
 
         this.limits = limits;
         this.scene = scene;
         this.players = players;
-        this.ray.near = 0;
-        this.ray.far = limits.y * 2.5;
-        this.pointCollision = new Mesh(new SphereGeometry(0.1), new MeshBasicMaterial({ color: 'red' }))
 
-        this.geometry = new THREE.SphereGeometry(this.radius, 32, 32);
+        // this.pointCollision = new Mesh(new SphereGeometry(0.1), new MeshBasicMaterial({ color: 'red' }))
+
+        this.geometry = new THREE.SphereGeometry(this.radius);
         this.material = new THREE.MeshNormalMaterial({ wireframe: false, flatShading: true });
         // change later for standard or phong material later
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-
+        this.mesh.position.set(0, 0, 0);
+        this.scene.add(this.mesh);
         this.velocity.multiplyScalar(this.speed);
-        this.scene.add(this.mesh, this.pointCollision);
+        
+        this.ray = new Raycaster();
+        this.ray.near = 0;
+        this.ray.far = limits.y * 2.5;
     }
 
     resetVelocity() {
@@ -146,16 +201,28 @@ export class Ball {
         this.velocity.normalize().multiplyScalar(this.speed);
     }
 
+    resetPos() {
+        this.mesh.position.set(0, 0, 0);
+    }
+
     update(dt) {
+    //     console.log(`Entered update: ${this.mesh.position.x}`);
+        // console.log(`Velocity Length is: ${this.velocity.length()}`);
+        // console.log(`Velocity is: ${this.velocity.x}x${this.velocity.y}x${this.velocity.z}`);
+        // console.log(`Datatime is: ${dt}`);
 
         const dir = this.velocity.clone().normalize();
+        // console.log(`Direcetion: ${dir.toArray()}`);
         this.ray.set(this.mesh.position, dir);
         const s = this.velocity.clone().multiplyScalar(dt); // A displacement vector representing how far the object will move in this frame.
         const tPos = this.mesh.position.clone().add(s); // The target position of the moving object after applying the displacement.
-
+        
+        // console.log(`tPos 1: ${tPos.x}`);
         // collitions here
         const dx = this.limits.x - this.radius - Math.abs(this.mesh.position.x)
         const dz = this.limits.y - this.radius - Math.abs(this.mesh.position.z)
+
+        // let theplayer;
 
         if (dx <= 0) {
             console.log('X hit!!');
@@ -167,14 +234,19 @@ export class Ball {
             if (this.mesh.position.z > 0) {
                 this.players[0].scored();
                 // player1.scored();
+                // theplayer = this.players[0]
                 console.log(`Player1 scored: ${this.players[0].score}`);
             } else {
                 this.players[1].scored();
+                // theplayer = this.players[1]
                 // player2.scored();
                 console.log(`Player2 scored: ${this.players[1].score}`);
             }
+
+            // theplayer.scored();
+            // const geo = theplayer
             const msg = this.mesh.position.z > 0 ? this.players[0].name : this.players[1].name;
-            // this.dispatchEvent({ type: 'ongoal', message: msg });
+            this.dispatchEvent({ type: 'ongoal', message: msg, player: this });
             tPos.set(0, 0, 0);
             this.resetVelocity();
         }
@@ -192,7 +264,7 @@ export class Ball {
 
         if (intersection) {
             console.log(`Intersection: ${intersection}`);
-            this.pointCollision.position.copy(intersection.point);
+            // this.pointCollision.position.copy(intersection.point);
 
         // Check If the Collision Happens Before the Ball Fully Moves
         //If the intersection distance is less than the intended movement:
@@ -213,7 +285,7 @@ export class Ball {
                 tPos.add(dS); // Move the ball the remaining distance in the new direction
 
                 this.speed *= 1.05;
-                this.velocity.normalize().multiplyScalar(this.speed);
+                this.velocity = this.velocity.clone().normalize().multiplyScalar(this.speed);
                 
             }
         }
@@ -248,3 +320,4 @@ export class AIController {
         this.paddle.setX(x);
     }
 }
+
