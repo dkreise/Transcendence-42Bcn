@@ -7,19 +7,21 @@ import { Ball, Player, AIController } from "./3DClasses.js";
 import { TextGeometry } from '../three/examples/jsm/geometries/TextGeometry.js';
 import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
 // import srcFont from "../three/examples/fonts/helvetiker_regular.typeface.json?url"
+import lights from "./3DLights.js";
 import * as THREE from "three";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
 let renderer, scene, camera, animationId, cube, ball, start;
-let limits, planeGeo, planeMat, plane, controls, ai;
+let limits, planeGeo, planeMat, plane, controls, ai, button;
 
 let ifAI = false;
 let gameStarted = false;
 
 const clock = new THREE.Clock();
 clock.start();
-const ray = new THREE.Raycaster()
+const ray = new THREE.Raycaster();
+const rayStart = new THREE.Raycaster();
 const cursor = new THREE.Vector2(0,0);
 
 export const field = {
@@ -32,6 +34,14 @@ export const field = {
     seg: 0.25
 }
 
+const params = {
+	planeColor: 0xb994ff, //0x9b71ea, //0x6966ff,
+	fogColor: 0x000000, //0x9e7aff,
+	fogNear: 25,
+	fogFar: 150,
+	// paddleColor: 0x3633ff, //0x3633ff,
+	// ballColor: 0xce47ff, //0xe63d05,
+}
 
 
 export function cleanup3D() {
@@ -236,6 +246,13 @@ function setupAIControls() {
     window.addEventListener("keydown", (e) => {
         if (e.key === "ArrowLeft") player2.up = true;
         if (e.key === "ArrowRight") player2.down = true;
+        if (e.code === "Space") {
+            console.log("Spacebar pressed! Starting game...");
+            if (gameStarted) return; // Prevent multiple starts
+            gameStarted = true;
+            start.visible = false; // Hide the button
+            button.visible = false;
+        }
     });
 
     window.addEventListener("keyup", (e) => {
@@ -273,7 +290,11 @@ export function startLocalGame(playerName1, playerName2, mainUserNmb) {
 export function start3DAIGame(playerName2) {
 
     ifAI = true;
+    // MAKE IT ANOTHER FUNCTION
     scene = new THREE.Scene();
+    scene.background = new THREE.Color(params.fogColor)
+    scene.fog = new THREE.Fog(params.fogColor, params.fogNear, params.fogFar)
+
     camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 1000);
     camera.position.set(0, 20, 50);
     camera.lookAt(new THREE.Vector3(0, 0, 0))
@@ -299,11 +320,13 @@ export function start3DAIGame(playerName2) {
 function setupField() {
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(size.width, size.height);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Soft shadows
     document.getElementById('content-area').appendChild(renderer.domElement);
 
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true
-
+    scene.add(...lights);
     limits = new THREE.Vector2(field.x, field.y);
     planeGeo = new THREE.PlaneGeometry(
         limits.x * 20,
@@ -312,10 +335,17 @@ function setupField() {
         limits.y * 20
     );
 
-    planeGeo.rotateX(Math.PI * 0.5);
-    planeMat = new THREE.MeshNormalMaterial({ wireframe: true, transparent: true, opacity: 0.5 });
+    planeGeo.rotateX(-Math.PI * 0.5);
+    planeMat = new THREE.MeshStandardMaterial({ 
+        // color: params.planeColor,
+        // wireframe: true, 
+        // transparent: true, 
+        // opacity: 0.5 
+        color: 0xffffff,
+    });
 
     plane = new THREE.Mesh(planeGeo, planeMat);
+    plane.receiveShadow = true;
     scene.add(plane)
 
     const boundGeo = new RoundedBoxGeometry(field.width, field.height, limits.y * 2, field.radius, field.seg);
@@ -327,6 +357,7 @@ function setupField() {
     rightBound.position.x *= -1;
 
     scene.add(leftBound, rightBound);
+    
 
 }
 
@@ -370,13 +401,16 @@ function setupEvents() {
     
         // Raycast to check for intersections
         ray.setFromCamera(cursor, camera);
-        const intersects = ray.intersectObject(start);
+        const intersects = ray.intersectObject(button);
+        rayStart.setFromCamera(cursor, camera);
+        const intersectsStart = rayStart.intersectObject(start);
     
-        if (intersects.length > 0) {
+        if (intersects.length > 0 || intersectsStart.length > 0) {
             console.log("3D Start Button Clicked!");
             if (gameStarted) return; // Prevent multiple starts
             gameStarted = true;
             start.visible = false; // Hide the button
+            button.visible = false;
             // ball.reset();
             // animateAI();
         }
@@ -386,33 +420,44 @@ function setupEvents() {
 }
 
 function createButton() {
-    // const buttonGeo = new THREE.PlaneGeometry(2, 1); // Button size
-    // const buttonMat = new THREE.MeshBasicMaterial({ color: 0xff4500 }); // Orange button
-    // const buttonMesh = new THREE.Mesh(buttonGeo, buttonMat);
-    // buttonMesh.position.set(0, 5, 0); // Adjust position in the scene
+    const buttonGeo = new RoundedBoxGeometry(15, 5, 3, field.radius, field.seg * 10); // Button size
+    const buttonMat = new THREE.MeshStandardMaterial({ 
+        color: 0x9400D3,
+        // metalness: 0.2,
+        // roughness: 0.6
+     }); // Violette button
+    const buttonMesh = new THREE.Mesh(buttonGeo, buttonMat);
+    buttonMesh.position.set(0, 20, 0); // Adjust position in the scene
 
     const loader = new FontLoader();
     loader.load('./three/examples/fonts/helvetiker_bold.typeface.json', (font) => {
     const textGeo = new TextGeometry("START !", {
         font: font,
-        size: 5,
-        depth: 0.2,
+        size: 1.5,
+        depth: 0.5,
         curveSegments: 12,
 		bevelEnabled: true,
-		bevelThickness: 0.2,
-		bevelSize: 0.2,
-		bevelOffset: 0,
-		bevelSegments: 1
+		bevelThickness: 0.02,
+		bevelSize: 0.02,
+		// bevelOffset: 0,
+		bevelSegments: 3
     });
     textGeo.center();
-    const textMat = new THREE.MeshBasicMaterial({ color: 0x9400D3 });
+    const textMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
     const textMesh = new THREE.Mesh(textGeo, textMat);
-    textMesh.position.set(-1, 20, 0); // Center the text
-
+    textMesh.position.set(0, 20, 1.5); // Center the text
+    start = textMesh;
+    
     scene.add(textMesh);
 
-    start = textMesh; // Save reference for click detection
     });
+    scene.add(buttonMesh);
+
+    // const light = new THREE.PointLight(0xffffff, 10, 10);
+    // light.position.set(30, 15, 20);
+    // scene.add(light);
+    
+    button = buttonMesh; // Save reference for click detection
 }
 
 function animateIdle() {
