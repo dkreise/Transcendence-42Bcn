@@ -1,0 +1,46 @@
+/* Title style */
+.tournament-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* Custom grey-purple button style */
+.btn-grey-purple {
+    background-color: #6c5e58; /* Neutral grey-purple tone */
+    color: white !important;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    border-radius: 8px 8px 8px 8px; /* Slightly more rounded corners */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Button hover effect */
+.btn-grey-purple:hover {
+    background-color: #5b4a44; /* Slightly darker tone for hover */
+    transform: scale(1.05); /* Hover zoom effect */
+}
+
+/* Space between buttons */
+.gap-3 > div {
+    margin-right: 1rem;
+}
+
+/* Add top spacing for sections */
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.tournament-subtitle {
+    font-size: 1.5rem; /* Slightly smaller */
+    font-weight: bold;
+    color: white; /* White text */
+}
+
+.tournament-value {
+    font-size: 1.3rem; /* Smaller than subtitle */
+    font-weight: normal;
+    color: white; /* White text */
+}

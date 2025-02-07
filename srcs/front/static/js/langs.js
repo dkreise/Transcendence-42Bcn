@@ -1,4 +1,5 @@
 import { makeAuthenticatedRequest } from "./login.js";
+import { clearURL, navigateTo } from "./main.js"
 
 function getUserPreferenceLanguageFromDB() {
     return makeAuthenticatedRequest("http://localhost:8000/api/get-user-pref-lang", {
@@ -41,9 +42,6 @@ function saveUserPreferenceLanguageToDB(lang) {
             console.error('Failed to update language on the server.');
         }
     })
-    .catch((error) => {
-        console.error('Error updating language:', error);
-    });
 }
 
 function updateLanguageButtonUI(lang) {
@@ -60,44 +58,47 @@ function updateLanguageButtonUI(lang) {
 }
 
 export async function updateLanguage(lang) {
-    let lang_is_defined = true;
+    let lang_is_defined = true; 
     
     //STEP 1: Get user language preference when login (no lang passed as parameter)
-    if (!lang){
+    if (!lang){ //when login /signin
         lang_is_defined = false;
-        lang = await getUserPreferenceLanguageFromDB() || "en";
+        lang = await getUserPreferenceLanguageFromDB();
     }
 
     //STEP 2: Set language cookies
     setCookie("language", lang);
 
-    //STEP 3: Save lang in bbdd (only if update comes from button - not login)
-    if (lang_is_defined) {
-        saveUserPreferenceLanguageToDB(lang);
-    }
+    saveUserPreferenceLanguageToDB(lang);
 
     //STEP 4: Update button UI
     updateLanguageButtonUI(lang);
 
     //STEP 5: TODO: Update page (Pending Dina code)
+    if (lang_is_defined) {
+        navigateTo(window.location.pathname, true);
+    }
 }
 
-document.addEventListener("langButtonLoaded", () => {
-    const languageButton = document.getElementById("language-button");
-    const languageMenu = document.getElementById("language-menu");
+document.addEventListener("DOMContentLoaded", () => {
+    const headerContainer = document.getElementById("header-container");
 
-    // Toggle the visibility of the language menu
-    if (languageButton && languageMenu) {
-        languageButton.addEventListener("click", () => {
-            languageMenu.classList.toggle("d-none");
+    if (headerContainer) {
+        const languageButton = document.getElementById("language-button");
+        const languageMenu = document.getElementById("language-menu");
+    
+        // Toggle the visibility of the language menu
+        if (languageButton && languageMenu) {
+            languageButton.addEventListener("click", () => {
+                languageMenu.classList.toggle("d-none");
+            });
+        }
+    
+        languageMenu.addEventListener("click", event => {
+            const lang = event.target.getAttribute("data-lang");
+            if (lang) {
+                updateLanguage(lang);
+            }
         });
     }
-
-    languageMenu.addEventListener("click", event => {
-        const lang = event.target.getAttribute("data-lang");
-        if (lang) {
-            updateLanguage(lang);
-        }
-    });
 });
-

@@ -11,13 +11,43 @@
         <link rel="stylesheet" href="css/profile.css">
         <link rel="stylesheet" href="css/friends.css">
         <link rel="stylesheet" href="css/game.css">
+        <link rel="stylesheet" href="css/tournament.css">
+        <link rel="stylesheet" href="css/bracket.css">
     </head>
     <body>
         <div id="particle-background"></div>
-        <header id="header-container">
-            <!-- Header menu will be injected here -->
-        </header>
         <div id="app">
+            <header id="header-container">
+                <div class="position-absolute top-0 end-0 mt-4 me-4">
+                    <button 
+                        id="language-button" 
+                        class="bg-grey border-0 text-white p-2 rounded" 
+                        style="font-size: 16px; outline: none; background-color: black;">
+                        EN
+                    </button>
+                    <ul 
+                        id="language-menu"
+                        class="list-unstyled bg-grey text-white p-2 rounded d-none position-absolute" 
+                        style="top: 50px; right: 0; z-index: 1000;">
+                        <li class="border-bottom">
+                            <button class="btn btn-link text-white  text-decoration-none d-block p-2" data-lang="ca">CA</button>
+                        </li>
+                        <li class="border-bottom">
+                            <button class="btn btn-link text-white  text-decoration-none d-block p-2" data-lang="en">EN</button>
+                        </li>
+                        <li class="border-bottom">
+                            <button class="btn btn-link text-white text-decoration-none p-2" data-lang="es">ES</button>
+                        </li>
+                        <li class="border-bottom">
+                            <button class="btn btn-link text-white text-decoration-none p-2" data-lang="lv">LV</button>
+                        </li>
+                        <li class="border-bottom">
+                            <button class="btn btn-link text-white text-decoration-none p-2" data-lang="ru">RU</button>
+                        </li>
+                    </ul>
+                </div>
+            </header>
+
             <!-- main app content here, like the navigation, game, etc. -->
             <div id="content-area"></div> <!-- Dynamic content area where the login form will be rendered -->
         </div>
@@ -27,7 +57,6 @@
         <script type="module" src="js/logout.js"></script>
         <script type="module" src="js/login.js"></script>
         <script type="module" src="js/profile.js"></script>
-        <script type="module" src="js/header.js"></script>
         <script type="module" src="js/langs.js"></script>      
         <script type="module" src="js/twoFA.js"></script>
         <script type="module" src="js/friends.js"></script>
@@ -36,7 +65,7 @@
         <script type="module" src="js/remoteGame.js"></script>
         <script type="module" src="js/localGame.js"></script>
         <script type="module" src="js/AIGame.js"></script>
-
+        <script type="module" src="js/tournament.js"></script>
 
         <!-- Bootstrap js -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

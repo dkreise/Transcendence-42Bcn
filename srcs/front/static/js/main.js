@@ -6,9 +6,8 @@ import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { playLocal, playAI, playOnline, gameLocal, gameAI } from "./game.js"
-// import { setDifficulty } from "./AIGame.js"
+import { loadTournamentHomePage, loadJoinTournamentPage, createTournament, handleJoinTournament, loadBracketTournamentPage, loadWaitingRoomPage } from "./tournament.js";
 // import { gameLocal } from "./localGame.js"
-
 
 const historyTracker = [];
 
@@ -38,8 +37,13 @@ const routes = {
     '/play-online': playOnline,
     '/play-local/game': gameLocal,
     '/play-ai/game': gameAI,
-    // '/play-ai/set-difficulty/': setDifficulty,
-    // '/tournament': playTournament,
+    '/tournament': loadTournamentHomePage,
+    '/create-tournament': createTournament,
+    '/join-tournament-page': loadJoinTournamentPage,
+    '/waiting-room': loadWaitingRoomPage,
+    '/waiting-room-joinner': handleJoinTournament,
+
+    '/tournament-bracket': loadBracketTournamentPage,
 
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
@@ -56,7 +60,7 @@ function router() {
     if (routes[path]) {
         routes[path](); // Call the function associated with the path
     } else {
-        alert("rerer");
+        alert("path doesn't exists");
         console.log(`Route ${path} not handled`);
         // showNotFound(); // Handle unknown routes
     }
@@ -90,11 +94,12 @@ export function navigateTo(path, replace = false) {
         console.log(`${path} is replaced in history`)
     }
     else {
+
         history.pushState({ path }, null, path);
         historyTracker.push({ action: 'pushState', path });
         console.log(`${path} is pushed to history`)
     }
-    console.log('History Tracker:', JSON.stringify(historyTracker, null, 2)); // Log the history
+    //console.log('History Tracker:', JSON.stringify(historyTracker, null, 2)); // Log the history
     router();
 }
 

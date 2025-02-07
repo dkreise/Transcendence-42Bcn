@@ -79,16 +79,22 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
 };
 
 export const loadLoginPage = () => {
-    const contentArea = document.getElementById("content-area");
-    fetch('html/login_form.html')  // Call the API endpoint to get the form as JSON
-        .then(response => response.text())
-        .then(data => {
-            if (data) {
-                    console.log('Form html returned!');
-                    contentArea.innerHTML = data;
-            }
-        })
-        .catch(error => console.error('Error loading login form:', error));
+    fetch(baseUrl + ":8000/api/login-form/", {
+        method: 'GET',
+        credentials: "include"
+    })
+    .then((response) => response.json())
+    .then(data => {
+        if (data.form_html) {
+            console.log('Form html returned!');
+            document.getElementById('content-area').innerHTML = data.form_html;
+        } else {
+            console.error('Form HTML not found in response:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading page', error);
+    });
 };
 
 export const handleLogin = () => {
@@ -127,39 +133,56 @@ export const handleLogin = () => {
 };
 
 export const handleSignup = () => {
-    const contentArea = document.getElementById("content-area");
     const loginForm = document.getElementById('login-form');
-    if (loginForm)
-        loginForm.remove();
-    fetch('html/signup_form.html')
-        .then(response => response.text())
-        .then(html => {
-            contentArea.innerHTML = html;
+    
+    if (loginForm) loginForm.remove();
+    
+    fetch(baseUrl + ":8000/api/signup-form/", {
+        method: 'GET',
+        credentials: "include"
+    })
+    .then(response => response.json()) // Expecting JSON response
+    .then(data => {
+        if (data && data.form_html) {
+            console.log('Form HTML returned!');
+            document.getElementById('content-area').innerHTML = data.form_html;
+
             const signupForm = document.getElementById('signup-form');
             if (signupForm) {
                 signupForm.addEventListener('submit', (event) => {
                     event.preventDefault();
-                    console.log('Submit of sign up clicked!');
+                    console.log('Submit of signup clicked!');
+                    
                     const formData = new FormData(signupForm);
-                    fetch(signupForm.action, {
+                    const formAction = signupForm.action || `${baseUrl}/api/signup/`; // Fallback action URL
+                    
+                    fetch(formAction, {
                         method: 'POST',
                         body: JSON.stringify(Object.fromEntries(formData)),
-                        headers: {'Content-Type': 'application/json'}
+                        headers: { 'Content-Type': 'application/json' }
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
                             localStorage.setItem('access_token', data.tokens.access);
                             localStorage.setItem('refresh_token', data.tokens.refresh);
+                            updateLanguage();
+                            //loadProfilePage();
                             navigateTo('/home', true);
                         } else {
-                            displayLoginError(data.error + ' Please try again.', 'signup-form');
+                            displayLoginError(`${data.error} Please try again.`, 'signup-form');
                         }
                     })
-                })
-            }
-        })
-        .catch(error => console.error('Error loading Sign In form:', error));
+                    .catch(error => {
+                        console.error('Error submitting signup form:', error);
+                    });
+                });
+            } 
+        }
+    })
+    .catch(error => {
+        console.error('Error loading Sign In form:', error);
+    });
 };
 
 export const displayLoginError = (message, form) => {

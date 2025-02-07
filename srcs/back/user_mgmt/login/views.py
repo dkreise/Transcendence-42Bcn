@@ -24,6 +24,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.conf import settings
+from user_mgmt.utils.translations import add_language_context
 
 def generate_jwt_tokens(user):
     refresh = RefreshToken.for_user(user)
@@ -105,21 +106,46 @@ def verify_login_2fa(request):
     except User.DoesNotExist:
         return Response({'success': False, 'message': 'User does not exist.'}, status=404)
 
+# @api_view(['GET'])
+# @permission_classes([AllowAny])
+# def login_form_api(request):
+#     if request.method == "GET":
+#         print("Login form API called")
+#         form_html = render_to_string('login.html')
+#         return JsonResponse({'form_html': form_html}, content_type="application/json")
+#     else:
+#         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def login_form_api(request):
+def login_form(request):
     if request.method == "GET":
         print("Login form API called")
-        form_html = render_to_string('login.html')
+        context = add_language_context(request)
+        form_html = render_to_string('login_form.html', context)
         return JsonResponse({'form_html': form_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
+def signup_form(request):
+    print("Signup method called")
+    if request.method == "GET":
+        print("Signup form API called")
+        context = add_language_context(request)
+        form_html = render_to_string('signup_form.html', context)
+        return JsonResponse({'form_html': form_html}, content_type="application/json")
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def verify_2fa_login_form(request):
-    form_html = render_to_string('2fa_verify.html')
-    # set languages..
+    context = add_language_context(request)
+    form_html = render_to_string('2fa_verify.html', context)
     return JsonResponse({'form_html': form_html}, content_type="application/json")
 
 @api_view(['POST'])
@@ -220,9 +246,8 @@ def enable_2fa(request):
 
         # print("QR Image:", qr_image)
         # print("QR Base64:", qr_base64)
-
-
-        setup_html = render_to_string("2fa_setup.html", {"qr_code": qr_base64})
+        context = add_language_context(request)
+        setup_html = render_to_string("2fa_setup.html", {"qr_code": qr_base64}, context)
         return JsonResponse({
             "success": True,
             "setup_html": setup_html,
