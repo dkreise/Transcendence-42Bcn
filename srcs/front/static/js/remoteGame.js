@@ -65,7 +65,7 @@ function initializeWebSocket() {
 		return ;
 	}
 	console.log("token is: " + token);
-	socket = new WebSocket(`ws://localhost:8001/ws/ping_pong/default/?token=${token}`);
+	socket = new WebSocket(`ws://localhost:8001/ws/G/123/?token=${token}`);
 
 	socket.onopen = () => console.log("WebSocket connection established.");
 	socket.onerror = (error) => {
