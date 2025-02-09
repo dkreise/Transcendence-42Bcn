@@ -53,7 +53,7 @@ ps:
 	docker-compose -f ./srcs/docker-compose.yml ps
 
 logs:
-	docker logs ${OF}
+	docker logs -f ${OF}
 
 back:
 	docker restart ${OF}
