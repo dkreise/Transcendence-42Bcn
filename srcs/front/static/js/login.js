@@ -216,8 +216,8 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             console.log('Submit button clicked!');
 
-            // handleLogin();
-            navigateTo('/handle-login', true);
+            handleLogin(); 
+            //navigateTo('/handle-login', false); // Error when invalid login and refresh
         }
     });
 

@@ -1,20 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <!-- Title -->
+        <title>Pong Game</title>
+
+        <!-- Metadata -->
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Pong Game</title>
+
+        <!-- BootStrap -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+        <!-- Stylesheet (CSS) -->
         <link rel="stylesheet" href="css/home.css">
         <link rel="stylesheet" href="css/login.css">
         <link rel="stylesheet" href="css/profile.css">
         <link rel="stylesheet" href="css/friends.css">
         <link rel="stylesheet" href="css/game.css">
+        <link rel="stylesheet" href="css/bg-particle.css">
+        <link rel="stylesheet" href="css/main.css">
     </head>
     <body>
+        <!-- Particle Background -->
         <div id="particle-background"></div>
+
+        <!-- main app content -->
         <div id="app">
+
+            <!-- Header -->
             <header id="header-container">
                 <div class="position-absolute top-0 end-0 mt-4 me-4">
                     <button 
@@ -46,10 +60,14 @@
                 </div>
             </header>
 
-            <!-- main app content here, like the navigation, game, etc. -->
-            <div id="content-area"></div> <!-- Dynamic content area where the login form will be rendered -->
+            <!-- Dynamic content area -->
+            <div id="content-area">
+
+            </div>
         </div>
-        <script src="js/particle_background.js"></script>
+
+        <!-- JavaScript -->
+        <script type="module" src="js/particle_background.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script type="module" src="js/main.js"></script>
         <script type="module" src="js/logout.js"></script>
@@ -63,9 +81,7 @@
         <script type="module" src="js/remoteGame.js"></script>
         <script type="module" src="js/localGame.js"></script>
 
-
         <!-- Bootstrap js -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     </body>
 </html>
