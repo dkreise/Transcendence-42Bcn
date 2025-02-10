@@ -13,15 +13,15 @@ let ball = null;
 let gameLoopId = null;
 let maxScore = 2;
 
-export function saveScore() {
+export function saveScore(score1, score2, mainUser) {
 
     makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/save-local-score/", {
         method: "POST",
         body: JSON.stringify({
             // 'player1': player1.name,
-            'score1': player1.score,
+            'score1': score1,
             // 'player2': player1.name,
-            'score2': player2.score,
+            'score2': score2,
             
             'main_user': mainUser, 
         }),
@@ -64,7 +64,7 @@ function gameLocalLoop() {
         const finalScore = `${player1.score} - ${player2.score}`;
         cancelAnimationFrame(gameLoopId);
         player1.displayEndgameMessage(ctx, finalScore, winner);
-        saveScore();
+        saveScore(player1.score, player2.score, mainUser);
     }
 }
 

@@ -14,5 +14,5 @@ dirLight.shadow.radius = 10
 dirLight.shadow.blurSamples = 20
 
 const lights = [dirLight, ambientLight]
-
+ 
 export default lights

@@ -178,7 +178,7 @@ class GameManager:
 		except Exception as e:
 			print(f"Error saving game result: {e}")
 			return None
-
+ 
 	@staticmethod
 	def declare_winner(room_id, winner_id, role):
 		game = GameManager.games.get(room_id)
@@ -196,7 +196,7 @@ class GameManager:
 		Game = get_game_model()
 
 		# Save the game result
-		saved_game = GameManager.save_game_result(room_id, winner_id, game["scores"], players)
+		saved_game = GameManager.save_remote_score(room_id, winner_id, game["scores"], players)
 
 		if saved_game:
 			logger.info(f"Game saved successfully: {saved_game}")

@@ -5,8 +5,8 @@ import { loadHomePage } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
-import { playLocal, playAI, playOnline, gameLocal } from "./game.js"
-import { play3D, cleanup3D } from "./3dlocalGame.js";
+import { playLocal, playAI, playOnline, play3D, gameLocal } from "./game.js"
+import { cleanup3D } from "./3DLocalGame.js";
 // import { gameLocal } from "./localGame.js"
 
 

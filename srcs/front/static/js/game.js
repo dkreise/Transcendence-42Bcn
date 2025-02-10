@@ -2,8 +2,8 @@ import { makeAuthenticatedRequest } from "./login.js";
 // import { addLogoutListener } from "./logout.js";
 import { navigateTo, checkPermission } from "./main.js"
 import { startLocalGame } from "./localGame.js";
-// import { startLocalGame } from "./3dlocalGame.js";
 import { startGame } from "./remoteGame.js"; 
+import { start3DAIGame } from "./3DLocalGame.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -129,3 +129,42 @@ export const playOnline = () => {
     }
     // makeAuthenticatedRequest() // to POST the results
 } 
+
+export function play3D() {
+
+    if (!checkPermission) {
+        navigateTo('/login');
+    } else {
+        console.log("Navigating to /play-local/game");
+    }
+    const contentArea = document.getElementById('content-area');
+    contentArea.innerHTML = ''; // Clear previous content
+    makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
+        method: "POST",
+        body: JSON.stringify({
+            'second-player': 'somename',  // Stringify the body data
+        }),
+        headers: {"Content-Type": "application/json"},
+    })
+    .then(response => {
+        console.log('Raw response:', response);  // Add this line to inspect the raw response
+        return response.json();
+    })
+    .then(data => {
+        if (data.game_html) {
+            console.log('3D game returned!');
+
+            // startLocalGame(data['player1'], data['player2'], data['main_user']);
+            start3DAIGame(localStorage.getItem('username'));
+
+
+        } else {
+            console.log('Response: ', data);
+            console.error('Failed to fetch the local game:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Catch error loading local game: ', error);
+    });
+ 
+}
