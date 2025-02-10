@@ -42,14 +42,24 @@ class PongConsumer(AsyncWebsocketConsumer):
 				try:
 					self.room_id = self.scope['url_route']['kwargs']['tgID']
 					async with active_games_lock:
-						active_games[self.room_id] = GameManager(self.room_id)
+						if self.room_id not in active_games:
+							active_games[self.room_id] = GameManager(self.room_id)
 						# TODO: False should be dynamic (player = T / viewer = F)
-						self.role = active_games[self.room_id].join_room(self.user, False)
+						self.role = await active_games[self.room_id].join_room(self.user.username, False)
 						if not self.role:
 							await self.close()
 							return
 						await self.channel_layer.group_add(self.room_id, self.channel_name)
 						await self.accept()
+
+						logger.info(f"Role: {self.role}")
+
+						# Notify the client of their role
+						await self.send(json.dumps({
+							"type": "role",
+							"role": self.role,
+							"user": self.user.username
+						}))
 				except Exception as e:
 					logger.error(f"Error connecting to the game: {e}")
 					await self.close()
@@ -66,7 +76,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		logger.info("\033[1;32mDISCONNECT METHOD CALLED\033[0m")
 
 		await self.channel_layer.group_discard(
-			self.group_name,
+			self.room_id,
 			self.channel_name
 		)
 		if self.room_id in active_games:
@@ -100,3 +110,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def send_game_update(self, event):
 		message = event["message"]
 		await self.send(text_data=json.dumps(message))
+
+	async def send_game_status(self, event):
+		logger.info("sending status msg (pong)")
+		await self.send(text_data=json.dumps(event["message"]))

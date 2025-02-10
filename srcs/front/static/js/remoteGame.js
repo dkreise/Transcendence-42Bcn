@@ -82,6 +82,7 @@ function initializeWebSocket() {
 
 		switch (data.type) {
 			case "status":
+				console.log("status msg received! wait = " + data.wait)
 				displayStatus(data.wait);
 				if (!data.wait)
 				{
@@ -132,34 +133,11 @@ function gameLoop() {
 	ball.move(player, opponent, gameLoopId, socket);
 }
 
-/*function resizeCanvas() {
-	const oldWidth = canvas.width;
-	const oldHeight = canvas.height;
-	canvas.width = canvas.parentElement.offsetWidth;
-	canvas.height = canvas.parentElement.offsetHeight;
-	const wScale = canvas.width / oldWidth;
-	const hScale = canvas.height / oldHeight;
-
-	player.resize(canvas, wScale, hScale);
-	opponent.resize(canvas, wScale, hScale);
-	ball.resize(canvas, wScale, hScale);
-}*/
 
 window.addEventListener("resize", () => {
 	console.log("player canvas width: " + player.canvas.width);
 	console.log("actual canvas width: " + canvas.width);
 });
-
-
-//window.addEventListener('keydown', (e) => {
-//	if (e.key === 'w' || e.key == 'W' || e.key === 'ArrowUp') player.up = true;
-//	if (e.key === 's' || e.key == 'S' || e.key === 'ArrowDown') player.down = true;
-//});
-
-// window.addEventListener('keyup', (e) => {
-// 	if (e.key === 'w' || e.key === 'ArrowUp') player.up = false;
-// 	if (e.key === 's' || e.key === 'ArrowDown') player.down = false;
-// });
 
 export function startGame()
 {

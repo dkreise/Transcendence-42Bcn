@@ -73,10 +73,13 @@ class GameManager:
 
 ###############################################
 
-	def join_room(self, user, play): #user = [string] username || play = [bool] player/viewer
+	async def join_room(self, user, play): #user = [string] username || play = [bool] player/viewer
+		logger.info(f"room id {self.id} total players: {len(self.players)}")
+		logger.info(self.players)
 		if any(player["id"] == user for player in self.players.values()):
 			player = next((player for player in self.players.values() if player["id"] == user), None)
 			if player:
+				await self.send_status(0)
 				return player["role"]
 			return None
 
@@ -88,10 +91,13 @@ class GameManager:
 			return None
 		else:
 			if len(self.players) == 0:
+				logger.info(f"adding {user} as player1")
 				self.players["player1"] = {"id": user, "y": 250}
 				return "player1"
 			else:
+				logger.info(f"adding {user} as player2")
 				self.players["player2"] = {"id": user, "y": 250}
+				await self.send_status(0)
 				return "player2"
 			self.users.append(user)
 		return "viewer"
@@ -168,6 +174,7 @@ class GameManager:
 							"No comebacks allowed in room {self.id}\033[0m")
 			msg = self.declare_winner(winner_role)
 			return msg
+		await self.send_status(1)
 		if disconnect_task:
 			logger.warning(f"\033[1;33mCountdown task already exists for room {roomID}."
 							"Overwritingprevious task\033[0m")
@@ -207,7 +214,7 @@ class GameManager:
 			"type": "endgame",
 			"wait": 1,
 			"winnerID": winner_id,
-			"loserID": next((user for user in self.users if user != winner_id), None)
+			"loserID": next((loser for loser in self.users if loser != winner_id), None)
 		}
 
 
@@ -256,12 +263,12 @@ class GameManager:
 		while self.game_running:
 			async with sel.ball_lock:
 				self.update_ball()
-			await self.broadcast_state()
+			await self.update_game()
 			await asyncio.sleep(0.016)
 
 #########################################################
 
-	async def broadcast_state(self):
+	async def update_game(self):
 		message = {
 			"type": "update",
 			"ball": self.ball,
@@ -278,12 +285,31 @@ class GameManager:
 
 ############################################################
 
+	async def send_status(self, wait):
+		logger.info("sending status msg (gameMan)")
+		message = {
+			"type": "status",
+			"ball": self.ball,
+			"players": self.players,
+			"scores": self.scores,
+			"wait": wait
+		}
+		channel_layer = get_channel_layer()
+		await channel_layer.group_send(
+			self.id,
+			{
+				"type": "send_game_status", #function in PongConsumer
+				"message": message
+			})
+
+##############################################################
+
 	def start_game(self):
-		if self.game_task is None:
-			self.game_task = asyncio.create_task(self.run_game_loop())
+		if self.game_loop_task is None:
+			self.game_loop_task = asyncio.create_task(self.run_game_loop())
 
 	def stop_game (self):
 		self.game_running = False
-		if self.game_task:
-			self.game_task_cancel()
-			self.game_task = None
+		if self.game_loop_task:
+			self.game_loop_task_cancel()
+			self.game_loop_task = None
