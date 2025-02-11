@@ -18,7 +18,7 @@ var baseUrl = "http://localhost"; // change (parse) later
  
 let renderer, scene, camera, animationId, start, button, tryAgain;
 let limits, planeGeo, planeMat, plane, controls, ai, loader;
-let player1, player2, ball, mainUse, gameLoopId; // if the main user is player 1 or 2
+let player1, player2, ball, mainUse, gameLoopId, lastAIUpdate; // if the main user is player 1 or 2
 let fontPath = "../three/examples/fonts/helvetiker_bold.typeface.json";
 let loadedFont = null;
 let winnerMessage = null;
@@ -44,13 +44,13 @@ export const field = {
 }
 
 export const params = {
-	planeColor: 0x9999DD, // 0x555577, //0xb994ff, //0x9b71ea, //0x6966ff,
-	fogColor: 0x000022, //0x9e7aff,
+	planeColor: 0xDDDDFF, //0x9999DD, // 0x555577, //0xb994ff, //0x9b71ea, //0x6966ff,
+	fogColor: 0x000033,//0x000022, //0x9e7aff,
 	fogNear: 25,
 	fogFar: 150,
     textY:  20,
     buttonColor: 0x9400FF,
-    winnerColor: 0xFF00FF,
+    winnerColor: 0x22FFFF//0x9400FF,//0xF5F045,//0xFF00FF,
 }
 
 const   size = {
@@ -69,8 +69,8 @@ const TEXT_PARAMS = {
 }
 
 const ANNOUNCE_WINNER = {
-    size: 3,
-    depth: 0.1,
+    size: 2,
+    depth: 0.5,
     curveSegments: 30,
 }
 
@@ -205,6 +205,13 @@ function animateAI() {
         ball.update(dt);
         ai.update(dt);
         player2.move();
+
+        // Check if 1 second has passed before updating the AI
+        if (clock.getElapsedTime() - lastAIUpdate >= 1) {
+            ai.setTarget(ball);
+            lastAIUpdate = clock.getElapsedTime();  // Reset timer
+        }
+        
     } else {
         ball.resetPos();
         player1.resetPos();
@@ -233,18 +240,24 @@ function setupField() {
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(size.width, size.height);
     renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Soft shadows
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.5;
+    renderer.shadowMap.type = THREE.VSMShadowMap; //THREE.PCFSoftShadowMap; // Soft shadows
     document.getElementById('content-area').appendChild(renderer.domElement);
-
+    handleResize();
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true
     scene.add(...lights);
     limits = new THREE.Vector2(field.x, field.y);
-    planeGeo = new THREE.PlaneGeometry(
-        limits.x * 20,
-        limits.y * 20,
-        limits.x * 20,
-        limits.y * 20
+    planeGeo = new THREE.PlaneGeometry( // or 20
+        // limits.x * 20,
+        // limits.y * 20,
+        // limits.x * 20,
+        // limits.y * 20,
+        limits.x * 2,
+        limits.y * 2,
+        limits.x * 2,
+        limits.y * 2
     );
 
     planeGeo.rotateX(-Math.PI * 0.5);
@@ -256,10 +269,16 @@ function setupField() {
     scene.add(plane)
 
     const boundGeo = new RoundedBoxGeometry(field.width, field.height, limits.y * 2, field.radius, field.seg);
-    const boundMat = new THREE.MeshNormalMaterial();
+    const boundMat = new THREE.MeshPhongMaterial({
+        color: params.planeColor,
+        specular: 0xFFFFFF, 
+        shininess: 100 
+    });
     const leftBound = new THREE.Mesh(boundGeo, boundMat);
     leftBound.position.x = -limits.x - field.width / 2;
-    leftBound.position.y = field.height / 2;
+    leftBound.position.y = field.height;
+    leftBound.castShadow = true;
+    leftBound.receiveShadow = true;
     const rightBound = leftBound.clone();
     rightBound.position.x *= -1;
     scene.add(leftBound, rightBound);
@@ -270,13 +289,15 @@ function setupField() {
 }
 
 function createButton() {
-    const buttonGeo = new RoundedBoxGeometry(15, 5, 3, field.radius, field.seg * 10); // Button size
-    const buttonMat = new THREE.MeshStandardMaterial({ 
+    const buttonGeo = new RoundedBoxGeometry(15, 5, 3, field.radius, field.seg * 3); // Button size
+    const buttonMat = new THREE.MeshPhongMaterial({ 
         color: params.buttonColor,
-        metalness: 0.2,
-        roughness: 0.6
+        specular: 0xFFFFFF, 
+        shininess: 100,
      });
     button = new THREE.Mesh(buttonGeo, buttonMat);
+    button.castShadow = true;
+    button.receiveShadow = true;
     button.position.set(0, params.textY, 0); // Adjust position in the scene
     scene.add(button);
 
@@ -345,6 +366,7 @@ function setupEvents() {
         if ((intersects.length > 0 || intersectsStart.length > 0) && !gameEnded ) {
             console.log("3D Start Button Clicked!");
             // if (gameStarted) return; // Prevent multiple starts
+            lastAIUpdate = 1;
             gameStarted = true;
             start.visible = false; // Hide the button
             button.visible = false;
@@ -378,9 +400,9 @@ function handleEndGame(message) {
 function createWinnerMessage(msg) {
 
     const textGeo = createTextGeometry(msg, ANNOUNCE_WINNER);
-    const textMat = new THREE.MeshBasicMaterial({ color: params.winnerColor });
+    const textMat = new THREE.MeshNormalMaterial();
     const textMesh = new THREE.Mesh(textGeo, textMat);
-    textMesh.position.set(0, params.textY + 6, 1.5); // Center the text
+    textMesh.position.set(0, params.textY + 5, 1.5); // Center the text
     winnerMessage = textMesh;
     scene.add(textMesh);
 }
@@ -405,7 +427,7 @@ function createSky() {
     const vertices = [];
     const sphereRadius = 70;  // The radius of the transparent sphere where the stars will be placed outside
     
-    for ( let i = 0; i < 100000; i ++ ) {
+    for ( let i = 0; i < 200000; i ++ ) {
         let x, y, z;
         do {
             x = THREE.MathUtils.randFloatSpread(1000); // Random x coordinate

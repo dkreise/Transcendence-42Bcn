@@ -4,7 +4,7 @@ import { EventDispatcher} from 'three';
 import { TextGeometry } from '../three/examples/jsm/geometries/TextGeometry.js';
 import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
 // import { TEXT_PARAMS } from "./3DPlayer";
-import { params } from "./3DLocalGame.js";
+import { params, field } from "./3DLocalGame.js";
 // import { pause } from "./3DLocalGame.js";
 // import { Player, AIPlayer, AIController } from './3DPlayer.js';
 
@@ -23,8 +23,8 @@ export const ballParams = {
     speed: 25,
     velocity: new Vector3(-0.8, 0, -0.5),
     // velocity1: new Vector3(-0.8, 0, 0.5),
-    radius: 0.5,
-    color: "white",
+    radius: 0.7,
+    color: 0x9400FF,//params.buttonColor,// 0xffaa00,//0xEAE900,//0xF5F045, //0x550055,
     maxScore: 2,
     fontPath: "../three/examples/fonts/helvetiker_regular.typeface.json",
 }
@@ -50,10 +50,15 @@ export class Ball extends EventDispatcher {
         this.scored = -1;
 
         this.geometry = new THREE.SphereGeometry(this.radius);
-        this.material = new THREE.MeshNormalMaterial({ wireframe: false, flatShading: true });
+        this.material = new THREE.MeshPhongMaterial({ 
+            color: ballParams.color, 
+            specular: 0xFFFFFF, 
+            shininess: 100 });
         // change later for standard or phong material later
         this.mesh = new THREE.Mesh(this.geometry, this.material);
-        this.mesh.position.set(0, ballParams.radius, 0);
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
+        this.resetPos();
         this.scene.add(this.mesh);
         this.velocity.multiplyScalar(this.speed);
         
@@ -96,7 +101,7 @@ export class Ball extends EventDispatcher {
     }
 
     resetPos() {
-        this.mesh.position.set(0, ballParams.radius, 0);
+        this.mesh.position.set(0, field.height, 0);
     }
 
     checkScore() {
@@ -105,7 +110,7 @@ export class Ball extends EventDispatcher {
         }
         
         const name = this.players[0].score >= this.maxScore ? this.players[0].name : this.players[1].name;
-        const msg = `${name} won ${this.players[0].score}:${this.players[1].score} ! ! ! ! !`
+        const msg = `${name} won ${this.players[0].score}-${this.players[1].score} !`
         this.dispatchEvent({ type: 'aifinish', message: msg, player: name });
         return true;
     }
@@ -215,13 +220,6 @@ export class Ball extends EventDispatcher {
         this.resetPos();
         this.players[0].resetPos();
         this.players[1].resetPos();
-        // Stop movement
-        
-        // this.velocity.set(0, 0, 0);
-        
-        // Reset position
-        // this.resetPos();
-        // this.mesh.position.set(0, ballParams.radius, 0);
 
         // Wait 3 seconds, then restart movement
         this.showCountdown(() => {

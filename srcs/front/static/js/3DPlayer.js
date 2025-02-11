@@ -4,19 +4,20 @@ import { MathUtils} from 'three';
 import { TextGeometry } from '../three/examples/jsm/geometries/TextGeometry.js';
 import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
 import { ballParams } from "./3DBall.js";
+import { field } from "./3DLocalGame.js";
 
 export const paddle = {
-    radius: 0.25,
+    radius: 0.5,
     length: 5,
     capSeg: 20,
     radSeg: 20,
     speed: 0.5,
-    color: "white",
+    color: 0x7C62A0, //0x550055,
     fontPath: "../three/examples/fonts/helvetiker_regular.typeface.json",
 }
 
 const TEXT_PARAMS = {
-    size: 3,
+    size: 2,
     depth: 0.5,
     curveSegments: 12,
     bevelEnabled: true,
@@ -29,7 +30,10 @@ const TEXT_PARAMS = {
 const GEOMETRY = new CapsuleGeometry(paddle.radius, paddle.length, paddle.capSeg, paddle.radSeg);
 GEOMETRY.rotateZ(Math.PI * 0.5)
 // GEOMETRY.rotateY(Math.PI * 0.5)
-const MATERIAL = new MeshNormalMaterial();
+const MATERIAL = new THREE.MeshPhongMaterial({ 
+    color: paddle.color,
+    specular: 0xFFFFFF, 
+    shininess: 100 });
 
 const HELPER_GEO = new CapsuleGeometry(paddle.radius + ballParams.radius, paddle.length, paddle.capSeg, 8)
 HELPER_GEO.rotateZ(Math.PI * 0.5)
@@ -57,12 +61,14 @@ export class Player {
         this.text = `${this.name} - ${this.score}`;
         // this.setText();
         this.initial = position;
-        this.initial.y += paddle.radius;
+        this.initial.y += field.height;
 
         // Create the 3D paddle
         this.geometry = GEOMETRY; //new THREE.BoxGeometry(this.width, this.height, this.depth);
         this.material = MATERIAL; //new THREE.MeshBasicMaterial({ color: this.color });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
         this.collitionMesh = new THREE.Mesh(
             HELPER_GEO,
             new THREE.MeshNormalMaterial({ 
@@ -94,8 +100,10 @@ export class Player {
             this.loadedFont = font;
             const textGeo = this.createTextGeometry(this.loadedFont);
             // textGeo.center();
-            // textGeo.rotateX(Math.PI * 0.5)
-            this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
+            // textGeo.rotateY(-Math.PI * 0.3)
+            this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ color: paddle.color }));
+            this.textMesh.castShadow = true;
+            this.textMesh.receiveShadow = true;
             this.textMesh.position.set(0, 3, (this.limits.y + 10) * this.role);
             this.scene.add(this.textMesh);
         } );
@@ -131,6 +139,8 @@ export class Player {
         // this.text = `${this.name} - ${this.score}`;
         this.setText();
         this.textMesh.geometry = this.createTextGeometry(this.loadedFont);
+        this.textMesh.castShadow = true;
+        this.textMesh.receiveShadow = true;
         this.textMesh.geometry.getAttribute('position').needsUpdate = true;
     }
 }
@@ -150,7 +160,10 @@ export class AIPlayer extends Player {
             const textGeo = this.createTextGeometry(this.loadedFont);
             // textGeo.center();
             // textGeo.rotateX(Math.PI * 0.5)
-            this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
+            textGeo.rotateX(-Math.PI * 0.1)
+            this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ color: paddle.color }));
+            this.textMesh.castShadow = true;
+            this.textMesh.receiveShadow = true;
             this.textMesh.position.set(0, 3, (this.limits.y + 10) * this.role);
             this.scene.add(this.textMesh);
         } );
@@ -183,17 +196,22 @@ export class AIController {
         this.target = target;
         this.simplex = new SimplexNoise();
         this.time = 0;
+        this.targetX = this.paddle.mesh.position.x; // Store last target position
+        // this.lastUpdateTime = 0;
+    }
+
+    // Called every second to set a new target position
+    setTarget(ball) {
+        this.targetX = ball.mesh.position.x; // Get the ball's current X position
     }
 
     update(dt) {
 
-        let x = this.target.mesh.position.x;
-
+        // let x = this.target.mesh.position.x;
         this.time += dt;
-        const dx = this.simplex.noise2D(this.time * 0.5, 1) * 5.5;
-
-        x = MathUtils.lerp(this.paddle.mesh.position.x, x + dx, 0.4)
-
+        const dx = 0;
+        // const dx = this.simplex.noise2D(this.time * 0.2, 1) * 2.0;
+        const x = MathUtils.lerp(this.paddle.mesh.position.x, this.targetX + dx, 0.2)
         this.paddle.setX(x);
     }
 }

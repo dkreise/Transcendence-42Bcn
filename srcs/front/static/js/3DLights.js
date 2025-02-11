@@ -1,7 +1,7 @@
 import { AmbientLight, DirectionalLight } from 'three'
 
-const ambientLight = new AmbientLight(0xffffff, 0.6)
-const dirLight = new DirectionalLight(0xffffff, 0.7)
+const ambientLight = new AmbientLight(0xffffff, 1)
+const dirLight = new DirectionalLight(0xffffff, 1)
 
 dirLight.position.set(20, 20, 20)
 dirLight.castShadow = true
