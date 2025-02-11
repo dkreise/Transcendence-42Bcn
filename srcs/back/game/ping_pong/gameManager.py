@@ -97,6 +97,7 @@ class GameManager:
 			else:
 				logger.info(f"adding {user} as player2")
 				self.players["player2"] = {"id": user, "y": 250}
+				await self.update_game()
 				await self.send_status(0)
 				return "player2"
 			self.users.append(user)

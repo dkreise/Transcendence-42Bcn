@@ -55,8 +55,10 @@ function handleEndgame(data) {
 	cancelAnimationFrame(gameLoopId);
 }
 
+//function initializeWebSocket(roomId) {
 function initializeWebSocket() {
-	const roomID = new URLSearchParams(window.location.search).get("room") || "default";
+	//const roomID = new URLSearchParams(window.location.search).get("room") || "default";
+	const roomId = 123
 
 	const token = localStorage.getItem("access_token");
 	if (!token)
@@ -65,7 +67,7 @@ function initializeWebSocket() {
 		return ;
 	}
 	console.log("token is: " + token);
-	socket = new WebSocket(`ws://localhost:8001/ws/G/123/?token=${token}`);
+	socket = new WebSocket(`ws://localhost:8001/ws/G/${roomId}/?token=${token}`);
 
 	socket.onopen = () => console.log("WebSocket connection established.");
 	socket.onerror = (error) => {
@@ -80,6 +82,47 @@ function initializeWebSocket() {
 	socket.onmessage = (event) => {
 		const data = JSON.parse(event.data);
 
+		switch (data.type) {
+			case "status":
+				console.log("status msg received! wait = " + data.wait)
+				displayStatus(data.wait);
+				if (!data.wait)
+				{
+					//console.log("player: " + player + " p.role: " + player.role);
+					setupControls(player, opponent)
+					gameLoop();
+				}
+				break;
+			case "role":
+				handleRoleAssignment(data.role);
+				break;
+			case "update":
+				if (data.wait)
+					return;
+				console.log(player.role + " is receiving updates");
+				if (data.players)
+				{
+					if (player.role == "player1")
+						opponent.update(data.players.player2.y, data.scores.player2);
+					else if (player.role == "player2")
+						opponent.update(data.players.player1.y, data.scores.player1);
+				}
+				if (data.ball) {
+					targetBallX = data.ball.x;
+					targetBallY = data.ball.y;
+				}
+				break;
+			case "endgame":
+				handleEndgame(data);
+				break;
+			default:
+				console.warn("Unhandled message type:", data.type);
+		}
+	};
+}
+/*
+function ft_switch(data)
+{
 		switch (data.type) {
 			case "status":
 				console.log("status msg received! wait = " + data.wait)
@@ -115,8 +158,8 @@ function initializeWebSocket() {
 			default:
 				console.warn("Unhandled message type:", data.type);
 		}
-	};
-}
+	
+}*/
 
 function gameLoop() {
 	gameLoopId = requestAnimationFrame(gameLoop);
