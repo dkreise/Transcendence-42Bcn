@@ -4,6 +4,7 @@ import { navigateTo, checkPermission } from "./main.js"
 import { startLocalGame } from "./localGame.js"; 
 import { startAIGame } from "./AIGame.js";
 import { loadBracketTournamentPage } from "./tournament.js";
+import { startGame } from "./remoteGame.js"; 
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -184,12 +185,29 @@ export const playOnline = () => {
     if (!checkPermission) {
         navigateTo('/login');
     } else {
-        const contentArea = document.getElementById('content-area');
-        contentArea.innerHTML = '';
-        const heading = document.createElement('h2');
-        heading.textContent = 'Here will be the game board'
-        contentArea.appendChild(heading);
-        console.log(`Here will be the game board`);
+        console.log('Loading online game...')
+        makeAuthenticatedRequest(baseUrl + ":8001/api/game/remote/play/", {
+            method: "GET",
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.game_html) {
+                document.getElementById('content-area').innerHTML = data.game_html;
+                const canvas = document.getElementById("newGameCanvas");
+                if (canvas)
+                    startGame();
+                else
+                    console.log("Error: Canvas not found");
+            } else {
+                console.log('Response: ', data);
+                console.error('Failed to load remote game:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Catch error loading remote game: ', error);
+            if (error == "No access token.")
+                navigateTo('/login');
+        });
     }
     // makeAuthenticatedRequest() // to POST the results
 } 

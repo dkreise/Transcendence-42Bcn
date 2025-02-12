@@ -9,7 +9,9 @@ from django.contrib.auth.models import User
 import random
 from django.db.models import Q
 from game.utils.translations import add_language_context
+from django.utils.translation import activate
 from django.template.loader import render_to_string
+from django.http import JsonResponse
  
 @api_view(['GET'])
 def player_list(request):
@@ -159,3 +161,13 @@ def get_difficulty_level(request):
         return JsonResponse({'get_difficulty_html': get_difficulty_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=402)
+
+@api_view(['GET'])
+def play_game(request):
+    context = {
+        'user': request.user,
+    }
+    add_language_context(request, context)
+    game_html = render_to_string('remote_game.html', context)
+    return JsonResponse({'game_html': game_html}, content_type="application/json")
+
