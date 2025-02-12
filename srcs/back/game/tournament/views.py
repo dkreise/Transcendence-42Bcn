@@ -5,16 +5,7 @@ from rest_framework.response import Response
 from .models import Tournament
 import random
 from django.db.models import Q, Avg
-from django.shortcuts import render
-from rest_framework import viewsets, status
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from .models import Tournament
-import random
-from django.db.models import Q, Avg
-from django.shortcuts import render
 from django.http import JsonResponse
-from rest_framework.decorators import api_view
 from django.contrib.auth import authenticate, login
 from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
@@ -26,16 +17,12 @@ import json
 import requests
 from django.conf import settings
 import re
-from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.utils.translation import activate
 from django.contrib.auth.decorators import login_required
 from django.urls import path, include
 import redis
-from django.http import JsonResponse
-from .models import Tournament
 from django.core.cache import cache 
-import random
 
 @api_view(['GET'])
 def get_player_tournament_statistics(request, player_id):
