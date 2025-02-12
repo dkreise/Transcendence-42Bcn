@@ -9,6 +9,7 @@ import { saveScore } from "./localGame.js";
 import * as THREE from "three";
 import { Player, AIPlayer, AIController } from './3DPlayer.js';
 import { Ball } from './3DBall.js';
+import { SceneText, textParams, textWinner } from './3DText.js';
 
 //----------------------------------------------------------------------------//
 //-------------------- VARIABLES INITIALIZATION ------------------------------//
@@ -17,9 +18,10 @@ import { Ball } from './3DBall.js';
 var baseUrl = "http://localhost"; // change (parse) later
  
 let renderer, scene, camera, animationId, start, button, tryAgain;
-let limits, planeGeo, planeMat, plane, controls, ai, loader;
+let limits, planeGeo, planeMat, plane, controls, ai, loader, countdownText;
 let player1, player2, ball, mainUse, gameLoopId, lastAIUpdate; // if the main user is player 1 or 2
 let fontPath = "../three/examples/fonts/helvetiker_bold.typeface.json";
+let text;
 let loadedFont = null;
 let winnerMessage = null;
 let ifAI = false;
@@ -58,21 +60,21 @@ const   size = {
     height: window.innerHeight,
 }
 
-const TEXT_PARAMS = {
-    size: 1.5,
-    depth: 0.5,
-    curveSegments: 12,
-    bevelEnabled: true,
-    bevelThickness: 0.02,
-    bevelSize: 0.02,
-    bevelSegments: 3
-}
+// const textParams = {
+//     size: 1.5,
+//     depth: 0.5,
+//     curveSegments: 12,
+//     bevelEnabled: true,
+//     bevelThickness: 0.02,
+//     bevelSize: 0.02,
+//     bevelSegments: 3
+// }
 
-const ANNOUNCE_WINNER = {
-    size: 2,
-    depth: 0.5,
-    curveSegments: 30,
-}
+// const textWinner = {
+//     size: 2,
+//     depth: 0.5,
+//     curveSegments: 30,
+// }
 
 //---------------------------------------------------------------------------------//
 // ------------------ LOCAL GAME WITH ANOTHER PLAYER FUNCTIONS ------------------- //
@@ -184,8 +186,8 @@ function setupAIControls() {
             console.log("Spacebar pressed! Starting game...");
             if (gameStarted) return; // Prevent multiple starts
             gameStarted = true;
-            start.visible = false; // Hide the button
-            button.visible = false;
+            text.start.visible = false; // Hide the button
+            text.button.visible = false;
         }
     });
 
@@ -199,19 +201,20 @@ function setupAIControls() {
 function animateAI() {
    
     const deltaTime = clock.getDelta();
+    const elapsedTime = clock.getElapsedTime();
     const dt = Math.min(deltaTime, 0.05)
     
     if (gameStarted && !pause) {
-        ball.update(dt);
-        ai.update(dt);
+        ball.update(dt, pause);
+        ai.update(dt, elapsedTime);
         player2.move();
 
         // Check if 1 second has passed before updating the AI
-        if (clock.getElapsedTime() - lastAIUpdate >= 1) {
-            ai.setTarget(ball);
-            lastAIUpdate = clock.getElapsedTime();  // Reset timer
-        }
-        
+        // if (clock.getElapsedTime() - lastAIUpdate >= 1) {
+        //     ai.setTarget(ball);
+        //     lastAIUpdate = clock.getElapsedTime();  // Reset timer
+        // }
+
     } else {
         ball.resetPos();
         player1.resetPos();
@@ -234,6 +237,7 @@ function setupScene() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(params.fogColor);
     scene.fog = new THREE.Fog(params.fogColor, params.fogNear, params.fogFar);
+    text = new SceneText(scene);
 }
 
 function setupField() {
@@ -248,16 +252,17 @@ function setupField() {
     controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true
     scene.add(...lights);
+    
     limits = new THREE.Vector2(field.x, field.y);
     planeGeo = new THREE.PlaneGeometry( // or 20
-        // limits.x * 20,
-        // limits.y * 20,
-        // limits.x * 20,
-        // limits.y * 20,
-        limits.x * 2,
-        limits.y * 2,
-        limits.x * 2,
-        limits.y * 2
+        limits.x * 20,
+        limits.y * 20,
+        limits.x * 20,
+        limits.y * 20,
+        // limits.x * 2,
+        // limits.y * 2,
+        // limits.x * 2,
+        // limits.y * 2
     );
 
     planeGeo.rotateX(-Math.PI * 0.5);
@@ -283,42 +288,43 @@ function setupField() {
     rightBound.position.x *= -1;
     scene.add(leftBound, rightBound);
 
-    if (!gameStarted && !button & !start)
-        createButton();
+    // if (!gameStarted && !button & !start)
+    //     createButton();
     createSky();
 }
 
-function createButton() {
-    const buttonGeo = new RoundedBoxGeometry(15, 5, 3, field.radius, field.seg * 3); // Button size
-    const buttonMat = new THREE.MeshPhongMaterial({ 
-        color: params.buttonColor,
-        specular: 0xFFFFFF, 
-        shininess: 100,
-     });
-    button = new THREE.Mesh(buttonGeo, buttonMat);
-    button.castShadow = true;
-    button.receiveShadow = true;
-    button.position.set(0, params.textY, 0); // Adjust position in the scene
-    scene.add(button);
+// function createButton() {
+//     const buttonGeo = new RoundedBoxGeometry(15, 5, 3, field.radius, field.seg * 3); // Button size
+//     const buttonMat = new THREE.MeshPhongMaterial({ 
+//         color: params.buttonColor,
+//         specular: 0xFFFFFF, 
+//         shininess: 100,
+//      });
+//     button = new THREE.Mesh(buttonGeo, buttonMat);
+//     button.castShadow = true;
+//     button.receiveShadow = true;
+//     button.position.set(0, params.textY, 0); // Adjust position in the scene
+//     scene.add(button);
 
-    loader = new FontLoader();
-    loader.load('./three/examples/fonts/helvetiker_bold.typeface.json', (font) => {
-        loadedFont = font; 
-        start = createButtonText("START !");
-        tryAgain = createButtonText("TRY AGAIN");
-        scene.add(start, tryAgain);
-        tryAgain.visible = false;
-        });   
-}
+//     loader = new FontLoader();
+//     loader.load('./three/examples/fonts/helvetiker_bold.typeface.json', (font) => {
+//         loadedFont = font; 
+//         start = createButtonText("START !");
+//         tryAgain = createButtonText("TRY AGAIN");
+//         scene.add(start, tryAgain);
+//         tryAgain.visible = false;
+//         });   
+//     createCountdownText();
+// }
 
-function createButtonText(text) {
-    const textGeo = createTextGeometry(text, TEXT_PARAMS);
-    const textMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const textMesh = new THREE.Mesh(textGeo, textMat);
-    textMesh.position.set(0, params.textY, 1.5); // Center the text
-    scene.add(textMesh);
-    return textMesh;
-}
+// function createButtonText(text) {
+//     const textGeo = createTextGeometry(text, TEXT_PARAMS);
+//     const textMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+//     const textMesh = new THREE.Mesh(textGeo, textMat);
+//     textMesh.position.set(0, params.textY, 1.5); // Center the text
+//     scene.add(textMesh);
+//     return textMesh;
+// }
 
 function setupEvents() {
     ball.addEventListener("aifinish", (e) => {
@@ -337,9 +343,17 @@ function setupEvents() {
 
     ball.addEventListener("aipause", (e) => {
         // console.log('goal!!', e.message);
-        pause = true;
-
         console.log('goal!! pause');
+        pause = true;
+        showCountdown(() => {
+            console.log("Game resuming!");
+            ball.resetVelocity(); // Randomize direction
+            pause = false;
+            // this.dispatchEvent({ type: 'airestart'});
+            // this.isPaused = false;
+        });
+        // pause = false;
+        // console.log('goal!! pause');
     })
 
     ball.addEventListener("airestart", (e) => {
@@ -358,69 +372,106 @@ function setupEvents() {
     
         // Raycast to check for intersections
         ray.setFromCamera(cursor, camera);
-        const intersects = ray.intersectObject(button);
+        const intersects = ray.intersectObject(text.button);
         // rayStart.setFromCamera(cursor, camera);
-        const intersectsStart = ray.intersectObject(start);
-        const intersectsTryAgain = ray.intersectObject(tryAgain);
+        const intersectsStart = ray.intersectObject(text.start);
+        const intersectsTryAgain = ray.intersectObject(text.tryAgain);
     
         if ((intersects.length > 0 || intersectsStart.length > 0) && !gameEnded ) {
             console.log("3D Start Button Clicked!");
             // if (gameStarted) return; // Prevent multiple starts
-            lastAIUpdate = 1;
+            // lastAIUpdate = 1;
             gameStarted = true;
-            start.visible = false; // Hide the button
-            button.visible = false;
+            text.start.visible = false; // Hide the button
+            text.button.visible = false;
         } else if ((intersects.length > 0 || intersectsTryAgain.length > 0) && gameEnded ) {
             console.log("3D TryAgain Button Clicked!");
             // if (gameStarted) return; // Prevent multiple starts
             resetTeam(); // resets the ball and players;
             gameEnded = false;
             // gameStarted = true;
-            tryAgain.visible = false; // Hide the button
+            text.tryAgain.visible = false; // Hide the button
             // button.visible = false;
-            start.visible = true;
-            winnerMessage.visible = false;
+            text.start.visible = true;
+            text.winnerMessage.visible = false;
 
         }
     });
 }
 
+function showCountdown(callback) {
+    let count = 2;
+    text.updateGeometry(text.countdownText, "3", textWinner);
+    text.countdownText.visible = true;
+    
+    const interval = setInterval(() => {
+        if (count === 0) {
+            text.updateGeometry(text.countdownText, "GO !", textWinner);
+        } else if (count < 0) {
+            clearInterval(interval);
+            // this.countdownText.geometry = this.createTextGeometry("3", this.loadedFont);
+            text.countdownText.visible = false; // Hide instead of remove
+
+            // this.countdownText.visible = false;
+            // this.scene.remove(this.countdownText);
+            // pause = false;
+            callback(); // Resume the game  
+        } else {
+            text.updateGeometry(text.countdownText, `${count}`, textWinner);
+        }
+        count--;  
+    }, 500);
+}
+
+// function createCountdownText() {
+//     const loader = new FontLoader();
+//     loader.load(fontPath, ( font ) => {
+//         loadedFont = font;
+//         const textGeo = createTextGeometry("3", ANNOUNCE_WINNER);
+//         countdownText = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
+//         countdownText.position.set(0, params.textY, 0);
+//         countdownText.visible = false;
+//         scene.add(countdownText);
+//     } );
+// }
+
 function handleEndGame(message) {
     gameEnded = true;
     gameStarted = false;
-    if (winnerMessage) {
-        updateWinnerMessage(message);
+    if (text.winnerMessage) {
+        text.updateGeometry(text.winnerMessage, message, textWinner);
     } else {
-        createWinnerMessage(message);
+        text.createWinnerMessage(message);
     }
-    button.visible = true;
-    tryAgain.visible = true;
+    text.button.visible = true;
+    text.tryAgain.visible = true;
+    text.winnerMessage.visible = true;
 }
 
-function createWinnerMessage(msg) {
+// function createWinnerMessage(msg) {
 
-    const textGeo = createTextGeometry(msg, ANNOUNCE_WINNER);
-    const textMat = new THREE.MeshNormalMaterial();
-    const textMesh = new THREE.Mesh(textGeo, textMat);
-    textMesh.position.set(0, params.textY + 5, 1.5); // Center the text
-    winnerMessage = textMesh;
-    scene.add(textMesh);
-}
+//     const textGeo = createTextGeometry(msg, ANNOUNCE_WINNER);
+//     const textMat = new THREE.MeshNormalMaterial();
+//     const textMesh = new THREE.Mesh(textGeo, textMat);
+//     textMesh.position.set(0, params.textY + 5, 1.5); // Center the text
+//     winnerMessage = textMesh;
+//     scene.add(textMesh);
+// }
 
-function updateWinnerMessage(msg) {
-    winnerMessage.geometry = createTextGeometry(msg, ANNOUNCE_WINNER);
-    winnerMessage.geometry.getAttribute('position').needsUpdate = true;
-    winnerMessage.visible = true;
-}
+// function updateWinnerMessage(msg) {
+//     winnerMessage.geometry = createTextGeometry(msg, ANNOUNCE_WINNER);
+//     winnerMessage.geometry.getAttribute('position').needsUpdate = true;
+//     winnerMessage.visible = true;
+// }
 
-function createTextGeometry(msg, textParams) {
-    const textGeo = new TextGeometry(msg, {
-            font: loadedFont,
-            ...textParams
-    })
-    textGeo.center();
-    return textGeo;
-}
+// function createTextGeometry(msg, textParams) {
+//     const textGeo = new TextGeometry(msg, {
+//             font: loadedFont,
+//             ...textParams
+//     })
+//     textGeo.center();
+//     return textGeo;
+// }
 
 function createSky() {
     const geometry = new THREE.BufferGeometry();

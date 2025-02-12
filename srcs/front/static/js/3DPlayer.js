@@ -11,7 +11,7 @@ export const paddle = {
     length: 5,
     capSeg: 20,
     radSeg: 20,
-    speed: 0.5,
+    speed: 0.8,
     color: 0x7C62A0, //0x550055,
     fontPath: "../three/examples/fonts/helvetiker_regular.typeface.json",
 }
@@ -115,6 +115,7 @@ export class Player {
                 ...TEXT_PARAMS
         })
         textGeo.center();
+        textGeo.rotateX(-Math.PI * 0.1)
         return textGeo;
     }
 
@@ -139,6 +140,7 @@ export class Player {
         // this.text = `${this.name} - ${this.score}`;
         this.setText();
         this.textMesh.geometry = this.createTextGeometry(this.loadedFont);
+        
         this.textMesh.castShadow = true;
         this.textMesh.receiveShadow = true;
         this.textMesh.geometry.getAttribute('position').needsUpdate = true;
@@ -160,7 +162,7 @@ export class AIPlayer extends Player {
             const textGeo = this.createTextGeometry(this.loadedFont);
             // textGeo.center();
             // textGeo.rotateX(Math.PI * 0.5)
-            textGeo.rotateX(-Math.PI * 0.1)
+            // textGeo.rotateX(-Math.PI * 0.1)
             this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ color: paddle.color }));
             this.textMesh.castShadow = true;
             this.textMesh.receiveShadow = true;
@@ -196,22 +198,37 @@ export class AIController {
         this.target = target;
         this.simplex = new SimplexNoise();
         this.time = 0;
+        // this.targetX = this.paddle.mesh.position.x;
         this.targetX = this.paddle.mesh.position.x; // Store last target position
-        // this.lastUpdateTime = 0;
+        this.lastUpdateTime = 0;
+        this.maxSpeed = paddle.speed;
     }
 
-    // Called every second to set a new target position
-    setTarget(ball) {
-        this.targetX = ball.mesh.position.x; // Get the ball's current X position
-    }
+    // // Called every second to set a new target position
+    // setTarget(ball) {
+    //     this.targetX = ball.mesh.position.x; // Get the ball's current X position
+    // }
 
-    update(dt) {
+    update(dt, elapsedTime) {
 
+        if (elapsedTime - this.lastUpdateTime >= 1 ) {
+            this.targetX = this.target.mesh.position.x;
+            this.lastUpdateTime = elapsedTime;
+        }
         // let x = this.target.mesh.position.x;
+
         this.time += dt;
-        const dx = 0;
-        // const dx = this.simplex.noise2D(this.time * 0.2, 1) * 2.0;
-        const x = MathUtils.lerp(this.paddle.mesh.position.x, this.targetX + dx, 0.2)
-        this.paddle.setX(x);
+        // const desiredX = this.targetX + dx;
+        const currentX = this.paddle.mesh.position.x;
+        const dx = this.simplex.noise2D(this.time * 0.5, 1) * 3.5;
+
+        let newX = MathUtils.lerp(this.paddle.mesh.position.x, this.targetX + dx, 0.05)
+        const maxMove = this.maxSpeed * dt;
+
+        // if (Math.abs(newX - currentX) > maxMove) {
+        //     newX = currentX + Math.sign(newX - currentX) * maxMove;
+        // }
+
+        this.paddle.setX(newX);
     }
 }

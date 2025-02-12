@@ -66,22 +66,22 @@ export class Ball extends EventDispatcher {
         this.ray.near = 0;
         this.ray.far = limits.y * 2.5;
         this.isPaused = false;
-        this.createCountdownText();
+        // this.createCountdownText();
         this.loadedFont = null;
         // this.loader = new FontLoader();
     }
 
-    createCountdownText() {
-        const loader = new FontLoader();
-        loader.load(ballParams.fontPath, ( font ) => {
-            this.loadedFont = font;
-            const textGeo = this.createTextGeometry("3", this.loadedFont);
-            this.countdownText = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
-            this.countdownText.position.set(0, params.textY, 0);
-            this.countdownText.visible = false;
-            this.scene.add(this.countdownText);
-        } );
-    }
+    // createCountdownText() {
+    //     const loader = new FontLoader();
+    //     loader.load(ballParams.fontPath, ( font ) => {
+    //         this.loadedFont = font;
+    //         const textGeo = this.createTextGeometry("3", this.loadedFont);
+    //         this.countdownText = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
+    //         this.countdownText.position.set(0, params.textY, 0);
+    //         this.countdownText.visible = false;
+    //         this.scene.add(this.countdownText);
+    //     } );
+    // }
 
     createTextGeometry(text, font) {
         const textGeo = new TextGeometry(text, {
@@ -115,12 +115,12 @@ export class Ball extends EventDispatcher {
         return true;
     }
 
-    update(dt) {
+    update(dt, pause) {
     //     console.log(`Entered update: ${this.mesh.position.x}`);
         // console.log(`Velocity Length is: ${this.velocity.length()}`);
         // console.log(`Velocity is: ${this.velocity.x}x${this.velocity.y}x${this.velocity.z}`);
         // console.log(`Datatime is: ${dt}`);
-        if (this.isPaused) {
+        if (pause) {
 
             return;
         }
@@ -167,7 +167,7 @@ export class Ball extends EventDispatcher {
             // this.resetVelocity();
         }
 
-        if (this.isPaused) return;
+        // if (this.isPaused) return;
         // Find the Paddle the Ball is Moving Towards:
         // Math.sign(paddle.mesh.position.z) checks if the paddle is on the positive or negative Z-axis.
         // Math.sign(this.velocity.z) checks if the ball is moving forward or backward along the Z-axis.
@@ -177,6 +177,7 @@ export class Ball extends EventDispatcher {
         // This ensures the code only checks for collisions with the paddle the ball is heading towards.
         // The paddle might have multiple child objects (e.g., visual components), and the ray checks all of them for intersections.
         // Destructures the first intersection from the array of intersected objects (if any).
+        
         const [intersection] = this.ray.intersectObjects(paddle.mesh.children)
 
         if (intersection) {
@@ -213,48 +214,8 @@ export class Ball extends EventDispatcher {
     onGoal() {
         console.log("Goal! Pausing ball...");
 
-        // pause = true;
-        this.dispatchEvent({ type: 'aipause'});
-        this.isPaused = true;
-        this.velocity.set(0, 0, 0);
         this.resetPos();
-        this.players[0].resetPos();
-        this.players[1].resetPos();
-
-        // Wait 3 seconds, then restart movement
-        this.showCountdown(() => {
-            console.log("Game resuming!");
-            this.resetVelocity(); // Randomize direction
-            this.dispatchEvent({ type: 'airestart'});
-            // this.isPaused = false;
-        });
-        this.isPaused = false;
-    }
-
-    showCountdown(callback) {
-        let count = 2;
-        this.countdownText.geometry.dispose(); // Remove old text
-        this.countdownText.geometry = this.createTextGeometry("3", this.loadedFont);
-        this.countdownText.visible = true;
-        
-        const interval = setInterval(() => {
-            if (count === 0) {
-                this.countdownText.geometry = this.createTextGeometry("GO !", this.loadedFont);
-            } else {
-                this.countdownText.geometry = this.createTextGeometry(`${count}`, this.loadedFont);
-            }
-            count--;
-            if (count < -1) {
-                clearInterval(interval);
-                // this.countdownText.geometry = this.createTextGeometry("3", this.loadedFont);
-                this.countdownText.visible = false; // Hide instead of remove
-
-                // this.countdownText.visible = false;
-                // this.scene.remove(this.countdownText);
-                // pause = false;
-                callback(); // Resume the game  
-            }
-        }, 500);
+        this.dispatchEvent({ type: 'aipause'});
     }
 }
 
