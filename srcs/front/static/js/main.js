@@ -33,10 +33,10 @@ const routes = {
     '/logout': handleLogout,
     '/settings': loadProfileSettingsPage,
     '/play-local': playLocal,
-    '/play-ai': playAI,
+    '/play-ai': (args) => playAI(args),
     '/play-online': playOnline,
     '/play-local/game': gameLocal,
-    '/play-ai/game': gameAI,
+    '/play-ai/game': (args) => gameAI(args),
     '/tournament': loadTournamentHomePage,
     '/create-tournament': createTournament,
     '/join-tournament-page': loadJoinTournamentPage,
@@ -54,11 +54,11 @@ const routes = {
 // based on the current path (window.location.pathname).
 // If the path exists in the routes object, its associated function is executed.
 
-function router() {
+function router(args=null) {
     let path = window.location.pathname;
 
     if (routes[path]) {
-        routes[path](); // Call the function associated with the path
+        routes[path](args); // Call the function associated with the path
     } else {
         alert("path doesn't exists");
         console.log(`Route ${path} not handled`);
@@ -86,21 +86,26 @@ function router() {
 // Additionally, a historyTracker array is maintained for debugging, which logs every navigation event 
 // (pushState or replaceState).
 
-export function navigateTo(path, replace = false) {
-    console.log(`navigating to ${path}`)
+export function navigateTo(path, replace = false, args = null) {
+    console.log(`navigating to ${path} with args: `, args)
+
+    // // Extract query params
+    // const [cleanPath, queryString] = path.split("?");
+    // const args = Object.fromEntries(new URLSearchParams(queryString));
+
     if (replace) {
-        history.replaceState({ path }, null, path);
+        history.replaceState({ path, args }, null, path);
         historyTracker.push({ action: 'replaceState', path });
         console.log(`${path} is replaced in history`)
     }
     else {
 
-        history.pushState({ path }, null, path);
+        history.pushState({ path, args }, null, path);
         historyTracker.push({ action: 'pushState', path });
         console.log(`${path} is pushed to history`)
     }
     //console.log('History Tracker:', JSON.stringify(historyTracker, null, 2)); // Log the history
-    router();
+    router(args);
 }
 
 // The clearURL() function removes query parameters from the URL 
@@ -166,7 +171,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 event.preventDefault();
             }
 
-            navigateTo(route);
+            // Extract arguments from `data-args` (if present)
+            const args = target.hasAttribute("data-args")
+                ? JSON.parse(target.getAttribute("data-args"))
+                : null;
+            console.log("Extracted args:", args);
+
+            navigateTo(route, false, args);
         }
     });
 
