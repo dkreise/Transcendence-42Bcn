@@ -63,7 +63,7 @@ class GameManager:
 		self.scores = {"player1": 0, "player2": 0}
 		self.disconnect_task = None
 		self.game_loop_task = None
-		self.game_running = False
+		self.status = 1
 		self.ball = {
 			"x": self.board_config["width"] // 2,
 			"y": self.board_config["height"] // 2,
@@ -77,10 +77,11 @@ class GameManager:
 		logger.info(f"room id {self.id} total players: {len(self.players)}")
 		logger.info(self.players)
 		if any(player["id"] == user for player in self.players.values()):
-			player = next((player for player in self.players.values() if player["id"] == user), None)
-			if player:
-				await self.send_status(0)
-				return player["role"]
+			role = next((key for key, value in self.players.items() if value["id"] == user), None)
+			if role:
+				if len(self.players) == 2:
+					self.status = 0
+				return role
 			return None
 
 		#if play == False:
@@ -97,8 +98,7 @@ class GameManager:
 			else:
 				logger.info(f"adding {user} as player2")
 				self.players["player2"] = {"id": user, "y": 250}
-				await self.update_game()
-				await self.send_status(0)
+				self.status = 0
 				return "player2"
 			self.users.append(user)
 		return "viewer"
@@ -175,7 +175,8 @@ class GameManager:
 							"No comebacks allowed in room {self.id}\033[0m")
 			msg = self.declare_winner(winner_role)
 			return msg
-		await self.send_status(1)
+		self.status = 1
+		await self.send_status()
 		if disconnect_task:
 			logger.warning(f"\033[1;33mCountdown task already exists for room {roomID}."
 							"Overwritingprevious task\033[0m")
@@ -195,6 +196,7 @@ class GameManager:
 			self.diconnect_task.cancel()
 			del self.disconnect_task
 			self.disconnect_task = None
+			self.status = 0
 
 #########################################################
 
@@ -260,12 +262,17 @@ class GameManager:
 #########################################################
 
 	async def game_loop(self):
-		self.game_running = True
-		while self.game_running:
-			async with sel.ball_lock:
-				self.update_ball()
-			await self.update_game()
-			await asyncio.sleep(0.016)
+		logger.info(f"Starting game loop with status: {self.status}")
+		try:
+			while self.status == 0:
+				logger.info("sending game update (gameMan)")
+				async with self.ball_lock:
+					self.update_ball()
+				await self.update_game()
+				await asyncio.sleep(0.016)
+		except Exception as e:
+			logger.error(f"Error in game loop: {e}")
+
 
 #########################################################
 
@@ -286,14 +293,14 @@ class GameManager:
 
 ############################################################
 
-	async def send_status(self, wait):
+	async def send_status(self):
 		logger.info("sending status msg (gameMan)")
 		message = {
 			"type": "status",
 			"ball": self.ball,
 			"players": self.players,
 			"scores": self.scores,
-			"wait": wait
+			"wait": self.status
 		}
 		channel_layer = get_channel_layer()
 		await channel_layer.group_send(
@@ -307,10 +314,21 @@ class GameManager:
 
 	def start_game(self):
 		if self.game_loop_task is None:
-			self.game_loop_task = asyncio.create_task(self.run_game_loop())
+			logger.info(f"\033[1;33mThe game has started in room {self.id}\033[0m")
+			self.game_loop_task = asyncio.create_task(self.game_loop())
 
 	def stop_game (self):
-		self.game_running = False
+		logger.info(f"The game has stopped in room {self.id}")
+		self.status = 1
 		if self.game_loop_task:
 			self.game_loop_task_cancel()
 			self.game_loop_task = None
+
+#################################################################
+
+	def game_loop_task_cancel(self):
+		if self.game_loop_task:
+			self.game_loop_task.cancel()
+			del self.game_loop_task
+			self.game_loop_task = None
+			self.status = 1
