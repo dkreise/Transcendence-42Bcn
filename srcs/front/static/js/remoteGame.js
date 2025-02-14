@@ -146,16 +146,30 @@ async function initializeWebSocket() {
 					return;
 				if (data.players)
 				{
+					let pl1 = data["players"]["player1"]["y"] * backFactor["y"];
+					let pl2 = data["players"]["player2"]["y"] * backFactor["y"];
 					if (player.role == "player1")
-						opponent.update(data.players.player2.y, data.scores.player2);
-					else if (player.role == "player2")
-						opponent.update(data.players.player1.y, data.scores.player1);
+					{
+						player.update(pl1, data["scores"]["player1"]);
+						opponent.update(pl2, data["scores"]["player2"]);
+					}
+					else if (player.role == "player2") 
+					{
+						player.update(pl2, data["scores"]["player2"]);
+						opponent.update(pl1, data["scores"]["player1"]);
+					}
 				}
 				if (data.ball) {
 					targetBallX = data.ball.x * backFactor["x"];
 					targetBallY = data.ball.y * backFactor["y"];
 				}
-				break;
+				break ;
+		//		if (data.scores)
+		//		{
+		//			player.score = data["scores"][player.role];
+		//			opponent.score = data["scores"][opponent.role];
+		//		}
+		//		break;
 			case "endgame":
 				handleEndgame(data);
 				break;
