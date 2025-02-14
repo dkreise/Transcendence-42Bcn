@@ -62,7 +62,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 						await self.send(json.dumps({
 							"type": "role",
 							"role": self.role,
-							"user": self.user.username
+							"user": self.user.username,
+							"canvasX": 800,
+							"canvasY": 400
 						}))
 				except Exception as e:
 					logger.error(f"\033[1;31mError connecting to the game: {e}\033[0m")
@@ -102,7 +104,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def receive(self, text_data):
 		try:
 			data = json.loads(text_data)
-			logger.info(f"data.type is {data['type']}")
 			if data["type"] == "update":
 				game = active_games[self.room_id]
 				game.handle_message(self.role, data)

@@ -65,8 +65,8 @@ class GameManager:
 		self.game_loop_task = None
 		self.status = 1
 		self.ball = {
-			"x": self.board_config["width"] // 2,
-			"y": self.board_config["height"] // 2,
+			"x": GameManager.board_config["width"] // 2,
+			"y": GameManager.board_config["height"] // 2,
 			"xspeed": 4,
 			"yspeed": 4
 		}
@@ -106,14 +106,9 @@ class GameManager:
 #################################################
 
 	def handle_message(self, role, data):
-		if data["type"] == "update" and data["role"] in self.players:
+		if data["type"] == "update" and data["role"] in self.players and data["y"]:
 			self.players[data["role"]]["y"] = data["y"]
-	#	return {
-	#		"type": "update",
-	#		"ball": self.ball,
-	#		"scores": self.scores,
-	#		"players": self.players
-	#	}
+			#logger.info(f"HM: {self.players[data['role']]['y']} = {data['y']} (GM)")
 
 ##################################################
 
@@ -124,26 +119,26 @@ class GameManager:
 
 		if paddle_collision:
 			self.ball["xspeed"] *= -1
-		if self.ball["y"] <= 0 or self.ball["y"] >= self.board_config["height"]:
+		if self.ball["y"] <= 0 or self.ball["y"] >= GameManager.board_config["height"]:
 			self.ball["yspeed"] *= -1
-		if not paddle_collision and self.ball["x"] < self.paddle_config["width"]:
+		if not paddle_collision and self.ball["x"] < GameManager.paddle_config["width"]:
 			self.scores["player1"] += 1
 			self.reset_ball(1)
-			if self.scores["player1"] == self.board_config["max_score"]:
-				declar_winner("player1")
+			if self.scores["player1"] == GameManager.board_config["max_score"]:
+				declare_winner("player1")
 		elif (not paddle_collision and
-			self.ball["x"] > self.board_config["width"] - self.paddle_config["width"]):
+			self.ball["x"] > GameManager.board_config["width"] - GameManager.paddle_config["width"]):
 			self.scores["player2"] += 1
 			self.reset_ball(0)
-			if self.scores["player2"] == self.board_config["max_score"]:
-				declar_winner("player2")
+			if self.scores["player2"] == GameManager.board_config["max_score"]:
+				declare_winner("player2")
 
 
 #################################################
 
 	def reset_ball(self, new_dir): #new_dir [bool] true when player1 scored
-		self.ball["x"] = self.board_config["width"] // 2
-		self.ball["y"] = self.board_config["height"] // 2
+		self.ball["x"] = GameManager.board_config["width"] // 2
+		self.ball["y"] = GameManager.board_config["height"] // 2
 		if new_dir:
 			self.ball["xspeed"] = -4
 			self.ball["yspeed"] = 4
@@ -154,13 +149,19 @@ class GameManager:
 ####################################################
 
 	def is_paddle_collision(self):
-		if ((self.ball["x"] <= self.paddle_config["width"]) and
-			((self.ball["y"] < self.players["player1"]["y"] - self.paddle_config["height"] // 2) or
-			(self.ball["y"]) > self.players["player1"]["y"] + self.paddle_config["height"] // 2)):
+
+		#logger.info(f"\033[1;33mplayer1 y: {self.players['player1']['y']}"
+		#		f"\nplayer2 y: {self.players['player2']['y']}"
+		#		f"\nball x: {self.ball['x']} ball y: {self.ball['y']}"
+		#	"\033[0m")
+
+		if ((self.ball["x"] <= GameManager.paddle_config["width"]) and
+			((self.ball["y"] < self.players["player1"]["y"] - GameManager.paddle_config["height"] // 2) or
+			(self.ball["y"]) > self.players["player1"]["y"] + GameManager.paddle_config["height"] // 2)):
 			return True
-		if ((self.ball["x"] >= self.board_config["width"] - self.paddle_config["width"]) and
-			((self.ball["y"] < self.players["player2"]["y"] - self.paddle_config["height"] // 2) or
-			(self.ball["y"]) > self.players["player2"]["y"] + self.paddle_config["height"] // 2)):
+		if ((self.ball["x"] >= GameManager.board_config["width"] - GameManager.paddle_config["width"]) and
+			((self.ball["y"] < self.players["player2"]["y"] - GameManager.paddle_config["height"] // 2) or
+			(self.ball["y"]) > self.players["player2"]["y"] + GameManager.paddle_config["height"] // 2)):
 			return True
 		return False
 
@@ -265,7 +266,6 @@ class GameManager:
 		logger.info(f"Starting game loop with status: {self.status}")
 		try:
 			while self.status == 0:
-				logger.info("sending game update (gameMan)")
 				async with self.ball_lock:
 					self.update_ball()
 				await self.update_game()

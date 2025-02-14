@@ -3,14 +3,18 @@ import { setupControls } from "./localGame.js"
 
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
-	"loser": "Better luck next time :')\n",
-}
+	"loser": "Better luck next time :')\n"
+};
 
 let canvas, ctx = null;
 
 const ballCoef = 0.3;
 let ball, targetBallX, targetBallY = null;
 let player, opponent = null;
+let backFactor = {
+	"x": null,
+	"y": null
+};
 
 let socket = null;
 let gameLoopId = null;
@@ -25,11 +29,11 @@ function interpolateBall() {
 function handleRoleAssignment(role) {
 	console.log("Hi! I'm " + role);
 	if (role === "player1") {
-		player = new Player(canvas, "player1", 0);
-		opponent = new Player(canvas, "player2");
+		player = new Player(canvas, "player1", backFactor["y"]);
+		opponent = new Player(canvas, "player2", backFactor["y"]);
 	} else if (role === "player2") {
-		player = new Player(canvas, "player2");
-		opponent = new Player(canvas, "player1", 0);
+		player = new Player(canvas, "player2", backFactor["y"]);
+		opponent = new Player(canvas, "player1", backFactor["y"]);
 	}
 }
 
@@ -55,10 +59,48 @@ function handleEndgame(data) {
 	cancelAnimationFrame(gameLoopId);
 }
 
-//function initializeWebSocket(roomId) {
-function initializeWebSocket() {
+/*
+async function handleWebSocketMessage(data) {
+    switch (data.type) {
+        case "status":
+            console.log("status msg received! wait = " + data.wait);
+            displayStatus(data.wait);
+            if (!data.wait && !gameLoopId) {
+                setupControls(player, opponent);
+                gameLoop();
+            }
+            break;
+        case "role":
+            handleRoleAssignment(data.role);
+            break;
+        case "update":
+            if (data.wait) return;
+            if (data.players) {
+                if (player.role == "player1")
+                    opponent.update(data.players.player2.y, data.scores.player2);
+                else if (player.role == "player2")
+                    opponent.update(data.players.player1.y, data.scores.player1);
+            }
+            if (data.ball) {
+                targetBallX = data.ball.x;
+                targetBallY = data.ball.y;
+            }
+            break;
+        case "endgame":
+            handleEndgame(data);
+            break;
+        default:
+            console.warn("Unhandled message type:", data.type);
+    }
+}
+*/
+
+
+//async function initializeWebSocket(roomId) {
+async function initializeWebSocket() {
 	//const roomID = new URLSearchParams(window.location.search).get("room") || "default";
-	const roomId = 123
+	const roomId = 123;
+	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
 	if (!token)
@@ -76,10 +118,11 @@ function initializeWebSocket() {
 	};
 	socket.onclose = () => {
 		console.warn("WebSocket connection closed. Retrying...");
-		setTimeout(initializeWebSocket, 1000);
+		if (retries++ <= 5)
+			setTimeout(initializeWebSocket, 1000);
 	};
 
-	socket.onmessage = (event) => {
+	socket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 
 		switch (data.type) {
@@ -94,12 +137,13 @@ function initializeWebSocket() {
 				}
 				break;
 			case "role":
+				backFactor["x"] = canvas.width / data.canvasX;
+				backFactor["y"] = canvas.height / data.canvasY;
 				handleRoleAssignment(data.role);
 				break;
 			case "update":
 				if (data.wait)
 					return;
-				console.log(player.role + " is receiving updates");
 				if (data.players)
 				{
 					if (player.role == "player1")
@@ -108,8 +152,8 @@ function initializeWebSocket() {
 						opponent.update(data.players.player1.y, data.scores.player1);
 				}
 				if (data.ball) {
-					targetBallX = data.ball.x;
-					targetBallY = data.ball.y;
+					targetBallX = data.ball.x * backFactor["x"];
+					targetBallY = data.ball.y * backFactor["y"];
 				}
 				break;
 			case "endgame":
@@ -177,10 +221,10 @@ function gameLoop() {
 }
 
 
-window.addEventListener("resize", () => {
-	console.log("player canvas width: " + player.canvas.width);
-	console.log("actual canvas width: " + canvas.width);
-});
+//window.addEventListener("resize", () => {
+//	console.log("player canvas width: " + player.canvas.width);
+//	console.log("actual canvas width: " + canvas.width);
+//});
 
 export function startGame()
 {

@@ -4,22 +4,24 @@ export class Player {
 	hFactor = 0.1;
 	sFactor = 0.02;
 
-	constructor(canvas, role) {
+	constructor(canvas, role, backFactor) {
 		console.log(`Canvas size: ${canvas.width} x ${canvas.height}`)
 		this.width = canvas.width * 0.01;
 		this.height = canvas.height * 0.2;
-		if (role === "player1")
-			this.x = 0;
-		else
-			this.x = canvas.width - this.width;
-		this.y = canvas.height / 2 - this.height / 2;
-		this.speed = canvas.height * this.sFactor; // Speed scales with canvas height
 		this.color = "white";
 		this.up = false;
 		this.down = false;
 		this.score = 0;
-		this.role = role; // "player1" or "player2"
 		this.canvas = canvas;
+		this.backFactor = backFactor;
+		this.role = role; // "player1" or "player2"
+		if (this.role === "player1")
+			this.x = 0;
+		else
+			this.x = canvas.width - this.width;
+		this.y = (canvas.height / 2 - this.height / 2);
+		this.speed = canvas.height * this.sFactor; // Speed scales with canvas height
+		console.log("role: " + this.role + " y: " + this.y + " x: " + this.x);
 	}
  
 	draw(ctx) {
@@ -72,35 +74,35 @@ export class Player {
 		ctx.fillText(finalScore, this.canvas.width / 2, this.canvas.height / 2 + 30);
 	}
 	send(socket) {
-		console.log("I'm sending my role: " + this.role);
 		if (socket.readyState === WebSocket.OPEN)
 		{
+			console.log(this.role + "'s paddle: " + this.y + " sending: " + this.y / this.backFactor);
 			const data = {
 				"type": "update",
 				"role": this.role,
-				"paddle": this.y,
+				"y": this.y / this.backFactor,
 				"score": this.score,
 			};
 			socket.send(JSON.stringify(data));
 		}
 	}
-	resize(canvas, wScale, hScale)
-	{
-		this.width = canvas.width * this.wFactor;
-		this.height = canvas.height * this.hFactor;
-		if (this.role == "player2")
-			this.x = canvas.width - canvas.width * 0.01
-		this.x *= wScale;
-		this.y *= hScale;
-		this.speed = canvas.height * this.sFactor;
-		this.canvas = canvas;
-	}
+//	resize(canvas, wScale, hScale)
+//	{
+//		this.width = canvas.width * this.wFactor;
+//		this.height = canvas.height * this.hFactor;
+//		if (this.role == "player2")
+//			this.x = canvas.width - canvas.width * 0.01
+//		this.x *= wScale;
+//		this.y *= hScale;
+//		this.speed = canvas.height * this.sFactor;
+//		this.canvas = canvas;
+//	}
 }
 
 
 export class Ball {
 	radFactor = 0.01;
-	sFactor = 0.01;
+	sFactor = 0.02;
 
 	constructor(canvas) {
 		this.canvas = canvas;
@@ -118,12 +120,6 @@ export class Ball {
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
 		ctx.fill();
-	}
-
-	update(newX, newY) {
-		// Update ball position from server data
-		this.x = newX;
-		this.y = newY;
 	}
 
 	resetPosition() {
@@ -182,13 +178,13 @@ export class Ball {
 			socket.send(JSON.stringify(data));
 		}
 	}
-	resize(canvas, wScale, hScale)
-	{
-		this.radius = canvas.width * this.radFactor;
-		this.x *= wScale;
-		this.y *= hScale;
-		this.xspeed *= wScale;
-		this.yspeed *= hScale;
-		this.canvas = canvas;
-	}
+	//resize(canvas, wScale, hScale)
+	//{
+	//	this.radius = canvas.width * this.radFactor;
+	//	this.x *= wScale;
+	//	this.y *= hScale;
+	//	this.xspeed *= wScale;
+	//	this.yspeed *= hScale;
+	//	this.canvas = canvas;
+	//}
 }
