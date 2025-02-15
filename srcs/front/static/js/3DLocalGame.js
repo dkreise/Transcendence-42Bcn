@@ -32,7 +32,7 @@ let pause = false;
 const clock = new THREE.Clock();
 clock.start();
 const ray = new THREE.Raycaster();
-const rayStart = new THREE.Raycaster();
+// const rayStart = new THREE.Raycaster();
 const cursor = new THREE.Vector2(0,0);
 
 export const field = {
@@ -170,7 +170,7 @@ export function start3DAIGame(playerName2) {
     player2 = new AIPlayer(limits, scene, 1, playerName2, new THREE.Vector3(0, 0, field.y - 2));
     player1 = new AIPlayer(limits, scene, -1, "Enemy", new THREE.Vector3(0, 0, -field.y + 2));
     ball = new Ball(scene, limits, [player1, player2], true);
-    ai = new AIController(player1, ball);
+    ai = new AIController(player1, ball, limits);
     setupEvents();
     setupAIControls();
 
@@ -180,8 +180,8 @@ export function start3DAIGame(playerName2) {
 
 function setupAIControls() {
     window.addEventListener("keydown", (e) => {
-        if (e.key === "ArrowLeft") player2.up = true;
-        if (e.key === "ArrowRight") player2.down = true;
+        if (e.key === "ArrowLeft") player2.down = true;
+        if (e.key === "ArrowRight") player2.up = true;
         if (e.code === "Space" && !gameStarted && !gameEnded) {
             console.log("Spacebar pressed! Starting game...");
             if (gameStarted) return; // Prevent multiple starts
@@ -192,8 +192,8 @@ function setupAIControls() {
     });
 
     window.addEventListener("keyup", (e) => {
-        if (e.key === "ArrowLeft") player2.up = false;
-        if (e.key === "ArrowRight") player2.down = false;
+        if (e.key === "ArrowLeft") player2.down = false;
+        if (e.key === "ArrowRight") player2.up = false;
     });
 }
 
@@ -206,9 +206,10 @@ function animateAI() {
     
     if (gameStarted && !pause) {
         ball.update(dt, pause);
-        ai.update(dt, elapsedTime);
+        ai.update(elapsedTime);
         player2.move();
-
+        // player1.move();
+        // ai.checkIfAIneedStop();
         // Check if 1 second has passed before updating the AI
         // if (clock.getElapsedTime() - lastAIUpdate >= 1) {
         //     ai.setTarget(ball);
@@ -286,45 +287,13 @@ function setupField() {
     leftBound.receiveShadow = true;
     const rightBound = leftBound.clone();
     rightBound.position.x *= -1;
+    console.log(`Left bound is: ${leftBound.position.x}, Right bound is: ${rightBound.position.x}`)
     scene.add(leftBound, rightBound);
 
     // if (!gameStarted && !button & !start)
     //     createButton();
     createSky();
 }
-
-// function createButton() {
-//     const buttonGeo = new RoundedBoxGeometry(15, 5, 3, field.radius, field.seg * 3); // Button size
-//     const buttonMat = new THREE.MeshPhongMaterial({ 
-//         color: params.buttonColor,
-//         specular: 0xFFFFFF, 
-//         shininess: 100,
-//      });
-//     button = new THREE.Mesh(buttonGeo, buttonMat);
-//     button.castShadow = true;
-//     button.receiveShadow = true;
-//     button.position.set(0, params.textY, 0); // Adjust position in the scene
-//     scene.add(button);
-
-//     loader = new FontLoader();
-//     loader.load('./three/examples/fonts/helvetiker_bold.typeface.json', (font) => {
-//         loadedFont = font; 
-//         start = createButtonText("START !");
-//         tryAgain = createButtonText("TRY AGAIN");
-//         scene.add(start, tryAgain);
-//         tryAgain.visible = false;
-//         });   
-//     createCountdownText();
-// }
-
-// function createButtonText(text) {
-//     const textGeo = createTextGeometry(text, TEXT_PARAMS);
-//     const textMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-//     const textMesh = new THREE.Mesh(textGeo, textMat);
-//     textMesh.position.set(0, params.textY, 1.5); // Center the text
-//     scene.add(textMesh);
-//     return textMesh;
-// }
 
 function setupEvents() {
     ball.addEventListener("aifinish", (e) => {
@@ -348,6 +317,7 @@ function setupEvents() {
         showCountdown(() => {
             console.log("Game resuming!");
             ball.resetVelocity(); // Randomize direction
+            console.log(`Velocity reset to x - ${ball.velocity.x}, z - ${ball.velocity.z}`);
             pause = false;
             // this.dispatchEvent({ type: 'airestart'});
             // this.isPaused = false;
@@ -391,7 +361,6 @@ function setupEvents() {
             gameEnded = false;
             // gameStarted = true;
             text.tryAgain.visible = false; // Hide the button
-            // button.visible = false;
             text.start.visible = true;
             text.winnerMessage.visible = false;
 
@@ -409,12 +378,7 @@ function showCountdown(callback) {
             text.updateGeometry(text.countdownText, "GO !", textWinner);
         } else if (count < 0) {
             clearInterval(interval);
-            // this.countdownText.geometry = this.createTextGeometry("3", this.loadedFont);
             text.countdownText.visible = false; // Hide instead of remove
-
-            // this.countdownText.visible = false;
-            // this.scene.remove(this.countdownText);
-            // pause = false;
             callback(); // Resume the game  
         } else {
             text.updateGeometry(text.countdownText, `${count}`, textWinner);
@@ -422,18 +386,6 @@ function showCountdown(callback) {
         count--;  
     }, 500);
 }
-
-// function createCountdownText() {
-//     const loader = new FontLoader();
-//     loader.load(fontPath, ( font ) => {
-//         loadedFont = font;
-//         const textGeo = createTextGeometry("3", ANNOUNCE_WINNER);
-//         countdownText = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
-//         countdownText.position.set(0, params.textY, 0);
-//         countdownText.visible = false;
-//         scene.add(countdownText);
-//     } );
-// }
 
 function handleEndGame(message) {
     gameEnded = true;
@@ -447,31 +399,6 @@ function handleEndGame(message) {
     text.tryAgain.visible = true;
     text.winnerMessage.visible = true;
 }
-
-// function createWinnerMessage(msg) {
-
-//     const textGeo = createTextGeometry(msg, ANNOUNCE_WINNER);
-//     const textMat = new THREE.MeshNormalMaterial();
-//     const textMesh = new THREE.Mesh(textGeo, textMat);
-//     textMesh.position.set(0, params.textY + 5, 1.5); // Center the text
-//     winnerMessage = textMesh;
-//     scene.add(textMesh);
-// }
-
-// function updateWinnerMessage(msg) {
-//     winnerMessage.geometry = createTextGeometry(msg, ANNOUNCE_WINNER);
-//     winnerMessage.geometry.getAttribute('position').needsUpdate = true;
-//     winnerMessage.visible = true;
-// }
-
-// function createTextGeometry(msg, textParams) {
-//     const textGeo = new TextGeometry(msg, {
-//             font: loadedFont,
-//             ...textParams
-//     })
-//     textGeo.center();
-//     return textGeo;
-// }
 
 function createSky() {
     const geometry = new THREE.BufferGeometry();

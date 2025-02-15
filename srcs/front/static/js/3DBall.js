@@ -41,7 +41,8 @@ export class Ball extends EventDispatcher {
         this.ai = ifAI;
         this.speed = ballParams.speed;
         // this.inicial = ballParams.velocity.normalize();
-        this.velocity = ballParams.velocity.normalize();
+        this.velocity = ballParams.velocity;
+        this.velocity = this.velocity.normalize();
         this.radius = ballParams.radius;
         this.color = ballParams.color;
         this.limits = limits;
@@ -71,18 +72,6 @@ export class Ball extends EventDispatcher {
         // this.loader = new FontLoader();
     }
 
-    // createCountdownText() {
-    //     const loader = new FontLoader();
-    //     loader.load(ballParams.fontPath, ( font ) => {
-    //         this.loadedFont = font;
-    //         const textGeo = this.createTextGeometry("3", this.loadedFont);
-    //         this.countdownText = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
-    //         this.countdownText.position.set(0, params.textY, 0);
-    //         this.countdownText.visible = false;
-    //         this.scene.add(this.countdownText);
-    //     } );
-    // }
-
     createTextGeometry(text, font) {
         const textGeo = new TextGeometry(text, {
                 font: font,
@@ -97,7 +86,7 @@ export class Ball extends EventDispatcher {
         this.velocity = ballParams.velocity.normalize();
         // this.velocity.z *= this.scored;
         this.velocity.x *= this.scored;
-        this.velocity.normalize().multiplyScalar(this.speed);
+        this.velocity = this.velocity.normalize().multiplyScalar(this.speed);
     }
 
     resetPos() {
@@ -111,6 +100,7 @@ export class Ball extends EventDispatcher {
         
         const name = this.players[0].score >= this.maxScore ? this.players[0].name : this.players[1].name;
         const msg = `${name} won ${this.players[0].score}-${this.players[1].score} !`
+        this.resetVelocity();
         this.dispatchEvent({ type: 'aifinish', message: msg, player: name });
         return true;
     }

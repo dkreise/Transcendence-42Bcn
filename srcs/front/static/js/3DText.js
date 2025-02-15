@@ -37,7 +37,6 @@ export class SceneText {
         this.countdownText = null;
         this.createText();
         // this.tryAgain = this.createTryAgain();
-        // this.countdownText = this.createCountdownText();
         this.winnerMessage = null;
     }
 
@@ -70,19 +69,11 @@ export class SceneText {
         });
     }
 
-    // createTryAgain() {
-    //     tryAgain = this.createButtonText("TRY AGAIN", this.loadedBoldFont);
-    //     tryAgain.visible = false;
-    //     this.scene.add(tryAgain);
-    //     return tryAgain;
-    // }
-
     createButtonText(text, font) {
         const textGeo = this.createTextGeometry(text, font, textParams);
         const textMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const textMesh = new THREE.Mesh(textGeo, textMat);
         textMesh.position.set(0, params.textY, 1.5); // Center the text
-        // this.scene.add(textMesh);
         return textMesh;
     }
 
@@ -95,15 +86,6 @@ export class SceneText {
         return textGeo;
     }
 
-    // createCountdownText() {
-    //     const textGeo = this.createTextGeometry("3", this.loadedBoldFont, textWinner);
-    //     const countdownText = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
-    //     countdownText.position.set(0, params.textY, 0);
-    //     countdownText.visible = false;
-    //     this.scene.add(countdownText);
-    //     return countdownText;
-    // }
-
     createWinnerMessage(msg) {
         const textGeo = this.createTextGeometry(msg, this.loadedBoldFont, textWinner);
         const textMat = new THREE.MeshNormalMaterial();
@@ -112,16 +94,6 @@ export class SceneText {
         this.winnerMessage = textMesh;
         this.scene.add(textMesh);  
     }
-
-    // updateWinnerMessage(msg) {
-    //     this.winnerMessage.geometry = createTextGeometry(msg, textWinner);
-    //     this.winnerMessage.geometry.getAttribute('position').needsUpdate = true;
-    //     this.winnerMessage.visible = true;
-    // }
-
-    // updateCountdown(msg) {
-    //     this.countdownText.geometry = 
-    // }
 
     updateGeometry(mesh, msg, params) {
         mesh.geometry = this.createTextGeometry(msg, this.loadedBoldFont, params);
