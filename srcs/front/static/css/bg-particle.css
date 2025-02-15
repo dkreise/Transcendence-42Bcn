@@ -1,6 +1,7 @@
 .particle {
     position: absolute;
-    bottom: 0; /* Comienza desde la parte inferior */
+	opacity: 0;
+    bottom: 0;
     width: 10px;
     height: 10px;
     background-color: rgba(255, 255, 255, 0.8);
@@ -28,10 +29,10 @@
 		opacity: 0;
 	}
 	50% {
-		opacity: 1; /* Se desvanece al final */
+		opacity: 0.75;
 		}
 	100% {
 		transform: translateY(-100vh);
-		opacity: 0; /* Se desvanece al final */
+		opacity: 0;
 	}
 }

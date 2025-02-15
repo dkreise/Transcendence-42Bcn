@@ -122,8 +122,9 @@ export const handleLogin = () => {
                 navigateTo('/home', true);
             }
                 
-        } else {
-            displayLoginError('Invalid credentials. Please try again.', 'login-form');
+        } 
+        else {
+            displayLoginError('login-form');
         }
         })
     .catch(error => {
@@ -169,8 +170,9 @@ export const handleSignup = () => {
                             updateLanguage();
                             //loadProfilePage();
                             navigateTo('/home', true);
-                        } else {
-                            displayLoginError(`${data.error} Please try again.`, 'signup-form');
+                        } 
+                        else {
+                            displayLoginError('signup-form');
                         }
                     })
                     .catch(error => {
@@ -185,22 +187,28 @@ export const handleSignup = () => {
     });
 };
 
-export const displayLoginError = (message, form) => {
-    const loginContainer = document.getElementById('login-container');
-    if (!loginContainer)
+export const displayLoginError = (form) => {
+    const login_error = document.getElementById('login-error');
+    console.log('holaaaaaaaaaa');
+    if (!login_error)
         return;
 
-    const existingError = document.getElementById('login-error');
-    if (existingError)
-        existingError.remove();
+    // const existingError = document.getElementById('login-error');
+    // if (existingError)
+    //     existingError.remove();
 
-    const errorMessage = document.createElement('div');
-    errorMessage.id = 'login-error';
-    errorMessage.style.color = 'red';
-    errorMessage.style.marginBottom = '15px';
-    errorMessage.textContent = message;
+    // const errorMessage = document.createElement('div');
+    // errorMessage.id = 'login-error';
+    // errorMessage.style.color = 'red';
+    // errorMessage.style.marginBottom = '15px';
+    // errorMessage.textContent = message;
+    // errorMessage.style.display = "flex";
 
-    loginContainer.prepend(errorMessage); //adding at the top of the login container
+    login_error.classList.add('show');
+    setTimeout(() => {
+        login_error.classList.remove('show');
+      }, 2500);
+    // loginContainer.prepend(errorMessage); //adding at the top of the login container
     
     const loginForm = document.getElementById(form);
     if (loginForm) {

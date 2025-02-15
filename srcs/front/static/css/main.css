@@ -1,11 +1,25 @@
+html {
+	box-sizing: border-box;
+}
+  
+*,
+*::before,
+*::after {
+	box-sizing: inherit;
+}
+
 body {
 	background: linear-gradient(135deg, #121212, #3a3a3a, #121212);
 	background-size: 200% 200%;
 	animation: gradientAnimation 10s ease infinite; 
-	font-family: Arial, sans-serif;
+	font-family: "Be Vietnam Pro", Arial, sans-serif;
+}
+
+#app {
 	margin: 0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	height: 100vh;
+	color: #c8cbd4;
 }
