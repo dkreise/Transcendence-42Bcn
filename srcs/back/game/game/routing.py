@@ -11,5 +11,5 @@ ws/ -> websocket prefix
 /(?P<arg2>\d+) -> captures argument #2 and names it tgID. It must contain digits (1 or more)
 (?:/[...])? -> optional argument
 /(?P<arg3>\d+) -> captures argument #3 and names it gID. It must contain digits (1 or more)
-/$ -> end of endpoint
+/$ -> end of endpoint - it has user token and number of players(only for tournaments)
 '''

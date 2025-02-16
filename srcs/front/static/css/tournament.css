@@ -1,4 +1,9 @@
 /* Title style */
+.tournament-home-container {
+    width: 200vw;
+    height: 100vh;
+}
+
 .tournament-title {
     text-align: center;
     font-size: 2.5rem;
@@ -8,7 +13,7 @@
 
 /* Custom grey-purple button style */
 .btn-grey-purple {
-    background-color: #6c5e58; /* Neutral grey-purple tone */
+    background-color: #6c5e58; /* Consistent dark grey tone */
     color: white !important;
     border: none;
     padding: 12px 24px;
@@ -19,13 +24,8 @@
 
 /* Button hover effect */
 .btn-grey-purple:hover {
-    background-color: #5b4a44; /* Slightly darker tone for hover */
+    background-color: #a28f87; /* Darker grey tone for hover */
     transform: scale(1.05); /* Hover zoom effect */
-}
-
-/* Space between buttons */
-.gap-3 > div {
-    margin-right: 1rem;
 }
 
 /* Add top spacing for sections */
@@ -39,8 +39,27 @@
     color: white; /* White text */
 }
 
-.tournament-value {
-    font-size: 1.3rem; /* Smaller than subtitle */
-    font-weight: normal;
-    color: white; /* White text */
+.divider {
+    width: 2px;
+    background-color: #6c5e58;
+    height: 10vh;
+    min-height: 60px;
+}
+
+/* Dark Grey Background for Dropdown */
+.form-select, .form-control {
+    background-color: #a28f87;
+    color: white;
+    border: none;
+}
+
+/* Custom Style for Form Elements on Focus */
+.form-select:focus, .form-control:focus {
+    background-color: #a28f87;
+    border-color: none;
+    outline: none;
+}
+
+.trophy-icon {
+    font-size: 4rem; /* Adjust the size as needed */
 }

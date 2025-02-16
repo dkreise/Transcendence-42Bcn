@@ -121,7 +121,7 @@ def verify_login_2fa(request):
 def login_form(request):
     if request.method == "GET":
         print("Login form API called")
-        context = add_language_context(request)
+        context = add_language_context(request.COOKIES)
         form_html = render_to_string('login_form.html', context)
         return JsonResponse({'form_html': form_html}, content_type="application/json")
     else:
@@ -133,7 +133,7 @@ def signup_form(request):
     print("Signup method called")
     if request.method == "GET":
         print("Signup form API called")
-        context = add_language_context(request)
+        context = add_language_context(request.COOKIES)
         form_html = render_to_string('signup_form.html', context)
         return JsonResponse({'form_html': form_html}, content_type="application/json")
     else:
@@ -144,7 +144,7 @@ def signup_form(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def verify_2fa_login_form(request):
-    context = add_language_context(request)
+    context = add_language_context(request.COOKIES)
     form_html = render_to_string('2fa_verify.html', context)
     return JsonResponse({'form_html': form_html}, content_type="application/json")
 
@@ -246,7 +246,7 @@ def enable_2fa(request):
 
         # print("QR Image:", qr_image)
         # print("QR Base64:", qr_base64)
-        context = add_language_context(request)
+        context = add_language_context(request.COOKIES)
         setup_html = render_to_string("2fa_setup.html", {"qr_code": qr_base64}, context)
         return JsonResponse({
             "success": True,

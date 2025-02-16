@@ -1,23 +1,36 @@
 <div id="tournament-home-container">
     <!-- Title at the top -->
+    <div class="d-flex justify-content-center">
+        <div class="col-12 col-md-6">
+            <button class="btn btn-grey-purple btn-large w-100" data-route="/home">{{ home }}</button>
+        </div>
+    </div>
     <div class="text-center mb-4">
         <h1 class="tournament-title">{{ tournament }}</h1>
     </div>
 
-    <!-- Create and Join Buttons Section -->
-    <div class="d-flex justify-content-center gap-3 mb-4">
-        <div class="col-6">
-            <button class="btn btn-grey-purple btn-large w-100" data-route="/create-tournament" >{{ create }}</button>
+    <div class="d-flex justify-content-center align-items-center gap-5 mb-4">
+        <!-- Create Button -->
+        <div class="col-12 col-md-5">
+            <div class="flex-grow-1 gap-3 mb-4">
+                <label for="tournament-id-input" class="form-label">{{ players }}</label>
+                <select id="tournament-count" class="form-select">
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                </select>
+            </div>
+            <button class="btn btn-grey-purple btn-large w-100" data-route="/create-tournament">{{ create }}</button>
         </div>
-        <div class="col-6">
-            <button class="btn btn-grey-purple btn-large w-100" data-route="/join-tournament-page">{{ join }}</button>
+        <div class="col-12 col-md-2 d-flex justify-content-center align-items-center">
+            <div class="divider"></div>
         </div>
-    </div>
-
-    <!-- Home Button Section -->
-    <div class="d-flex justify-content-center">
-        <div class="col-12 col-md-6">
-            <button class="btn btn-grey-purple btn-large w-100" data-route="/home">{{ home }}</button>
+        <!-- Join Button -->
+        <div class="col-12 col-md-5">
+            <label for="tournament-id-input" class="form-label">{{ enter_id }}</label>
+            <input type="text" id="tournament-id-input" class="form-control" placeholder="Enter ID">
+            <button class="btn btn-grey-purple btn-large w-100" data-route="/join-tournament">{{ join }}</button>
         </div>
     </div>
 </div>

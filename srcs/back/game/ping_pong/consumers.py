@@ -16,6 +16,7 @@ active_games_lock = asyncio.Lock()
 active_tournaments = {}
 active_tournaments_lock = asyncio.Lock()
 
+
 class ThrowError(Exception):
 	pass
 
@@ -33,9 +34,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 				try:
 					self.tour_id = self.scope['url_route']['kwargs']['tgID']
 					logger.info(f"T.ID::{self.tour_id}")
+					max_user_cnt = self.get_nb_users_from_url()
 					async with active_tournaments_lock:
 						if self.tour_id not in active_tournaments:
-							active_tournaments[self.tour_id] = TournamentManager(self.tour_id)
+							active_tournaments[self.tour_id] = TournamentManager(self.scope, self.tour_id, max_user_cnt) #add tournament in array activetournaments
 						tournament = active_tournaments[self.tour_id]
 						tournament.add_player(self.user.username)
 						await self.channel_layer.group_add(self.tour_id, self.channel_name)
@@ -56,6 +58,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 								"type": "html",
 								"html": page['html'],
 								"redirect": page['redirect'],
+								"status": "waiting",
 							}))
 						else:
 							page = tournament.get_bracket_page()
@@ -64,6 +67,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 								{
 									"type": "tournament_starts",
 									"message": "Tournament has started",
+									"status": "playing",
 								}
 							)
 
@@ -133,6 +137,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					async with active_games_lock:
 						del active_games[self.room_id]
 		elif self.type == "T":
+			# We will only disconnect socket when tournament is finished
 			await self.channel_layer.group_discard(
 				self.tour_id,
 				self.channel_name
@@ -156,9 +161,24 @@ class PongConsumer(AsyncWebsocketConsumer):
 					await self.send(text_data=json.dumps({
 						"type": "html",
 						"html": page['html'],
+						"status": "playing",
 					}))
-				# elif dtype == "waiting_room_request":
-				# 	# send html
+				elif dtype == "waiting_room_page_request":
+					page = tournament.get_waiting_room_page()
+					await self.send(text_data=json.dumps({
+						"type": "html",
+						"html": page['html'],
+						"status": "waiting",
+					}))
+
+				elif dtype == "final_page_request":
+					page = tournament.get_final_page()
+					await self.send(text_data=json.dumps({
+						"type": "html",
+						"html": page['html'],
+						"status": "finished",
+					}))
+
 				# elif dtype == "game_result":
 				# 	# save results
 
@@ -197,6 +217,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 			"redirect": "/tournament-bracket",
 			"needs_to_play": round_data['needs_to_play'],
 			"opponent": round_data['opponent'],
+			"status": "playing",
+		}))
+
+	async def tournament_ends(self, event): #TODO: manage when it appears
+		tournament = active_tournaments[self.tour_id]
+		page = tournament.get_final_page()
+		await self.send(text_data=json.dumps({
+			"type": "html",
+			"html": page['html'],
+			"redirect": "/end-tournament",
+			"status": "finished",
 		}))
 
 	async def new_player_cnt(self, event):
@@ -205,3 +236,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 			"type": "new_player_cnt",
 			"player_cnt": tournament.get_players_cnt(),
 		}))
+
+###################### UTILS #############################
+
+	def get_nb_users_from_url(self):
+		query_string = self.scope['query_string'].decode('utf-8')
+		query_params = parse_qs(query_string)
+		nPlayers = query_params.get('nPlayers', [None])[0]
+		try:
+			return int(nPlayers)
+		except (ValueError, TypeError):
+			return 0

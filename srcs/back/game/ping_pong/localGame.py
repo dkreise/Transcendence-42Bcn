@@ -30,7 +30,7 @@ def get_second_name(request):
         context = {
             'user': request.user,
         }
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         get_second_name_html = render_to_string('get_name.html', context)
         return JsonResponse({'get_name_html': get_second_name_html}, content_type="application/json")
     else:
@@ -66,7 +66,7 @@ def play_game(request):
     
     # resp['player1'] = context['player1']
     # resp['player2'] = context['player2']
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     game_html = render_to_string('local_game.html', context)
     resp['game_html'] = game_html
     resp['Content-Type'] = 'application/json'

@@ -6,7 +6,7 @@ import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { playLocal, playAI, playOnline, gameLocal, gameAI } from "./game.js"
-import { loadTournamentHomePage, loadJoinTournamentPage, createTournament, handleJoinTournament, loadBracketTournamentPage, loadWaitingRoomPage } from "./tournament.js";
+import { manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage} from "./tournament.js";
 // import { gameLocal } from "./localGame.js"
 
 const historyTracker = [];
@@ -37,14 +37,15 @@ const routes = {
     '/play-online': playOnline,
     '/play-local/game': gameLocal,
     '/play-ai/game': (args) => gameAI(args),
-    '/tournament': loadTournamentHomePage,
-    '/create-tournament': createTournament,
-    '/join-tournament-page': loadJoinTournamentPage,
+    '/tournament': manageTournamentHomeBtn,
+    '/tournament-home': loadTournamentHomePage,
     '/waiting-room': loadWaitingRoomPage,
-    '/waiting-room-joinner': handleJoinTournament,
-
     '/tournament-bracket': loadBracketTournamentPage,
-
+    '/create-tournament': createTournament,
+    '/join-tournament': joinTournament,
+    '/end-tournament': loadFinalTournamentPage,
+    
+    
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
 };
@@ -93,12 +94,12 @@ export function navigateTo(path, replace = false, args = null) {
     // const [cleanPath, queryString] = path.split("?");
     // const args = Object.fromEntries(new URLSearchParams(queryString));
 
-    if (replace) {
+    if (replace) { //DONT ADD TO HISTORY
         history.replaceState({ path, args }, null, path);
         historyTracker.push({ action: 'replaceState', path });
         console.log(`${path} is replaced in history`)
     }
-    else {
+    else { //ADD TO HISTORY
 
         history.pushState({ path, args }, null, path);
         historyTracker.push({ action: 'pushState', path });
@@ -171,13 +172,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 event.preventDefault();
             }
 
+            const shouldReplace = target.hasAttribute('replace-url');
+
             // Extract arguments from `data-args` (if present)
             const args = target.hasAttribute("data-args")
                 ? JSON.parse(target.getAttribute("data-args"))
                 : null;
             console.log("Extracted args:", args);
 
-            navigateTo(route, false, args);
+            navigateTo(route, shouldReplace, args);
         }
     });
 

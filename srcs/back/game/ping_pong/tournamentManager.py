@@ -6,6 +6,7 @@ import logging
 import asyncio
 from django.template.loader import render_to_string
 import random
+from game.utils.translations import add_language_context 
 
 logger = logging.getLogger(__name__)
 
@@ -17,9 +18,10 @@ players
 
 class TournamentManager:
 
-	def __init__(self, tour_id):
+	def __init__(self, scope, tour_id, max_user_cnt):
+		self.scope = scope
 		self.id = tour_id
-		self.max_user_cnt = 1   # will be 3, 4, 7 or 8
+		self.max_user_cnt = max_user_cnt
 		self.users = []         # list of all usernames
 		self.players = []		# list of players in current round
 		self.round = 1
@@ -40,9 +42,8 @@ class TournamentManager:
 		context = {
 			'tournament_id': self.id,
 			'player_count': total_players,
-			'number_players': "Number of Players",
-			'home': "Home",
 		}
+		add_language_context(self.scope.get('cookies', {}), context)
 		html = render_to_string('waiting_room.html', context)
 		page = {
 			'html': html,
@@ -52,9 +53,9 @@ class TournamentManager:
 
 	def get_bracket_page(self):
 		context = {
-			'home': "Home",
 			# pairs
 		}
+		add_language_context(self.scope.get('cookies', {}), context)
 		if self.max_user_cnt <= 4:
 			html = render_to_string('tournament_bracket4.html', context)
 		else:
@@ -62,6 +63,18 @@ class TournamentManager:
 		page = {
 			'html': html,
 			'redirect': '/tournament-bracket',
+		}
+		return page
+
+	def get_final_page(self):
+		context = {
+			#"winner" 
+		}
+		add_language_context(self.scope.get('cookies', {}), context)
+		html = render_to_string('final_tournament_page.html', context)
+		
+		page = {
+			'html': html,
 		}
 		return page
 

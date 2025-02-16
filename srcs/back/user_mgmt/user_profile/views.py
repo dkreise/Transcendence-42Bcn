@@ -33,7 +33,7 @@ def user_info_api(request):
         context = {
             'user': request.user,  # Pass the user object to the template
         }
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         # Render the HTML with the user's data
         user_html = render_to_string('user.html', context)
         return JsonResponse({'user_html': user_html}, content_type="application/json")
@@ -114,7 +114,7 @@ def match_history_page(request):
         context = {
             'match_history': all_games,
         }
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         match_history_html = render_to_string('match_history.html', context)
         return JsonResponse({'match_history_html': match_history_html}, content_type="application/json")
     else:
@@ -145,7 +145,7 @@ def profile_page(request):
             'stats_tournaments': stats_tournaments,
             'MEDIA_URL': settings.MEDIA_URL,
         }
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         profile_html = render_to_string('profile.html', context)
         return JsonResponse({'profile_html': profile_html}, content_type="application/json")
     else:
@@ -160,7 +160,7 @@ def profile_settings_page(request):
             'user': request.user,
             'two_fa_enabled': two_fa_enabled
         }
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         profile_settings_html = render_to_string('settings_profile.html', context)
         return JsonResponse({'profile_settings_html': profile_settings_html}, content_type="application/json")
     else:
@@ -232,7 +232,7 @@ def search_users(request):
         'query': query
     }
     print(results)
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     search_users_html = render_to_string('search_users.html', context)
     return JsonResponse({'search_users_html': search_users_html}, content_type="application/json")
 
@@ -306,7 +306,7 @@ def home_page(request):
         #     'user': request.user,  # Pass the user object to the template
         # }
         # Render the HTML with the user's data
-        context = add_language_context(request)
+        context = add_language_context(request.COOKIES)
         home_html = render_to_string('home_page.html', context)
         return JsonResponse({'home_html': home_html}, content_type="application/json")
     else:

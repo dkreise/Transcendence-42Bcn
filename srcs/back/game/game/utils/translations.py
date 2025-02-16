@@ -1,10 +1,10 @@
 from django.utils.translation import activate
 
-def add_language_context(request, context=None):
+def add_language_context(cookies, context=None):
     if context is None:
-        context = {}
-    
-    lang = request.COOKIES.get('language') or 'en'
+        context = {} 
+
+    lang = cookies.get('language') or 'en'
     lang_words = get_lang_words(lang)
     context.update(lang_words)
     return context
@@ -14,7 +14,7 @@ def get_lang_words(lang):
         return {
             'my_profile': "Mi perfil",
             'enter_name': "Indica el nombre del segundo jugador:",
-            'start_game': "Empezar el juego",
+            'start_game': "Comienza el juego",
             'tournament': "Torneo",
             'home': "Inicio",
             'create': "Crear",
@@ -23,10 +23,22 @@ def get_lang_words(lang):
             'number_players': "Número de jugadores",
             'players_number': "Introduce el número de jugadores:",
             'submit': "Enviar",
-            'start_tournament': "Iniciar torneo",
+            'start_tournament': "Inicia el torneo",
             'quit': "Salir",
             'play': "Jugar",
             'ranking': "Clasificación",
+            'play_again': "Jugar de nuevo",
+            'back': "Volver",
+            'logout': "Cerrar sesión",
+            'waiting_message': "Esperando al jugador...",
+            'game_title': "¡PONG CRRRRAAAZZZY!",
+            'restart': "Reiniciar",
+            'enter_id': "Introduce ID:",
+            'players': "Jugadores",
+            'round': "Ronda",
+            'tournament_finished': "El torneo ha terminado",
+            'winner_wo': "El ganador es",
+
         }
     elif lang == 'ca':
         return {
@@ -45,6 +57,17 @@ def get_lang_words(lang):
             'quit': "Sortir",
             'play': "Jugar",
             'ranking': "Classificació",
+            'play_again': "Jugar de nou",
+            'back': "Tornar",
+            'logout': "Tancar sessió",
+            'waiting_message': "Esperant al jugador...",
+            'game_title': "¡PONG CRRRRAAAZZZY!",
+            'restart': "Reiniciar",
+            'enter_id': "Introdueix ID:",
+            'players': "Jugadors",
+            'round': "Ronda",
+            'tournament_finished': "El torneig ha acabat",
+            'winner_wo': "El guanyador és",
         }
     elif lang == 'ru':
         return {
@@ -63,6 +86,17 @@ def get_lang_words(lang):
             'quit': "Выйти",
             'play': "Играть",
             'ranking': "Рейтинг",
+            'play_again': "Играть снова",
+            'back': "Назад",
+            'logout': "Выйти из системы",
+            'waiting_message': "Ожидание игрока...",
+            'game_title': "CRRRRAAAZZZY PONG!",
+            'restart': "Перезапустить",
+            'enter_id': "Введите ID турнира:",
+            'players': "Игроки",
+            'round': "Раунд",
+            'tournament_finished': "Турнир завершен",
+            'winner_wo': "Победитель:",
         }
     elif lang == 'lv':
         return {
@@ -81,6 +115,17 @@ def get_lang_words(lang):
             'quit': "Iziet",
             'play': "Spēlēt",
             'ranking': "Reitings",
+            'play_again': "Spēlēt vēlreiz",
+            'back': "Atpakaļ",
+            'logout': "Iziet",
+            'waiting_message': "Gaida spēlētāju...",
+            'game_title': "CRRRRAAAZZZY PONG!",
+            'restart': "Restartēt",
+            'enter_id': "Ievadiet turnīra ID:",
+            'players': "Spēlētāji",
+            'round': "Ronde",
+            'tournament_finished': "Turnīrs ir beidzies",
+            'winner_wo': "Uzvarētājs ir",
         }
     else:  # Default to English if no match
         return {
@@ -99,10 +144,15 @@ def get_lang_words(lang):
             'quit': "Quit",
             'play': "Play",
             'ranking': "Ranking",
-			'play again': "Play again",
-			'back': "Back",
-			'logout': "Logout",
-			'waiting_message': "Waiting for player...",
-			'game_title': "CRRRRAAAZZZY PONG!",
-			'restart': "Restart",
-		}
+            'play_again': "Play again",
+            'back': "Back",
+            'logout': "Logout",
+            'waiting_message': "Waiting for player...",
+            'game_title': "CRRRRAAAZZZY PONG!",
+            'restart': "Restart",
+            'enter_id': "Enter ID:",
+            'players': "Players",
+            'round': "Round",
+            'tournament_finished': "The tournament has finished",
+            'winner_wo': "The winner is",
+        }
