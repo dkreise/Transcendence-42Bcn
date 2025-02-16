@@ -14,6 +14,7 @@ export class Player {
 		this.score = 0;
 		this.canvas = canvas;
 		this.backFactor = backFactor;
+		this.whoAmI = null;
 		this.role = role; // "player1" or "player2"
 		if (this.role === "player1")
 			this.x = 0;
@@ -49,6 +50,7 @@ export class Player {
 
 	drawScore(ctx, playerID) {
 		let x;
+		let fontSize = Math.floor(this.canvas.width * 0.05);
 		ctx.fillStyle = "white";
 		ctx.font = "40px Arial";
 		if (playerID === 1)

@@ -45,27 +45,34 @@ class PongConsumer(AsyncWebsocketConsumer):
 						if self.room_id not in active_games:
 							active_games[self.room_id] = GameManager(self.room_id)
 						# TODO: False should be dynamic (player = T / viewer = F)
-						self.role = await active_games[self.room_id].join_room(self.user.username, False)
+						game = active_games[self.room_id]
+						self.role = await game.join_room(self.user.username, False)
 						if not self.role:
 							await self.close()
 							return
 						await self.channel_layer.group_add(self.room_id, self.channel_name)
 						await self.accept()
-						await active_games[self.room_id].send_status()
-						if len(active_games[self.room_id].players) == 2:
-							active_games[self.room_id].start_game()
-
-
-						logger.info(f"Role: {self.role}")
-
 						# Notify the client of their role
 						await self.send(json.dumps({
 							"type": "role",
 							"role": self.role,
-							"user": self.user.username,
+							#"user": self.user.username,
 							"canvasX": 800,
 							"canvasY": 400
 						}))
+						if len(game.players) == 2:
+							await self.send(json.dumps({
+								"type": "players",
+								"me": self.user.username,
+								"you": next((other for other in game.users if other != self.user.username))
+							}))
+							active_games[self.room_id].start_game()
+						else:
+							await game.send_status(0)
+
+
+						logger.info(f"Role: {self.role}")
+
 				except Exception as e:
 					logger.error(f"\033[1;31mError connecting to the game: {e}\033[0m")
 					await self.close()
@@ -113,10 +120,5 @@ class PongConsumer(AsyncWebsocketConsumer):
 	
 ###################################################
 
-	async def send_game_update(self, event):
-		message = event["message"]
-		await self.send(text_data=json.dumps(message))
-
-	async def send_game_status(self, event):
-		logger.info("sending status msg (pong)")
+	async def send_game_msg(self, event):
 		await self.send(text_data=json.dumps(event["message"]))

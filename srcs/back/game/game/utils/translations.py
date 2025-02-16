@@ -16,13 +16,25 @@ def get_lang_words(lang):
 			'my_profile': "Mi perfil",
             'enter_name': "Indica el nombre del segundo jugador:",
             'start_game': "Empezar el juego",
+			'restart': "Reanudar",
+			'play again': "Jugar otra vez",
+			'back': "Atrás",
+			'logout': "Cerrar sesión",
+			'waiting_message': "Esperando a X",
+			'game_title': "CRRRRAAAZZZY PONG!",
 
 		}
 	elif lang == 'ca':
 		return {
 			'my_profile': "El meu perfil",
-            'enter_name': "",
-            'start_game': "",
+            'enter_name': "Indica el nom del segon jugador:",
+            'start_game': "Comença el joc",
+			'restart': "Reanudar",
+			'play again': "Jugar una altra vegada",
+			'back': "Enrera",
+			'logout': "Tancar sessió",
+			'waiting_message': "Esperant a X",
+			'game_title': "CRRRRAAAZZZY PONG!",
 		}
 	elif lang == 'ru':
 		return {
@@ -45,7 +57,6 @@ def get_lang_words(lang):
 			'play again': "Play again",
 			'back': "Back",
 			'logout': "Logout",
-			'waiting_message': "Waiting for player...",
+			'waiting_message': "Waiting for X",
 			'game_title': "CRRRRAAAZZZY PONG!",
-			'restart': "Restart"
 		}
