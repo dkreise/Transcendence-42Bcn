@@ -21,7 +21,7 @@
                     <option value="8">8</option>
                 </select>
             </div>
-            <button class="btn btn-grey-purple btn-large w-100" data-route="/create-tournament">{{ create }}</button>
+            <button class="btn btn-grey-purple btn-large w-100" replace-url data-route="/create-tournament">{{ create }}</button>
         </div>
         <div class="col-12 col-md-2 d-flex justify-content-center align-items-center">
             <div class="divider"></div>
@@ -30,7 +30,7 @@
         <div class="col-12 col-md-5">
             <label for="tournament-id-input" class="form-label">{{ enter_id }}</label>
             <input type="text" id="tournament-id-input" class="form-control" placeholder="Enter ID">
-            <button class="btn btn-grey-purple btn-large w-100" data-route="/join-tournament">{{ join }}</button>
+            <button class="btn btn-grey-purple btn-large w-100" replace-url data-route="/join-tournament">{{ join }}</button>
         </div>
     </div>
 </div>
