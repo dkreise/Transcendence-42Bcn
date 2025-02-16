@@ -124,7 +124,7 @@ export const handleLogin = () => {
                 
         } 
         else {
-            displayLoginError('login-form');
+            displayLoginError('login-form', `${data.error}`);
         }
         })
     .catch(error => {
@@ -172,7 +172,7 @@ export const handleSignup = () => {
                             navigateTo('/home', true);
                         } 
                         else {
-                            displayLoginError('signup-form');
+                            displayLoginError('signup-form', `${data.error}`);
                         }
                     })
                     .catch(error => {
@@ -187,9 +187,8 @@ export const handleSignup = () => {
     });
 };
 
-export const displayLoginError = (form) => {
+export const displayLoginError = (form, errorMessage) => {
     const login_error = document.getElementById('login-error');
-    console.log('holaaaaaaaaaa');
     if (!login_error)
         return;
 
@@ -203,6 +202,8 @@ export const displayLoginError = (form) => {
     // errorMessage.style.marginBottom = '15px';
     // errorMessage.textContent = message;
     // errorMessage.style.display = "flex";
+
+    login_error.innerText = errorMessage;
 
     login_error.classList.add('show');
     setTimeout(() => {
