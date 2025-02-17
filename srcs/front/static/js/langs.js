@@ -80,7 +80,7 @@ export async function updateLanguage(lang) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("headerLoaded", () => {
     const headerContainer = document.getElementById("header-container");
 
     if (headerContainer) {

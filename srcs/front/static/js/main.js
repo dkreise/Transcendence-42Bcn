@@ -8,7 +8,6 @@ import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { playLocal, playAI, playOnline, gameLocal } from "./game.js"
 // import { gameLocal } from "./localGame.js"
 
-
 const historyTracker = [];
 
 // The routes object maps URL paths to their respective handler functions:
@@ -37,11 +36,56 @@ const routes = {
     '/play-online': playOnline,
     '/play-local/game': gameLocal,
     // '/tournament': playTournament,
-
+    
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
 };
 
+var baseUrl = "http://localhost"; // change (parse) later
+
+// --- headerType = 1 --> draw mainHeader
+// --- headerType = 2 --> only lenguaje button
+// --- headerType = 3 --> clear Header
+
+export function drawHeader(headerType) {
+    return new Promise((resolve, reject) => {
+        let url;
+
+        switch (headerType) {
+            case 1:
+                url = ":8000/api/get-main-header/";
+                break;
+            
+            case 2:
+                url = ":8000/api/get-languages-header/";
+                break;
+
+            default:
+                // borrar header!!!!!!! para el roberto de tomorrow
+                resolve();  // IMPORTANTE: Se debe resolver la promesa en el caso por defecto
+                return;
+        }
+
+        fetch(baseUrl + url, {
+            method: 'GET',
+            credentials: "include"
+        })
+        .then((response) => response.json())
+        .then(data => {
+            if (data.header_html) {
+                console.log('Header! returned!');
+                document.getElementById('header-area').innerHTML = data.header_html;
+                document.dispatchEvent(new CustomEvent("headerLoaded"));
+            } else
+                console.error('Header not found in response:', data);
+            resolve();
+        })
+        .catch(error => {
+            console.error('Error loading Header =(', error);
+            reject(error);
+        });
+    });
+}
 
 // The router() function determines which handler function to call 
 // based on the current path (window.location.pathname).
@@ -119,7 +163,7 @@ export function checkPermission () {
 }
 
 function homePage() {
-    const contentArea = document.getElementById('content-area');
+    // const contentArea = document.getElementById('content-area');
     
     if (checkPermission ()) {
         navigateTo('/home');
@@ -129,8 +173,6 @@ function homePage() {
         navigateTo('/login');
     }
 }
-
-var baseUrl = "http://localhost"; // change (parse) later
 
 // popstate: Ensures navigation works when the user uses the browser's 
 // back or forward buttons.

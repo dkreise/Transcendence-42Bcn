@@ -1,9 +1,9 @@
-
 import { loadProfilePage } from "./profile.js";
 import { handleLogout } from "./logout.js"
 import { navigateTo } from "./main.js";
 import { loadHomePage } from "./home.js";
 import { updateLanguage } from "./langs.js";
+import { drawHeader } from "./main.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -79,9 +79,11 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
 };
 
 export const loadLoginPage = () => {
-    fetch(baseUrl + ":8000/api/login-form/", {
-        method: 'GET',
-        credentials: "include"
+    drawHeader(2).then(() => {
+        return fetch(baseUrl + ":8000/api/login-form/", {
+            method: 'GET',
+            credentials: "include"
+        });
     })
     .then((response) => response.json())
     .then(data => {
