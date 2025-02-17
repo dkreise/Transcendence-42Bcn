@@ -51,8 +51,8 @@ function displayCountdown(countdown)
 	if (!ctx)
 		return ;
 	let fontSize = Math.floor(canvas.width * 0.05);
-	let waitingElement = document.getElementById("wait").dataset.original;
-	let waitingMsg waitingElement ? waitingElement.dataset.original : "Waiting for X"; 
+	let waitElement = document.getElementById("wait");
+	let waitMsg = waitElement ? waitElement.dataset.original : "Waiting for X"; 
 
 	console.log("displaying CountDown");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -63,13 +63,13 @@ function displayCountdown(countdown)
 	ctx.font = `${fontSize}px Arial`;
 	ctx.textAlign = "center";
 	if (opponent.whoAmI)
-		waitingMsg = waitingMsg.replace("X", opponent.whoAmI);
+		waitMsg = waitMsg.replace("X", opponent.whoAmI);
 	else if (player.role == "player1")
-		waitingMsg = waitingMsg.replace("X", "player2");
+		waitMsg = waitMsg.replace("X", "player2");
 	else
-		waitingMsg = waitingMsg.replace("X", "player1");
-	ctx.fillText(waitingMsg, canvas.width / 2, canvas.height / 2 - fontSize);
-	ctx.fillText(waitingMsg, canvas.width / 2, canvas.height / 2 + fontSize);
+	waitMsg = waitMsg.replace("X", "player1");
+	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 - fontSize);
+	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 + fontSize);
 	if (countdown)
 		setTimeout(() => displayCountdown(countdown - 1), 1000);
 }

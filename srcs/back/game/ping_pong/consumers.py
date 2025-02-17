@@ -60,12 +60,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 							"canvasX": 800,
 							"canvasY": 400
 						}))
+						logger.info(f"role sent. current users: {game.users}")
 						if len(game.players) == 2:
 							await self.send(json.dumps({
 								"type": "players",
 								"me": self.user.username,
 								"you": next((other for other in game.users if other != self.user.username))
 							}))
+							logger.info("starting game")
 							active_games[self.room_id].start_game()
 						else:
 							await game.send_status(0)
@@ -88,22 +90,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def disconnect(self, close_code):
 		logger.info("\033[1;32mDISCONNECT METHOD CALLED\033[0m")
 
+		if self.room_id not in active_games:
+			return
+		game = active_games[self.room_id]
+		await game.leave_room(self.role, self.user.username)
 		await self.channel_layer.group_discard(
 			self.room_id,
 			self.channel_name
 		)
-		if self.room_id in active_games:
-			game = active_games[self.room_id]
-			game.cancel_disconnect_task()
-
-			if self.role in game.players:
-				del game.players[self.role]
-			if len(game.players) < 2:
-				game.stop_game()
-
-			if not game.players:
-				async with active_games_lock:
-					del active_games[self.room_id]
+		if not game.users:
+			async with active_games_lock:
+				del active_games[self.room_id]
 		await self.close()
 
 ##################################################

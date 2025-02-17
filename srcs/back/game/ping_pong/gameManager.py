@@ -25,7 +25,7 @@ players
 '''
 
 '''
-users {"user1", "user2"}	#bkup of the players' usernames (used in disconnection)
+users {"user1", "user2"}	#bkup of the players' usernames (for connection control purposes)
 '''
 
 '''
@@ -77,10 +77,12 @@ class GameManager:
 		logger.info(f"room id {self.id} total players: {len(self.players)}")
 		logger.info(self.players)
 		if any(player["id"] == user for player in self.players.values()):
+			self.cancel_disconnect_task()
 			role = next((key for key, value in self.players.items() if value["id"] == user), None)
 			if role:
 				if len(self.players) == 2:
 					self.status = 0
+				self.users.append(user)
 				return role
 			return None
 
@@ -91,6 +93,7 @@ class GameManager:
 			logger.info(f"Access denied to {user}. Room {self.id} is already full")
 			return None
 		else:
+			self.users.append(user)
 			if len(self.players) == 0:
 				logger.info(f"adding {user} as player1")
 				self.players["player1"] = {"id": user, "y": 250}
@@ -100,7 +103,6 @@ class GameManager:
 				self.players["player2"] = {"id": user, "y": 250}
 				self.status = 0
 				return "player2"
-			self.users.append(user)
 		return "viewer"
 
 #################################################
@@ -111,7 +113,7 @@ class GameManager:
 
 ##################################################
 
-	def update_ball(self):
+	async def update_ball(self):
 		self.ball["x"] += self.ball["xspeed"]
 		self.ball["y"] += self.ball["yspeed"]
 		paddle_collision = self.is_paddle_collision()
@@ -124,17 +126,17 @@ class GameManager:
 			self.scores["player1"] += 1
 			self.reset_ball(1)
 			if self.scores["player1"] == GameManager.board_config["max_score"]:
-				declare_winner("player1")
+				await self.declare_winner("player1")
 		elif (not paddle_collision and
 			self.ball["x"] > GameManager.board_config["width"] - GameManager.paddle_config["width"]):
 			self.scores["player2"] += 1
 			self.reset_ball(0)
 			if self.scores["player2"] == GameManager.board_config["max_score"]:
-				declare_winner("player2")
+				await self.declare_winner("player2")
 
 ##################################################
 
-	async def ready_steady_go():
+	async def ready_steady_go(self):
 		await asyncio.sleep(4)
 		self.status = 0
 		await self.send_status(0)
@@ -144,7 +146,7 @@ class GameManager:
 		self.scores[role] += 1
 		self.ball["xspeed"]	*= -1
 		await self.send_status(4)
-		ready_steady_go()
+		self.ready_steady_go()
 
 #################################################
 
@@ -174,7 +176,7 @@ class GameManager:
 
 ######################################################
 
-	async def disconnect_countdown(): #0 => task cancelled || 1 => task finished
+	async def disconnect_countdown(self): #0 => task cancelled || 1 => task finished
 		try:
 			await asyncio.sleep(GameManager.countdown)
 		except asyncio.CancelledError:
@@ -183,27 +185,26 @@ class GameManager:
 		return 1
 
 	async def start_disconnect_countdown(self, disc_role):
-		self.status = 1
-		await self.send_status(GameManager.countdown)
-		if disconnect_task:
+		if self.disconnect_task:
 			logger.warning(f"\033[1;33mCountdown task already exists for room {roomID}."
 							"Overwriting previous task\033[0m")
-		self.disconnect_task = asyncio.create_task(disconnect_countdown(GameManager.countdown))
-		finished_countdown = await task
+		self.disconnect_task = asyncio.create_task(self.disconnect_countdown())
+		finished_countdown = await self.disconnect_task
 		self.disconnect_task = None
 
 		if finished_countdown:
 			if disc_role == "player1":
-				self.declare_winner("player2")
+				await self.declare_winner("player2")
 			else:
-				self.declare_winner("player1")
-		await ready_steady_go()
+				await self.declare_winner("player1")
+		else:
+			await self.ready_steady_go()
 
 #########################################################
 
 	def cancel_disconnect_task(self):
 		if self.disconnect_task:
-			self.diconnect_task.cancel()
+			self.disconnect_task.cancel()
 			del self.disconnect_task
 			self.disconnect_task = None
 			self.status = 0
@@ -212,22 +213,23 @@ class GameManager:
 
 	async def declare_winner(self, winner_role):
 
-		winner_id = self.players["winner_role"]["id"]
+		winner_id = self.players[winner_role]["id"]
 
 		game = get_game_model()
 
 		#save the game result
 		#saved_game = self.save_game_result(winner_id, db_players)
-		saved_game = self.save_game_result(winner_id)
+		saved_game = self.save_game_score(winner_id)
 
 		if saved_game:
 			logger.info(f"Game successfully saved: {saved_game}")
-		logger.info(f"Player {winner_id} wins in room {'self.id'}")
+		logger.info(f"Player {winner_id} wins in room {self.id}")
 		message = {
 			"type": "endgame",
 			"wait": 1,
 			"winnerID": winner_id,
-			"loserID": next((loser for loser in self.users if loser != winner_id), None)
+			"loserID": next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
+			#"loserID": next((loser for loser in self.users if loser != winner_id), None)
 		}
 		channel_layer = get_channel_layer()
 		await channel_layer.group_send(
@@ -281,7 +283,7 @@ class GameManager:
 		try:
 			while self.status == 0:
 				async with self.ball_lock:
-					self.update_ball()
+					await self.update_ball()
 				await self.update_game()
 				await asyncio.sleep(0.016)
 		except Exception as e:
@@ -330,15 +332,16 @@ class GameManager:
 	async def start_game(self):
 		if self.game_loop_task is None:
 			logger.info(f"\033[1;33mThe game has started in room {self.id}\033[0m")
-			await ready_steady_go()
+			await self.ready_steady_go()
 			self.game_loop_task = asyncio.create_task(self.game_loop())
 
-	def stop_game (self):
+	async def stop_game (self):
 		logger.info(f"The game has stopped in room {self.id}")
 		self.status = 1
 		if self.game_loop_task:
 			self.game_loop_task_cancel()
 			self.game_loop_task = None
+		await self.send_status(GameManager.countdown)
 
 #################################################################
 
@@ -348,3 +351,11 @@ class GameManager:
 			del self.game_loop_task
 			self.game_loop_task = None
 			self.status = 1
+
+##################################################################33
+
+	async def leave_room(self, role, user):
+		self.users.remove(user)
+		logger.info(f"user {user} was removed from active players")
+		await self.stop_game()
+		await self.start_disconnect_countdown(role)
