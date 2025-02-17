@@ -3,7 +3,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo, checkPermission } from "./main.js"
 import { startLocalGame } from "./localGame.js";
 import { startGame } from "./remoteGame.js"; 
-import { start3DAIGame } from "./3DLocalGame.js";
+import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -154,8 +154,9 @@ export function play3D() {
         if (data.game_html) {
             console.log('3D game returned!');
 
-            // startLocalGame(data['player1'], data['player2'], data['main_user']);
-            start3DAIGame(localStorage.getItem('username'));
+            // start3DLocalGame(data['player1'], data['player2'], data['main_user']);
+            start3DLocalGame('player1', '@42nzhuzhle', 2);
+            // start3DAIGame(localStorage.getItem('username'));
 
 
         } else {

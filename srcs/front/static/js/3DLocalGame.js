@@ -1,15 +1,13 @@
-// // import { addLogoutListener } from "./logout.js";
+
 import { OrbitControls } from '../three/examples/jsm/controls/OrbitControls.js'
 import { RoundedBoxGeometry } from '../three/examples/jsm/geometries/RoundedBoxGeometry.js'
-// import { Ball } from "./3DClasses.js";
-import { TextGeometry } from '../three/examples/jsm/geometries/TextGeometry.js';
-import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
-import lights from "./3DLights.js";
 import { saveScore } from "./localGame.js";
 import * as THREE from "three";
 import { Player, AIPlayer, AIController } from './3DPlayer.js';
 import { Ball } from './3DBall.js';
 import { SceneText, textParams, textWinner } from './3DText.js';
+import { AmbientLight, DirectionalLight , Vector3} from 'three'
+
 
 //----------------------------------------------------------------------------//
 //-------------------- VARIABLES INITIALIZATION ------------------------------//
@@ -20,10 +18,7 @@ var baseUrl = "http://localhost"; // change (parse) later
 let renderer, scene, camera, animationId, start, button, tryAgain;
 let limits, planeGeo, planeMat, plane, controls, ai, loader, countdownText;
 let player1, player2, ball, mainUse, gameLoopId, lastAIUpdate; // if the main user is player 1 or 2
-let fontPath = "../three/examples/fonts/helvetiker_bold.typeface.json";
-let text;
-let loadedFont = null;
-let winnerMessage = null;
+let text, mainUser, lights;
 let ifAI = false;
 let gameStarted = false;
 let gameEnded = false;
@@ -32,8 +27,10 @@ let pause = false;
 const clock = new THREE.Clock();
 clock.start();
 const ray = new THREE.Raycaster();
-// const rayStart = new THREE.Raycaster();
 const cursor = new THREE.Vector2(0,0);
+
+const ambientLight = new AmbientLight(0xffffff, 1)
+const dirLight = new DirectionalLight(0xffffff, 1)
 
 export const field = {
     x: 15,
@@ -52,7 +49,9 @@ export const params = {
 	fogFar: 150,
     textY:  20,
     buttonColor: 0x9400FF,
-    winnerColor: 0x22FFFF//0x9400FF,//0xF5F045,//0xFF00FF,
+    winnerColor: 0x22FFFF,//0x9400FF,//0xF5F045,//0xFF00FF,
+    // winnerPosAI: new THREE.Vector3(0, 20, 1.5),
+    // winnerPosPlayers: new THREE.Vector3(0, 2, field.x + 3),
 }
 
 const   size = {
@@ -60,42 +59,32 @@ const   size = {
     height: window.innerHeight,
 }
 
-// const textParams = {
-//     size: 1.5,
-//     depth: 0.5,
-//     curveSegments: 12,
-//     bevelEnabled: true,
-//     bevelThickness: 0.02,
-//     bevelSize: 0.02,
-//     bevelSegments: 3
-// }
-
-// const textWinner = {
-//     size: 2,
-//     depth: 0.5,
-//     curveSegments: 30,
-// }
-
 //---------------------------------------------------------------------------------//
 // ------------------ LOCAL GAME WITH ANOTHER PLAYER FUNCTIONS ------------------- //
 //---------------------------------------------------------------------------------//
 
 // Start game function
-export function startLocalGame(playerName1, playerName2, mainUserNmb) {
+export function start3DLocalGame(playerName1, playerName2, mainUserNmb) {
     // Set up scene
 
     setupScene();
+    text = new SceneText(scene, 0, -Math.PI / 2, 0);
+    // text.group.rotation.y = text.rotation;
     camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 1000);
-    camera.position.set(45, 20, 0);
+    camera.position.set(-39.5, 22.5, 0);
     camera.lookAt(new THREE.Vector3(0, 0, 0))
 
     mainUser = mainUserNmb;
-
+    createLights(-20);
+    
     setupField();
+    controls.target.set(0, 7, 0);
+    // scene.lights[dirLight].position.x *= -1;
     // console.log('Starting local game...');
 
-    player1 = new Player(limits, scene, -1, playerName1, new THREE.Vector3(0, 0, field.y - 2));
-    player2 = new Player(limits, scene, 1, playerName2, new THREE.Vector3(0, 0, -field.y + 2));
+    player1 = new Player(limits, scene, -1, playerName1, new THREE.Vector3(0, 0, -field.y + 2), -0.1, -0.5, 0);
+    console.log(`player1: ${field.y}`)
+    player2 = new Player(limits, scene, 1, playerName2, new THREE.Vector3(0, 0, field.y - 2), -0.1, -0.5, 0);
     ball = new Ball(scene, limits, [player1, player2], false);
     setupEvents();
     setupControls();
@@ -111,12 +100,23 @@ export function setupControls() {
         if (e.key === "s") player1.down = true;
         if (e.key === "ArrowUp") player2.up = true;
         if (e.key === "ArrowDown") player2.down = true;
-        if (e.code === "Space") {
+        if (e.code === "Space" && !gameStarted && !gameEnded) {
             console.log("Spacebar pressed! Starting game...");
-            if (gameStarted) return; // Prevent multiple starts
+            // if (gameStarted) return; // Prevent multiple starts
             gameStarted = true;
-            start.visible = false; // Hide the button
-            button.visible = false;
+            text.start.visible = false; // Hide the button
+            text.button.visible = false;
+        }
+        if (e.code === "Space" && !gameStarted && gameEnded) {
+            console.log("Spacebar pressed! Try again...");
+            // if (gameStarted) return; // Prevent multiple starts
+            restart();
+            // resetTeam();
+            // gameEnded = false;
+            // text.tryAgain.visible = false;
+            // text.winnerMessage.visible = false;
+            // text.start.visible = true; // Hide the button
+            
         }
     });
 
@@ -134,7 +134,7 @@ function animateLocal() {
     const deltaTime = clock.getDelta();
     const dt = Math.min(deltaTime, 0.1)
     
-    if (gameStarted && !gameEnded) {
+    if (gameStarted && !pause) {
         ball.update(dt);
         player1.move();
         player2.move();
@@ -145,8 +145,10 @@ function animateLocal() {
     }
 
     // console.log(ball.mesh.position);
+    // controls.target.set(controls.target.x, controls.target.y + 0.01, controls.target.z);
     controls.update();  // Required if you have damping enabled
-
+    // console.log(`camera ${camera.position.x}x${camera.position.y}x${camera.position.z}`)
+    // console.log(`target ${controls.target.x}x${controls.target.y}x${controls.target.z}`)
     // Update scene and render 
     renderer.render(scene, camera);
     gameLoopId = requestAnimationFrame(animateLocal);
@@ -161,14 +163,16 @@ export function start3DAIGame(playerName2) {
     // ifAI = true;
     
     setupScene();
+    text = new SceneText(scene);
     camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 1000);
     camera.position.set(0, 20, 50);
     camera.lookAt(new THREE.Vector3(0, 0, 0))
 
     console.log(`Inicially ${playerName2}`);
+    createLights(20);
     setupField();
-    player2 = new AIPlayer(limits, scene, 1, playerName2, new THREE.Vector3(0, 0, field.y - 2));
-    player1 = new AIPlayer(limits, scene, -1, "Enemy", new THREE.Vector3(0, 0, -field.y + 2));
+    player2 = new AIPlayer(limits, scene, 1, playerName2, new THREE.Vector3(0, 0, field.y - 2), -0.1);
+    player1 = new AIPlayer(limits, scene, -1, "Enemy", new THREE.Vector3(0, 0, -field.y + 2), -0.1);
     ball = new Ball(scene, limits, [player1, player2], true);
     ai = new AIController(player1, ball, limits);
     setupEvents();
@@ -183,11 +187,21 @@ function setupAIControls() {
         if (e.key === "ArrowLeft") player2.down = true;
         if (e.key === "ArrowRight") player2.up = true;
         if (e.code === "Space" && !gameStarted && !gameEnded) {
-            console.log("Spacebar pressed! Starting game...");
-            if (gameStarted) return; // Prevent multiple starts
+            // console.log("Spacebar pressed! Starting game...");
+            // if (gameStarted) return; // Prevent multiple starts
             gameStarted = true;
             text.start.visible = false; // Hide the button
             text.button.visible = false;
+        }
+        if (e.code === "Space" && !gameStarted && gameEnded) {
+            // console.log("Spacebar pressed! Try again...");
+            // if (gameStarted) return; // Prevent multiple starts
+            // resetTeam(); // resets the ball and players;
+            // gameEnded = false;
+            // text.tryAgain.visible = false;
+            // text.winnerMessage.visible = false;
+            // text.start.visible = true; // Hide the button
+            restart();
         }
     });
 
@@ -208,13 +222,6 @@ function animateAI() {
         ball.update(dt, pause);
         ai.update(elapsedTime);
         player2.move();
-        // player1.move();
-        // ai.checkIfAIneedStop();
-        // Check if 1 second has passed before updating the AI
-        // if (clock.getElapsedTime() - lastAIUpdate >= 1) {
-        //     ai.setTarget(ball);
-        //     lastAIUpdate = clock.getElapsedTime();  // Reset timer
-        // }
 
     } else {
         ball.resetPos();
@@ -223,7 +230,8 @@ function animateAI() {
     }
 
     // console.log(`${ball.mesh.position.x}`);
-    controls.update();  // Required if you have damping enabled
+    // controls.update();  // Required if you have damping enabled
+    // console.log(`camera ${camera.position.x}x${camera.position.y}x${camera.position.z}`)
    
     // Update scene and render
     renderer.render(scene, camera);
@@ -238,7 +246,21 @@ function setupScene() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(params.fogColor);
     scene.fog = new THREE.Fog(params.fogColor, params.fogNear, params.fogFar);
-    text = new SceneText(scene);
+}
+
+export function createLights(posX) {
+
+    dirLight.position.set(posX, 20, 20)
+    dirLight.castShadow = true
+    dirLight.shadow.mapSize.set(1024, 1024)
+    dirLight.shadow.camera.top = 30
+    dirLight.shadow.camera.bottom = -30
+    dirLight.shadow.camera.left = -30
+    dirLight.shadow.camera.right = 30
+    dirLight.shadow.radius = 10
+    dirLight.shadow.blurSamples = 20
+
+    lights = [dirLight, ambientLight]
 }
 
 function setupField() {
@@ -251,19 +273,15 @@ function setupField() {
     document.getElementById('content-area').appendChild(renderer.domElement);
     handleResize();
     controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true
+    // controls.enableDamping = true
     scene.add(...lights);
     
     limits = new THREE.Vector2(field.x, field.y);
-    planeGeo = new THREE.PlaneGeometry( // or 20
+    planeGeo = new THREE.PlaneGeometry(
         limits.x * 20,
         limits.y * 20,
         limits.x * 20,
         limits.y * 20,
-        // limits.x * 2,
-        // limits.y * 2,
-        // limits.x * 2,
-        // limits.y * 2
     );
 
     planeGeo.rotateX(-Math.PI * 0.5);
@@ -287,31 +305,26 @@ function setupField() {
     leftBound.receiveShadow = true;
     const rightBound = leftBound.clone();
     rightBound.position.x *= -1;
-    console.log(`Left bound is: ${leftBound.position.x}, Right bound is: ${rightBound.position.x}`)
+    // console.log(`Left bound is: ${leftBound.position.x}, Right bound is: ${rightBound.position.x}`)
     scene.add(leftBound, rightBound);
 
-    // if (!gameStarted && !button & !start)
-    //     createButton();
     createSky();
 }
 
 function setupEvents() {
     ball.addEventListener("aifinish", (e) => {
-        // console.log('goal!!', e.message);
         handleEndGame(e.message);
-        console.log('goal!! player name', e.message);
+        // console.log('goal!! player name', e.message);
     })
 
     ball.addEventListener("localfinish", (e) => {
-        // console.log('goal!!', e.message);
-        handleEndGame();
-        saveScore(player1.score, player2.score, mainUserNmb);
+        handleEndGame(e.message);
+        saveScore(player1.score, player2.score, mainUser);
 
-        console.log('goal!! player name', e.message);
+        // console.log('goal!! player name', e.message);
     })
 
     ball.addEventListener("aipause", (e) => {
-        // console.log('goal!!', e.message);
         console.log('goal!! pause');
         pause = true;
         showCountdown(() => {
@@ -330,7 +343,7 @@ function setupEvents() {
         // console.log('goal!!', e.message);
         pause = false;
 
-        console.log('goal!! restart');
+        // console.log('goal!! restart');
     })
     
     window.addEventListener("click", (event) => {
@@ -348,7 +361,7 @@ function setupEvents() {
         const intersectsTryAgain = ray.intersectObject(text.tryAgain);
     
         if ((intersects.length > 0 || intersectsStart.length > 0) && !gameEnded ) {
-            console.log("3D Start Button Clicked!");
+            // console.log("3D Start Button Clicked!");
             // if (gameStarted) return; // Prevent multiple starts
             // lastAIUpdate = 1;
             gameStarted = true;
@@ -357,13 +370,13 @@ function setupEvents() {
         } else if ((intersects.length > 0 || intersectsTryAgain.length > 0) && gameEnded ) {
             console.log("3D TryAgain Button Clicked!");
             // if (gameStarted) return; // Prevent multiple starts
-            resetTeam(); // resets the ball and players;
-            gameEnded = false;
-            // gameStarted = true;
-            text.tryAgain.visible = false; // Hide the button
-            text.start.visible = true;
-            text.winnerMessage.visible = false;
-
+            // resetTeam(); // resets the ball and players;
+            // gameEnded = false;
+            // // gameStarted = true;
+            // text.tryAgain.visible = false; // Hide the button
+            // text.start.visible = true;
+            // text.winnerMessage.visible = false;
+            restart();
         }
     });
 }
@@ -390,11 +403,12 @@ function showCountdown(callback) {
 function handleEndGame(message) {
     gameEnded = true;
     gameStarted = false;
-    if (text.winnerMessage) {
-        text.updateGeometry(text.winnerMessage, message, textWinner);
-    } else {
-        text.createWinnerMessage(message);
-    }
+    // if (text.winnerMessage)
+    text.updateGeometry(text.winnerMessage, message, textWinner);
+    // } else {
+    //     // text.createWinnerMessage(message);
+    // }
+    // resetTeam();
     text.button.visible = true;
     text.tryAgain.visible = true;
     text.winnerMessage.visible = true;
@@ -425,9 +439,21 @@ function createSky() {
     scene.add( particles );
 }
 
+function restart() {
+
+    resetTeam(); // resets the ball and players;
+    gameEnded = false;
+    // gameStarted = true;
+    text.tryAgain.visible = false; // Hide the button
+    text.start.visible = true;
+    text.winnerMessage.visible = false;
+}
+
 function resetTeam() {
-    player1.resetTeam();
-    player2.resetTeam();
+    console.log("Reset team");
+    player1.resetAll();
+    player2.resetAll();
+    ball.resetVelocity();
 }
 
 window.addEventListener('resize', handleResize);

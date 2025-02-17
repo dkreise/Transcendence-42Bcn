@@ -41,7 +41,7 @@ export class Ball extends EventDispatcher {
         this.ai = ifAI;
         this.speed = ballParams.speed;
         // this.inicial = ballParams.velocity.normalize();
-        this.velocity = ballParams.velocity;
+        this.velocity = ballParams.velocity.clone();
         this.velocity = this.velocity.normalize();
         this.radius = ballParams.radius;
         this.color = ballParams.color;
@@ -83,10 +83,13 @@ export class Ball extends EventDispatcher {
 
     resetVelocity() {
         this.speed = ballParams.speed;
-        this.velocity = ballParams.velocity.normalize();
-        // this.velocity.z *= this.scored;
-        this.velocity.x *= this.scored;
-        this.velocity = this.velocity.normalize().multiplyScalar(this.speed);
+        // const sign = Math.sign(this.velocity.x);
+        this.velocity = ballParams.velocity.clone();
+        // this.velocity(ballParams.velocity);
+        // this.velocity.x = -1;
+        this.velocity.z *= this.scored;
+        this.velocity.normalize().multiplyScalar(this.speed);
+        console.log(`Reset velocity: ${this.velocity.x}x${this.velocity.y}x${this.velocity.z}`)
     }
 
     resetPos() {
@@ -98,10 +101,13 @@ export class Ball extends EventDispatcher {
             return false;
         }
         
-        const name = this.players[0].score >= this.maxScore ? this.players[0].name : this.players[1].name;
-        const msg = `${name} won ${this.players[0].score}-${this.players[1].score} !`
+        const winner = this.players[0].score >= this.maxScore ? this.players[0] : this.players[1];
+        // const name = this.players[0].score >= this.maxScore ? this.players[0].name : this.players[1].name;
+        const msg = `${winner.name} won ${this.players[0].score}-${this.players[1].score} !`
         this.resetVelocity();
-        this.dispatchEvent({ type: 'aifinish', message: msg, player: name });
+        const type = winner.getType();
+        // console.log(type)
+        this.dispatchEvent({ type: type, message: msg, player: winner.name });
         return true;
     }
 
@@ -110,10 +116,10 @@ export class Ball extends EventDispatcher {
         // console.log(`Velocity Length is: ${this.velocity.length()}`);
         // console.log(`Velocity is: ${this.velocity.x}x${this.velocity.y}x${this.velocity.z}`);
         // console.log(`Datatime is: ${dt}`);
-        if (pause) {
+        // if (pause) {
 
-            return;
-        }
+        //     return;
+        // }
 
         const dir = this.velocity.clone().normalize();
         // console.log(`Direcetion: ${dir.toArray()}`);
@@ -129,24 +135,29 @@ export class Ball extends EventDispatcher {
         // let theplayer;
 
         if (dx <= 0) {
-            console.log('X hit!!');
+            // console.log('X hit!!');
             tPos.x = (this.limits.x - this.radius + dx) * Math.sign(this.mesh.position.x)
             this.velocity.x *= -1;
         }
         else if (dz < 0) {
-            console.log('Z hit!!');
+            // console.log(`limit y is ${this.limits.y} position: ${this.mesh.position.z}, dz: ${dz}`);
+            // console.log('Z hit!!');
             if (this.mesh.position.z > 0) {
                 this.players[0].scored();
                 this.scored = -1;
                 // player1.scored();
                 // theplayer = this.players[0]
-                console.log(`Player1 scored: ${this.players[0].score}`);
+                // console.log(`1 ${this.players[0].name} scored: ${this.players[0].score}`);
+                // console.log(`${this.players[1].name} position: ${this.players[1].mesh.position.x}`);
+                // console.log(`Ball's position: ${this.mesh.position.x}`);
             } else {
                 this.players[1].scored();
                 this.scored = 1;
                 // theplayer = this.players[1]
                 // player2.scored();
-                console.log(`Player2 scored: ${this.players[1].score}`);
+                // console.log(`2 ${this.players[1].name} scored: ${this.players[1].score}`);
+                // console.log(`${this.players[0].name} position: ${this.players[0].mesh.position.x}`);
+                // console.log(`Ball's position: ${this.mesh.position.x}`);
             }
 
             // theplayer.scored();
@@ -171,14 +182,14 @@ export class Ball extends EventDispatcher {
         const [intersection] = this.ray.intersectObjects(paddle.mesh.children)
 
         if (intersection) {
-            console.log(`Intersection: ${intersection}`);
+            // console.log(`Intersection: ${intersection}`);
             // this.pointCollision.position.copy(intersection.point);
 
         // Check If the Collision Happens Before the Ball Fully Moves
         //If the intersection distance is less than the intended movement:
         // A collision will occur within this frame, so the code handles the collision.
             if (intersection.distance < s.length()) {
-                console.log('Collision with paddle');
+                // console.log('Collision with paddle');
 
                 // Handle the Collision (Bounce Effect):
                 tPos.copy(intersection.point); // Move the ball to the exact collision point
@@ -193,7 +204,7 @@ export class Ball extends EventDispatcher {
                 tPos.add(dS); // Move the ball the remaining distance in the new direction
 
                 this.speed *= 1.1;
-                this.velocity = this.velocity.clone().normalize().multiplyScalar(this.speed);
+                this.velocity.normalize().multiplyScalar(this.speed);
                 
             }
         }
@@ -202,7 +213,7 @@ export class Ball extends EventDispatcher {
     }
 
     onGoal() {
-        console.log("Goal! Pausing ball...");
+        // console.log("Goal! Pausing ball...");
 
         this.resetPos();
         this.dispatchEvent({ type: 'aipause'});

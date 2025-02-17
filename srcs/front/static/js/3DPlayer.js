@@ -5,6 +5,7 @@ import { TextGeometry } from '../three/examples/jsm/geometries/TextGeometry.js';
 import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
 import { ballParams } from "./3DBall.js";
 import { field } from "./3DLocalGame.js";
+import { EventDispatcher } from "../three/build/three.core.js";
 
 export const paddle = {
     radius: 0.5,
@@ -17,6 +18,27 @@ export const paddle = {
 }
 
 const TEXT_PARAMS = {
+    size: 3,
+    depth: 0.5,
+    curveSegments: 12,
+    bevelEnabled: true,
+    bevelThickness: 0.1,
+    bevelSize: 0.05,
+    bevelOffset: 0,
+    bevelSegments: 5
+}
+const TEXT_PARAMS_AI = {
+    size: 2,
+    depth: 0.5,
+    curveSegments: 12,
+    bevelEnabled: true,
+    bevelThickness: 0.1,
+    bevelSize: 0.05,
+    bevelOffset: 0,
+    bevelSegments: 5
+}
+
+const TEXT_PARAMS_NAME = {
     size: 2,
     depth: 0.5,
     curveSegments: 12,
@@ -35,17 +57,18 @@ const MATERIAL = new THREE.MeshPhongMaterial({
     specular: 0xFFFFFF, 
     shininess: 100 });
 
-const HELPER_GEO = new CapsuleGeometry(paddle.radius + ballParams.radius, paddle.length, paddle.capSeg, 8)
+const HELPER_GEO = new CapsuleGeometry(paddle.radius + ballParams.radius, paddle.length + 0.5, paddle.capSeg, 8)
 HELPER_GEO.rotateZ(Math.PI * 0.5)
 HELPER_GEO.rotateX(Math.PI / 8)
 
 export class Player {
 
-    constructor(limits, scene, role, name, position) {
+    constructor(limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
         this.speed = paddle.speed;
         this.color = paddle.color;
         this.loader = new FontLoader();
         this.textMesh = null;
+        this.textName = null;
         this.fontPath = paddle.fontPath;
         this.loadedFont = null;
         this.limits = limits;
@@ -55,13 +78,16 @@ export class Player {
         this.score = 0;
         this.role = role; // 1 - right or -1 - left (AI)
         this.name = name;
-        console.log(`My name is ${this.name}`)
-        console.log(`Originally ${name}`)
+        // console.log(`My name is ${this.name}`)
+        // console.log(`Originally ${name}`)
         this.scene = scene;
-        this.text = `${this.name} - ${this.score}`;
+        this.text = `${this.score}`;
         this.initial = position;
         this.initial.y += field.height;
 
+        this.rotationX = rotationX;
+        this.rotationY = rotationY;
+        this.rotationZ = rotationZ;
         this.geometry = GEOMETRY; //new THREE.BoxGeometry(this.width, this.height, this.depth);
         this.material = MATERIAL; //new THREE.MeshBasicMaterial({ color: this.color });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
@@ -78,38 +104,53 @@ export class Player {
         this.mesh.add(this.collitionMesh);
         this.mesh.position.copy(this.initial);
         this.scene.add(this.mesh);
-        this.setupText();
+        this.setupText(TEXT_PARAMS);
     }
 
-    resetTeam() {
+    resetAll() {
         this.score = 0;
         this.setText();
+        this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
+        
+        this.textMesh.castShadow = true;
+        this.textMesh.receiveShadow = true;
+        this.textMesh.geometry.getAttribute('position').needsUpdate = true;
         this.resetPos;
     }
 
     resetPos() {
         this.mesh.position.copy(this.initial);
     }
-    setupText() {
+    setupText(params) {
         this.loader.load(this.fontPath, ( font ) => {
             this.loadedFont = font;
-            const textGeo = this.createTextGeometry(this.loadedFont);
-            // textGeo.rotateY(-Math.PI * 0.3)
+            const textGeo = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
+            // textGeo.rotateY(-Math.PI * this.rotationY)
             this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ color: paddle.color }));
+            const geoName = this.createTextGeometry(this.name, this.loadedFont, TEXT_PARAMS_NAME);
+            this.textName = new THREE.Mesh(geoName, new THREE.MeshStandardMaterial({ color: paddle.color }));
             this.textMesh.castShadow = true;
             this.textMesh.receiveShadow = true;
-            this.textMesh.position.set(0, 3, (this.limits.y + 10) * this.role);
-            this.scene.add(this.textMesh);
+            this.textMesh.position.set(field.x + 3, 8, (this.limits.y - 5) * this.role);
+            this.textName.castShadow = true;
+            this.textName.receiveShadow = true;
+            this.textName.position.set(field.x + 3, 12, (this.limits.y - 7) * this.role);
+            this.scene.add(this.textMesh, this.textName);
         } );
     }
 
-    createTextGeometry(font) {
-        const textGeo = new TextGeometry(this.text, {
+    createTextGeometry(text, font, params) {
+        const textGeo = new TextGeometry(text, {
                 font: font,
-                ...TEXT_PARAMS
+                ...params
         })
         textGeo.center();
-        textGeo.rotateX(-Math.PI * 0.1)
+        // textGeo.setRotationFromEuler(new THREE.Euler(this.rotationX, this.rotationY, this.rotationZ, "ZYX"));
+        // textGeo.rotateY(-Math.PI * this.rotationY)
+        textGeo.rotateX(Math.PI * this.rotationX);
+        textGeo.rotateY(Math.PI * this.rotationY);
+        textGeo.rotateZ(Math.PI * this.rotationZ);
+        // console.log(`Players creating Text: ${this.rotationX}x${this.rotationY}x${this.rotationZ}`)
         return textGeo;
     }
 
@@ -128,36 +169,40 @@ export class Player {
 
     setText() {
         // Reload in AI
-        this.text = `${this.name} - ${this.score}`;
+        this.text = `${this.score}`;
     }
 
     scored() {
         this.score++;
         // this.text = `${this.name} - ${this.score}`;
         this.setText();
-        this.textMesh.geometry = this.createTextGeometry(this.loadedFont);
+        this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
         
         this.textMesh.castShadow = true;
         this.textMesh.receiveShadow = true;
         this.textMesh.geometry.getAttribute('position').needsUpdate = true;
     }
+
+    getType() {
+        return ("localfinish");
+    }
 }
 
 export class AIPlayer extends Player {
 
-    constructor(limits, scene, role, name, position) {
-        super(limits, scene, role, name, position);
-        this.setText();
-        console.log(`My text is ${this.text}, my role is: ${this.text}`);
+    constructor(limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
+        super(limits, scene, role, name, position, rotationX, rotationY, rotationZ);
+        this.setText(TEXT_PARAMS);
+        // console.log(`My text is ${this.text}, my role is: ${this.text}`);
 
 
     }
 
-    setupText() {
+    setupText(params) {
     // this is the ai version - to be reloaded in AI
         this.loader.load(this.fontPath, ( font ) => {
             this.loadedFont = font;
-            const textGeo = this.createTextGeometry(this.loadedFont);
+            const textGeo = this.createTextGeometry(this.text, this.loadedFont, params);
             // textGeo.rotateX(Math.PI * 0.5)
             // textGeo.rotateX(-Math.PI * 0.1)
             this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ color: paddle.color }));
@@ -185,6 +230,21 @@ export class AIPlayer extends Player {
         }
     }
 
+    scored() {
+        this.score++;
+        // this.text = `${this.name} - ${this.score}`;
+        this.setText();
+        this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
+        
+        this.textMesh.castShadow = true;
+        this.textMesh.receiveShadow = true;
+        this.textMesh.geometry.getAttribute('position').needsUpdate = true;
+    }
+
+    getType() {
+        return ("aifinish");
+    }
+
 }
 
 export class AIController {
@@ -198,7 +258,7 @@ export class AIController {
         this.lastUpdateTime = 0;
         this.maxSpeed = paddle.speed;
         this.limits = limits;
-        console.log(`LimitX is ${limits.x}, LimitY is ${limits.y}`)
+        // console.log(`LimitX is ${limits.x}, LimitY is ${limits.y}`)
         this.difficulty = 3; // 0.5-1 => easy, 3 => already low chance for ai to lose, 5 => almost impossible; 
         this.errorRange = (limits.y / 10) * (2 / this.difficulty); 
     }
@@ -215,8 +275,7 @@ export class AIController {
         this.paddle.move();
 
     }
-    // when the ball will hit the top or bottom walls
-    // Predicts the ball's position after a given time (in seconds)
+
     getTimeToTopBottom(yspeed, y) {
         if (yspeed > 0) {
             // Ball is moving up → Time to reach the top wall (15)
@@ -225,9 +284,6 @@ export class AIController {
             // Ball is moving down → Time to reach the bottom wall (-15)
             return (y + this.limits.x - this.target.radius) / -yspeed;
         }
-        // return (yspeed > 0) 
-        //     ? (this.limits.x - (y + this.target.radius)) / yspeed  // bottom wall
-        //     : -(y - this.target.radius) / yspeed;                  // top wall
     }
     
     // when the ball will hit the left or right walls
@@ -238,10 +294,7 @@ export class AIController {
         } else {
             // Ball is moving left → Time to reach the left wall
             return (x + this.limits.y - 2 - this.target.radius) / -xspeed; // left wall
-        }
-        // return (xspeed > 0) 
-        //     ? (this.limits.y - (x + this.target.radius)) / xspeed   
-        //     : -(x - this.target.radius) / xspeed;                  
+        }             
     }
     
 
@@ -256,9 +309,8 @@ export class AIController {
         // console.log(`tempXspeed is ${tempXspeed}, tempYspeed is ${tempYspeed}`)
         // if the ball is going toward opposite wall => return random just for moving & replicating human behaviour
         if (tempZspeed > 0)
-            return Math.random() * (this.limits.x * 2) - this.limits.x;
-         //   return Math.floor(Math.random() * (this.limits.x * 2 + 1)); //null;
-        
+            return Math.floor(Math.random() * (this.limits.x * 2 + 1)); //null;
+        //  return Math.random() * (this.limits.x * 2) - this.limits.x; // null
         let timeToTopBottom = this.getTimeToTopBottom(tempXspeed, tempX);
         let timeToLeftRight = this.getTimeToLeftRight(tempZspeed, tempZ);
         // console.log(`timeToTopBottom is ${timeToTopBottom}, timeToLeftRight is ${timeToLeftRight}`)
@@ -287,24 +339,24 @@ export class AIController {
 
     doMovesAI() {
    
-        console.log("doing it each sec");
+        // console.log("doing it each sec");
         this.targetX = this.predictBallX();
-        console.log(`TargetX is ${this.targetX}`)
+        // console.log(`TargetX is ${this.targetX}`)
         if (this.targetX === null)   return;
     
         if (this.targetX  < this.paddle.mesh.position.x - paddle.length / 2) {
-            console.log("Entered first if");
-            console.log(`paddle pos ${this.paddle.mesh.position.x}`);
+            // console.log("Entered first if");
+            // console.log(`paddle pos ${this.paddle.mesh.position.x}`);
             this.paddle.up = false;
             this.paddle.down = true;
         } else if (this.targetX  > this.paddle.mesh.position.x + paddle.length / 2) {
-            console.log("Entered second if");
-            console.log(`paddle pos ${this.paddle.mesh.position.x}`);
+            // console.log("Entered second if");
+            // console.log(`paddle pos ${this.paddle.mesh.position.x}`);
             this.paddle.down = false;
             this.paddle.up = true;
         } else {
-            console.log("Entered else");
-            console.log(`paddle pos ${this.paddle.mesh.position.x}`);
+            // console.log("Entered else");
+            // console.log(`paddle pos ${this.paddle.mesh.position.x}`);
             this.paddle.up = false;
             this.paddle.down = false;
         }
