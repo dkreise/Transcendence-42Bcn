@@ -249,9 +249,9 @@ def enable_2fa(request):
 
         # print("QR Image:", qr_image)
         # print("QR Base64:", qr_base64)
-        context = {}
+        context = {"qr_code": qr_base64}
         add_language_context(request, context)
-        setup_html = render_to_string("2fa_setup.html", {"qr_code": qr_base64}, context)
+        setup_html = render_to_string("2fa_setup.html", context)
         return JsonResponse({
             "success": True,
             "setup_html": setup_html,
