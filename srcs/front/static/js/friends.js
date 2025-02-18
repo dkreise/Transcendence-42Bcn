@@ -3,7 +3,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 var baseUrl = "http://localhost"; // change (parse) later
 
 export const loadFriendsSearchPage = () => {
-    makeAuthenticatedRequest(baseUrl + ":8000/api/search-users", {method: "GET"})
+    makeAuthenticatedRequest(baseUrl + ":8000/api/search-users", {method: "GET", credentials: "include"})
         .then((response) => response.json())
         .then(data => {
             if (data.search_users_html) {
