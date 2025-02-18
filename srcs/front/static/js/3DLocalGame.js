@@ -15,9 +15,9 @@ import { AmbientLight, DirectionalLight , Vector3} from 'three'
 
 var baseUrl = "http://localhost"; // change (parse) later
  
-let renderer, scene, camera, animationId, start, button, tryAgain;
+let renderer, scene, camera;
 let limits, planeGeo, planeMat, plane, controls, ai, loader, countdownText;
-let player1, player2, ball, mainUse, gameLoopId, lastAIUpdate; // if the main user is player 1 or 2
+let player1, player2, ball, gameLoopId; // if the main user is player 1 or 2
 let text, mainUser, lights;
 let ifAI = false;
 let gameStarted = false;
@@ -66,7 +66,7 @@ const   size = {
 // Start game function
 export function start3DLocalGame(playerName1, playerName2, mainUserNmb) {
     // Set up scene
-
+    gameStarted = false;
     setupScene();
     text = new SceneText(scene, 0, -Math.PI / 2, 0);
     // text.group.rotation.y = text.rotation;
@@ -80,7 +80,7 @@ export function start3DLocalGame(playerName1, playerName2, mainUserNmb) {
     setupField();
     controls.target.set(0, 7, 0);
     // scene.lights[dirLight].position.x *= -1;
-    // console.log('Starting local game...');
+    console.log('Starting local game...');
 
     player1 = new Player(limits, scene, -1, playerName1, new THREE.Vector3(0, 0, -field.y + 2), -0.1, -0.5, 0);
     console.log(`player1: ${field.y}`)
@@ -89,6 +89,7 @@ export function start3DLocalGame(playerName1, playerName2, mainUserNmb) {
     setupEvents();
     setupControls();
     // ROTATE THE BUTTON
+    // gameStarted = true;
     animateLocal();
 
 }
@@ -161,7 +162,7 @@ function animateLocal() {
 export function start3DAIGame(playerName2) {
 
     // ifAI = true;
-    
+    gameStarted = false;
     setupScene();
     text = new SceneText(scene);
     camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 1000);
@@ -462,7 +463,8 @@ function handleResize() {
     size.width = window.innerWidth;
     size.height = window.innerHeight;
 
-    camera.aspect = size.width / size.height;
+    if(camera.aspect) 
+        camera.aspect = size.width / size.height;
     camera.updateProjectionMatrix();
     renderer.setSize(size.width, size.height);
 
@@ -473,26 +475,88 @@ function handleResize() {
 // ------------ MAYBE WILL BE USED ------------------- //
 
 export function cleanup3D() {
-    if (animationId) {
-        cancelAnimationFrame(animationId);
-        animationId = null;
-    }
-    if (renderer) {
-        renderer.dispose();
-        if (renderer.domElement && renderer.domElement.parentNode) {
-            renderer.domElement.parentNode.removeChild(renderer.domElement);
+    // Dispose of all geometries, materials, and textures
+    if (!scene) return;
+    
+    // Stop animation loop
+    cancelAnimationFrame(gameLoopId);
+
+    // Remove event listeners (if any)
+    // window.removeEventListener("resize", onWindowResize);
+
+    // scene.remove(ball);
+    // ball.geometry.dispose();
+    // ball.material.dispose();
+    // ball = null;
+
+    scene.traverse((object) => {
+        if (object.isMesh) {
+            console.log("cleaning objects")
+            if (object.geometry) object.geometry.dispose();
+            if (object.material) {
+                if (Array.isArray(object.material)) {
+                    object.material.forEach(mat => mat.dispose());
+                } else {
+                    object.material.dispose();
+                }
+            }
         }
-        renderer = null;
+    });
+
+    console.log(`ball cleaned: ${ball}`);
+
+    // Remove all objects from the scene
+    while (scene.children.length > 0) {
+        console.log("removing objects")
+        scene.remove(scene.children[0]);
     }
-     // Dispose of the scene and objects
-     if (scene) {
-        // If cube is added to the scene, remove it
-        scene = null;
-    }
-    // Dispose of the camera if necessary (optional)
+    ball = null;
+    player1 = null;
+    player2 = null;
+    text = null;
+    ai = null;
+
+    // Dispose of the renderer
+    renderer.dispose();
+    renderer.domElement.remove();
+
+    // Dispose of controls if using OrbitControls
+    if (controls) controls.dispose();
+    scene = null;
     camera = null;
-    console.log("3D scene cleaned up");
+    lights = null;
+    plane = null;
+    gameLoopId = null;
+
+    gameStarted = false;
+    gameEnded = false;
+
+    pause = false;
+
+    console.log("✅ Scene cleaned up!");
 }
+
+// export function cleanup3D() {
+//     if (animationId) {
+//         cancelAnimationFrame(animationId);
+//         animationId = null;
+//     }
+//     if (renderer) {
+//         renderer.dispose();
+//         if (renderer.domElement && renderer.domElement.parentNode) {
+//             renderer.domElement.parentNode.removeChild(renderer.domElement);
+//         }
+//         renderer = null;
+//     }
+//      // Dispose of the scene and objects
+//      if (scene) {
+//         // If cube is added to the scene, remove it
+//         scene = null;
+//     }
+//     // Dispose of the camera if necessary (optional)
+//     camera = null;
+//     console.log("3D scene cleaned up");
+// }
 
 
 // function animateIdleAI() {

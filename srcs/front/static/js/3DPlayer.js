@@ -67,7 +67,11 @@ export class Player {
         this.speed = paddle.speed;
         this.color = paddle.color;
         this.loader = new FontLoader();
+        // this.textGeo = null;
+        // this.textMat = null;
         this.textMesh = null;
+        // this.textNameGeo = null;
+        // this.textNameMat = null;
         this.textName = null;
         this.fontPath = paddle.fontPath;
         this.loadedFont = null;
@@ -93,13 +97,14 @@ export class Player {
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
+        this.collitionMat = new THREE.MeshNormalMaterial({ 
+            transparent: true, 
+            opacity: 0.5, 
+            visible: false 
+        });
         this.collitionMesh = new THREE.Mesh(
             HELPER_GEO,
-            new THREE.MeshNormalMaterial({ 
-                transparent: true, 
-                opacity: 0.5, 
-                visible: false 
-            }) 
+            this.collitionMat,
         )
         this.mesh.add(this.collitionMesh);
         this.mesh.position.copy(this.initial);
@@ -110,6 +115,7 @@ export class Player {
     resetAll() {
         this.score = 0;
         this.setText();
+        this.textMesh.geometry.dispose();
         this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
         
         this.textMesh.castShadow = true;
@@ -176,6 +182,7 @@ export class Player {
         this.score++;
         // this.text = `${this.name} - ${this.score}`;
         this.setText();
+        this.textMesh.geometry.dispose();
         this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
         
         this.textMesh.castShadow = true;
@@ -186,6 +193,26 @@ export class Player {
     getType() {
         return ("localfinish");
     }
+
+    // die () {
+    //     this.collitionMat.dispose();
+    //     HELPER_GEO.dispose();
+    //     this.collitionMesh.dispose();
+
+    //     this.geometry.dispose();
+    //     this.material.dispose();
+    //     this.mesh.dispose();
+
+    //     this.textMesh.geometry.dispose();
+    //     this.textMesh.material.dispose();
+    //     this.textMesh.dispose();
+
+    //     this.textName.geometry.dispose();
+    //     this.textName.material.dispose();
+    //     this.textName.dispose();
+
+    //     this.scene.remove(this.collitionMesh, this.mesh, this.textMesh, this.textName);
+    // }
 }
 
 export class AIPlayer extends Player {
@@ -251,7 +278,7 @@ export class AIController {
     constructor(paddle, target, limits) {
         this.paddle = paddle;
         this.target = target;
-        this.simplex = new SimplexNoise();
+        // this.simplex = new SimplexNoise();
         this.time = 0;
         // this.targetX = this.paddle.mesh.position.x;
         this.targetX = this.paddle.mesh.position.x; // Store last target position
