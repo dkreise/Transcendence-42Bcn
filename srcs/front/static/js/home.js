@@ -1,14 +1,17 @@
 import { makeAuthenticatedRequest } from "./login.js";
+import { drawHeader } from "./main.js";
 
 var baseUrl = "http://localhost";
 
 export const loadHomePage = () => {
     console.log('Loading home page...');
-    makeAuthenticatedRequest(baseUrl + ":8000/api/home-page/", {
+    drawHeader(1).then(() => {
+    return makeAuthenticatedRequest(baseUrl + ":8000/api/home-page/", {
         method: "GET",
         credentials: "include"
+        });
     })
-        .then((response) => {
+    .then((response) => {
             console.log('Response received:', response); // Log para confirmar la respuesta
             if (response.ok) {
                 console.log('Response is OK');
