@@ -155,7 +155,7 @@ function gameLoop() {
 
 export function startGame()
 {
-	canvas = document.getElementById('gameCanvas');
+	canvas = document.getElementById('newGameCanvas');
 	ctx = canvas.getContext('2d');
 	ball = new Ball(canvas);
 	targetBallX = ball.x;

@@ -1,11 +1,7 @@
 import { makeAuthenticatedRequest } from "./login.js";
-// import { addLogoutListener } from "./logout.js";
-import { navigateTo, checkPermission } from "./main.js"
 import { Ball, Player } from "./localClasses.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
-
-
 
 // Game Initialization
 let canvas = null;
@@ -17,15 +13,15 @@ let ball = null;
 let gameLoopId = null;
 let maxScore = 2;
 
-export function saveScore() {
+export function saveScore(score1, score2, mainUser) {
 
     makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/save-local-score/", {
         method: "POST",
         body: JSON.stringify({
             // 'player1': player1.name,
-            'score1': player1.score,
+            'score1': score1,
             // 'player2': player1.name,
-            'score2': player2.score,
+            'score2': score2,
             
             'main_user': mainUser, 
         }),
@@ -68,7 +64,7 @@ function gameLocalLoop() {
         const finalScore = `${player1.score} - ${player2.score}`;
         cancelAnimationFrame(gameLoopId);
         player1.displayEndgameMessage(ctx, finalScore, winner);
-        saveScore();
+        saveScore(player1.score, player2.score, mainUser);
     }
 }
 
@@ -102,8 +98,8 @@ export function startLocalGame(playerName1, playerName2, mainUserNmb) {
     // Initialize players and ball
     console.log('Starting local game...');
     console.log(`Canvas: ${canvas.width} x ${canvas.height}`);
-    player1 = new Player(canvas, 0, playerName1, 0);
-    player2 = new Player(canvas, 1, playerName2, canvas.width - 10);
+    player1 = new Player(canvas, 0, playerName1);
+    player2 = new Player(canvas, 1, playerName2);
     ball = new Ball(canvas);
 
     setupControls();

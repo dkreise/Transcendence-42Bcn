@@ -1,6 +1,15 @@
 from collections import defaultdict
 import logging
 import asyncio
+# from .views import save_remote_score
+from django.contrib.auth import get_user_model
+# from .models import Game
+from django.db import transaction
+
+def get_game_model():
+    from .models import Game  # Import inside function
+    return Game
+
 
 logger = logging.getLogger(__name__)
 
@@ -38,16 +47,20 @@ class GameManager:
 		})
 
 		logger.info(f"\033[1;31mJOIN ROOM: game[players] = {game['players']}\033[0m")
-		if game["players"]:
-			player1 = game["players"].get("player1")
-			player2 = game["players"].get("player2")
-			if player1 and (player_id == player1["id"]):
-				return "player1"
-			elif player2 and (player_id == player2["id"]):
-				return "player2"
+		try:
+			if game["players"]:
+				player1 = game["players"].get("player1")
+				player2 = game["players"].get("player2")
+				if player1 and (player_id == player1["id"]):
+					return "player1"
+				elif player2 and (player_id == player2["id"]):
+					return "player2"
 
-			if len(game["players"]) >= 2:  # Max 2 players
-				return None  # Room is full
+				if len(game["players"]) >= 2:  # Max 2 players
+					logger.info(f"\033[1;33mI'm FUCKING FULL\033[0m")
+					return None  # Room is full
+		except Exception as e:
+			logger.info(str(e))
 
 		role = "player1" if "player1" not in game["players"] else "player2"
 		logger.info(f"\033[1;33mjoinRoom game->players {game['players']}\033[0m")
@@ -132,11 +145,62 @@ class GameManager:
 		}
 
 	@staticmethod
+	def save_remote_score(room_id, winner_id, scores, players):
+		try:
+			Game = get_game_model()
+			with transaction.atomic():  # Ensure atomicity
+				player1_id = players.get("player1")
+				player2_id = players.get("player2")
+
+				# Fetch users (set to None if they don't exist)
+				# player1 = User.objects.filter(id=player1_id).first()
+				# player2 = User.objects.filter(id=player2_id).first()
+				winner = User.objects.filter(id=winner_id).first()
+				player1 = winner
+				player2 = User.objects.filter(id=player1_id).first() if player1_id == winner_id else User.objects.filter(id=player2_id).first()
+				score1 = scores["player1"] if scores["player1"] > scores["player2"] else scores["player2"]
+				score2 = scores["player1"] if scores["player1"] < scores["player2"] else scores["player2"]
+				# Save the game result
+				game = Game.objects.create(
+					player1=player1,
+					# alias1=players.get("alias1", "Guest" if not player1 else player1.username),
+					score_player1=score1,
+					player2=player2,
+					# alias2=players.get("alias2", "Guest" if not player2 else player2.username),
+					score_player2=score2,
+					winner=winner,
+					tournament_id=-1  # Set tournament_id accordingly if needed
+				)
+				game.save()
+
+				return game  # Return the saved game instance
+
+		except Exception as e:
+			print(f"Error saving game result: {e}")
+			return None
+ 
+	@staticmethod
 	def declare_winner(room_id, winner_id, role):
 		game = GameManager.games.get(room_id)
-		if not game:
+		if not game: 
 			return
-	
+		# here goes saving score 
+		# Prepare player data
+		players = {
+			"player1": game["players"].get("player1", {}).get("id"),
+			"alias1": game["players"].get("player1", {}).get("alias", "Guest"),
+			"player2": game["players"].get("player2", {}).get("id"),
+			"alias2": game["players"].get("player2", {}).get("alias", "Guest"),
+		}
+
+		Game = get_game_model()
+
+		# Save the game result
+		saved_game = GameManager.save_remote_score(room_id, winner_id, game["scores"], players)
+
+		if saved_game:
+			logger.info(f"Game saved successfully: {saved_game}")
+
 		logger.info(f"Player {winner_id} wins in room {room_id}!")
 		return {
 			"type": "endgame",

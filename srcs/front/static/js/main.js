@@ -5,8 +5,9 @@ import { loadHomePage } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
-import { playLocal, playAI, playOnline, gameLocal, gameAI } from "./game.js"
 // import { setDifficulty } from "./AIGame.js"
+import { playLocal, playAI, playOnline, play3D, gameLocal } from "./game.js"
+import { cleanup3D } from "./3DLocalGame.js";
 // import { gameLocal } from "./localGame.js"
 
 
@@ -39,6 +40,8 @@ const routes = {
     '/play-local/game': gameLocal,
     '/play-ai/game': gameAI,
     // '/play-ai/set-difficulty/': setDifficulty,
+    '/play-3d': play3D,
+
     // '/tournament': playTournament,
 
     // EXAMPLE how to announce a function that receives parameters:
@@ -51,7 +54,14 @@ const routes = {
 // If the path exists in the routes object, its associated function is executed.
 
 function router() {
+    
+    cleanup3D();
+
     let path = window.location.pathname;
+// const contentArea = document.getElementById('content-area');
+// contentArea.innerHTML = ''; // Clear previous content
+
+    console.log(`Content cleared in router`);
 
     if (routes[path]) {
         routes[path](); // Call the function associated with the path
@@ -144,8 +154,11 @@ console.log('main.js is loaded');
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded event triggered");
 
-    window.addEventListener('popstate', router);
-
+    window.addEventListener('popstate', (event) => {
+        console.log("Popstate triggered:", event);
+        cleanup3D();       // Always clean up before routing
+        router();          // Then handle the new route
+    });
    
     // Event delegation for data-route attributes
     document.body.addEventListener('click', (event) => {
@@ -167,6 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     console.log(history.state)
+    cleanup3D();
     router();
   
 });

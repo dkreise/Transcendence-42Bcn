@@ -1,8 +1,10 @@
 import { makeAuthenticatedRequest } from "./login.js";
 // import { addLogoutListener } from "./logout.js";
 import { navigateTo, checkPermission } from "./main.js"
-import { startLocalGame } from "./localGame.js"; 
 import { startAIGame } from "./AIGame.js";
+import { startLocalGame } from "./localGame.js";
+import { startGame } from "./remoteGame.js"; 
+import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -105,14 +107,7 @@ export const gameLocal = () => {
         .catch(error => {
             console.error('Catch error loading local game: ', error);
         });
-        // const contentArea = document.getElementById('content-area');
-        // contentArea.innerHTML = '';
-        // const heading = document.createElement('h2');
-        // heading.textContent = 'Here will be the game board'
-        // contentArea.appendChild(heading);
-        // console.log(`Here will be the game board`);
     }
-    // makeAuthenticatedRequest() //.py to POST the results
 }
 
 export const gameAI = () => {
@@ -161,12 +156,69 @@ export const playOnline = () => {
     if (!checkPermission) {
         navigateTo('/login');
     } else {
-        const contentArea = document.getElementById('content-area');
-        contentArea.innerHTML = '';
-        const heading = document.createElement('h2');
-        heading.textContent = 'Here will be the game board'
-        contentArea.appendChild(heading);
-        console.log(`Here will be the game board`);
+        console.log('Loading online game...')
+        makeAuthenticatedRequest(baseUrl + ":8001/api/game/remote/play/", {
+            method: "GET",
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.game_html) {
+                document.getElementById('content-area').innerHTML = data.game_html;
+                const canvas = document.getElementById("newGameCanvas");
+                if (canvas)
+                    startGame();
+                else
+                    console.log("Error: Canvas not found");
+            } else {
+                console.log('Response: ', data);
+                console.error('Failed to load remote game:', data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Catch error loading remote game: ', error);
+            if (error == "No access token.")
+                navigateTo('/login');
+        });
     }
     // makeAuthenticatedRequest() // to POST the results
 } 
+
+export function play3D() {
+
+    if (!checkPermission) {
+        navigateTo('/login');
+    } else {
+        console.log("Navigating to /play-local/game");
+    }
+    const contentArea = document.getElementById('content-area');
+    contentArea.innerHTML = ''; // Clear previous content
+    makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
+        method: "POST",
+        body: JSON.stringify({
+            'second-player': 'somename',  // Stringify the body data
+        }),
+        headers: {"Content-Type": "application/json"},
+    })
+    .then(response => {
+        console.log('Raw response:', response);  // Add this line to inspect the raw response
+        return response.json();
+    })
+    .then(data => {
+        if (data.game_html) {
+            console.log('3D game returned!');
+
+            // start3DLocalGame(data['player1'], data['player2'], data['main_user']);
+            start3DLocalGame('player1', '@42nzhuzhle', 2);
+            // start3DAIGame(localStorage.getItem('username'));
+
+
+        } else {
+            console.log('Response: ', data);
+            console.error('Failed to fetch the local game:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Catch error loading local game: ', error);
+    });
+ 
+}
