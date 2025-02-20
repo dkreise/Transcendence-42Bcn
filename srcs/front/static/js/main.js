@@ -8,8 +8,7 @@ import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 // import { setDifficulty } from "./AIGame.js"
 import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
-// import { gameLocal } from "./localGame.js"
-
+import { manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage} from "./tournament.js";
 
 const historyTracker = [];
 
@@ -35,15 +34,20 @@ const routes = {
     '/logout': handleLogout,
     '/settings': loadProfileSettingsPage,
     '/play-local': playLocal,
-    '/play-ai': playAI,
+    '/play-ai': (args) => playAI(args),
     '/play-online': playOnline,
     '/play-local/game': gameLocal,
-    '/play-ai/game': gameAI,
     // '/play-ai/set-difficulty/': setDifficulty,
     '/play-3d': play3D,
-
-    // '/tournament': playTournament,
-
+    '/play-ai/game': (args) => gameAI(args),
+    '/tournament': manageTournamentHomeBtn,
+    '/tournament-home': loadTournamentHomePage,
+    '/waiting-room': loadWaitingRoomPage,
+    '/tournament-bracket': loadBracketTournamentPage,
+    '/create-tournament': createTournament,
+    '/join-tournament': joinTournament,
+    '/end-tournament': loadFinalTournamentPage,
+    
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
 };
@@ -53,10 +57,9 @@ const routes = {
 // based on the current path (window.location.pathname).
 // If the path exists in the routes object, its associated function is executed.
 
-function router() {
+function router(args=null) {
     
     cleanup3D();
-
     let path = window.location.pathname;
 // const contentArea = document.getElementById('content-area');
 // contentArea.innerHTML = ''; // Clear previous content
@@ -64,9 +67,9 @@ function router() {
     console.log(`Content cleared in router`);
 
     if (routes[path]) {
-        routes[path](); // Call the function associated with the path
+        routes[path](args); // Call the function associated with the path
     } else {
-        alert("rerer");
+        alert("path doesn't exists");
         console.log(`Route ${path} not handled`);
         // showNotFound(); // Handle unknown routes
     }
@@ -92,21 +95,26 @@ function router() {
 // Additionally, a historyTracker array is maintained for debugging, which logs every navigation event 
 // (pushState or replaceState).
 
-export function navigateTo(path, replace = false) {
-    console.log(`navigating to ${path}`)
-    if (replace) {
-        history.replaceState({ path }, null, path);
+export function navigateTo(path, replace = false, args = null) {
+    console.log(`navigating to ${path} with args: `, args)
+
+    // // Extract query params
+    // const [cleanPath, queryString] = path.split("?");
+    // const args = Object.fromEntries(new URLSearchParams(queryString));
+
+    if (replace) { //DONT ADD TO HISTORY
+        history.replaceState({ path, args }, null, path);
         historyTracker.push({ action: 'replaceState', path });
         console.log(`${path} is replaced in history`)
     }
-    else {
+    else { //ADD TO HISTORY
 
-        history.pushState({ path }, null, path);
+        history.pushState({ path, args }, null, path);
         historyTracker.push({ action: 'pushState', path });
         console.log(`${path} is pushed to history`)
     }
     //console.log('History Tracker:', JSON.stringify(historyTracker, null, 2)); // Log the history
-    router();
+    router(args);
 }
 
 // The clearURL() function removes query parameters from the URL 
@@ -175,7 +183,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 event.preventDefault();
             }
 
-            navigateTo(route);
+            const shouldReplace = target.hasAttribute('replace-url');
+
+            // Extract arguments from `data-args` (if present)
+            const args = target.hasAttribute("data-args")
+                ? JSON.parse(target.getAttribute("data-args"))
+                : null;
+            console.log("Extracted args:", args);
+
+            navigateTo(route, shouldReplace, args);
         }
     });
 

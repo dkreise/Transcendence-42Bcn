@@ -36,17 +36,18 @@
             </tr>
         </thead>
         <tbody id="match-history-table-body">
-            <h1>Match History</h1>
-            {% for game in match_history %}
-            <tr>
-                <td>{{ game.date }}</td>
-                <td>{{ game.player1 }}</td>
-                <td>{{ game.score_player1 }}</td>
-                <td>{{ game.player2 }}</td>
-                <td>{{ game.score_player2 }}</td>
-                <td>{{ game.winner }}</td>
-                <td>{% if game.tournament_id >= 0 %}Yes{% else %}No{% endif %}</td>
-            </tr>
+
+            {% for game in match_history_games %}
+                <tr>
+                    <td>{{ game.date }}</td>
+                    <td>{{ game.player1 }}</td>
+                    <td>{{ game.score_player1 }}</td>
+                    <td>{{ game.player2 }}</td>
+                    <td>{{ game.score_player2 }}</td>
+                    <td>{{ game.winner }}</td>
+                    <td>{% if game.tournament_id >= 0 %}Yes{% else %}No{% endif %}</td>
+                </tr>
+
             {% empty %}
                 <tr>
                     <td colspan="7">{{no_match_history}}</td>

@@ -1,4 +1,5 @@
 import { Ball, Player } from "./localClasses.js";
+import { saveTournamentGameResult } from "./tournament.js";
 
 // Game Initialization
 let canvas = null;
@@ -13,6 +14,7 @@ let intervalID = null;
 let targetY = null;
 let difficulty = 3; // 0.5-1 => easy, 3 => already low chance for ai to lose, 5 => almost impossible; 
 let errorRange = null;
+let tournamentId = null;
 
 // when the ball will hit the top or bottom walls
 function getTimeToTopBottom(yspeed, y) {
@@ -129,16 +131,29 @@ function gameAILoop() {
     
     // Endgame check
     if (player.score >= maxScore || AI.score >= maxScore) {
-        const winner = player.score > AI.score ? `${player.name} Wins!` : `${AI.name} Wins!`;
-        // const finalScore = `${player.score} - ${AI.score}`; // change properly
-        const finalScore = `*final score*`
+        const winner = player.score > AI.score ? player.name : "@AI";
+        const looser = player.score > AI.score ? "@AI" : player.name;
+        const winnerMsg = player.score > AI.score ? `${player.name} Wins!` : `${AI.name} Wins!`;
+        let finalScore = "";
+        if (mainUser == 1)
+            finalScore = `${player.score} - ${AI.score}`;
+        else
+            finalScore = `${AI.score} - ${player.score}`;
         cancelAnimationFrame(gameLoopId);
-        player.displayEndgameMessage(ctx, finalScore, winner);
+        player.displayEndgameMessage(ctx, finalScore, winnerMsg);
         // saveScore();
 
         if (intervalID) {
             clearInterval(intervalID);
             intervalID = null;
+        }
+
+        if (tournamentId) {
+            console.log('TOURNAMENT GAME FINISHED, ID:: ');
+            console.log(tournamentId);
+            saveTournamentGameResult(winner, looser, player.score, AI.score);
+        } else {
+            console.log("SIMPLE GAME FINISHED");
         }
     }
 }
@@ -161,10 +176,15 @@ function setupControlsAI() {
 }
 
 // Start game function
-export function startAIGame(playerName1, playerName2, mainUserNmb) {
+export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
     if (intervalID) {
         clearInterval(intervalID);
         intervalID = null;
+    }
+    if (tournament) {
+        difficulty = 1; // medium
+        tournamentId = tournament.id;
+        console.log(tournament.id);
     }
     canvas = document.getElementById("newGameCanvas");
     ctx = canvas.getContext("2d");
@@ -194,6 +214,7 @@ export function startAIGame(playerName1, playerName2, mainUserNmb) {
 
     setupControlsAI();
     intervalID = setInterval(doMovesAI, 1000);
+    console.log(tournamentId);
     gameAILoop();
 }
 

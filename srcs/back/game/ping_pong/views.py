@@ -16,6 +16,7 @@ from django.http import JsonResponse
 # from django.contrib.auth import get_user_model
 
 # User = get_user_model()
+
  
 @api_view(['GET'])
 def player_list(request):
@@ -131,7 +132,19 @@ def get_player_all_games(request, player_id):
             Game.objects.filter(Q(player1_id=player_id) | Q(player2_id=player_id))
             .order_by('-id')
         )
-
+        print("GAMES OBJECTS:::")
+        print(games)
+        # for game in games:
+        #     print(game)
+        #     print(f"game id: {game.id}")
+        #     dat = game.date.strftime("%Y-%m-%d %H:%M")
+        #     print(f"date: {dat}")
+        #     print(f"username1: {game.player1.username}")
+        #     print(f"score1: {game.score_player1}")
+        #     print(f"username2: {game.player2.username}")
+        #     print(f"score2: {game.score_player2}")
+        #     print(f"winner: {game.winner.username}")
+        #     print(f"tourn: {game.tournament_id}")
         games_data = [
             {
                 "id": game.id,
@@ -145,6 +158,7 @@ def get_player_all_games(request, player_id):
             }
             for game in games
         ]
+        print(games_data)
 
         return Response(games_data, status=status.HTTP_200_OK)
 
@@ -172,6 +186,9 @@ def play_game(request):
     add_language_context(request, context)
     game_html = render_to_string('remote_game.html', context)
     return JsonResponse({'game_html': game_html}, content_type="application/json")
+    # add_language_context(request.COOKIES, context)
+    # game_html = render_to_string('remote_game.html', context)
+    # return JsonResponse({'game_html': game_html}, content_type="application/json")
 
 # def save_remote_score(room_id, winner_id, scores, players):
 #     """
@@ -213,3 +230,4 @@ def play_game(request):
 #     except Exception as e:
 #         print(f"Error saving game result: {e}")
 #         return None
+

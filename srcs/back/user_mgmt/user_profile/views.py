@@ -16,6 +16,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import activate
 from django.contrib.auth.decorators import login_required
 from rest_framework_simplejwt.tokens import AccessToken
+from .models import Profile
 
 def get_photo_url(user):
     photo_url = None
@@ -112,7 +113,7 @@ def match_history_page(request):
         user_id = request.user.id
         all_games = player_all_games(request, user_id)
         context = {
-            'match_history': all_games,
+            'match_history_games': all_games,
         }
         add_language_context(request, context)
         match_history_html = render_to_string('match_history.html', context)
@@ -271,21 +272,17 @@ def save_user_pref_lang(request):
     data = json.loads(request.body)
     lang = data.get('language', 'en')
 
-    if request.user.is_authenticated:
-        user_profile = request.user.profile
-        user_profile.language = lang
-        user_profile.save()
-       
+    user_profile = request.user.profile
+    user_profile.language = lang
+    user_profile.save()
+    
     activate(lang)
     return JsonResponse({'status': 'success', 'message': 'Language has been setted.'})
 
 @api_view(['GET'])
 @login_required 
 def get_user_pref_lang(request):
-    if request.user.is_authenticated:
-        lang = request.user.profile.language
-        if (lang == ""):
-            lang = request.COOKIES.get('language') or 'en'
+    lang = request.user.profile.language
     return JsonResponse({'status': 'success', 'language': lang}, status=200)
 
 # def root_view(request):
@@ -306,11 +303,10 @@ def get_user_pref_lang(request):
 def home_page(request):
     print('Home page api called')
     if request.user.is_authenticated:
-        # context = {
-        #     'user': request.user,  # Pass the user object to the template
-        # }
+        context = {
+            'user': request.user,  # Pass the user object to the template
+        }
         # Render the HTML with the user's data
-        context = {}
         add_language_context(request, context)
         home_html = render_to_string('home_page.html', context)
         return JsonResponse({'home_html': home_html}, content_type="application/json")
