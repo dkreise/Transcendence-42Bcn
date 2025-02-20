@@ -134,8 +134,11 @@ function gameAILoop() {
         const winner = player.score > AI.score ? player.name : "@AI";
         const looser = player.score > AI.score ? "@AI" : player.name;
         const winnerMsg = player.score > AI.score ? `${player.name} Wins!` : `${AI.name} Wins!`;
-        // const finalScore = `${player.score} - ${AI.score}`; // change properly
-        const finalScore = `*final score*`
+        let finalScore = "";
+        if (mainUser == 1)
+            finalScore = `${player.score} - ${AI.score}`;
+        else
+            finalScore = `${AI.score} - ${player.score}`;
         cancelAnimationFrame(gameLoopId);
         player.displayEndgameMessage(ctx, finalScore, winnerMsg);
         // saveScore();
@@ -148,7 +151,7 @@ function gameAILoop() {
         if (tournamentId) {
             console.log('TOURNAMENT GAME FINISHED, ID:: ');
             console.log(tournamentId);
-            saveTournamentGameResult(tournamentId, winner, looser);
+            saveTournamentGameResult(winner, looser, player.score, AI.score);
         } else {
             console.log("SIMPLE GAME FINISHED");
         }
@@ -179,7 +182,7 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
         intervalID = null;
     }
     if (tournament) {
-        difficulty = 3; // medium
+        difficulty = 1; // medium
         tournamentId = tournament.id;
         console.log(tournament.id);
     }

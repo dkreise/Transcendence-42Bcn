@@ -89,21 +89,23 @@ export const loadFinalTournamentPage = () => {
 	}
 };
 
-export const saveTournamentGameResult = (tournamentId, winner, loser) => {
+export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) => {
     const button = document.getElementById('play-again');
     if (button) {
         button.textContent = "Back to Tournament Page";
         button.setAttribute("data-route", "/tournament-bracket");
     }
 
+    console.log("Sending request to save the game result..");
+
     if (socket.readyState === WebSocket.OPEN)
     {
         const data = {
             "type": "game_result",
             "winner": winner,
-            "winner_score": 2, // change
+            "winner_score": playerScore > AIScore ? playerScore : AIScore,
             "loser": loser,
-            "loser_score": 0, // change
+            "loser_score": playerScore > AIScore ? AIScore : playerScore,
         };
         socket.send(JSON.stringify(data));
     }

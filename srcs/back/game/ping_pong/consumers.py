@@ -62,6 +62,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 							}))
 						else:
 							page = tournament.get_bracket_page()
+							tournament.increase_round()
 							await self.channel_layer.group_send(
 								self.tour_id,
 								{
@@ -180,8 +181,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 					}))
 
 				elif dtype == "game_result":
-					status = tournament.save_game_result(data)
+					logger.info("RECEIVED. we need to handle game result")
+					status = await tournament.handle_game_end(data)
 					if status == "new":
+						tournament.increase_round()
 						await self.channel_layer.group_send(
 								self.tour_id,
 								{

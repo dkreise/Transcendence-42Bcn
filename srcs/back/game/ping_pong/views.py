@@ -129,6 +129,17 @@ def get_player_all_games(request, player_id):
         )
         print("GAMES OBJECTS:::")
         print(games)
+        # for game in games:
+        #     print(game)
+        #     print(f"game id: {game.id}")
+        #     dat = game.date.strftime("%Y-%m-%d %H:%M")
+        #     print(f"date: {dat}")
+        #     print(f"username1: {game.player1.username}")
+        #     print(f"score1: {game.score_player1}")
+        #     print(f"username2: {game.player2.username}")
+        #     print(f"score2: {game.score_player2}")
+        #     print(f"winner: {game.winner.username}")
+        #     print(f"tourn: {game.tournament_id}")
         games_data = [
             {
                 "id": game.id,
@@ -142,7 +153,7 @@ def get_player_all_games(request, player_id):
             }
             for game in games
         ]
-        print(game_data)
+        print(games_data)
 
         return Response(games_data, status=status.HTTP_200_OK)
 
