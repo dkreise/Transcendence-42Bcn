@@ -16,6 +16,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import activate
 from django.contrib.auth.decorators import login_required
 from rest_framework_simplejwt.tokens import AccessToken
+from .models import Profile
 
 def get_photo_url(user):
     photo_url = None
@@ -112,7 +113,7 @@ def match_history_page(request):
         user_id = request.user.id
         all_games = player_all_games(request, user_id)
         context = {
-            'match_history': all_games,
+            'match_history_games': all_games,
         }
         add_language_context(request.COOKIES, context)
         match_history_html = render_to_string('match_history.html', context)
