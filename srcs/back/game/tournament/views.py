@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .models import Tournament
 import random
-from django.db.models import Q, Avg
+from django.db.models import Q, Avg, Sum
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
 from django.template.loader import render_to_string
@@ -28,9 +28,9 @@ from django.core.cache import cache
 def get_player_tournament_statistics(request, player_id):
     tournaments_played = Tournament.objects.filter(player_id=player_id).count()
     tournament_score = Tournament.objects.filter(player_id=player_id).aggregate(
-        avg_score=Avg('score')
+        sum_score=Sum('score')
     )
-    tournament_score = tournament_score['avg_score'] or 0
+    tournament_score = tournament_score['sum_score'] or 0
 
     return Response({
         'tournaments_played': tournaments_played,
