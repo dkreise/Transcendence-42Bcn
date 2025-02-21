@@ -76,6 +76,7 @@ export function drawHeader(headerType) {
                 console.log('Header! returned!');
                 document.getElementById('header-area').innerHTML = data.header_html;
                 document.dispatchEvent(new CustomEvent("headerLoaded"));
+                console.log('header event active');
             } else
                 console.error('Header not found in response:', data);
             resolve();
