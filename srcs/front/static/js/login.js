@@ -119,6 +119,7 @@ export const handleLogin = () => {
             } else {
                 localStorage.setItem('access_token', data.tokens.access);
                 localStorage.setItem('refresh_token', data.tokens.refresh);
+                localStorage.setItem('username', data.username);
             
                 updateLanguage();
                 navigateTo('/home', true);
@@ -168,6 +169,7 @@ export const handleSignup = () => {
                         if (data.success) {
                             localStorage.setItem('access_token', data.tokens.access);
                             localStorage.setItem('refresh_token', data.tokens.refresh);
+                            localStorage.setItem('username', data.username);
                             updateLanguage();
                             //loadProfilePage();
                             navigateTo('/home', true);

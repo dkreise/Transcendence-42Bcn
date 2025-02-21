@@ -78,7 +78,8 @@ def login_view(request):
                 'success': True,
                 'two_fa_required': False,
                 'tokens': tokens,
-                'message': 'Login successful'
+                'message': 'Login successful',
+                'username': username,
             })
     else:
         return Response({'success': False, 'message': 'Invalid credentials'}, status=401)
@@ -100,7 +101,7 @@ def verify_login_2fa(request):
             return Response({'success': False, 'message': '2FA is not enabled for this account.'}, status=400)
         if TwoFA.verify_code(profile.totp_secret, code):
             tokens = generate_jwt_tokens(user)
-            return Response({'success': True, 'tokens': tokens, 'message': '2FA verification successful.'})
+            return Response({'success': True, 'tokens': tokens, 'message': '2FA verification successful.', 'username': user.username})
         else:
             return Response({'success': False, 'message': 'Invalid or expired TOTP code.'}, status=401)
     except User.DoesNotExist:
@@ -198,7 +199,7 @@ def register_user(request):
 
         # return JsonResponse({"message": "User registered successfully!", "user_id": user.id}, status=status.HTTP_201_CREATED)
         tokens = generate_jwt_tokens(user)
-        return Response({'success': True, 'tokens': tokens, 'message': 'Login successful'})
+        return Response({'success': True, 'tokens': tokens, 'message': 'Login successful', 'username': username})
     # else:
 
     except json.JSONDecodeError:
