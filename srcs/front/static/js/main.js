@@ -8,7 +8,7 @@ import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 // import { setDifficulty } from "./AIGame.js"
 import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
-import { manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage} from "./tournament.js";
+import { manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament} from "./tournament.js";
 
 const historyTracker = [];
 
@@ -47,6 +47,7 @@ const routes = {
     '/create-tournament': createTournament,
     '/join-tournament': joinTournament,
     '/end-tournament': loadFinalTournamentPage,
+    '/quit-tournament': quitTournament,
     
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),

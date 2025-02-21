@@ -138,14 +138,23 @@ class PongConsumer(AsyncWebsocketConsumer):
 					async with active_games_lock:
 						del active_games[self.room_id]
 		elif self.type == "T":
-			# We will only disconnect socket when tournament is finished
+			# We will only disconnect socket when tournament is finished or QUIT
+			logger.info("Removing user from group..")
 			await self.channel_layer.group_discard(
 				self.tour_id,
 				self.channel_name
 			)
-			async with active_tournaments_lock:
-				if self.tour_id in active_tournaments:
-					del active_tournaments[self.tour_id] # to handle properly
+			logger.info(f"tour_id: {self.tour_id}")
+			if self.tour_id in active_tournaments:
+				tournament = active_tournaments[self.tour_id]
+				logger.info(f"still users cnt: {len(tournament.users)}")
+				if len(tournament.users) == 1:
+					logger.info(f"last user: {tournament.users[0]}")
+				if len(tournament.users) == 0 or (len(tournament.users) == 1 and tournament.users[0] == "@AI"):
+					logger.info("All players left. Deleting tournament..")
+					async with active_tournaments_lock:
+						if self.tour_id in active_tournaments:
+							del active_tournaments[self.tour_id]
 
 		await self.close()
 
@@ -183,6 +192,31 @@ class PongConsumer(AsyncWebsocketConsumer):
 				elif dtype == "game_result":
 					logger.info("RECEIVED. we need to handle game result")
 					status = await tournament.handle_game_end(data)
+					if status == "new":
+						tournament.increase_round()
+						await self.channel_layer.group_send(
+								self.tour_id,
+								{
+									"type": "tournament_starts",
+									"message": "New round has started",
+									"status": "playing",
+								}
+							)
+					elif status == "finished":
+						await self.channel_layer.group_send(
+								self.tour_id,
+								{
+									"type": "tournament_ends",
+									"message": "Tournament has finished",
+									"status": "finished",
+								}
+							)
+
+				elif dtype == "quit":
+					logger.info("player wants to quit the tournament. handling quit..:")
+					status = await tournament.handle_quit(self.user.username)
+					logger.info("we handled the quit. now disconnecting..:")
+					await self.disconnect(1000)
 					if status == "new":
 						tournament.increase_round()
 						await self.channel_layer.group_send(

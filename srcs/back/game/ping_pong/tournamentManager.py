@@ -35,6 +35,8 @@ class TournamentManager:
 		self.players = []		# list of players in current round
 		self.round = 0
 		self.pairs = []
+		self.winners = []
+		self.quit_winners = 0
 		self.test = 0 
 
 	def get_players_cnt(self):
@@ -103,7 +105,7 @@ class TournamentManager:
 
 	def get_final_page(self):
 		context = {
-			"winner": self.players[0]
+			"winner_player": self.players[0]
 		}
 		add_language_context(self.scope.get('request', {}), context)
 		html = render_to_string('final_tournament_page.html', context)
@@ -117,17 +119,7 @@ class TournamentManager:
 	def handle_tournament_start(self, username): # or new round..?
 		# self.create_pairs()
 		needs_to_play = username in self.players
-		opponent = None
-		cur_pairs = self.pairs[self.round - 1]
-
-		if (needs_to_play):
-			for pair in cur_pairs:
-				if username in pair:
-					if pair[0] == username:
-						opponent = pair[1]
-					else:
-						opponent = pair[0]
-					break
+		opponent = self.get_opponent(username)
 
 		# if opponent != "@AI" => handle remote game join..
 
@@ -164,32 +156,32 @@ class TournamentManager:
 		loser = data["loser"]
 		loser_score = data["loser_score"]
 
-		# save data to game table here:
 		await self.save_game_result(winner, winner_score, loser, loser_score)
-
-		# save data for loser to tournament table here:
-		await self.save_tournament_result(loser, False)
+		await self.save_tournament_result(loser, False, False)
 
 		if loser in self.players:
 			logger.info("removing loser from players")
 			self.players.remove(loser)
 
+		if len(self.winners) < self.round:
+			self.winners.append([winner])
+		else:
+			self.winners[self.round - 1].append(winner)
+
 		logger.info(f"players now: {self.players}")
-		cnt = self.get_players_cnt()
+		logger.info(f"winners now: {self.winners}")
+		cnt = self.get_players_cnt() + self.quit_winners
 		round_player_cnt = self.get_round_players_cnt()
 		logger.info(f"cnt: {cnt}, round cnt: {round_player_cnt}")
 
-		if (cnt == 1):
+		if (self.get_players_cnt() == 1):
 			# means that tournament finished
 			logger.info("tournament finished")
-			# save data to tournament table for winner:
-			await self.save_tournament_result(winner, True)
+			await self.save_tournament_result(winner, True, False)
 			return 'finished'
-
 		elif (cnt * 2 == round_player_cnt):
 			# means that round finished
 			logger.info("round finished")
-			# new round start
 			return 'new'
 		else:
 			logger.info("waiting for round to finish")
@@ -224,16 +216,17 @@ class TournamentManager:
 			# return None
 	
 	@sync_to_async
-	def save_tournament_result(self, player, winner):
+	def save_tournament_result(self, player, winner, quit_winner):
 		logger.info("Saving tournament result")
 		try:
 			Tournament = get_tournament_model()
 			with transaction.atomic(): #Ensure atomicity (?)
 				user = self.get_user(player)
 				score = self.round - 1
-				if winner:
+				if winner or quit_winner:
 					score += 1
 
+				logger.info(f"res for user: {player}, score: {score}")
 				# Save the tournament result
 				tournament_res = Tournament.objects.create(
 					id_tournament=self.id,
@@ -244,6 +237,46 @@ class TournamentManager:
 
 		except Exception as e:
 			logger.info(f"Error saving tournament result: {e}")
+
+	async def handle_quit(self, username):
+		logger.info(f"{username} wants to quit!!!")
+		if username not in self.players:
+			self.users.remove(username)
+			return
+		if self.round == 0:
+			logger.info("tournament has not started")
+			# we need to delete from players and users
+			if username in self.players:
+				self.players.remove(username)
+			if username in self.users:
+				self.users.remove(username)
+			return 'not started'
+		else:
+			logger.info("tournament has started")
+			# check if has finished game in cur round
+			# if not needs to play => just disconnect (already saved everything and removed)
+			# if is a winner => quit_winners++, save to tournmt table, check for tournmt end
+			# if game has not finished => force him as loser (handle_game_result)
+			is_winner = len(self.winners) >= self.round and username in self.winners[self.round - 1]
+			logger.info(f"is winner: {is_winner}")
+			if is_winner:
+				self.quit_winners += 1 # mutexx it.. ?
+				await self.save_tournament_result(username, False, True)
+				self.players.remove(username)
+				self.users.remove(username)
+			else:
+				opponent = self.get_opponent(username)
+				data = {'winner': opponent, 'loser': username, 'winner_score': 0, 'loser_score': 0}
+				status = await self.handle_game_end(data)
+				self.users.remove(username)
+				return status
+
+			if (self.get_players_cnt() == 1):
+				logger.info("tournament finished")
+				await self.save_tournament_result(self.players[0], True, False)
+				return 'finished'
+			else:
+				return 'continue'
 
 	def get_user(self, name):
 		User = get_user_model()
@@ -256,3 +289,41 @@ class TournamentManager:
 			return user
 		else:
 			return User.objects.get(username=name)
+
+	def needs_to_play_this_round(self, username):
+		needs_to_play = username in self.players
+		opponent = None
+		cur_pairs = self.pairs[self.round - 1]
+
+		if not needs_to_play:
+			return False # user maybe has played and lost
+
+		# else: user needs to play or won
+		for pair in cur_pairs:
+			if username in pair:
+				if pair[0] == username:
+					opponent = pair[1]
+				else:
+					opponent = pair[0]
+				break
+
+		if opponent in self.players:
+			# the pair hasn't played yet
+			return True
+		else:
+			return False # user won
+	
+	def get_opponent(self, username):
+		needs_to_play = username in self.players
+		opponent = None
+		cur_pairs = self.pairs[self.round - 1]
+
+		if (needs_to_play):
+			for pair in cur_pairs:
+				if username in pair:
+					if pair[0] == username:
+						opponent = pair[1]
+					else:
+						opponent = pair[0]
+					break
+		return opponent

@@ -89,6 +89,21 @@ export const loadFinalTournamentPage = () => {
 	}
 };
 
+export const quitTournament = () => {
+    console.log("QUIT button clicked")
+    if (socket.readyState === WebSocket.OPEN)
+        {
+            const data = {
+                "type": "quit",
+                // "winner": winner,
+                // "winner_score": playerScore > AIScore ? playerScore : AIScore,
+                // "loser": loser,
+                // "loser_score": playerScore > AIScore ? AIScore : playerScore,
+            };
+            socket.send(JSON.stringify(data));
+        }
+}
+
 export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) => {
     const button = document.getElementById('play-again');
     if (button) {
@@ -198,9 +213,10 @@ function tournamentConnect(tourId, nPlayers=null) {
 	};
 
 	socket.onclose = () => {
-		console.warn("WebSocket connection close. Retrying...");
+		//console.warn("WebSocket connection close. Retrying...");
         localStorage.removeItem('inTournament');
-		setTimeout(tournamentConnect, 1000) //waits 1s and tries to reconnect
+		//setTimeout(tournamentConnect, 1000) //waits 1s and tries to reconnect
+        navigateTo('/home', true);
 	};
 
 	socket.onmessage = (event) => { //we're receiving messages from the backend via WB
