@@ -52,7 +52,7 @@ export const handle42Callback = () => {
                 if (data.access_token && data.refresh_token){
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('refresh_token', data.refresh_token);
-                    localStorage.setItem('intra_token', data.intra_token);
+                    // localStorage.setItem('intra_token', data.intra_token);
                     localStorage.setItem('username', data.username);
                     localStorage.setItem('name', data.name);
                     clearURL();

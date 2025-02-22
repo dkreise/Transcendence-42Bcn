@@ -202,3 +202,13 @@ SIMPLE_JWT = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media' #os.path.join(BASE_DIR, 'media')
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],  # Redis service in docker-compose.yml
+            "capacity": 3000, # default 100 messages
+            "expiry": 10, # default 60 seconds
+        },
+    },
+}
