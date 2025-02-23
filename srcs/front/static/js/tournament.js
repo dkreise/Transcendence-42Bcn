@@ -60,6 +60,8 @@ function isOnBracketPage() {
 }
 
 export const loadWaitingRoomPage = () => {
+    if (socket)
+        console.log("socket there is..");
     if (socket.readyState === WebSocket.OPEN)
 	{
 		const data = {
@@ -76,7 +78,13 @@ export const loadBracketTournamentPage = () => {
 			"type": "bracket_page_request",
 		};
 		socket.send(JSON.stringify(data));
+        console.log("we have sent the request for bracket page!")
 	}
+    else {
+        console.log(socket.readyState);
+        // alert("waiting for websoket connection")
+        // loadBracketTournamentPage();
+    }
 };
 
 export const loadFinalTournamentPage = () => {
@@ -91,6 +99,7 @@ export const loadFinalTournamentPage = () => {
 
 export const quitTournament = () => {
     console.log("QUIT button clicked")
+    localStorage.setItem("user_quit", "true");
     if (socket.readyState === WebSocket.OPEN)
         {
             const data = {
@@ -185,14 +194,17 @@ function updatePlayerCount(data) {
     }
 }
 
-function tournamentConnect(tourId, nPlayers=null) {
+export function tournamentConnect(tourId, nPlayers=null) {
+    return new Promise((resolve, reject) => {
 	const token = localStorage.getItem("access_token");
 	if (!token)
 	{
 		console.warn("No access token found");
+        reject("No access token found");
 		return ;
 	}
-	// console.log("token is: " + token);
+
+    localStorage.setItem("currentTournamentId", tourId);
     console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
 
     if (nPlayers) {
@@ -203,20 +215,37 @@ function tournamentConnect(tourId, nPlayers=null) {
     
     socket.onopen = () => {
         console.log("WebSocket connection established");
-        localStorage.setItem('inTournament', 'waiting');
+        let status = localStorage.getItem('inTournament');
+        if (!status)
+            localStorage.setItem('inTournament', 'waiting');
+        resolve(socket); // Resolve the promise once the socket is open
     };
     
     socket.onerror = (error) => {
 		console.error("WebSocket encountered an error: ", error);
 		alert("Unable to connect to the server. Please check your connection.");
         localStorage.removeItem('inTournament');
+        reject("WebSocket error");
 	};
 
 	socket.onclose = () => {
-		//console.warn("WebSocket connection close. Retrying...");
-        localStorage.removeItem('inTournament');
-		//setTimeout(tournamentConnect, 1000) //waits 1s and tries to reconnect
-        navigateTo('/home', true);
+		// //console.warn("WebSocket connection close. Retrying...");
+        // localStorage.removeItem('inTournament');
+		// //setTimeout(tournamentConnect, 1000) //waits 1s and tries to reconnect
+        // navigateTo('/home', true);
+
+        alert(localStorage.getItem("user_quit"));
+        if (localStorage.getItem("user_quit") !== "true") {
+            alert("WebSocket connection close. Retrying...");
+            console.log("Disconnected unexpectedly. Reconnecting in 3 seconds...");
+            setTimeout(() => connectWebSocket(tourId), 3000);
+        } else {
+            console.log("User quit. No reconnection.");
+            localStorage.removeItem('inTournament');
+            localStorage.removeItem("user_quit");
+            localStorage.removeItem("currentTournamentId");
+            navigateTo('/home', true);
+        }
 	};
 
 	socket.onmessage = (event) => { //we're receiving messages from the backend via WB
@@ -240,7 +269,8 @@ function tournamentConnect(tourId, nPlayers=null) {
             default:
                 console.warn("Unhandled message type: ", data.type);
 		}
-	}
+	};
+});
 }
 
 ////////////////// UTILS //////////////////////

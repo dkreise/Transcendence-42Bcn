@@ -8,7 +8,7 @@ import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 // import { setDifficulty } from "./AIGame.js"
 import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
-import { manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament} from "./tournament.js";
+import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament} from "./tournament.js";
 
 const historyTracker = [];
 
@@ -62,6 +62,7 @@ function router(args=null) {
     
     cleanup3D();
     let path = window.location.pathname;
+    console.log(path);
 // const contentArea = document.getElementById('content-area');
 // contentArea.innerHTML = ''; // Clear previous content
 
@@ -168,6 +169,22 @@ document.addEventListener('DOMContentLoaded', () => {
         cleanup3D();       // Always clean up before routing
         router();          // Then handle the new route
     });
+
+    // window.onload = function() {
+        const tourId = localStorage.getItem("currentTournamentId");
+        if (tourId) {
+            console.log("Reconnecting WebSocket after page reload...");
+            // tournamentConnect(tourId);
+            tournamentConnect(tourId).then(() => {
+                console.log("WebSocket connection established, now navigating to ...");
+                // navigateTo('/waiting-room');
+                router();
+            }).catch((error) => {
+                console.error("Error connecting WebSocket:", error);
+                // Handle error, possibly redirect to another page or show an alert
+            });
+        }
+    // };
    
     // Event delegation for data-route attributes
     document.body.addEventListener('click', (event) => {

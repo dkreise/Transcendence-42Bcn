@@ -39,11 +39,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 						if self.tour_id not in active_tournaments:
 							active_tournaments[self.tour_id] = TournamentManager(self.scope, self.tour_id, max_user_cnt) #add tournament in array activetournaments
 						tournament = active_tournaments[self.tour_id]
-						tournament.add_player(self.user.username)
+						status = tournament.add_player(self.user.username)
 						await self.channel_layer.group_add(self.tour_id, self.channel_name)
 						await self.accept()
 						logger.info("accepted..")
 						logger.info(f"self.channel_name: {self.channel_name}")
+						if status == "reload":
+							return
 
 						if tournament.get_players_cnt() < tournament.max_user_cnt:
 							page = tournament.get_waiting_room_page()
@@ -138,6 +140,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 					async with active_games_lock:
 						del active_games[self.room_id]
 		elif self.type == "T":
+			logger.info(f"\033[1;31mclose_code={close_code}\033[0m")
+			if close_code in [1001, 1006]:  # WebSocket transport error / browser close
+				logger.info("Unexpected disconnect. Keeping tournament active.")
+				return  # Do not remove the user!
 			# We will only disconnect socket when tournament is finished or QUIT
 			logger.info("Removing user from group..")
 			await self.channel_layer.group_discard(
@@ -155,7 +161,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					async with active_tournaments_lock:
 						if self.tour_id in active_tournaments:
 							del active_tournaments[self.tour_id]
-
+		logger.info("closing...")
 		await self.close()
 
 ##################################################

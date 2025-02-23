@@ -53,6 +53,9 @@ class TournamentManager:
 			# self.players[username] = {"alive": True}
 			self.users.append(username)
 			self.players.append(username)
+		else:
+			logger.info("user is already here!")
+			return "reload"
 		### only for testing:
 		if self.get_players_cnt() == 1 and self.max_user_cnt == 2:
 			self.test = 1
@@ -61,6 +64,7 @@ class TournamentManager:
 			self.players.append("@AI")
 			self.users.append("@AI")
 			self.players.append("@AI")
+		return "connect"
 		### end for testing
 	
 	def increase_round(self):
