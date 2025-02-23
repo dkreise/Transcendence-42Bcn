@@ -1,63 +1,67 @@
-<div class="container-fluid d-flex flex-column flex-grow-1 h-100">
-  <!-- Fila con la checkbox en la esquina superior izquierda -->
-  <div class="row col-12 d-flex justify-content-start align-items-center py-2 ">
-    <div class="checkbox-wrapper-8 checkbox-row" style="margin-left: 65px;">
-      <input type="checkbox" id="cb3-8" class="tgl tgl-skewed" />
-      <label for="cb3-8" data-tg-on="3D ON" data-tg-off="3D OFF" class="tgl-btn"></label>
-    </div>
+<div class="row col-12 d-flex justify-content-start align-items-center py-2 ">
+  <div class="checkbox-wrapper-8 checkbox-row" style="margin-left: 65px;">
+    <input type="checkbox" id="3D-switch" class="tgl tgl-skewed" />
+    <label for="3D-switch" data-tg-on="3D ON" data-tg-off="3D OFF" class="tgl-btn"></label>
   </div>
+</div>
 
-  <!-- Fila principal con las tarjetas -->
 <div class="row flex-grow-1 d-flex align-items-center justify-content-center text-center">
   <!-- Tarjeta 1 -->
-  <div class="col-12 col-md-6 mb-3">
-    <a href="destino.html" class="d-inline-block me-n3" style="text-decoration: none;">
-      <div class="card mx-auto" style="max-width: 400px;">
-        <div class="bg">
-          <p>VS AI</p>
-        </div>
+  <div class="col-12 col-md-6 col-lg-6 mb-3 text-center">
+    <a href="/play-local" data-route="/play-local" class="d-block text-decoration-none">
+      <div class="card mx-auto">
         <div class="blob"></div>
+        <div class="card-inner">
+          <div class="card-body">
+            <p class="card-title fs-4 fs-md-3 fs-lg-2">Local Game</p>
+          </div>
+        </div>
       </div>
     </a>
   </div>
+  
   <!-- Tarjeta 2 -->
-  <div class="col-12 col-md-6 mb-3">
-    <a href="destino.html" class="d-inline-block ms-n3" style="text-decoration: none;">
-      <div class="card mx-auto" style="max-width: 400px;">
-        <div class="bg">
-          <p>PLAY ONLINE</p>
-        </div>
+  <div class="col-12 col-md-6 col-lg-6 mb-3 text-center">
+    <a href="/play-online" data-route="/play-online" class="d-block text-decoration-none">
+      <div class="card mx-auto">
         <div class="blob"></div>
+        <div class="card-inner">
+          <div class="card-body">
+            <p class="card-title fs-4 fs-md-3 fs-lg-2">Remote Game</p>
+          </div>
+        </div>
       </div>
     </a>
   </div>
   <!-- Tarjeta 3 -->
-  <div class="col-12 col-md-6 mb-3">
-    <a href="destino.html" class="d-inline-block me-n3" style="text-decoration: none;">
-      <div class="card mx-auto" style="max-width: 400px;">
-        <div class="bg">
-          <p>LOCAL
-            GAME</p>
-        </div>
+  <div class="col-12 col-md-6 col-lg-6 mb-3 text-center">
+    <a href="/play-ai" data-route="/play-ai"  class="d-block text-decoration-none">
+      <div class="card mx-auto">
         <div class="blob"></div>
+        <div class="card-inner">
+          <div class="card-body">
+            <p class="card-title fs-4 fs-md-3 fs-lg-2">VS AI</p>
+          </div>
+        </div>
       </div>
     </a>
   </div>
   <!-- Tarjeta 4 -->
-  <div class="col-12 col-md-6 mb-3">
-    <a href="destino.html" class="d-inline-block ms-n3" style="text-decoration: none;">
-      <div class="card mx-auto" style="max-width: 400px;">
-        <div class="bg">
-          <p>TOURNAMENT</p>
-        </div>
+  <div class="col-12 col-md-6 col-lg-6 mb-3 text-center">
+    <a href="/play-ai" data-route="/play-ai" class="d-block text-decoration-none">
+      <div class="card mx-auto">
         <div class="blob"></div>
+        <div class="card-inner">
+          <div class="card-body">
+            <p class="card-title fs-4 fs-md-3 fs-lg-2">Tournament</p>
+          </div>
+        </div>
       </div>
     </a>
   </div>
-</div>
 
-  <!-- Footer al final de la columna -->
-  <footer class="text-center py-3 mt-4">
+  <!-- Footer -->
+  <footer class="text-center py-3 mt-auto">
     &copy; 2025 BubblePong. Todos los derechos reservados.
   </footer>
 </div>

@@ -189,18 +189,28 @@ document.addEventListener('DOMContentLoaded', () => {
    
     // Event delegation for data-route attributes
     document.body.addEventListener('click', (event) => {
-        const target = event.target;
+        // const target = event.target;
 
-        // Check if the clicked element has the 'data-route' attribute
-        if (target && target.hasAttribute('data-route')) {
+        // // Check if the clicked element has the 'data-route' attribute
+        // if (target && target.hasAttribute('data-route')) {
+        //     const route = target.getAttribute('data-route');
+        //     console.log(`a data rout clicked... ${route}`)
+        //     console.log(`Type is ${target.type}, tag is ${target.tagName}`)
+
+        //     if (target.tagName === 'BUTTON' && target.type === 'submit') {
+        //         console.log(`An event is prevented!  ${route}`)
+        //         event.preventDefault();
+        //     }
+
+        //     navigateTo(route);
+        // }
+        const target = event.target.closest('[data-route]');
+
+        if (target) {
             const route = target.getAttribute('data-route');
-            console.log(`a data rout clicked... ${route}`)
-            console.log(`Type is ${target.type}, tag is ${target.tagName}`)
+            console.log(`Data-route clicked: ${route}`);
 
-            if (target.tagName === 'BUTTON' && target.type === 'submit') {
-                console.log(`An event is prevented!  ${route}`)
-                event.preventDefault();
-            }
+            event.preventDefault();
 
             navigateTo(route);
         }

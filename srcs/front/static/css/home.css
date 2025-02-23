@@ -43,52 +43,89 @@
 
 /* Card / button */
 .card {
-    position: relative;
-    width: 280px;
-    height: 250px;
-    border-radius: 14px;
-    z-index: 1111;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 20px 20px 60px #8A76D0, -20px -20px 60px #8A76D0;
-    background-color: #989898 !important;
-    transition: transform 0.3s ease;
-  }
-  
-  .card:hover {
-  transform: scale(1.05); /* Agranda la tarjeta un 5% */
+  width: 90%;
+  border-radius: 14px;
+  z-index: 1111;
+  overflow: hidden;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(#0d0d0d, #212121) padding-box,
+              linear-gradient(145deg, transparent 15%,#d5dcf9, #a7b0ca) border-box;
+  transition: transform 0.3s ease;
+
+  border: 3px solid rgba(138, 118, 208, 0.8);
+
+  box-shadow: 0px 8px 20px rgba(138, 118, 208, 0.6), 
+              0px 4px 10px rgba(0, 0, 0, 0.3);
+  opacity: 0.97;
 }
 
-  .bg {
-    position: absolute;
-    top: 5px;
-    left: 5px;
-    width: 270px;
-    height: 240px;
-    z-index: 2;
-    background: #414141;
-    backdrop-filter: blur(24px);
-    border-radius: 10px;
-    overflow: hidden;
-    outline: 2px solid #5f45bf;
+.blob {
+  position: absolute;
+  z-index: 2; 
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #5f45bf;
+  opacity: 0;
+  filter: blur(12px);
+  transform: translate(-50%, -50%);
+  animation: blob-bounce 5s infinite ease;
+}
+
+.card:hover .blob {
+  opacity: 1;
+}
+
+.card-inner {
+  width: 99%;
+  height: 99%;
+  position: relative;
+  z-index: 2;
+  background: linear-gradient(#0d0d0d, #212121) padding-box,
+              linear-gradient(145deg, transparent 15%,#d5dcf9, #a7b0ca) border-box;
+  transition: transform 0.3s ease;
+  border-radius: 10px;
+  border-color: rgba(255, 255, 255, 0);
+  margin: 4px;
+}
+
+.card-body {
+  padding: 3px;
+  text-align: center;
+  color: white;
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 12px 30px rgba(138, 118, 208, 0.8), 
+              0px 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* .card-title {
+  font-size: 1rem;
+}
+
+@media (min-width: 768px) {
+  .card-title {
+    font-size: 2rem;
   }
-  
-  .blob {
-    position: absolute;
-    z-index: 1;
-    top: 50%;
-    left: 50%;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background-color: #5f45bf;
-    opacity: 1;
-    filter: blur(12px);
-    animation: blob-bounce 5s infinite ease;
+}
+@media (min-width: 992px) {
+  .card-title {
+    font-size: 2.5rem;
   }
+} */
+.card p {
+    text-align: center;
+    /* font-size: x-large;
+    margin: 1.7rem; */
+    padding: 10%;
+    color: #e1e1e1;
+    text-shadow: -10px 5px 10px rgba(0, 0, 0, 0.573);
+}
 
   a.d-inline-block {
     position: relative;
@@ -118,14 +155,6 @@
   
 
   
-.card p {
-    text-align: center;
-    font-size: x-large;
-    margin: 1.7rem;
-    padding: 70px;
-    color: rgb(218, 244, 237);
-    text-shadow: -10px 5px 10px rgba(0, 0, 0, 0.573);
-}
 
 .checkbox-wrapper-8 .tgl {
     display: none;

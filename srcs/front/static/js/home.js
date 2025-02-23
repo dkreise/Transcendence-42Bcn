@@ -3,6 +3,23 @@ import { drawHeader } from "./main.js";
 
 var baseUrl = "http://localhost";
 
+const setUp3DListener = () => {
+    const switch3D = document.getElementById("3D-switch"); // ID del switch
+
+    if (switch3D) {
+        const isEnable = localStorage.getItem("3D-option") === "true";
+        switch3D.checked = isEnable;
+
+        // Escuchar cambios en el switch
+        switch3D.addEventListener("change", () => {
+            localStorage.setItem("3D-option", switch3D.checked);
+            console.log("Switch actualizado:", switch3D.checked);
+        });
+    } else {
+        console.log("Switch not found =(");
+    }
+};
+
 export const loadHomePage = () => {
     console.log('Loading home page...');
     drawHeader(1).then(() => {
@@ -27,6 +44,10 @@ export const loadHomePage = () => {
                 console.log('2');
                 document.getElementById('content-area').innerHTML = data.home_html;
                 console.log('Home page loaded');
+
+                localStorage.setItem("3D-option", "Disable");
+                setUp3DListener();
+
             } else {
                 console.error("home_html not found in the response data");
             }
