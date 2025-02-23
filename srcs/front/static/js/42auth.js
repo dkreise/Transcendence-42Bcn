@@ -1,6 +1,7 @@
 import { loadProfilePage } from "./profile.js";
 import { displayLoginError } from "./login.js";
-import { clearURL, navigateTo } from "./main.js"
+import { clearURL, navigateTo } from "./main.js";
+import { conectWB } from "./onlineStatus.js";
  
 
 var baseUrl = "http://localhost";
@@ -31,7 +32,7 @@ export const handle42Callback = () => {
         else if (code && state){
             const queryParams = new URLSearchParams({code , state}).toString();
             console.log(code, state);
-            
+             
             const url = `http://localhost:8000/api/login-intra/callback?${queryParams}`;
             console.log(`Sending GET request to: ${url}`);
             fetch(url, {
@@ -50,12 +51,14 @@ export const handle42Callback = () => {
             })
             .then(data => {		
                 if (data.access_token && data.refresh_token){
+                    
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('refresh_token', data.refresh_token);
                     // localStorage.setItem('intra_token', data.intra_token);
                     localStorage.setItem('username', data.username);
                     localStorage.setItem('name', data.name);
                     clearURL();
+                    conectWB(data.access_token);
                     console.log(history.state)
                     navigateTo('/home', true);
                     

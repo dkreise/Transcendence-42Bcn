@@ -59,14 +59,14 @@ def login_intra(request):
 def gen_state():
 	return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
 
-@method_decorator(csrf_exempt, name='dispatch')
+# @method_decorator(csrf_exempt, name='dispatch')
 class Callback42API(APIView):
     """ """
 
     permission_classes = [AllowAny]
 
-    def has_permission(self, request, view):
-        return True  # Explicitly allow all requests
+    # def has_permission(self, request, view):
+    #     return True  # Explicitly allow all requests
 
     def post(self, request):
         # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")

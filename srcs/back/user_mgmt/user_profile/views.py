@@ -17,6 +17,11 @@ from django.utils.translation import activate
 from django.contrib.auth.decorators import login_required
 from rest_framework_simplejwt.tokens import AccessToken
 from .models import Profile
+import redis
+
+redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
+redis_client.set("test", "Hello Redis!")
+print(redis_client.get("test"))  # Should print: b'Hello Redis!'
 
 def get_photo_url(user):
     photo_url = None
@@ -222,7 +227,8 @@ def search_users(request):
         {
             'photo_url': get_photo_url(friend.user),
             'profile': friend,
-            'user': friend.user
+            'user': friend.user,
+            'online_status': redis_client.exists(f"user:{friend.user.id}:online")  #  Check Redis instead of DB
         }
         for friend in friends if hasattr(friend.user, 'profile')
     ]
