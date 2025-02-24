@@ -1,11 +1,11 @@
 import { makeAuthenticatedRequest } from "./login.js";
 // import { addLogoutListener } from "./logout.js";
 import { navigateTo, checkPermission } from "./main.js"
-import { startAIGame } from "./AIGame.js";
+import { startAIGame,clearIntervalIDGame } from "./AIGame.js";
 import { startLocalGame } from "./localGame.js";
 import { startGame } from "./remoteGame.js"; 
 import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
-import { loadBracketTournamentPage } from "./tournament.js";
+import { loadBracketTournamentPage, quitTournament } from "./tournament.js";
 
 
 var baseUrl = "http://localhost"; // change (parse) later
@@ -37,7 +37,13 @@ export const playLocal = () => {
 } 
 
 export const playAI = (args) => {
-
+    clearIntervalIDGame();
+    const savedState = localStorage.getItem("gameState");
+    if (savedState)
+        console.log("the state is here!! we need to remove it");
+    else
+    console.log("the state is not here!!");
+    localStorage.removeItem("gameState");
     if (!checkPermission) {
         navigateTo('/login');
     } else {
@@ -118,6 +124,15 @@ export const gameLocal = () => {
     }
 }
 
+export const tournamentGameAIstart = () => {
+    const tourId = localStorage.getItem("currentTournamentId");
+    let args = {
+        tournament: true,
+        tournamentId: tourId,
+    }
+    gameAI(args);
+}
+
 export const gameAI = (args) => {
 
     if (!checkPermission) {
@@ -125,11 +140,13 @@ export const gameAI = (args) => {
     } else {
         let tournament = null;
         console.log("Playing AI game. Tournament mode:", args?.tournament); 
-        if (args?.tournament === "true") {
+        if (args?.tournament == true) {
             console.log("This is a tournament game! in gameAI");
             console.log(args.tournamentId);
             tournament = {tournament: true, id: args.tournamentId};
             console.log(tournament.id);
+            // clearIntervalIDGame();
+            // const savedState = localStorage.getItem("gameState");
         }
         makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
             method: "POST",
@@ -152,12 +169,13 @@ export const gameAI = (args) => {
                     if (button && !tournament) {
                         button.setAttribute("data-route", "/play-ai");
                     } else if (button && tournament) {
-                        button.textContent = "Give Up";
-                        // button.setAttribute("data-route", "/");
+                        button.textContent = "Quit Tournament";
+                        button.removeAttribute("data-route");
                         button.addEventListener('click', () => {
-                            // clearInterval(intervalId);
-                            //navigateTo('/tournament-bracket', true);
-                            loadBracketTournamentPage(tournament.id);
+                            // handle give up!! quit?
+                            clearIntervalIDGame();
+                            quitTournament();
+                            // loadBracketTournamentPage(tournament.id);
                         });
                     }
                     startAIGame(data['player1'], data['player2'], data['main_user'], tournament);

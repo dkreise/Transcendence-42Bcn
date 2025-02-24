@@ -86,7 +86,7 @@ class TournamentManager:
 		}
 		return page
 
-	def get_bracket_page(self):
+	def get_bracket_page(self, username):
 		if self.get_players_cnt() == 1:
 			return self.get_final_page()
 		context = {
@@ -100,10 +100,19 @@ class TournamentManager:
 			html = render_to_string('tournament_bracket4.html', context)
 		else:
 			html = render_to_string('tournament_bracket8.html')
+
+		needs_to_play = username in self.players
+		opponent = self.get_opponent(username)
+		if needs_to_play:
+			is_winner = len(self.winners) >= self.round and username in self.winners[self.round - 1]
+			if is_winner:
+				needs_to_play = False
 		page = {
 			'html': html,
 			'redirect': '/tournament-bracket',
 			'status': 'playing',
+			'needs_to_play': needs_to_play,
+			'opponent': opponent,
 		}
 		return page
 

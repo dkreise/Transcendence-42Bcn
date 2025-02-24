@@ -6,7 +6,7 @@ import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 // import { setDifficulty } from "./AIGame.js"
-import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
+import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal, tournamentGameAIstart } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
 import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament} from "./tournament.js";
 
@@ -39,7 +39,7 @@ const routes = {
     '/play-local/game': gameLocal,
     // '/play-ai/set-difficulty/': setDifficulty,
     '/play-3d': play3D,
-    '/play-ai/game': (args) => gameAI(args),
+    '/play-ai-game': (args) => gameAI(args),
     '/tournament': manageTournamentHomeBtn,
     '/tournament-home': loadTournamentHomePage,
     '/waiting-room': loadWaitingRoomPage,
@@ -48,6 +48,7 @@ const routes = {
     '/join-tournament': joinTournament,
     '/end-tournament': loadFinalTournamentPage,
     '/quit-tournament': quitTournament,
+    '/tournament-game-ai': tournamentGameAIstart,
     
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),

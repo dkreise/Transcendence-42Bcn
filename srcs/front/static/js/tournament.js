@@ -104,10 +104,6 @@ export const quitTournament = () => {
         {
             const data = {
                 "type": "quit",
-                // "winner": winner,
-                // "winner_score": playerScore > AIScore ? playerScore : AIScore,
-                // "loser": loser,
-                // "loser_score": playerScore > AIScore ? AIScore : playerScore,
             };
             socket.send(JSON.stringify(data));
         }
@@ -148,9 +144,9 @@ function addGameButton(data) {
     playButton.id = "play-game-in-tournament";
     playButton.textContent = "Play My Game";
     if (data.opponent == "@AI") {
-        playButton.setAttribute("data-route", "/play-ai");
+        playButton.setAttribute("data-route", '/tournament-game-ai');
         // Pass arguments as a JSON string inside `data-args`
-        playButton.setAttribute("data-args", JSON.stringify({ tournament: "true", tournamentId: 1234 }));
+        // playButton.setAttribute("data-args", JSON.stringify({ tournament: "true", tournamentId: 1234 }));
     }
     bracketSection.append(playButton);
 }
@@ -234,7 +230,7 @@ export function tournamentConnect(tourId, nPlayers=null) {
 		// //setTimeout(tournamentConnect, 1000) //waits 1s and tries to reconnect
         // navigateTo('/home', true);
 
-        alert(localStorage.getItem("user_quit"));
+        // alert(localStorage.getItem("user_quit"));
         if (localStorage.getItem("user_quit") !== "true") {
             alert("WebSocket connection close. Retrying...");
             console.log("Disconnected unexpectedly. Reconnecting in 3 seconds...");
@@ -250,6 +246,7 @@ export function tournamentConnect(tourId, nPlayers=null) {
 
 	socket.onmessage = (event) => { //we're receiving messages from the backend via WB
 		const data = JSON.parse(event.data);
+        localStorage.setItem("currentTournamentId", tourId);
 
 		console.log(data);
 		switch(data.type)

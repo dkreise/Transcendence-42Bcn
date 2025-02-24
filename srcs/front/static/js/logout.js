@@ -32,6 +32,8 @@ export const handleLogout = () => {
     localStorage.removeItem('intra_token');
     localStorage.removeItem('username');
     localStorage.removeItem('name');
+    localStorage.removeItem('inTournament');
+    localStorage.removeItem('currentTournamentId');
 
     //contentArea.innerHTML = ''; // to clear user content
     window.history.replaceState(null, null, '/'); // ????

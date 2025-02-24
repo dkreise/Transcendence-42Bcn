@@ -63,7 +63,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 								"status": "waiting",
 							}))
 						else:
-							page = tournament.get_bracket_page()
+							# page = tournament.get_bracket_page(self.user.username) 
 							tournament.increase_round()
 							await self.channel_layer.group_send(
 								self.tour_id,
@@ -173,10 +173,12 @@ class PongConsumer(AsyncWebsocketConsumer):
 				tournament = active_tournaments[self.tour_id]
 				dtype = data["type"]
 				if dtype == "bracket_page_request":
-					page = tournament.get_bracket_page()
+					page = tournament.get_bracket_page(self.user.username)
 					await self.send(text_data=json.dumps({
 						"type": "html",
 						"html": page['html'],
+						"needs_to_play": page['needs_to_play'],
+						"opponent": page['opponent'],
 						"status": page['status'],
 					}))
 				elif dtype == "waiting_room_page_request":
@@ -271,7 +273,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def tournament_starts(self, event):
 		tournament = active_tournaments[self.tour_id]
 		round_data = tournament.handle_tournament_start(self.user.username)
-		page = tournament.get_bracket_page()
+		page = tournament.get_bracket_page(self.user.username)
 		await self.send(text_data=json.dumps({
 			"type": "html",
 			"html": page['html'],

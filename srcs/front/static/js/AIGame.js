@@ -16,6 +16,53 @@ let difficulty = 3; // 0.5-1 => easy, 3 => already low chance for ai to lose, 5 
 let errorRange = null;
 let tournamentId = null;
 
+export function clearIntervalIDGame() {
+    if (intervalID) {
+        clearInterval(intervalID);
+        intervalID = null;
+    }
+}
+
+function saveGameState() {
+    const gameState = {
+        ballX: ball.x,
+        ballY: ball.y,
+        ballSpeedX: ball.xspeed,
+        ballSpeedY: ball.yspeed,
+        playerPaddleY: player.y,
+        aiPaddleY: AI.y,
+        playerScore: player.score,
+        aiScore: AI.score,
+        mainUserNmb: mainUser,
+    };
+
+    localStorage.setItem("gameState", JSON.stringify(gameState));
+}
+
+function loadGameState() {
+    const savedState = localStorage.getItem("gameState");
+    const username = localStorage.getItem("username");
+    if (savedState) {
+        const gameState = JSON.parse(savedState);
+        mainUser = gameState.mainUserNmb;
+        if (mainUser == 1) {
+            player = new Player(canvas, 0, username, 0);
+            AI = new Player(canvas, 1, "AI", canvas.width - 10);
+        } else {
+            player = new Player(canvas, 1, username, canvas.width - 10);
+            AI = new Player(canvas, 0, "AI", 0);
+        }
+        ball.x = gameState.ballX;
+        ball.y = gameState.ballY;
+        ball.xspeed = gameState.ballSpeedX;
+        ball.yspeed = gameState.ballSpeedY;
+        player.y = gameState.playerPaddleY;
+        AI.y = gameState.aiPaddleY;
+        player.score = gameState.playerScore;
+        AI.score = gameState.aiScore;
+    }
+}
+
 // when the ball will hit the top or bottom walls
 function getTimeToTopBottom(yspeed, y) {
     return (yspeed > 0) 
@@ -79,6 +126,7 @@ function doMovesAI() {
         return;
 
     console.log("doing it each sec");
+    saveGameState();
     targetY = predictBallY();
     if (targetY === null)   
         return;
@@ -131,6 +179,7 @@ function gameAILoop() {
     
     // Endgame check
     if (player.score >= maxScore || AI.score >= maxScore) {
+        localStorage.removeItem("gameState");
         const winner = player.score > AI.score ? player.name : "@AI";
         const looser = player.score > AI.score ? "@AI" : player.name;
         const winnerMsg = player.score > AI.score ? `${player.name} Wins!` : `${AI.name} Wins!`;
@@ -185,6 +234,8 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
         difficulty = 1; // medium
         tournamentId = tournament.id;
         console.log(tournament.id);
+    } else {
+        tournamentId = null;
     }
     canvas = document.getElementById("newGameCanvas");
     ctx = canvas.getContext("2d");
@@ -207,6 +258,7 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
         AI = new Player(canvas, 0, playerName1, 0);
     }
     ball = new Ball(canvas);
+    loadGameState();
     console.log(canvas.width);
     console.log(canvas.height);
 
