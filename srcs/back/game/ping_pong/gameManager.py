@@ -1,10 +1,9 @@
 from collections import defaultdict
 import logging
 import asyncio
-
+from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
 from django.db import transaction
-
 from channels.layers import get_channel_layer
 
 def get_game_model():
@@ -17,10 +16,10 @@ logger = logging.getLogger(__name__)
 '''
 players
 	L player1
-		L id [int]	#username
-		L y  [int]	#paddle's y coord
+		L id [string]	#username
+		L y  [int]		#paddle's y coord
 	L player2
-		L id [int]
+		L id [string]
 		L y  [int]
 '''
 
@@ -52,7 +51,7 @@ class GameManager:
 	ball_config = {"rad": 10, "xspeed": 4, "yspeed": 4}
 	board_config = {"width": 800, "height": 400, "max_score": 5}
 	paddle_config = {"width": 10, "height": 80, "speed": 5}
-	countdown = 10
+	countdown = 5
 
 	def __init__(self, game_id):
 		self.id = game_id
@@ -137,6 +136,8 @@ class GameManager:
 ##################################################
 
 	async def ready_steady_go(self):
+		self.status = 1
+		await self.send_status(4)
 		await asyncio.sleep(4)
 		self.status = 0
 		await self.send_status(0)
@@ -192,7 +193,7 @@ class GameManager:
 		finished_countdown = await self.disconnect_task
 		self.disconnect_task = None
 
-		if finished_countdown:
+		if finished_countdown: #task finished => the opponent didn't reconnect
 			if disc_role == "player1":
 				await self.declare_winner("player2")
 			else:
@@ -202,10 +203,13 @@ class GameManager:
 
 #########################################################
 
-	def cancel_disconnect_task(self):
+	async def cancel_disconnect_task(self):
 		if self.disconnect_task:
 			self.disconnect_task.cancel()
-			del self.disconnect_task
+			try:
+				await self.disconnect_task
+			except asyncio.CancelledError:
+				pass
 			self.disconnect_task = None
 			self.status = 0
 
@@ -219,7 +223,7 @@ class GameManager:
 
 		#save the game result
 		#saved_game = self.save_game_result(winner_id, db_players)
-		saved_game = self.save_game_score(winner_id)
+		saved_game = await self.save_game_score(winner_id)
 
 		if saved_game:
 			logger.info(f"Game successfully saved: {saved_game}")
@@ -241,6 +245,7 @@ class GameManager:
 
 #########################################################
 
+	@sync_to_async
 	def save_game_score(self, winner_id):
 		try:
 			Game = get_game_model()
@@ -251,6 +256,8 @@ class GameManager:
 					player2 = User.objects.filter(id=self.players["player1"]["id"])
 				else:
 					player2 = User.objects.filter(id=self.players["player2"]["id"])
+
+				logger.info(f"SGS: winner: {winner}, player1: {player1}")
 
 				if self.scores["player1"] > self.scores["player2"]:
 					score1 = self.scores["player1"]
@@ -359,3 +366,20 @@ class GameManager:
 		logger.info(f"user {user} was removed from active players")
 		await self.stop_game()
 		await self.start_disconnect_countdown(role)
+
+####################################################################3
+
+	async def send_players_id(self):
+		logger.info("sending players' id (gameMan)")
+		message = {
+			"type": "players",
+			"p1": self.players["player1"]["id"],
+			"p2": self.players["player2"]["id"]
+		}
+		channel_layer = get_channel_layer()
+		await channel_layer.group_send(
+			self.id,
+			{
+				"type": "send_game_msg", #function in PongConsumer
+				"message": message
+			})
