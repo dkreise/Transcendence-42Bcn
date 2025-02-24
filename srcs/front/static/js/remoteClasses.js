@@ -51,13 +51,13 @@ export class Player {
 	drawScore(ctx, playerID) {
 		let x;
 		let fontSize = Math.floor(this.canvas.width * 0.05);
-		ctx.fillStyle = "white";
-		ctx.font = "40px Arial";
+		ctx.fillStyle = "rgb(100, 100, 100 / 50%)";
+		ctx.font = `${fontSize}px Arial`;
 		if (playerID === 1)
 			x = this.canvas.width / 4;
 		else
 			x = this.canvas.width * 3 / 4;
-		ctx.fillText(`Score: ${this.score}`, x, 30);
+		ctx.fillText(`Score: ${this.score}`, x, this.canvas.height / 10);
 	}
 
 	scored(socket) {
@@ -65,14 +65,22 @@ export class Player {
 		this.send(socket);
 	}
 
-	displayEndgameMessage(ctx, finalScore, msg) {
+	displayEndgameMessage(ctx, oppScore, msg) {
+		let finalScore;
+		if (this.role == "player1")
+			finalScore = `${this.score} - ${oppScore}`;
+		else
+			finalScore = `${oppScore} - ${this.score}`;
+		let fontSize = Math.floor(this.canvas.width * 0.05);
+
+		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
 		ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 		ctx.fillStyle = "white";
-		ctx.font = "50px Arial";
+		ctx.font = `${fontSize}px Arial`;
 		ctx.textAlign = "center";
 		ctx.fillText(msg, this.canvas.width / 2, this.canvas.height / 2 - 20);
-		ctx.font = "40px Arial";
+		ctx.font = `${fontSize - 10}px Arial`;
 		ctx.fillText(finalScore, this.canvas.width / 2, this.canvas.height / 2 + 30);
 	}
 	send(socket) {
