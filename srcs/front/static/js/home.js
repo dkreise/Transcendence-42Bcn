@@ -3,6 +3,10 @@ import { drawHeader } from "./main.js";
 
 var baseUrl = "http://localhost";
 
+//Add to fetch:
+// const Enable3D = localStorage.getItem("3D-option") === "true";
+// "3d-option": Enable3D ? "True" : "False",
+
 const setUp3DListener = () => {
     const switch3D = document.getElementById("3D-switch"); // ID del switch
 
@@ -13,7 +17,7 @@ const setUp3DListener = () => {
         // Escuchar cambios en el switch
         switch3D.addEventListener("change", () => {
             localStorage.setItem("3D-option", switch3D.checked);
-            console.log("Switch actualizado:", switch3D.checked);
+            console.log("3D-option is:", switch3D.checked);
         });
     } else {
         console.log("Switch not found =(");
