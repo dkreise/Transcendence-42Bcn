@@ -37,24 +37,44 @@ function handleRoleAssignment(role) {
 	}
 }
 
-/*function displayStatus(wait) {
-	const message = document.getElementById("gameStatus");
-	message.style.display = wait ? "block" : "none";
-	message.style.width = `${canvas.width}px`;
-	message.style.height = `${canvas.height}px`;
-	message.style.left = `${canvas.offsetLeft}px`;
-	message.style.top = `${canvas.offsetTop}px`;
-}*/
+function scaleGame(data)
+{
+	handleRoleAssignment(data.role);
+	player.width = player.width / data.padW;
+	opponent.width = opponent.width / data.padW;
+	player.height = player.height / data.padH;
+	opponent.height = opponent.height / data.padH;
+	backFactor["x"] = canvas.width / data.canvasX;
+	backFactor["y"] = canvas.height / data.canvasY;
+	
+}
+
+function readySteadyGo(countdown)
+{
+	const msg = ["Go!", "Steady...", "Ready..."];
+	let fontSize = Math.floor(canvas.width * 0.05);
+
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = "rgb(100 100 100 / 50%)";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
+	ctx.font = `${fontSize}px Arial`;
+	ctx.textAlign = "center";
+	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
+	if (countdown)
+		setTimeout(() => readySteadyGo(countdown - 1), 1000);
+
+}
 
 function displayCountdown(countdown)
 {
 	if (!ctx)
 		return ;
+	console.log("Displaying countdown: " + countdown);
 	let fontSize = Math.floor(canvas.width * 0.05);
 	let waitElement = document.getElementById("wait");
 	let waitMsg = waitElement ? waitElement.dataset.original : "Waiting for X"; 
 
-	console.log("displaying CountDown");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(100 100 100 / 50%)"; //rectangle style
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -67,23 +87,24 @@ function displayCountdown(countdown)
 	else if (player.role == "player1")
 		waitMsg = waitMsg.replace("X", "player2");
 	else
-	waitMsg = waitMsg.replace("X", "player1");
-	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 - fontSize);
-	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 + fontSize);
+		waitMsg = waitMsg.replace("X", "player1");
+	//ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 - fontSize);
+	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 + fontSize / 2);
 	if (countdown)
 		setTimeout(() => displayCountdown(countdown - 1), 1000);
 }
 
 function handleEndgame(data) {
-	const { wait, winnerId, loserRole, scores } = data;
-	const finalScore = `${scores.player1} - ${scores.player2}`;
-
-	displayStatus(0);
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	if (loserRole == player.role)
-		player.displayEndgameMessage(ctx, finalScore, endgameMsg["loser"]);
+	const { wait, winnerId, loserRole } = data;
+	
+	if (player.whoAmI == winnerId)
+		player.scores++;
 	else
-		player.displayEndgameMessage(ctx, finalScore, endgameMsg["winner"]);
+		opponent.scores++;
+	if (loserRole == player.role)
+		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
+	else
+		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
 	cancelAnimationFrame(gameLoopId);
 }
 
@@ -117,26 +138,37 @@ async function initializeWebSocket() {
 
 	socket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
-		if (Object.hasOwn(data, "wait"))
-			console.log("data type: " + data.type + " data wait" + data.wait);
+		console.log("data.type is: " + data.type);
 
 		switch (data.type) {
 			case "role":
-				backFactor["x"] = canvas.width / data.canvasX;
-				backFactor["y"] = canvas.height / data.canvasY;
 				handleRoleAssignment(data.role);
+				scaleGame(data);
 				break;
 			case "players":
-				player.whoAmI = data.me;
-				opponent.whoAmI = data.you;
-			case "status":
-				console.log("status msg received! wait = " + data.wait)
-				if (data.wait)
-					displayCountdown(data.countdown);
-					//displayStatus(data.wait);
-				else (!data.wait)
+				if (player.role === "player1")
 				{
-					//console.log("player: " + player + " p.role: " + player.role);
+					player.whoAmI = data.p1;
+					opponent.whoAmI = data.p2;
+				}
+				else
+				{
+					player.whoAmI = data.p2;
+					opponent.whoAmI = data.p1;
+				}
+				break;
+			case "status":
+				console.log("status msg received! wait = " + data.wait + " back countdown " + data.countdown)
+				if (data.wait)
+				{
+					if (data.countdown != 4)
+						displayCountdown(data.countdown);
+					else
+						readySteadyGo(data.countdown - 2);
+				}
+				else
+				{
+					console.log("let's start the game!");
 					setupControls(player, opponent)
 					gameLoop();
 				}
@@ -191,6 +223,11 @@ function gameLoop() {
 export function startGame()
 {
 	canvas = document.getElementById('newGameCanvas');
+	if (!canvas)
+	{
+		alert("Unable to display the game. Please, try again later");
+		return ;
+	}
 	ctx = canvas.getContext('2d');
 	ball = new Ball(canvas);
 	targetBallX = ball.x;
