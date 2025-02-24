@@ -11,10 +11,10 @@ def add_language_context(request, context):
 def get_lang_words(lang):
     if lang == 'es':
         return {
-            'profile': "Perfil",
+            'profile_wo': "Perfil",
             'welcome': "Bienvenido",
             'settings': "Configuraciones",
-            'friends': "Amigos",
+            'friends_wo': "Amigos",
             'username': "Nombre de usuario",
             'name_wo': "Nombre",
             'my_profile': "Mi perfil",
@@ -75,14 +75,15 @@ def get_lang_words(lang):
             'disable_2FA': "Desactivar 2FA",
             'add_2FA': "Agregar 2FA",
             'my_friends': "Mis amigos",
+            'lang': "ES",
         } 
 
     elif lang == 'ca':
         return {
-            'profile': "Perfil",
+            'profile_wo': "Perfil",
             'welcome': "Benvingut",
             'settings': "Configuracions",
-            'friends': "Amics",
+            'friends_wo': "Amics",
             'username': "Nom d'usuari",
             'name_wo': "Nom",
             'my_profile': "El meu perfil",
@@ -143,14 +144,15 @@ def get_lang_words(lang):
             'disable_2FA': "Desactivar 2FA",
             'add_2FA': "Afegir 2FA",
             'my_friends': "Els meus amics",
+            'lang': "CA",
         }
 
     elif lang == 'ru':
         return {
-            'profile': "Профиль",
+            'profile_wo': "Профиль",
             'welcome': "Добро пожаловать",
             'settings': "Настройки",
-            'friends': "Друзья",
+            'friends_wo': "Друзья",
             'username': "Имя пользователя",
             'name_wo': "Имя",
             'my_profile': "Мой профиль",
@@ -211,14 +213,15 @@ def get_lang_words(lang):
             'disable_2FA': "Отключить 2FA",
             'add_2FA': "Добавить 2FA",
             'my_friends': "Мои друзья",
+            'lang': "RU",
         }
 
     elif lang == 'lv':
         return {
-            'profile': "Profils",
+            'profile_wo': "Profils",
             'welcome': "Laipni lūdzam",
             'settings': "Iestatījumi",
-            'friends': "Draugi",
+            'friends_wo': "Draugi",
             'username': "Lietotājvārds",
             'name_wo': "Vārds",
             'my_profile': "Mans profils",
@@ -279,14 +282,15 @@ def get_lang_words(lang):
             'disable_2FA': "Atspējot 2FA",
             'add_2FA': "Pievienot 2FA",
             'my_friends': "Mani draugi",
+            'lang': "LV",
         }
         
     else:
         return {
-            'profile': "Profile",
+            'profile_wo': "Profile",
             'welcome': "Welcome",
             'settings': "Settings",
-            'friends': "Friends",
+            'friends_wo': "Friends",
             'username': "Username",
             'name_wo': "Name",
             'my_profile': "My Profile",
@@ -347,4 +351,5 @@ def get_lang_words(lang):
             'disable_2FA': "Disable 2FA",
             'add_2FA': "Add 2FA",
             'my_friends': "My Friends",
+            'lang': "EN",
         }

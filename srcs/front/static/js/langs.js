@@ -86,6 +86,9 @@ document.addEventListener("headerLoaded", () => {
         console.log('header event recived');
         const languageButton = document.getElementById("language-button");
         const languageMenu = document.getElementById("language-menu");
+
+        console.log("languageButton: ", languageButton);
+        console.log("language-menu: ", languageMenu);
     
         // Toggle the visibility of the language menu
         if (languageButton && languageMenu) {
