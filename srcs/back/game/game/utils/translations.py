@@ -1,46 +1,157 @@
 from django.utils.translation import activate
 
 def add_language_context(request, context):
-	lang = request.COOKIES.get('language') or 'en'
-	lang_words = get_lang_words(lang)
-	context.update(lang_words)
+    # if context is None:
+    #     context = {} 
+    lang = request.COOKIES.get('language') or 'en'
+    lang_words = get_lang_words(lang)
+    context.update(lang_words)
+    # return context
 	
 def get_lang_words(lang):
-	if lang == 'es':
-		return {
-			'my_profile': "Mi perfil",
+    if lang == 'es':
+        return {
+            'my_profile': "Mi perfil",
             'enter_name': "Indica el nombre del segundo jugador:",
-            'start_game': "Empezar el juego",
+            'start_game': "Comienza el juego",
+            'tournament': "Torneo",
+            'home': "Inicio",
+            'create': "Crear",
+            'join': "Unirse",
+            'create_tournament': "Crear Torneo",
+            'number_players': "Número de jugadores",
+            'players_number': "Introduce el número de jugadores:",
+            'submit': "Enviar",
+            'start_tournament': "Inicia el torneo",
+            'quit': "Salir",
+            'play': "Jugar",
+            'ranking': "Clasificación",
+            'play_again': "Jugar de nuevo",
+            'back': "Volver",
+            'logout': "Cerrar sesión",
+            'waiting_message': "Esperando al jugador...",
+            'game_title': "¡PONG CRRRRAAAZZZY!",
+            'restart': "Reiniciar",
+            'enter_id': "Introduce ID:",
+            'players': "Jugadores",
+            'round': "Ronda",
+            'tournament_finished': "El torneo ha terminado",
+            'winner_wo': "El ganador es",
 
-		}
-	elif lang == 'ca':
-		return {
-			'my_profile': "El meu perfil",
-            'enter_name': "",
-            'start_game': "",
-		}
-	elif lang == 'ru':
-		return {
-			'my_profile': "Мой профиль",
-			'enter_name': "",
-            'start_game': "",
-		}
-	elif lang == 'lv':
-		return {
-			'my_profile': "Mans profils",
-			'enter_name': "",
-            'start_game': "",
-		}
-	else:  # Default to English if no match
-		return {
-			'my_profile': "My Profile",
-			'enter_name': "Enter second player's name:",
+        }
+    elif lang == 'ca':
+        return {
+            'my_profile': "El meu perfil",
+            'enter_name': "Indica el nom del segon jugador:",
+            'start_game': "Comença el joc",
+            'tournament': "Torneig",
+            'home': "Inici",
+            'create': "Crea",
+            'join': "Uneix-te",
+            'create_tournament': "Crea Torneig",
+            'number_players': "Nombre de jugadors",
+            'players_number': "Introdueix el nombre de jugadors:",
+            'submit': "Envia",
+            'start_tournament': "Inicia el torneig",
+            'quit': "Sortir",
+            'play': "Jugar",
+            'ranking': "Classificació",
+            'play_again': "Jugar de nou",
+            'back': "Tornar",
+            'logout': "Tancar sessió",
+            'waiting_message': "Esperant al jugador...",
+            'game_title': "¡PONG CRRRRAAAZZZY!",
+            'restart': "Reiniciar",
+            'enter_id': "Introdueix ID:",
+            'players': "Jugadors",
+            'round': "Ronda",
+            'tournament_finished': "El torneig ha acabat",
+            'winner_wo': "El guanyador és",
+        }
+    elif lang == 'ru':
+        return {
+            'my_profile': "Мой профиль",
+            'enter_name': "Введите имя второго игрока:",
+            'start_game': "Начать игру",
+            'tournament': "Турнир",
+            'home': "Главная",
+            'create': "Создать",
+            'join': "Присоединиться",
+            'create_tournament': "Создать Турнир",
+            'number_players': "Количество игроков",
+            'players_number': "Введите количество игроков:",
+            'submit': "Отправить",
+            'start_tournament': "Начать турнир",
+            'quit': "Выйти",
+            'play': "Играть",
+            'ranking': "Рейтинг",
+            'play_again': "Играть снова",
+            'back': "Назад",
+            'logout': "Выйти из системы",
+            'waiting_message': "Ожидание игрока...",
+            'game_title': "CRRRRAAAZZZY PONG!",
+            'restart': "Перезапустить",
+            'enter_id': "Введите ID турнира:",
+            'players': "Игроки",
+            'round': "Раунд",
+            'tournament_finished': "Турнир завершен",
+            'winner_wo': "Победитель:",
+        }
+    elif lang == 'lv':
+        return {
+            'my_profile': "Mans profils",
+            'enter_name': "Ievadiet otrā spēlētāja vārdu:",
+            'start_game': "Sākt spēli",
+            'tournament': "Turnīrs",
+            'home': "Sākums",
+            'create': "Izveidot",
+            'join': "Pievienoties",
+            'create_tournament': "Izveidot Turnīru",
+            'number_players': "Spēlētāju skaits",
+            'players_number': "Ievadiet spēlētāju skaitu:",
+            'submit': "Iesniegt",
+            'start_tournament': "Sākt turnīru",
+            'quit': "Iziet",
+            'play': "Spēlēt",
+            'ranking': "Reitings",
+            'play_again': "Spēlēt vēlreiz",
+            'back': "Atpakaļ",
+            'logout': "Iziet",
+            'waiting_message': "Gaida spēlētāju...",
+            'game_title': "CRRRRAAAZZZY PONG!",
+            'restart': "Restartēt",
+            'enter_id': "Ievadiet turnīra ID:",
+            'players': "Spēlētāji",
+            'round': "Ronde",
+            'tournament_finished': "Turnīrs ir beidzies",
+            'winner_wo': "Uzvarētājs ir",
+        }
+    else:  # Default to English if no match
+        return {
+            'my_profile': "My Profile",
+            'enter_name': "Enter second player's name:",
             'start_game': "Start the game",
-			'restart': "Restart",
-			'play again': "Play again",
-			'back': "Back",
-			'logout': "Logout",
-			'waiting_message': "The game is ready! Let’s play!",
-			'game_title': "CRRRRAAAZZZY PONG!",
-			'restart': "Restart"
-		}
+            'tournament': "Tournament",
+            'home': "Home",
+            'create': "Create",
+            'join': "Join",
+            'create_tournament': "Create Tournament",
+            'number_players': "Number of players",
+            'players_number': "Enter the number of players:",
+            'submit': "Submit",
+            'start_tournament': "Start tournament",
+            'quit': "Quit",
+            'play': "Play",
+            'ranking': "Ranking",
+            'play_again': "Play again",
+            'back': "Back",
+            'logout': "Logout",
+            'waiting_message': "Waiting for player...",
+            'game_title': "CRRRRAAAZZZY PONG!",
+            'restart': "Restart",
+            'enter_id': "Enter ID:",
+            'players': "Players",
+            'round': "Round",
+            'tournament_finished': "The tournament has finished",
+            'winner_wo': "The winner is",
+        }

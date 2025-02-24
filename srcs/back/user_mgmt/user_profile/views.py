@@ -17,6 +17,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import activate
 from django.contrib.auth.decorators import login_required
 from rest_framework_simplejwt.tokens import AccessToken
+from .models import Profile
 
 def get_photo_url(user):
     photo_url = None
@@ -41,24 +42,28 @@ def user_info_api(request):
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
 
-def player_game_statistics(player_id):
+def player_game_statistics(request, player_id):
     game_service_url = 'http://game:8001'
     endpoint = f'{game_service_url}/api/player/{player_id}/game_statistics/'
 
+    auth_header = request.headers.get('Authorization')
+    headers = {"Authorization": auth_header}
     try:
-        response = requests.get(endpoint)
+        response = requests.get(endpoint, headers=headers)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
         print(f"Error fetching statistics: {e}")
         return {'games_played': 0, 'games_won': 0}
 
-def player_tournament_statistics(player_id):
+def player_tournament_statistics(request, player_id):
     game_service_url = 'http://game:8001'
     endpoint = f'{game_service_url}/api/player/{player_id}/tournament_statistics/'
 
+    auth_header = request.headers.get('Authorization')
+    headers = {"Authorization": auth_header}
     try:
-        response = requests.get(endpoint)
+        response = requests.get(endpoint, headers=headers)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
@@ -73,8 +78,10 @@ def player_last_ten_games(request):
         game_service_url = 'http://game:8001'
         endpoint = f'{game_service_url}/api/player/{player_id}/last_ten_games'
 
+        auth_header = request.headers.get('Authorization')
+        headers = {"Authorization": auth_header}
         try:
-            response = requests.get(endpoint)
+            response = requests.get(endpoint, headers=headers)
             response.raise_for_status()
             game_data = response.json()
             return JsonResponse({
@@ -86,12 +93,14 @@ def player_last_ten_games(request):
     else:
         return JsonResponse({'error': 'User not authenticated.'}, status=401)
 
-def player_all_games(player_id):
+def player_all_games(request, player_id):
     game_service_url = 'http://game:8001'
     endpoint = f'{game_service_url}/api/player/{player_id}/all_games/'
 
+    auth_header = request.headers.get('Authorization')
+    headers = {"Authorization": auth_header}
     try:
-        response = requests.get(endpoint)
+        response = requests.get(endpoint, headers=headers)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
@@ -103,9 +112,9 @@ def match_history_page(request):
     print("In match history api: ", request.user)
     if request.user.is_authenticated:
         user_id = request.user.id
-        all_games = player_all_games(user_id)
+        all_games = player_all_games(request, user_id)
         context = {
-            'match_history': all_games,
+            'match_history_games': all_games,
         }
         add_language_context(request, context)
         match_history_html = render_to_string('match_history.html', context)
@@ -121,8 +130,10 @@ def profile_page(request):
         user_id = user.id
         photo_url = None
 
-        stats_games = player_game_statistics(user_id)
-        stats_tournaments = player_tournament_statistics(user_id)
+        print("!!!in profile page back")
+        stats_games = player_game_statistics(request, user_id)
+        print("!!! game stats: ", stats_games)
+        stats_tournaments = player_tournament_statistics(request, user_id)
 
         if hasattr(user, 'profile'):
             photo_url = get_photo_url(user)
@@ -262,21 +273,17 @@ def save_user_pref_lang(request):
     data = json.loads(request.body)
     lang = data.get('language', 'en')
 
-    if request.user.is_authenticated:
-        user_profile = request.user.profile
-        user_profile.language = lang
-        user_profile.save()
-       
+    user_profile = request.user.profile
+    user_profile.language = lang
+    user_profile.save()
+    
     activate(lang)
     return JsonResponse({'status': 'success', 'message': 'Language has been setted.'})
 
 @api_view(['GET'])
 @login_required 
 def get_user_pref_lang(request):
-    if request.user.is_authenticated:
-        lang = request.user.profile.language
-        if (lang == ""):
-            lang = request.COOKIES.get('language') or 'en'
+    lang = request.user.profile.language
     return JsonResponse({'status': 'success', 'language': lang}, status=200)
 
 # def root_view(request):
@@ -297,11 +304,10 @@ def get_user_pref_lang(request):
 def home_page(request):
     print('Home page api called')
     if request.user.is_authenticated:
-        # context = {
-        #     'user': request.user,  # Pass the user object to the template
-        # }
+        context = {
+            'user': request.user,  # Pass the user object to the template
+        }
         # Render the HTML with the user's data
-        context = {}
         add_language_context(request, context)
         home_html = render_to_string('home_page.html', context)
         return JsonResponse({'home_html': home_html}, content_type="application/json")

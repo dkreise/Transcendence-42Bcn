@@ -1,13 +1,22 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.response import Response
+from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from .models import Game
 from .serializers import PlayerSerializer, GameSerializer
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 import random
 from django.db.models import Q
 from game.utils.translations import add_language_context
+from django.utils.translation import activate
+from django.template.loader import render_to_string
+from django.http import JsonResponse
+# from django.db import transaction
+# from django.contrib.auth import get_user_model
+
+# User = get_user_model()
+
  
 @api_view(['GET'])
 def player_list(request):
@@ -95,8 +104,8 @@ def get_player_last_ten_games(request, player_id):
     try:
         games = (
             Game.objects.filter(Q(player1_id=player_id) | Q(player2_id=player_id))
-            .order_by('id')[:10]
-        )
+            .order_by('-id')[:10]
+        )[::-1]
 
         games_data = [
             {
@@ -121,9 +130,21 @@ def get_player_all_games(request, player_id):
     try:
         games = (
             Game.objects.filter(Q(player1_id=player_id) | Q(player2_id=player_id))
-            .order_by('id')
+            .order_by('-id')
         )
-
+        print("GAMES OBJECTS:::")
+        print(games)
+        # for game in games:
+        #     print(game)
+        #     print(f"game id: {game.id}")
+        #     dat = game.date.strftime("%Y-%m-%d %H:%M")
+        #     print(f"date: {dat}")
+        #     print(f"username1: {game.player1.username}")
+        #     print(f"score1: {game.score_player1}")
+        #     print(f"username2: {game.player2.username}")
+        #     print(f"score2: {game.score_player2}")
+        #     print(f"winner: {game.winner.username}")
+        #     print(f"tourn: {game.tournament_id}")
         games_data = [
             {
                 "id": game.id,
@@ -137,8 +158,76 @@ def get_player_all_games(request, player_id):
             }
             for game in games
         ]
+        print(games_data)
 
         return Response(games_data, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response({"error": f"An unexpected error ocurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+def get_difficulty_level(request):
+    print("we are inside")
+    if request.user:
+        context = {
+            'user': request.user,
+        }
+        add_language_context(request, context)
+        get_difficulty_html = render_to_string('get_difficulty.html', context)
+        return JsonResponse({'get_difficulty_html': get_difficulty_html}, content_type="application/json")
+    else:
+        return JsonResponse({'error': 'user not authenticated'}, status=402)
+
+@api_view(['GET'])
+def play_game(request):
+    context = {
+        'user': request.user,
+    }
+    add_language_context(request, context)
+    game_html = render_to_string('remote_game.html', context)
+    return JsonResponse({'game_html': game_html}, content_type="application/json")
+    # add_language_context(request.COOKIES, context)
+    # game_html = render_to_string('remote_game.html', context)
+    # return JsonResponse({'game_html': game_html}, content_type="application/json")
+
+# def save_remote_score(room_id, winner_id, scores, players):
+#     """
+#     Save the game result in the database while preventing race conditions.
+    
+#     :param room_id: ID of the game room.
+#     :param winner_id: The ID of the winning player.
+#     :param scores: Dictionary containing scores for player1 and player2.
+#     :param players: Dictionary containing player IDs and aliases.
+#     """
+#     try:
+#         with transaction.atomic():  # Ensure atomicity
+#             player1_id = players.get("player1")
+#             player2_id = players.get("player2")
+
+#             # Fetch users (set to None if they don't exist)
+#             # player1 = User.objects.filter(id=player1_id).first()
+#             # player2 = User.objects.filter(id=player2_id).first()
+#             winner = User.objects.filter(id=winner_id).first()
+#             player1 = winner
+#             player2 = User.objects.filter(id=player1_id).first() if player1_id == winner_id else User.objects.filter(id=player2_id).first()
+#             score1 = scores["player1"] if scores["player1"] > scores["player2"] else scores["player2"]
+#             score2 = scores["player1"] if scores["player1"] < scores["player2"] else scores["player2"]
+#             # Save the game result
+#             game = Game.objects.create(
+#                 player1=player1,
+#                 # alias1=players.get("alias1", "Guest" if not player1 else player1.username),
+#                 score_player1=score1,
+#                 player2=player2,
+#                 # alias2=players.get("alias2", "Guest" if not player2 else player2.username),
+#                 score_player2=score2,
+#                 winner=winner,
+#                 tournament_id=-1  # Set tournament_id accordingly if needed
+#             )
+#             game.save()
+
+#             return game  # Return the saved game instance
+
+#     except Exception as e:
+#         print(f"Error saving game result: {e}")
+#         return None
+
