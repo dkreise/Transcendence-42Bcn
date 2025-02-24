@@ -1,5 +1,6 @@
 import { loadLoginPage } from "./login.js";
 import { navigateTo } from "./main.js";
+import { disconnectWS } from "./onlineStatus.js"
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -26,6 +27,9 @@ export const handleLogout = () => {
             console.log('Error logging out: ', error);
         });
     }
+
+    disconnectWS()
+    console.log("WebSocket closed upon logout.");
 
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');

@@ -34,7 +34,7 @@
                                 {% endif %}">
                             </span>
                             <span>
-                                {% if res.online_status %}
+                                {% if res.profile.online_status %}
                                     Online
                                 {% else %}
                                     Offline
@@ -74,14 +74,14 @@
                         <span class="d-flex align-items-center ms-3 me-3">
                             <span 
                                 class="status-dot me-1 
-                                {% if friend.online_status %}
+                                {% if friend.profile.online_status %}
                                     status-online
                                 {% else %}
                                     status-offline
                                 {% endif %}">
                             </span>
                             <span>
-                                {% if friend.online_status %}
+                                {% if friend.profile.online_status %}
                                     Online
                                 {% else %}
                                     Offline

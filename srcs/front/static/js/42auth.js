@@ -1,7 +1,7 @@
 import { loadProfilePage } from "./profile.js";
 import { displayLoginError } from "./login.js";
 import { clearURL, navigateTo } from "./main.js";
-import { conectWB } from "./onlineStatus.js";
+import { connectWS } from "./onlineStatus.js";
  
 
 var baseUrl = "http://localhost";
@@ -58,7 +58,7 @@ export const handle42Callback = () => {
                     localStorage.setItem('username', data.username);
                     localStorage.setItem('name', data.name);
                     clearURL();
-                    conectWB(data.access_token);
+                    connectWS(data.access_token);
                     console.log(history.state)
                     navigateTo('/home', true);
                     

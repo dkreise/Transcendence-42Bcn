@@ -8,6 +8,7 @@ import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 // import { setDifficulty } from "./AIGame.js"
 import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
+import { connectWS } from "./onlineStatus.js";
 import { manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage} from "./tournament.js";
 
 const historyTracker = [];
@@ -167,6 +168,8 @@ document.addEventListener('DOMContentLoaded', () => {
         cleanup3D();       // Always clean up before routing
         router();          // Then handle the new route
     });
+
+    window.addEventListener("load", connectWS(localStorage.getItem('access_token')));
    
     // Event delegation for data-route attributes
     document.body.addEventListener('click', (event) => {

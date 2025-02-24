@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 # from .models import Game
 from django.db import transaction
 
-def get_game_model():
+def get_game_model(): 
     from .models import Game  # Import inside function
     return Game
 

@@ -211,6 +211,11 @@ def search_users(request):
     if (not hasattr(request.user, 'profile')):
         Profile.objects.create(user=request.user)
     friends = request.user.profile.friends.all()
+    for friend in friends:
+        name = friend.user.username  # Assuming the name of the friend is stored in the 'name' field
+        online_status = friend.online_status  # Assuming the online status is stored in the 'online_status' field
+        print(f"Name: {name}, Online Status: {online_status}")
+    
     if query:
         users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query)).exclude(id=request.user.id)
         results = [
@@ -223,12 +228,15 @@ def search_users(request):
         ]
     else:
         results = []
+    # for friend in friends if hasattr(friend.user, 'profile')
+    # print(friend.user.username)
+    # print(redis_client.exists(f"user:{friend.user.id}:online"))
     friend_list = [
         {
             'photo_url': get_photo_url(friend.user),
             'profile': friend,
             'user': friend.user,
-            'online_status': redis_client.exists(f"user:{friend.user.id}:online")  #  Check Redis instead of DB
+            # 'online_status': friend.is_online
         }
         for friend in friends if hasattr(friend.user, 'profile')
     ]
@@ -239,6 +247,7 @@ def search_users(request):
         'query': query
     }
     print(results)
+    # print(friends[1].username)
     add_language_context(request, context)
     search_users_html = render_to_string('search_users.html', context)
     return JsonResponse({'search_users_html': search_users_html}, content_type="application/json")
