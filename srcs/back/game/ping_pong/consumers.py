@@ -60,15 +60,12 @@ class PongConsumer(AsyncWebsocketConsumer):
 							"canvasX": 800,
 							"canvasY": 400
 						}))
-						logger.info(f"role sent. current users: {game.users}")
-						if len(game.players) == 2:
-							await self.send(json.dumps({
-								"type": "players",
-								"me": self.user.username,
-								"you": next((other for other in game.users if other != self.user.username))
-							}))
-							logger.info("starting game")
-							active_games[self.room_id].start_game()
+						logger.info(f"role sent. current users: {game.users} len: {len(game.users)}")
+						if len(game.users) == 2:
+							await game.send_players_id()
+							asyncio.sleep(0.5)
+							logger.info(f"{self.role} starts the game")
+							await game.start_game()
 						else:
 							await game.send_status(0)
 
