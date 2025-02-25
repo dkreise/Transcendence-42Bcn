@@ -118,7 +118,8 @@ export const gameLocal = () => {
     }
 }
 
-export const gameAI = (args) => {
+export const gameAI = async (args) => {
+    const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
     if (!checkPermission) {
         navigateTo('/login');
@@ -244,5 +245,17 @@ export function play3D() {
     .catch(error => {
         console.error('Catch error loading local game: ', error);
     });
- 
+}
+
+async function getDictFor3DGame() {
+    const response = await makeAuthenticatedRequest(baseUrl + ":8001/api/get-game-dict", {
+        method: "GET",
+        credentials: "include"
+    })
+    .catch(error => {
+        console.error('Error fetching game dictionary: ', error);
+    });
+
+    const data = await response.json();
+    return data.dict;
 }
