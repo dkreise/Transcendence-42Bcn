@@ -32,6 +32,7 @@ export const handleLogout = () => {
     localStorage.removeItem('intra_token');
     localStorage.removeItem('username');
     localStorage.removeItem('name');
+    localStorage.setItem("3D-option", "false")
 
     //contentArea.innerHTML = ''; // to clear user content
     window.history.replaceState(null, null, '/'); // ????

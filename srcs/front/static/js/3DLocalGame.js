@@ -7,6 +7,7 @@ import { Player, AIPlayer, AIController } from './3DPlayer.js';
 import { Ball } from './3DBall.js';
 import { SceneText, textParams, textWinner } from './3DText.js';
 import { AmbientLight, DirectionalLight , Vector3} from 'three'
+import { drawHeader } from "./main.js";
 
 
 //----------------------------------------------------------------------------//
@@ -66,6 +67,7 @@ const   size = {
 // Start game function
 export function start3DLocalGame(playerName1, playerName2, mainUserNmb) {
     // Set up scene
+    drawHeader(1) 
     gameStarted = false;
     setupScene();
     text = new SceneText(scene, 0, -Math.PI / 2, 0);
@@ -162,6 +164,10 @@ function animateLocal() {
 export function start3DAIGame(playerName2) {
 
     // ifAI = true;
+    // drawHeader(1);
+    const contentArea = document.getElementById('content-area');
+    contentArea.style.padding = 0;
+    // contentArea.style.padding = 0;
     gameStarted = false;
     setupScene();
     text = new SceneText(scene);
@@ -347,39 +353,59 @@ function setupEvents() {
         // console.log('goal!! restart');
     })
     
-    window.addEventListener("click", (event) => {
-        if (gameStarted) return; // Ignore clicks after the game starts
+    window.addEventListener("click", (event) => buttonsManager(event));
+    // {
+    //     if (gameStarted) return; // Ignore clicks after the game starts
     
-        // Convert mouse position to normalized device coordinates (-1 to +1)
-        cursor.x = (event.clientX / window.innerWidth) * 2 - 1;
-        cursor.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    //     // Convert mouse position to normalized device coordinates (-1 to +1)
+    //     cursor.x = (event.clientX / window.innerWidth) * 2 - 1;
+    //     cursor.y = -(event.clientY / window.innerHeight) * 2 + 1;
     
-        // Raycast to check for intersections
-        ray.setFromCamera(cursor, camera);
-        const intersects = ray.intersectObject(text.button);
-        // rayStart.setFromCamera(cursor, camera);
-        const intersectsStart = ray.intersectObject(text.start);
-        const intersectsTryAgain = ray.intersectObject(text.tryAgain);
+    //     // Raycast to check for intersections
+    //     ray.setFromCamera(cursor, camera);
+    //     const intersects = ray.intersectObject(text.button);
+    //     // rayStart.setFromCamera(cursor, camera);
+    //     const intersectsStart = ray.intersectObject(text.start);
+    //     const intersectsTryAgain = ray.intersectObject(text.tryAgain);
     
-        if ((intersects.length > 0 || intersectsStart.length > 0) && !gameEnded ) {
-            // console.log("3D Start Button Clicked!");
-            // if (gameStarted) return; // Prevent multiple starts
-            // lastAIUpdate = 1;
-            gameStarted = true;
-            text.start.visible = false; // Hide the button
-            text.button.visible = false;
-        } else if ((intersects.length > 0 || intersectsTryAgain.length > 0) && gameEnded ) {
-            console.log("3D TryAgain Button Clicked!");
-            // if (gameStarted) return; // Prevent multiple starts
-            // resetTeam(); // resets the ball and players;
-            // gameEnded = false;
-            // // gameStarted = true;
-            // text.tryAgain.visible = false; // Hide the button
-            // text.start.visible = true;
-            // text.winnerMessage.visible = false;
-            restart();
-        }
-    });
+    //     if ((intersects.length > 0 || intersectsStart.length > 0) && !gameEnded ) {
+    //         console.log("3D Start Button Clicked!");
+    //         gameStarted = true;
+    //         text.start.visible = false; // Hide the button
+    //         text.button.visible = false;
+    //     } else if ((intersects.length > 0 || intersectsTryAgain.length > 0) && gameEnded ) {
+    //         console.log("3D TryAgain Button Clicked!");
+    //         restart();
+    //     }
+    // });
+}
+
+function buttonsManager(event) {
+    if (gameStarted) return; // Ignore clicks after the game starts
+    if (!text || !text.button || !text.start || !text.tryAgain) {
+        console.log("One or more 3D buttons are not initialized.");
+        return;
+    }
+    // Convert mouse position to normalized device coordinates (-1 to +1)
+    cursor.x = (event.clientX / window.innerWidth) * 2 - 1;
+    cursor.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    // Raycast to check for intersections
+    ray.setFromCamera(cursor, camera);
+    const intersects = ray.intersectObject(text.button);
+    // rayStart.setFromCamera(cursor, camera);
+    const intersectsStart = ray.intersectObject(text.start);
+    const intersectsTryAgain = ray.intersectObject(text.tryAgain);
+
+    if ((intersects.length > 0 || intersectsStart.length > 0) && !gameEnded ) {
+        console.log("3D Start Button Clicked!");
+        gameStarted = true;
+        text.start.visible = false; // Hide the button
+        text.button.visible = false;
+    } else if ((intersects.length > 0 || intersectsTryAgain.length > 0) && gameEnded ) {
+        console.log("3D TryAgain Button Clicked!");
+        restart();
+    }
 }
 
 function showCountdown(callback) {
@@ -480,10 +506,10 @@ export function cleanup3D() {
     
     // Stop animation loop
     cancelAnimationFrame(gameLoopId);
-
+    // contentArea.style.padding = "3rem"; //to restore the padding when exit the 3D
     // Remove event listeners (if any)
-    // window.removeEventListener("resize", onWindowResize);
-
+    window.removeEventListener("resize", handleResize);
+    window.removeEventListener("click", buttonsManager);
     // scene.remove(ball);
     // ball.geometry.dispose();
     // ball.material.dispose();
@@ -535,40 +561,5 @@ export function cleanup3D() {
 
     console.log("✅ Scene cleaned up!");
 }
-
-// export function cleanup3D() {
-//     if (animationId) {
-//         cancelAnimationFrame(animationId);
-//         animationId = null;
-//     }
-//     if (renderer) {
-//         renderer.dispose();
-//         if (renderer.domElement && renderer.domElement.parentNode) {
-//             renderer.domElement.parentNode.removeChild(renderer.domElement);
-//         }
-//         renderer = null;
-//     }
-//      // Dispose of the scene and objects
-//      if (scene) {
-//         // If cube is added to the scene, remove it
-//         scene = null;
-//     }
-//     // Dispose of the camera if necessary (optional)
-//     camera = null;
-//     console.log("3D scene cleaned up");
-// }
-
-
-// function animateIdleAI() {
-//     requestAnimationFrame(animateIdleAI);
-//     // Ensure paddles are visible in the static scene
-//     ball.resetPos();
-//         player1.resetPos();
-//         player2.resetPos();
-//     // player1.mesh.position.set(0, 0, limits.y - 1); // Adjust position
-//     // player2.mesh.position.set(0, 0, -limits.y + 1);
-//     // ball.mesh.position.set(0, 0, 0); // Keep ball in the center
-//     renderer.render(scene, camera);
-// }
 
 
