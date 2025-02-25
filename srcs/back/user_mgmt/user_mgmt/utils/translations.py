@@ -76,6 +76,7 @@ def get_lang_words(lang):
             'add_2FA': "Agregar 2FA",
             'my_friends': "Mis amigos",
             'lang': "ES",
+            'logout': "Cerrar sesión",
         } 
 
     elif lang == 'ca':
@@ -145,6 +146,7 @@ def get_lang_words(lang):
             'add_2FA': "Afegir 2FA",
             'my_friends': "Els meus amics",
             'lang': "CA",
+            'logout': "Tancar sessió",
         }
 
     elif lang == 'ru':
@@ -214,6 +216,7 @@ def get_lang_words(lang):
             'add_2FA': "Добавить 2FA",
             'my_friends': "Мои друзья",
             'lang': "RU",
+            'logout': "Выйти из системы",
         }
 
     elif lang == 'lv':
@@ -283,6 +286,7 @@ def get_lang_words(lang):
             'add_2FA': "Pievienot 2FA",
             'my_friends': "Mani draugi",
             'lang': "LV",
+            'logout': "Iziet",
         }
         
     else:
@@ -352,4 +356,5 @@ def get_lang_words(lang):
             'add_2FA': "Add 2FA",
             'my_friends': "My Friends",
             'lang': "EN",
+            'logout': "Logout",
         }

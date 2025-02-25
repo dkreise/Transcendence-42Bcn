@@ -215,6 +215,7 @@ export function play3D() {
         console.log("Navigating to /play-local/game");
     }
     const contentArea = document.getElementById('content-area');
+    contentArea.style.padding = 0;
     contentArea.innerHTML = ''; // Clear previous content
     makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
         method: "POST",

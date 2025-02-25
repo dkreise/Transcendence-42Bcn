@@ -49,12 +49,13 @@ export const loadHomePage = () => {
                 document.getElementById('content-area').innerHTML = data.home_html;
                 console.log('Home page loaded');
 
-                localStorage.setItem("3D-option", "Disable");
+                if (!localStorage.getItem("3D-option"))
+                    localStorage.setItem("3D-option", "false")
                 setUp3DListener();
 
             } else {
                 console.error("home_html not found in the response data");
             }
         })
-        .catch((error) => console.error("Error loading home page:", error));
+        .catch((error) => console.error("Error loading home page:", error));  
 };

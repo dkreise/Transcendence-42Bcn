@@ -1,6 +1,7 @@
 import { makeAuthenticatedRequest } from "./login.js";
 // import { startGame } from "./remoteGame.js"
 // import { animate } from "./threeTest.js"
+import { drawHeader } from "./main.js";
 
 
 
@@ -205,9 +206,11 @@ export const loadProfileSettingsPage = () => {
 
 export const loadProfilePage = () => {
     console.log('Loading profile page..');
-    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {
+    drawHeader(1).then(() => {
+    return makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {
         method: "GET",
         credentials: 'include'
+        })
     })
         .then((response) => {
             if (response.ok) {
@@ -215,8 +218,9 @@ export const loadProfilePage = () => {
             } else {
                 console.error("Failed to load user info");
             }
-        }) 
+        })
         .then((data) => {
+            console.log("Estamos activoooos");
             if (data && data.profile_html) {
                 document.getElementById('content-area').innerHTML = data.profile_html;
                 // addLogoutListener();

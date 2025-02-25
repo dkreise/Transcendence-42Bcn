@@ -5,7 +5,7 @@
         <div>
             <!-- <button id="profile-home-button">Home</button> -->
             <button data-route="/profile-settings" id="profile-settings-button">{{settings}}</button>
-            <button data-route="/friends" id="friends-button">{{friends}}</button>
+            <button data-route="/friends" id="friends-button">{{friends_wo}}</button>
             <button data-route="/home" id="home-button">{{home}}</button>
         </div>
     </div>
@@ -27,7 +27,7 @@
         {% endif %}
         <div>
             <h3 id="username">{{username}}: {{ user.username }}</h3>
-            <p id="name">{{name}}: {{ user.first_name }}</p>
+            <p id="name">{{name_wo}}: {{ user.first_name }}</p>
         </div>
     </div>
 
