@@ -63,6 +63,7 @@ class GameManager:
 		self.disconnect_task = None
 		self.game_loop_task = None
 		self.status = 1
+		self.ready = 0
 		self.ball = {
 			"x": GameManager.board_config["width"] // 2,
 			"y": GameManager.board_config["height"] // 2,
@@ -136,8 +137,7 @@ class GameManager:
 ##################################################
 
 	async def ready_steady_go(self):
-		self.status = 1
-		await self.send_status(4)
+		#await self.send_status(4)
 		await asyncio.sleep(4)
 		self.status = 0
 		await self.send_status(0)
@@ -148,6 +148,16 @@ class GameManager:
 		self.ball["xspeed"]	*= -1
 		await self.send_status(4)
 		self.ready_steady_go()
+
+#	async def ready_steady_go(self):
+#	    self.status = 1
+#	    send_status_task = asyncio.create_task(self.send_status(4))  # Send message asynchronously
+#	    await asyncio.sleep(1)  # Small delay to allow WebSocket to send the message
+#	    await send_status_task  # Ensure it's sent before the countdown
+#	    await asyncio.sleep(4)  # Now do the actual countdown
+#	    self.status = 0
+#	    await self.send_status(0)  # Send game start message
+
 
 #################################################
 
@@ -317,7 +327,7 @@ class GameManager:
 ############################################################
 
 	async def send_status(self, countdown):
-		logger.info("sending status msg (gameMan)")
+		logger.info(f"sending status msg (GM) wait: {self.status} cd: {countdown}")
 		message = {
 			"type": "status",
 			"ball": self.ball,
@@ -337,7 +347,13 @@ class GameManager:
 ##############################################################
 
 	async def start_game(self):
+		logger.info(f"\033[1;33mTrying to start the game in room {self.id}\033[0m")
 		if self.game_loop_task is None:
+			self.status = 1
+			#await self.send_status(4)
+			await asyncio.sleep(0.1)
+			await asyncio.sleep(0.5)
+			await asyncio.sleep(1)
 			logger.info(f"\033[1;33mThe game has started in room {self.id}\033[0m")
 			await self.ready_steady_go()
 			self.game_loop_task = asyncio.create_task(self.game_loop())

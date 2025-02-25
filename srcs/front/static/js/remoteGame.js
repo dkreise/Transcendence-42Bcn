@@ -29,27 +29,33 @@ function interpolateBall() {
 function handleRoleAssignment(role) {
 	console.log("Hi! I'm " + role);
 	if (role === "player1") {
-		player = new Player(canvas, "player1", backFactor["y"]);
-		opponent = new Player(canvas, "player2", backFactor["y"]);
+		player = new Player(canvas, "player1");
+		opponent = new Player(canvas, "player2");
 	} else if (role === "player2") {
-		player = new Player(canvas, "player2", backFactor["y"]);
-		opponent = new Player(canvas, "player1", backFactor["y"]);
+		player = new Player(canvas, "player2");
+		opponent = new Player(canvas, "player1");
 	}
 }
 
 function scaleGame(data)
 {
 	handleRoleAssignment(data.role);
-	player.width = player.width / data.padW;
-	opponent.width = opponent.width / data.padW;
-	player.height = player.height / data.padH;
-	opponent.height = opponent.height / data.padH;
+	console.log("BACK width: " + data.padW + " height: " + data.padH);
+	console.log("FRONT width: " + player.width + " height: " + player.height);
+	player.width = canvas.width * (data.padW / data.canvasX);
+	opponent.width = player.width;
+	player.height = canvas.height * (data.padH / data.canvasY);
+	opponent.height = player.height;
+	if (player.x != 0)
+		player.x = canvas.width - player.width;
+	console.log("FRONT 2 width: " + player.width + " height: " + player.height);
 	backFactor["x"] = canvas.width / data.canvasX;
 	backFactor["y"] = canvas.height / data.canvasY;
-	
+	player.backFactor = backFactor["y"];
+	opponent.backFactor = backFactor["y"];
 }
 
-function readySteadyGo(countdown)
+async function readySteadyGo(countdown)
 {
 	const msg = ["Go!", "Steady...", "Ready..."];
 	let fontSize = Math.floor(canvas.width * 0.05);
@@ -62,11 +68,13 @@ function readySteadyGo(countdown)
 	ctx.textAlign = "center";
 	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
 	if (countdown)
-		setTimeout(() => readySteadyGo(countdown - 1), 1000);
-
+	{
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		await readySteadyGo(countdown - 1);
+	}
 }
 
-function displayCountdown(countdown)
+async function displayCountdown(countdown)
 {
 	if (!ctx)
 		return ;
@@ -91,7 +99,10 @@ function displayCountdown(countdown)
 	//ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 - fontSize);
 	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 + fontSize / 2);
 	if (countdown)
-		setTimeout(() => displayCountdown(countdown - 1), 1000);
+	{
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		await displayCountdown(countdown - 1);
+	}
 }
 
 function handleEndgame(data) {
@@ -138,7 +149,8 @@ async function initializeWebSocket() {
 
 	socket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
-		console.log("data.type is: " + data.type);
+		const received = Date.now();
+		//console.log(`[${received}]data.type is: ${data.type}`);
 
 		switch (data.type) {
 			case "role":
@@ -156,15 +168,22 @@ async function initializeWebSocket() {
 					player.whoAmI = data.p2;
 					opponent.whoAmI = data.p1;
 				}
+				console.log(`[${received}] ${player.whoAmI} is ready to play!`)
+				socket.send(JSON.stringify({"type": "ready"}))
 				break;
 			case "status":
-				console.log("status msg received! wait = " + data.wait + " back countdown " + data.countdown)
+				console.log(`[${received}]status msg received! wait = ${data.wait} back countdown ${data.countdown}`)
 				if (data.wait)
 				{
+					console.log("status:\n" + "wait: " + data.wait + "\ncountdown: " + data.countdown);
+					//if (data.countdown != 4)
+					//	displayCountdown(data.countdown);
+					//else
+					//	readySteadyGo(data.countdown - 2);
 					if (data.countdown != 4)
-						displayCountdown(data.countdown);
+						setTimeout(() => displayCountdown(data.countdown), 10);
 					else
-						readySteadyGo(data.countdown - 2);
+						setTimeout(() => readySteadyGo(data.countdown - 2), 10);
 				}
 				else
 				{

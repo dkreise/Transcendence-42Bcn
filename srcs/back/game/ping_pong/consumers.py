@@ -50,34 +50,36 @@ class PongConsumer(AsyncWebsocketConsumer):
 						if not self.role:
 							await self.close()
 							return
-						await self.channel_layer.group_add(self.room_id, self.channel_name)
-						await self.accept()
 						# Notify the client of their role
+						logger.info(f"sending role msg to {self.role}")
+						await self.accept()
 						await self.send(json.dumps({
 							"type": "role",
 							"role": self.role,
 							#"user": self.user.username,
-							"canvasX": 800,
-							"canvasY": 400
+							"canvasX": game.board_config["width"],
+							"canvasY": game.board_config["height"],
+							"padW": game.paddle_config["width"],
+							"padH": game.paddle_config["height"],
+							"padS": game.paddle_config["speed"]
 						}))
+						await self.channel_layer.group_add(self.room_id, self.channel_name)
 						logger.info(f"role sent. current users: {game.users} len: {len(game.users)}")
 						if len(game.users) == 2:
 							await game.send_players_id()
-							asyncio.sleep(0.5)
-							logger.info(f"{self.role} starts the game")
-							await game.start_game()
+							#asyncio.sleep(2)
+							#logger.info(f"{self.role} starts the game")
+							#await game.start_game()
 						else:
 							await game.send_status(0)
-
-
-						logger.info(f"Role: {self.role}")
+						#logger.info(f"Role: {self.role}")
 
 				except Exception as e:
 					logger.error(f"\033[1;31mError connecting to the game: {e}\033[0m")
 					await self.close()
 
 			else:
-				raise ThrowError("\033[1;31munexpected input when connecting to websocket\033[0m")
+				raise ThrowError("\033[1;31mUnexpected input when connecting to websocket\033[0m")
 		except Exception as e:
 			logger.error(f"\033[1;31mError during Websocket connect: {e}\033[0m")
 			await self.close()
@@ -88,6 +90,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		logger.info("\033[1;32mDISCONNECT METHOD CALLED\033[0m")
 
 		if self.room_id not in active_games:
+			await self.close()
 			return
 		game = active_games[self.room_id]
 		await game.leave_room(self.role, self.user.username)
@@ -103,16 +106,26 @@ class PongConsumer(AsyncWebsocketConsumer):
 ##################################################
 
 	async def receive(self, text_data):
+		logger.info("\033[1;32mRECEIVE METHOD CALLED\033[0m")
 		try:
 			data = json.loads(text_data)
+			game = active_games[self.room_id]
 			if data["type"] == "update":
-				game = active_games[self.room_id]
 				game.handle_message(self.role, data)
 				await game.update_game()
+			elif data["type"] == "ready":
+				game.ready += 1
+				logger.info(f"Ready: {game.ready}")
+				if game.ready == 2:
+					game.status = 1
+					await game.send_status(4)
+					logger.info(f"{self.role} starts the game")
+					await game.start_game()
 		except Exception as e:
 			logger.error(f"\033[1;31mError receiving a message via WebSocket: {e}\033[0m")
 	
 ###################################################
 
 	async def send_game_msg(self, event):
+		#logger.info(f"SGM: sending message {event['message']}")
 		await self.send(text_data=json.dumps(event["message"]))

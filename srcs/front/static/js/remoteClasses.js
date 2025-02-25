@@ -4,16 +4,16 @@ export class Player {
 	hFactor = 0.1;
 	sFactor = 0.02;
 
-	constructor(canvas, role, backFactor) {
+	constructor(canvas, role) {
 		console.log(`Canvas size: ${canvas.width} x ${canvas.height}`)
-		this.width = canvas.width * 0.01;
-		this.height = canvas.height * 0.2;
+		this.width = canvas.width * 0.03;
+		this.height = canvas.height * 0.1;
 		this.color = "white";
 		this.up = false;
 		this.down = false;
 		this.score = 0;
 		this.canvas = canvas;
-		this.backFactor = backFactor;
+		this.backFactor = 0;
 		this.whoAmI = null;
 		this.role = role; // "player1" or "player2"
 		if (this.role === "player1")
@@ -86,11 +86,12 @@ export class Player {
 	send(socket) {
 		if (socket.readyState === WebSocket.OPEN)
 		{
-			console.log(this.role + "'s paddle: " + this.y + " sending: " + this.y / this.backFactor);
+			//console.log("front y: " + this.y + " backFactor: " + this.backFactor);
+			//console.log(this.role + "'s paddle: " + this.y + " sending: " + this.y * this.backFactor);
 			const data = {
 				"type": "update",
 				"role": this.role,
-				"y": this.y / this.backFactor,
+				"y": this.y * this.backFactor,
 				"score": this.score,
 			};
 			socket.send(JSON.stringify(data));
