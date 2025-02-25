@@ -60,13 +60,14 @@ async function readySteadyGo(countdown)
 	const msg = ["Go!", "Steady...", "Ready..."];
 	let fontSize = Math.floor(canvas.width * 0.05);
 
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "rgb(100 100 100 / 50%)";
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
-	ctx.font = `${fontSize}px Arial`;
-	ctx.textAlign = "center";
-	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
+//	ctx.clearRect(0, 0, canvas.width, canvas.height);
+//	ctx.fillStyle = "rgb(100 100 100 / 50%)";
+//	ctx.fillRect(0, 0, canvas.width, canvas.height);
+//	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
+//	ctx.font = `${fontSize}px Arial`;
+//	ctx.textAlign = "center";
+//	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
+	console.log("RSG: " + countdown);
 	if (countdown)
 	{
 		await new Promise(resolve => setTimeout(resolve, 1000));
@@ -74,11 +75,10 @@ async function readySteadyGo(countdown)
 	}
 }
 
-async function displayCountdown(countdown)
+function displayCountdown()
 {
 	if (!ctx)
 		return ;
-	console.log("Displaying countdown: " + countdown);
 	let fontSize = Math.floor(canvas.width * 0.05);
 	let waitElement = document.getElementById("wait");
 	let waitMsg = waitElement ? waitElement.dataset.original : "Waiting for X"; 
@@ -98,11 +98,6 @@ async function displayCountdown(countdown)
 		waitMsg = waitMsg.replace("X", "player1");
 	//ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 - fontSize);
 	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 + fontSize / 2);
-	if (countdown)
-	{
-		await new Promise(resolve => setTimeout(resolve, 1000));
-		await displayCountdown(countdown - 1);
-	}
 }
 
 function handleEndgame(data) {
@@ -175,15 +170,15 @@ async function initializeWebSocket() {
 				console.log(`[${received}]status msg received! wait = ${data.wait} back countdown ${data.countdown}`)
 				if (data.wait)
 				{
-					console.log("status:\n" + "wait: " + data.wait + "\ncountdown: " + data.countdown);
+				console.log(`[${received}]status:\n` + "wait: " + data.wait + "\ncountdown: " + data.countdown);
 					//if (data.countdown != 4)
 					//	displayCountdown(data.countdown);
 					//else
 					//	readySteadyGo(data.countdown - 2);
 					if (data.countdown != 4)
-						setTimeout(() => displayCountdown(data.countdown), 10);
+						displayCountdown();
 					else
-						setTimeout(() => readySteadyGo(data.countdown - 2), 10);
+						await setTimeout(async() => await readySteadyGo(data.countdown - 2), 10);
 				}
 				else
 				{

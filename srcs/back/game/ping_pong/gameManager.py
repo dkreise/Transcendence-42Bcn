@@ -343,6 +343,7 @@ class GameManager:
 				"type": "send_game_msg", #function in PongConsumer
 				"message": message
 			})
+		logger.info("\033[1;35mStatus Sent\033[0m")
 
 ##############################################################
 

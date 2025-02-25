@@ -106,7 +106,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 ##################################################
 
 	async def receive(self, text_data):
-		logger.info("\033[1;32mRECEIVE METHOD CALLED\033[0m")
+		#logger.info("\033[1;32mRECEIVE METHOD CALLED\033[0m")
 		try:
 			data = json.loads(text_data)
 			game = active_games[self.room_id]
@@ -118,6 +118,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				logger.info(f"Ready: {game.ready}")
 				if game.ready == 2:
 					game.status = 1
+					logger.info("starting countdown")
 					await game.send_status(4)
 					logger.info(f"{self.role} starts the game")
 					await game.start_game()
