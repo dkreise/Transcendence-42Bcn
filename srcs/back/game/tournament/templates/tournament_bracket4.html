@@ -29,10 +29,10 @@
 
         <!-- First Round -->
         <div class="round round-one">
-            {% for pair in pairs.0 %}
+            {% for pair, bool_winner in pairs_and_winners.0 %}
             <ul class="matchup">
-                <li class="team team-top">{{ pair.0 }}</li>
-                <li class="team team-bottom">{{ pair.1 }}</li>
+                <li class="team team-top {% if bool_winner.0 %}winner{% endif %}">{{ pair.0 }}</li>
+                <li class="team team-bottom {% if bool_winner.1 %}winner{% endif %}">{{ pair.1 }}</li>
             </ul>
             {% endfor %}
             <!-- for testing -->

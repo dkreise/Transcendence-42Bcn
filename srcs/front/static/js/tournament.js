@@ -1,6 +1,7 @@
 import { loadHomePage } from "./home.js";
 import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
+import { clearIntervalIDGame } from "./AIGame.js"
 
 var baseUrl = "http://localhost"; // TODO: change (parse) later
 let socket = null;
@@ -98,6 +99,7 @@ export const loadFinalTournamentPage = () => {
 };
 
 export const quitTournament = () => {
+    clearIntervalIDGame();
     console.log("QUIT button clicked")
     localStorage.setItem("user_quit", "true");
     if (socket.readyState === WebSocket.OPEN)

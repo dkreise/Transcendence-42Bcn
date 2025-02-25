@@ -171,21 +171,21 @@ document.addEventListener('DOMContentLoaded', () => {
         router();          // Then handle the new route
     });
 
-    // window.onload = function() {
-        const tourId = localStorage.getItem("currentTournamentId");
-        if (tourId) {
-            console.log("Reconnecting WebSocket after page reload...");
-            // tournamentConnect(tourId);
-            tournamentConnect(tourId).then(() => {
-                console.log("WebSocket connection established, now navigating to ...");
-                // navigateTo('/waiting-room');
-                router();
-            }).catch((error) => {
-                console.error("Error connecting WebSocket:", error);
-                // Handle error, possibly redirect to another page or show an alert
-            });
-        }
-    // };
+    let shouldRoute = true;
+    const tourId = localStorage.getItem("currentTournamentId");
+    if (tourId) {
+        shouldRoute = false;
+        console.log("Reconnecting WebSocket after page reload...");
+        // tournamentConnect(tourId);
+        tournamentConnect(tourId).then(() => {
+            console.log("WebSocket connection established, now navigating to ...");
+            // navigateTo('/waiting-room');
+            router();
+        }).catch((error) => {
+            console.error("Error connecting WebSocket:", error);
+            // Handle error, possibly redirect to another page or show an alert
+        });
+    }
    
     // Event delegation for data-route attributes
     document.body.addEventListener('click', (event) => {
@@ -213,9 +213,10 @@ document.addEventListener('DOMContentLoaded', () => {
             navigateTo(route, shouldReplace, args);
         }
     });
-
-    console.log(history.state)
-    cleanup3D();
-    router();
-  
+    
+    if (shouldRoute) {
+        console.log(history.state)
+        cleanup3D();
+        router();        
+    }
 });

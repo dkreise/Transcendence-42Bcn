@@ -37,7 +37,8 @@ class TournamentManager:
 		self.pairs = []
 		self.winners = []
 		self.quit_winners = 0
-		self.test = 0 
+		self.test = 0
+		self.finished = False
 
 	def get_players_cnt(self):
 		return len(self.players)
@@ -91,6 +92,8 @@ class TournamentManager:
 			return self.get_final_page()
 		context = {
 			'pairs': self.pairs,
+			'bool_winners': self.get_bool_winners(),
+			'pairs_and_winners': self.get_pairs_and_winners(self.pairs),
 			'cur_round': self.round,
 			'total_cnt': self.max_user_cnt,
 		}
@@ -117,6 +120,7 @@ class TournamentManager:
 		return page
 
 	def get_final_page(self):
+		self.finished = True
 		context = {
 			"winner_player": self.players[0]
 		}
@@ -253,7 +257,7 @@ class TournamentManager:
 
 	async def handle_quit(self, username):
 		logger.info(f"{username} wants to quit!!!")
-		if username not in self.players:
+		if username not in self.players or self.finished:
 			self.users.remove(username)
 			return
 		if self.round == 0:
@@ -340,3 +344,31 @@ class TournamentManager:
 						opponent = pair[0]
 					break
 		return opponent
+	
+	def get_bool_winners(self):
+		bool_winners = []
+		for i in range(self.round):
+			cur_winners = []
+			for pair in self.pairs[i]:
+				if len(self.winners) > i:
+					if pair[0] in self.winners[i]:
+						cur_winners.append([True, False])
+					elif pair[1] in self.winners[i]:
+						cur_winners.append([False, True])
+					else:
+						cur_winners.append([False, False])
+				else:
+					cur_winners.append([False, False])
+			bool_winners.append(cur_winners)
+		logger.info(f"bool_winners: {bool_winners}")
+		return bool_winners
+
+	def get_pairs_and_winners(self, pairs):
+		pairs_and_winners = []
+		bool_winners = self.get_bool_winners()
+		for round_idx in range(self.round):
+			round_matches = []
+			for pair, winner in zip(pairs[round_idx], bool_winners[round_idx]):
+				round_matches.append((pair, winner))  # Pair contains player names, winner contains (True, False)
+			pairs_and_winners.append(round_matches)
+		return pairs_and_winners
