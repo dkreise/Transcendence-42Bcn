@@ -15,12 +15,15 @@ let targetY = null;
 let difficulty = 3; // 0.5-1 => easy, 3 => already low chance for ai to lose, 5 => almost impossible; 
 let errorRange = null;
 let tournamentId = null;
+let gameStop = false;
 
 export function clearIntervalIDGame() {
     if (intervalID) {
         clearInterval(intervalID);
         intervalID = null;
     }
+    console.log("stopping the game");
+    gameStop = true;
 }
 
 function saveGameState() {
@@ -178,6 +181,14 @@ function gameAILoop() {
     }
     
     // Endgame check
+    if (gameStop) {
+        cancelAnimationFrame(gameLoopId);
+        if (intervalID) {
+            clearInterval(intervalID);
+            intervalID = null;
+        }
+        return;
+    }
     if (player.score >= maxScore || AI.score >= maxScore) {
         localStorage.removeItem("gameState");
         const winner = player.score > AI.score ? player.name : "@AI";
@@ -230,6 +241,7 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
         clearInterval(intervalID);
         intervalID = null;
     }
+    gameStop = false;
     if (tournament) {
         difficulty = 1; // medium
         tournamentId = tournament.id;
@@ -268,6 +280,7 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
     intervalID = setInterval(doMovesAI, 1000);
     console.log(tournamentId);
     gameAILoop();
+    // check if game is stopped and set timer
 }
 
 document.addEventListener("click", function (event) {

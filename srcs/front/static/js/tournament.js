@@ -60,6 +60,11 @@ function isOnBracketPage() {
 	return window.location.pathname.includes("bracket");
 }
 
+function isOnTournamentHomePage() {
+	return (window.location.pathname.includes("tournament-home") || window.location.pathname.includes("join-tournament") || window.location.pathname.includes("create-tournament"));
+}
+
+
 export const loadWaitingRoomPage = () => {
     if (socket)
         console.log("socket there is..");
@@ -153,25 +158,44 @@ function addGameButton(data) {
     bracketSection.append(playButton);
 }
 
-function uploadTournamentPage(data) {
+function changePage(data) {
     document.getElementById('content-area').innerHTML = data.html;
+    if (data.redirect) {
+        let path = data.redirect;
+        history.pushState({ path }, null, path);
+    }
+    if (data.needs_to_play) {
+        addGameButton(data);
+    }
+}
+
+function uploadTournamentPage(data) {
+    console.log("CUR PATHNAME: ", window.location.pathname);
+    if (data.redirect == "/tournament-bracket") {
+        if (isOnWaitingRoomPage() || isOnBracketPage() || isOnTournamentHomePage()) {
+            changePage(data);
+        }
+    } else if (data.redirect == "/end-tournament") {
+        if (isOnBracketPage()) {
+            changePage(data);
+        }
+    }
+    if (data.request) {
+        console.log("IT WAS A REQUEST");
+        changePage(data);
+    }
+
+    // document.getElementById('content-area').innerHTML = data.html;
     const bracketSection = document.getElementById("bracket");
     if (bracketSection) {
         console.log("bracket section here");
     } else {
         console.log("no bracket section...");
     }
-    if (data.redirect) {
-        // window.location.href = data.redirect; // Change the URL/route
-        // history.pushState({}, '', data.redirect);
-        // navigateTo(data.redirect);
-        let path = data.redirect;
-        history.pushState({ path }, null, path);
-        // historyTracker.push({ action: 'pushState', path });
-    }
-    if (data.needs_to_play) {
-        addGameButton(data);
-    }
+
+    // if (data.needs_to_play) {
+    //     addGameButton(data);
+    // }
     setTournamentStatus(data.status)
     
     if (data.status === 'finish') {

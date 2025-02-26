@@ -1,7 +1,7 @@
 import { makeAuthenticatedRequest } from "./login.js";
 // import { addLogoutListener } from "./logout.js";
 import { navigateTo, checkPermission } from "./main.js"
-import { startAIGame,clearIntervalIDGame } from "./AIGame.js";
+import { startAIGame, clearIntervalIDGame } from "./AIGame.js";
 import { startLocalGame } from "./localGame.js";
 import { startGame } from "./remoteGame.js"; 
 import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
@@ -42,7 +42,7 @@ export const playAI = (args) => {
     if (savedState)
         console.log("the state is here!! we need to remove it");
     else
-    console.log("the state is not here!!");
+        console.log("the state is not here!!");
     localStorage.removeItem("gameState");
     if (!checkPermission) {
         navigateTo('/login');
@@ -125,6 +125,7 @@ export const gameLocal = () => {
 }
 
 export const tournamentGameAIstart = () => {
+    clearIntervalIDGame();
     const tourId = localStorage.getItem("currentTournamentId");
     let args = {
         tournament: true,
@@ -170,13 +171,14 @@ export const gameAI = (args) => {
                         button.setAttribute("data-route", "/play-ai");
                     } else if (button && tournament) {
                         button.textContent = "Quit Tournament";
-                        button.removeAttribute("data-route");
-                        button.addEventListener('click', () => {
-                            // handle give up!! quit?
-                            clearIntervalIDGame();
-                            quitTournament();
-                            // loadBracketTournamentPage(tournament.id);
-                        });
+                        button.setAttribute("data-route", "/quit-tournament");
+                        // button.removeAttribute("data-route");
+                        // button.addEventListener('click', () => {
+                        //     // handle give up!! quit?
+                        //     clearIntervalIDGame();
+                        //     quitTournament();
+                        //     // loadBracketTournamentPage(tournament.id);
+                        // });
                     }
                     startAIGame(data['player1'], data['player2'], data['main_user'], tournament);
                 } else {

@@ -130,6 +130,8 @@ class TournamentManager:
 		page = {
 			'html': html,
 			'status': 'finished',
+			'needs_to_play': False,
+			'opponent': None,
 		}
 		return page
 

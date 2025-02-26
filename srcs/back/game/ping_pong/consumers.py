@@ -39,6 +39,16 @@ class PongConsumer(AsyncWebsocketConsumer):
 						if self.tour_id not in active_tournaments:
 							active_tournaments[self.tour_id] = TournamentManager(self.scope, self.tour_id, max_user_cnt) #add tournament in array activetournaments
 						tournament = active_tournaments[self.tour_id]
+						# Check if the tournament is already full
+						if tournament.get_players_cnt() >= tournament.max_user_cnt:
+							logger.info("Tournament is full. Rejecting connection.")
+							await self.send(text_data=json.dumps({
+								"type": "error",
+								"message": "Tournament is full",
+								"status": "full"
+							}))
+							await self.close()
+							return
 						status = tournament.add_player(self.user.username)
 						await self.channel_layer.group_add(self.tour_id, self.channel_name)
 						await self.accept()
@@ -61,6 +71,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 								"html": page['html'],
 								"redirect": page['redirect'],
 								"status": "waiting",
+								"request": True,
 							}))
 						else:
 							# page = tournament.get_bracket_page(self.user.username) 
@@ -73,12 +84,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 									"status": "playing",
 								}
 							)
-
-						# await self.send(text_data=json.dumps({
-						# 	"type": "html",
-						# 	"html": page['html'],
-						# 	"redirect": page['redirect'],
-						# }))
 
 				except Exception as e:
 					logger.error(f"Error connecting to the tournament: {e}")
@@ -180,6 +185,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"needs_to_play": page['needs_to_play'],
 						"opponent": page['opponent'],
 						"status": page['status'],
+						"request": True,
 					}))
 				elif dtype == "waiting_room_page_request":
 					page = tournament.get_waiting_room_page()
@@ -187,6 +193,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"type": "html",
 						"html": page['html'],
 						"status": "waiting",
+						"request": True,
 					}))
 
 				elif dtype == "final_page_request":
@@ -195,6 +202,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"type": "html",
 						"html": page['html'],
 						"status": "finished",
+						"request": True,
 					}))
 
 				elif dtype == "game_result":
