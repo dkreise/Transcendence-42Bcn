@@ -1,7 +1,7 @@
 import { loadLoginPage, handleLogin, handleSignup } from "./login.js";
 import { loadProfilePage, loadProfileSettingsPage, loadMatchHistoryPage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
-import { loadHomePage } from "./home.js";
+import { loadHomePage, setUp3DListener } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
@@ -41,7 +41,7 @@ const routes = {
     '/play-local/game': gameLocal,
     // '/tournament': playTournament,
     // '/play-ai/set-difficulty/': setDifficulty,
-    '/play-3d': play3D,
+    '/play-ai/3D': play3D,
     '/play-ai/game': (args) => gameAI(args),
     '/tournament': manageTournamentHomeBtn,
     '/tournament-home': loadTournamentHomePage,

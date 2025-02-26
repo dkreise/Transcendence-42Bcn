@@ -7,7 +7,7 @@ var baseUrl = "http://localhost";
 // const Enable3D = localStorage.getItem("3D-option") === "true";
 // "3d-option": Enable3D ? "True" : "False",
 
-const setUp3DListener = () => {
+export const setUp3DListener = () => {
     const switch3D = document.getElementById("3D-switch"); // ID del switch
 
     if (switch3D) {
@@ -15,9 +15,9 @@ const setUp3DListener = () => {
         switch3D.checked = isEnable;
 
         // Escuchar cambios en el switch
+        console.log("3D-option is:", switch3D.checked);
         switch3D.addEventListener("change", () => {
             localStorage.setItem("3D-option", switch3D.checked);
-            console.log("3D-option is:", switch3D.checked);
         });
     } else {
         console.log("Switch not found =(");
@@ -49,7 +49,9 @@ export const loadHomePage = () => {
                 document.getElementById('content-area').innerHTML = data.home_html;
                 console.log('Home page loaded');
 
-                localStorage.setItem("3D-option", "Disable");
+                if (!localStorage.getItem("3D-option")) {
+                    localStorage.setItem("3D-option", "false")
+                }
                 setUp3DListener();
 
             } else {
