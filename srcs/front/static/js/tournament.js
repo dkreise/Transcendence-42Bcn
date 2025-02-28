@@ -155,6 +155,12 @@ function addGameButton(data) {
         // Pass arguments as a JSON string inside `data-args`
         // playButton.setAttribute("data-args", JSON.stringify({ tournament: "true", tournamentId: 1234 }));
     }
+    playButton.addEventListener('click', () => {
+        if (socket.readyState === WebSocket.OPEN)
+        {
+            socket.send(JSON.stringify({ "type": "game_started" }));
+        }
+    });
     bracketSection.append(playButton);
 }
 
@@ -247,6 +253,9 @@ export function tournamentConnect(tourId, nPlayers=null) {
 		console.error("WebSocket encountered an error: ", error);
 		alert("Unable to connect to the server. Please check your connection.");
         localStorage.removeItem('inTournament');
+        localStorage.removeItem("user_quit");
+        localStorage.removeItem("currentTournamentId");
+            navigateTo('/home', true);
         reject("WebSocket error");
 	};
 

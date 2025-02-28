@@ -207,7 +207,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 				elif dtype == "game_result":
 					logger.info("RECEIVED. we need to handle game result")
-					status = await tournament.handle_game_end(data)
+					status = await tournament.handle_game_end(data, False)
 					if status == "new":
 						tournament.increase_round()
 						await self.channel_layer.group_send(
@@ -230,7 +230,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 				elif dtype == "quit":
 					logger.info("player wants to quit the tournament. handling quit..:")
-					status = await tournament.handle_quit(self.user.username)
+					status = await tournament.handle_quit(self.user.username, False)
 					logger.info("we handled the quit. now disconnecting..:")
 					await self.disconnect(1000)
 					if status == "new":
@@ -252,6 +252,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 									"status": "finished",
 								}
 							)
+
+				elif dtype == "game_started":
+					logger.info(f"GAME STARTED BY {self.user.username}")
+					tournament.set_match_start(self.user.username)
 
 			except Exception as e:
 				logger.error(f"\033[1;31mError receiving a message via WebSocket: {e}")
@@ -279,6 +283,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 ###################################################
 
 	async def tournament_starts(self, event):
+		logger.info(f"TOURNAMENT_STARTS FOR {self.user.username}")
 		tournament = active_tournaments[self.tour_id]
 		round_data = tournament.handle_tournament_start(self.user.username)
 		page = tournament.get_bracket_page(self.user.username)
@@ -291,7 +296,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 			"status": "playing",
 		}))
 
-	async def tournament_ends(self, event): #TODO: manage when it appears
+	async def tournament_ends(self, event):
+		logger.info(f"TOURNAMENT_ENDS FOR {self.user.username}")
 		tournament = active_tournaments[self.tour_id]
 		page = tournament.get_final_page()
 		await self.send(text_data=json.dumps({
@@ -299,6 +305,19 @@ class PongConsumer(AsyncWebsocketConsumer):
 			"html": page['html'],
 			"redirect": "/end-tournament",
 			"status": "finished",
+		}))
+
+	async def tournament_update(self, event):
+		logger.info(f"TOURNAMENT_UPDATE FOR {self.user.username}")
+		tournament = active_tournaments[self.tour_id]
+		page = tournament.get_bracket_page(self.user.username)
+		await self.send(text_data=json.dumps({
+			"type": "html",
+			"html": page['html'],
+			"redirect": "/tournament-bracket",
+			"needs_to_play": page['needs_to_play'],
+			"opponent": page['opponent'],
+			"status": "playing",
 		}))
 
 	async def new_player_cnt(self, event):

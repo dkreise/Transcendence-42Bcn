@@ -8,6 +8,9 @@ from django.template.loader import render_to_string
 import random
 from game.utils.translations import add_language_context 
 from asgiref.sync import sync_to_async
+from celery import shared_task
+from django.utils import timezone
+from celery.result import AsyncResult
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +42,11 @@ class TournamentManager:
 		self.quit_winners = 0
 		self.test = 0
 		self.finished = False
+		self.matches_started = []
+		self.matches_finished = []
+		self.timer_id = -1
+		self.timer_task = None
+		self.results_strings = []
 
 	def get_players_cnt(self):
 		return len(self.players)
@@ -70,7 +78,20 @@ class TournamentManager:
 	
 	def increase_round(self):
 		self.round = self.round + 1
+		logger.info(f"NEW ROUND: {self.round}")
 		self.create_pairs()
+		n = len(self.pairs[self.round - 1])
+		self.matches_started.clear()
+		self.matches_started.extend([False] * n)
+		self.matches_finished.clear()
+		self.matches_finished.extend([False] * n)
+		# if self.timer_id != -1:
+		# 	AsyncResult(self.timer_id).revoke(terminate=True)  # Force cancel
+		# new_timer = self.check_unstarted_games.apply_async(countdown=30)
+		# self.timer_id = new_timer.id
+		if self.timer_task:
+			self.timer_task.cancel()
+		self.timer_task = asyncio.create_task(self.check_unstarted_games())
 
 	def get_waiting_room_page(self):
 		total_players = self.get_players_cnt()
@@ -121,8 +142,17 @@ class TournamentManager:
 
 	def get_final_page(self):
 		self.finished = True
+		# if self.timer_id != -1:
+		# 	AsyncResult(self.timer_id).revoke(terminate=True)  # Force cancel
+		# 	self.timer_id = -1
+		if self.timer_task:
+			self.timer_task.cancel()
+		winner = '-'
+		if len(self.players) == 1:
+			winner = self.players[0]
 		context = {
-			"winner_player": self.players[0]
+			"winner_player": winner,
+			"results_list": self.results_strings,
 		}
 		add_language_context(self.scope.get('request', {}), context)
 		html = render_to_string('final_tournament_page.html', context)
@@ -168,24 +198,27 @@ class TournamentManager:
 		self.pairs.append(cur_pairs)
 		logger.info(self.pairs)
 
-	async def handle_game_end(self, data):
+	async def handle_game_end(self, data, timeout):
 		logger.info("Handling game end")
-		winner = data["winner"]
-		winner_score = data["winner_score"]
-		loser = data["loser"]
-		loser_score = data["loser_score"]
+		if not timeout:
+			winner = data["winner"]
+			winner_score = data["winner_score"]
+			loser = data["loser"]
+			loser_score = data["loser_score"]
+			match_i = self.get_match_idx(winner, loser)
+			self.matches_finished[match_i] = True
 
-		await self.save_game_result(winner, winner_score, loser, loser_score)
-		await self.save_tournament_result(loser, False, False)
+			await self.save_game_result(winner, winner_score, loser, loser_score)
+			await self.save_tournament_result(loser, False, False)
 
-		if loser in self.players:
-			logger.info("removing loser from players")
-			self.players.remove(loser)
+			if loser in self.players:
+				logger.info("removing loser from players")
+				self.players.remove(loser)
 
-		if len(self.winners) < self.round:
-			self.winners.append([winner])
-		else:
-			self.winners[self.round - 1].append(winner)
+			if len(self.winners) < self.round:
+				self.winners.append([winner])
+			else:
+				self.winners[self.round - 1].append(winner)
 
 		logger.info(f"players now: {self.players}")
 		logger.info(f"winners now: {self.winners}")
@@ -193,12 +226,14 @@ class TournamentManager:
 		round_player_cnt = self.get_round_players_cnt()
 		logger.info(f"cnt: {cnt}, round cnt: {round_player_cnt}")
 
-		if (self.get_players_cnt() == 1):
+		if (self.get_players_cnt() <= 1):
 			# means that tournament finished
 			logger.info("tournament finished")
-			await self.save_tournament_result(winner, True, False)
+			if not timeout:
+				await self.save_tournament_result(winner, True, False)
 			return 'finished'
-		elif (cnt * 2 == round_player_cnt):
+		# elif (cnt * 2 == round_player_cnt):
+		elif all(self.matches_finished):
 			# means that round finished
 			logger.info("round finished")
 			return 'new'
@@ -246,6 +281,7 @@ class TournamentManager:
 					score += 1
 
 				logger.info(f"res for user: {player}, score: {score}")
+				self.results_strings.append(f"{player}, score: {score}")
 				# Save the tournament result
 				tournament_res = Tournament.objects.create(
 					id_tournament=self.id,
@@ -257,7 +293,7 @@ class TournamentManager:
 		except Exception as e:
 			logger.info(f"Error saving tournament result: {e}")
 
-	async def handle_quit(self, username):
+	async def handle_quit(self, username, timeout):
 		logger.info(f"{username} wants to quit!!!")
 		if username not in self.players or self.finished:
 			self.users.remove(username)
@@ -278,6 +314,9 @@ class TournamentManager:
 			# if game has not finished => force him as loser (handle_game_result)
 			is_winner = len(self.winners) >= self.round and username in self.winners[self.round - 1]
 			logger.info(f"is winner: {is_winner}")
+			if timeout:
+				await self.handle_timeout(username)
+				return 'timeout'
 			if is_winner:
 				self.quit_winners += 1 # mutexx it.. ?
 				await self.save_tournament_result(username, False, True)
@@ -286,7 +325,7 @@ class TournamentManager:
 			else:
 				opponent = self.get_opponent(username)
 				data = {'winner': opponent, 'loser': username, 'winner_score': 0, 'loser_score': 0}
-				status = await self.handle_game_end(data)
+				status = await self.handle_game_end(data, False)
 				self.users.remove(username)
 				return status
 
@@ -374,3 +413,75 @@ class TournamentManager:
 				round_matches.append((pair, winner))  # Pair contains player names, winner contains (True, False)
 			pairs_and_winners.append(round_matches)
 		return pairs_and_winners
+
+	def set_match_start(self, username):
+		cur_pairs = self.pairs[self.round - 1]
+		for i in range(len(cur_pairs)):
+			pair = cur_pairs[i]
+			if pair[0] == username or pair[1] == username:
+				self.matches_started[i] = True
+				logger.info(f"NOW MATCHES: {self.matches_started}")
+				return
+	
+	async def check_unstarted_games(self):
+		await asyncio.sleep(20)
+		now = timezone.now()
+		for i in range(len(self.matches_started)):
+			if self.matches_started[i] == False:
+				# quit users
+				pair = self.pairs[self.round - 1][i]
+				logger.info(f"UNSTARTED GAME OF {pair}")
+				match_i = self.get_match_idx(pair[0], pair[1])
+				self.matches_finished[match_i] = True
+				await self.handle_timeout(pair)
+				# await self.handle_quit(pair[0])
+				# await self.handle_quit(pair[1])
+				# send some info to front
+
+	async def handle_timeout(self, pair):
+		await self.save_tournament_result(pair[0], False, False)
+		await self.save_tournament_result(pair[1], False, False)
+		self.players.remove(pair[0])
+		# self.users.remove(pair[0])
+		self.players.remove(pair[1])
+		# self.users.remove(pair[1])
+		status = await self.handle_game_end({}, True)
+		channel_layer = get_channel_layer()
+		logger.info(f"Sending group message, STATUS: {status}")
+		if status == "new":
+			tournament.increase_round()
+			await channel_layer.group_send(
+				self.id,
+				{
+					"type": "tournament_starts",
+					"message": "New round has started",
+					"status": "playing",
+				}
+			)
+		elif status == "finished":
+			await channel_layer.group_send(
+				self.id,
+				{
+					"type": "tournament_ends",
+					"message": "Tournament has finished",
+					"status": "finished",
+				}
+			)
+		else:
+			await channel_layer.group_send(
+				self.id,
+				{
+					"type": "tournament_update",
+					"message": "Tournament has updated",
+					"status": "playing",
+				}
+			)
+		logger.info("Message sent to group successfully")
+
+	def get_match_idx(self, us1, us2):
+		cur_pairs = self.pairs[self.round - 1]
+		for i in range(len(cur_pairs)):
+			pair = cur_pairs[i]
+			if (pair[0] == us1 and pair[1] == us2) or (pair[0] == us2 and pair[1] == us1):
+				return i
+		return -1

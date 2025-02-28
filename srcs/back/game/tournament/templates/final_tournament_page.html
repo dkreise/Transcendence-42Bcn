@@ -12,6 +12,13 @@
             <h3 class="winner-title">*Real winner :</h3>
             <h1 class="winner-name">{{ winner_player }}</h1>
         </div>
+        <div>
+            <ul>
+                {% for res in results_list %}
+                <li>{{ res }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
 
     <div class="d-flex justify-content-center">
