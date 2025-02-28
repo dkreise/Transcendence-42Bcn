@@ -297,6 +297,8 @@ class GameManager:
 	async def game_loop(self):
 		logger.info(f"Starting game loop with status: {self.status}")
 		try:
+			while self.status == 1:
+				await asyncio.sleep(0.1)
 			while self.status == 0:
 				async with self.ball_lock:
 					await self.update_ball()
@@ -354,8 +356,6 @@ class GameManager:
 			await self.send_status(4)
 			logger.info(f"\033[1;33mThe game has started in room {self.id}\033[0m")
 			asyncio.create_task(self.ready_steady_go())
-			while self.status == 1:
-				await asyncio.sleep(0.1)
 			self.game_loop_task = asyncio.create_task(self.game_loop())
 
 	async def stop_game (self):
