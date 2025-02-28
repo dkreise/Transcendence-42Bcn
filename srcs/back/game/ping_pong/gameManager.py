@@ -137,7 +137,6 @@ class GameManager:
 ##################################################
 
 	async def ready_steady_go(self):
-		#await self.send_status(4)
 		await asyncio.sleep(4)
 		self.status = 0
 		await self.send_status(0)
@@ -147,7 +146,7 @@ class GameManager:
 		self.scores[role] += 1
 		self.ball["xspeed"]	*= -1
 		await self.send_status(4)
-		self.ready_steady_go()
+		await self.ready_steady_go()
 
 #	async def ready_steady_go(self):
 #	    self.status = 1
@@ -347,16 +346,16 @@ class GameManager:
 
 ##############################################################
 
-	async def start_game(self):
-		logger.info(f"\033[1;33mTrying to start the game in room {self.id}\033[0m")
+	async def start_game(self, user):
+		logger.info(f"\033[1;33m{user} is Trying to start the game in room {self.id}\033[0m")
 		if self.game_loop_task is None:
 			self.status = 1
-			#await self.send_status(4)
-			await asyncio.sleep(0.1)
-			await asyncio.sleep(0.5)
-			await asyncio.sleep(1)
+			logger.info(f"{user} is starting the countdown")
+			await self.send_status(4)
 			logger.info(f"\033[1;33mThe game has started in room {self.id}\033[0m")
-			await self.ready_steady_go()
+			asyncio.create_task(self.ready_steady_go())
+			while self.status == 1:
+				await asyncio.sleep(0.1)
 			self.game_loop_task = asyncio.create_task(self.game_loop())
 
 	async def stop_game (self):

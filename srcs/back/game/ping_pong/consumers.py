@@ -107,6 +107,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def receive(self, text_data):
 		#logger.info("\033[1;32mRECEIVE METHOD CALLED\033[0m")
+		ready_lock = asyncio.Lock()
 		try:
 			data = json.loads(text_data)
 			game = active_games[self.room_id]
@@ -114,14 +115,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 				game.handle_message(self.role, data)
 				await game.update_game()
 			elif data["type"] == "ready":
-				game.ready += 1
-				logger.info(f"Ready: {game.ready}")
-				if game.ready == 2:
-					game.status = 1
-					logger.info("starting countdown")
-					await game.send_status(4)
-					logger.info(f"{self.role} starts the game")
-					await game.start_game()
+				async with active_games_lock:
+					game.ready += 1
+					logger.info(f"{self.user} is ready: {game.ready}")
+					if game.ready == 2:
+						game.status = 1
+						logger.info(f"{self.role} ({self.user})starts the game")
+						await game.start_game(self.user)
+			elif data["type"] == "close":
+				logger.info("\033[1;32mRECEIVE METHOD CALLED: closed WS\033[0m")
 		except Exception as e:
 			logger.error(f"\033[1;31mError receiving a message via WebSocket: {e}\033[0m")
 	
