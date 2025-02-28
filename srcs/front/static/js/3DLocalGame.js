@@ -65,21 +65,22 @@ const   size = {
 //---------------------------------------------------------------------------------//
 
 // Start game function
-export function start3DLocalGame(playerName1, playerName2, mainUserNmb) {
+export async function start3DLocalGame(playerName1, playerName2, mainUserNmb) {
     // Set up scene
     drawHeader(1) 
     gameStarted = false;
-    setupScene();
+    await setupScene();
     text = new SceneText(scene, 0, -Math.PI / 2, 0);
+    await text.createText();
     // text.group.rotation.y = text.rotation;
     camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 1000);
     camera.position.set(-39.5, 22.5, 0);
     camera.lookAt(new THREE.Vector3(0, 0, 0))
 
     mainUser = mainUserNmb;
-    createLights(-20);
+    await createLights(-20);
     
-    setupField();
+    await setupField();
     controls.target.set(0, 7, 0);
     // scene.lights[dirLight].position.x *= -1;
     console.log('Starting local game...');
@@ -132,7 +133,7 @@ export function setupControls() {
 }
 
 // Game loop
-function animateLocal() {
+async function animateLocal() {
    
     const deltaTime = clock.getDelta();
     const dt = Math.min(deltaTime, 0.1)
@@ -161,7 +162,7 @@ function animateLocal() {
 // -------------------- GAME WITH AI FUNCTIONS ---------------------- //
 //--------------------------------------------------------------------//
 
-export function start3DAIGame(playerName2) {
+export async function start3DAIGame(playerName2) {
 
     // ifAI = true;
     // drawHeader(1);
@@ -169,15 +170,16 @@ export function start3DAIGame(playerName2) {
     contentArea.style.padding = 0;
     // contentArea.style.padding = 0;
     gameStarted = false;
-    setupScene();
+    await setupScene();
     text = new SceneText(scene);
+    await text.createText();
     camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 1000);
     camera.position.set(0, 20, 50);
     camera.lookAt(new THREE.Vector3(0, 0, 0))
 
     console.log(`Inicially ${playerName2}`);
-    createLights(20);
-    setupField();
+    await createLights(20);
+    await setupField();
     player2 = new AIPlayer(limits, scene, 1, playerName2, new THREE.Vector3(0, 0, field.y - 2), -0.1);
     player1 = new AIPlayer(limits, scene, -1, "Enemy", new THREE.Vector3(0, 0, -field.y + 2), -0.1);
     ball = new Ball(scene, limits, [player1, player2], true);
@@ -219,7 +221,7 @@ function setupAIControls() {
 }
 
 // AI Game loop
-function animateAI() {
+async function animateAI() {
    
     const deltaTime = clock.getDelta();
     const elapsedTime = clock.getElapsedTime();
@@ -249,13 +251,13 @@ function animateAI() {
 // ---------------------- COMMON FUNCTIONS -------------------------- //
 //--------------------------------------------------------------------//
 
-function setupScene() {
+async function setupScene() {
     scene = new THREE.Scene();
     scene.background = new THREE.Color(params.fogColor);
     scene.fog = new THREE.Fog(params.fogColor, params.fogNear, params.fogFar);
 }
 
-export function createLights(posX) {
+async function createLights(posX) {
 
     dirLight.position.set(posX, 20, 20)
     dirLight.castShadow = true
@@ -270,7 +272,7 @@ export function createLights(posX) {
     lights = [dirLight, ambientLight]
 }
 
-function setupField() {
+async function setupField() {
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(size.width, size.height);
     renderer.shadowMap.enabled = true;
@@ -315,7 +317,7 @@ function setupField() {
     // console.log(`Left bound is: ${leftBound.position.x}, Right bound is: ${rightBound.position.x}`)
     scene.add(leftBound, rightBound);
 
-    createSky();
+    await createSky();
 }
 
 function setupEvents() {
@@ -353,7 +355,7 @@ function setupEvents() {
         // console.log('goal!! restart');
     })
     
-    window.addEventListener("click", (event) => buttonsManager(event));
+    window.addEventListener("click", (event) => {buttonsManager(event));
     // {
     //     if (gameStarted) return; // Ignore clicks after the game starts
     
@@ -380,7 +382,7 @@ function setupEvents() {
     // });
 }
 
-function buttonsManager(event) {
+async function buttonsManager(event) {
     if (gameStarted) return; // Ignore clicks after the game starts
     if (!text || !text.button || !text.start || !text.tryAgain) {
         console.log("One or more 3D buttons are not initialized.");
@@ -408,7 +410,7 @@ function buttonsManager(event) {
     }
 }
 
-function showCountdown(callback) {
+async function showCountdown(callback) {
     let count = 2;
     text.updateGeometry(text.countdownText, "3", textWinner);
     text.countdownText.visible = true;
@@ -427,7 +429,7 @@ function showCountdown(callback) {
     }, 500);
 }
 
-function handleEndGame(message) {
+async function handleEndGame(message) {
     gameEnded = true;
     gameStarted = false;
     // if (text.winnerMessage)
@@ -441,7 +443,7 @@ function handleEndGame(message) {
     text.winnerMessage.visible = true;
 }
 
-function createSky() {
+async function createSky() {
     const geometry = new THREE.BufferGeometry();
     const vertices = [];
     const sphereRadius = 70;  // The radius of the transparent sphere where the stars will be placed outside
@@ -466,7 +468,7 @@ function createSky() {
     scene.add( particles );
 }
 
-function restart() {
+async function restart() {
 
     resetTeam(); // resets the ball and players;
     gameEnded = false;
@@ -485,22 +487,23 @@ function resetTeam() {
 
 window.addEventListener('resize', handleResize);
 
-function handleResize() {
+async function handleResize() {
     size.width = window.innerWidth;
     size.height = window.innerHeight;
 
-    if(camera.aspect) 
+    if (camera && camera.aspect) {
         camera.aspect = size.width / size.height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(size.width, size.height);
+        camera.updateProjectionMatrix();
+        renderer.setSize(size.width, size.height);
 
-    const pixelRatio = Math.min(window.devicePixelRatio, 2);
-    renderer.setPixelRatio(pixelRatio);
+        const pixelRatio = Math.min(window.devicePixelRatio, 2);
+        renderer.setPixelRatio(pixelRatio);
+    }
 }
 
 // ------------ MAYBE WILL BE USED ------------------- //
 
-export function cleanup3D() {
+export async function cleanup3D() {
     // Dispose of all geometries, materials, and textures
     if (!scene) return;
     
