@@ -40,15 +40,15 @@ function handleRoleAssignment(role) {
 function scaleGame(data)
 {
 	handleRoleAssignment(data.role);
-	console.log("BACK width: " + data.padW + " height: " + data.padH);
-	console.log("FRONT width: " + player.width + " height: " + player.height);
+	//console.log("BACK width: " + data.padW + " height: " + data.padH);
+	//console.log("FRONT width: " + player.width + " height: " + player.height);
 	player.width = canvas.width * (data.padW / data.canvasX);
 	opponent.width = player.width;
 	player.height = canvas.height * (data.padH / data.canvasY);
 	opponent.height = player.height;
 	if (player.x != 0)
 		player.x = canvas.width - player.width;
-	console.log("FRONT 2 width: " + player.width + " height: " + player.height);
+	//console.log("FRONT 2 width: " + player.width + " height: " + player.height);
 	backFactor["x"] = canvas.width / data.canvasX;
 	backFactor["y"] = canvas.height / data.canvasY;
 	player.backFactor = backFactor["y"];
@@ -60,13 +60,13 @@ async function readySteadyGo(countdown)
 	const msg = ["Go!", "Steady...", "Ready..."];
 	let fontSize = Math.floor(canvas.width * 0.05);
 
-//	ctx.clearRect(0, 0, canvas.width, canvas.height);
-//	ctx.fillStyle = "rgb(100 100 100 / 50%)";
-//	ctx.fillRect(0, 0, canvas.width, canvas.height);
-//	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
-//	ctx.font = `${fontSize}px Arial`;
-//	ctx.textAlign = "center";
-//	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = "rgb(100 100 100 / 50%)";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
+	ctx.font = `${fontSize}px Arial`;
+	ctx.textAlign = "center";
+	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
 	console.log("RSG: " + countdown);
 	if (countdown)
 	{
@@ -96,7 +96,6 @@ function displayCountdown()
 		waitMsg = waitMsg.replace("X", "player2");
 	else
 		waitMsg = waitMsg.replace("X", "player1");
-	//ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 - fontSize);
 	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 + fontSize / 2);
 }
 
@@ -112,6 +111,13 @@ function handleEndgame(data) {
 	else
 		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
 	cancelAnimationFrame(gameLoopId);
+}
+
+function getTimestamp()
+{
+	const now = new Date();
+
+	return now.getDate() + "-" + now.getMonth() + " " + now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
 }
 
 //async function initializeWebSocket(roomId) {
@@ -140,11 +146,13 @@ async function initializeWebSocket() {
 		console.warn("WebSocket connection closed. Retrying...");
 		if (retries++ <= 5)
 			setTimeout(initializeWebSocket, 1000);
+		else
+			socket.send(JSON.stringify({"type": "close"}));
 	};
 
 	socket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
-		const received = Date.now();
+		const received = getTimestamp();
 		//console.log(`[${received}]data.type is: ${data.type}`);
 
 		switch (data.type) {
@@ -167,14 +175,10 @@ async function initializeWebSocket() {
 				socket.send(JSON.stringify({"type": "ready"}))
 				break;
 			case "status":
-				console.log(`[${received}]status msg received! wait = ${data.wait} back countdown ${data.countdown}`)
+				console.log(`[${received}] status msg received! wait = ${data.wait} back countdown ${data.countdown}`)
 				if (data.wait)
 				{
-				console.log(`[${received}]status:\n` + "wait: " + data.wait + "\ncountdown: " + data.countdown);
-					//if (data.countdown != 4)
-					//	displayCountdown(data.countdown);
-					//else
-					//	readySteadyGo(data.countdown - 2);
+				console.log(`[${received}] status:\n` + "wait: " + data.wait + "\ncountdown: " + data.countdown);
 					if (data.countdown != 4)
 						displayCountdown();
 					else
@@ -182,7 +186,7 @@ async function initializeWebSocket() {
 				}
 				else
 				{
-					console.log("let's start the game!");
+					console.log(`${received} let's start the game!`);
 					setupControls(player, opponent)
 					gameLoop();
 				}
