@@ -61,7 +61,7 @@ export async function updateLanguage(lang) {
     let lang_is_defined = true; 
     
     //STEP 1: Get user language preference when login (no lang passed as parameter)
-    if (!lang){ //when login /signin
+    if (!lang){
         lang_is_defined = false;
         lang = await getUserPreferenceLanguageFromDB();
     }
@@ -69,7 +69,7 @@ export async function updateLanguage(lang) {
     //STEP 2: Set language cookies
     setCookie("language", lang);
 
-    saveUserPreferenceLanguageToDB(lang);
+    await saveUserPreferenceLanguageToDB(lang);
 
     //STEP 4: Update button UI
     updateLanguageButtonUI(lang);
