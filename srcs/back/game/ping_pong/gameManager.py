@@ -2,9 +2,15 @@ from collections import defaultdict
 import logging
 import asyncio
 from asgiref.sync import sync_to_async
+# from .views import save_remote_score
 from django.contrib.auth import get_user_model
+# from .models import Game
 from django.db import transaction
 from channels.layers import get_channel_layer
+
+def get_game_model():
+    from .models import Game  # Import inside function
+    return Game
 
 def get_game_model():
     from .models import Game  # Import inside function
@@ -148,16 +154,6 @@ class GameManager:
 		await self.send_status(4)
 		await self.ready_steady_go()
 
-#	async def ready_steady_go(self):
-#	    self.status = 1
-#	    send_status_task = asyncio.create_task(self.send_status(4))  # Send message asynchronously
-#	    await asyncio.sleep(1)  # Small delay to allow WebSocket to send the message
-#	    await send_status_task  # Ensure it's sent before the countdown
-#	    await asyncio.sleep(4)  # Now do the actual countdown
-#	    self.status = 0
-#	    await self.send_status(0)  # Send game start message
-
-
 #################################################
 
 	def reset_ball(self, new_dir): #new_dir [bool] true when player1 scored
@@ -231,7 +227,6 @@ class GameManager:
 		game = get_game_model()
 
 		#save the game result
-		#saved_game = self.save_game_result(winner_id, db_players)
 		saved_game = await self.save_game_score(winner_id)
 
 		if saved_game:

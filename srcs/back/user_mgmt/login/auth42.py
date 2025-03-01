@@ -83,7 +83,7 @@ class Callback42API(APIView):
                 raise AuthenticationFailed("Authentication failed")
             print("42 username !!!!!!!!!!!!!!!!!!:", user.username)
             # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
-            django_login(request, user)
+            # django_login(request, user)
 
             profile = user.profile
             if profile.two_fa:

@@ -1,128 +1,198 @@
-  /* Fondo animado en el body */
-body {
-  background: linear-gradient(135deg, #121212, #3a3a3a, #121212);
-  background-size: 200% 200%;
-  animation: gradientAnimation 10s ease infinite; 
-  color: #EAEAEA;
-  font-family: Arial, sans-serif;
-  margin: 0;
+.form-container {
+  max-width: 400px;
+  max-height: 700px;
+  background: linear-gradient(#0d0d0d, #212121) padding-box,
+              linear-gradient(145deg, transparent 15%,#d5dcf9, #a7b0ca) border-box;
+  border: 2px solid transparent;
+  padding: 32px 24px;
+  padding-top: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #e1e1e1;
+  display:flex;
+  flex-direction:column;
+  gap: 5px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  opacity: 0.85;
+  
+  margin: 5px;
+}
+
+
+.form-container button:active {
+  scale: 0.95;
+}
+
+.form-container .form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-container .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.form-container .form-group label {
+  display: block;
+  margin-bottom: 5px;
+  margin-top: 5px;;
+  color: #717171;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.form-container .form-group input {
+  width: 100%;
+  /* padding: 12px 16px; */
+  border-radius: 8px;
+  color: #fff;
+  font-family: inherit;
+  background-color: transparent;
+  border: 1px solid #414141;
+}
+
+.form-container .form-group textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 8px;
+  resize: none;
+  color: #fff;
+  height: 96px;
+  border: 1px solid #414141;
+  background-color: transparent;
+  font-family: inherit;
+}
+
+.form-container .form-group input::placeholder {
+  opacity: 0.5;
+}
+
+.form-container .form-group input:focus {
+  outline: none;
+  border-color: #5f45bf;
+  box-shadow: none;
+}
+
+.form-container .form-group textarea:focus {
+  outline: none;
+  border-color: #5f45bf;
+  box-shadow: none;
+}
+
+.form-submit-btn{
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  align-self: flex-start;
+  font-family: inherit;
+  color: #f7f7f7;
+  font-weight: 600;
+  width: 40%;
+  background: #5f45bf;
+  border: 1px solid #414141;
+  padding: 12px 16px;
+  font-size: inherit;
+  gap: 8px;
+  margin-top: 8px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.form-container .form-submit-btn:hover{
+  background-color: #8A76D0;
+  border-color: #8A76D0;
+}
+
+.login-intra-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  
+  font-family: inherit;
+  color: #898888;
+  font-weight: 600;
+  width: 65%;
+  background: #d5dcf9;
+  border: 1px solid #414141;
+  padding: 12px 16px;
+  font-size: inherit;
+  gap: 8px;
+  margin-top: 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  
+  margin: 8px auto 0 auto;
+}
+
+.form-container .login-intra-button:hover{
+  color: #707070;
+  background-color: #b8c5f4;
+  border-color: #b8c5f4;
+}
+
+.not-account-btn{
+  background: none;
+  border: none;
+  color: #5f45bf;
+}
+
+.not-account-btn:hover,
+.not-account-btn:active{
+  color: #7650ff !important
+}
+
+.separator {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100vh;
-}
-  
-  /* Contenedor de partículas */
-  #particle-background {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    pointer-events: none;
-    z-index: -1;
-  }
-  
-  .container {
-    margin: auto;
-    width: 50%;
-    padding: 10px;
+  gap: 5px;
 }
 
-canvas {
-    border: 2px solid white;
-    background-color: black;
-    margin: 20px auto;
+.separator > .div1 {
+  width: 100%;
+  height: 3px;
+  border-radius: 5px;
+  opacity: 80%;
+  background: linear-gradient(290deg, transparent 15%,#d5dcf9, #a7b0ca);
 }
 
-  /* Partícula individual */
-  .particle {
-    position: absolute;
-    bottom: 0; /* Comienza desde la parte inferior */
-    width: 10px;
-    height: 10px;
-    background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 50%;
-    animation-name: float-up;
-    animation-timing-function: ease-out;
-    animation-iteration-count: infinite;
-  }
-  
-  /* Animación: Mover hacia arriba */
-  @keyframes float-up {
-    0% {
-      transform: translateY(0);
-      opacity: 1;
-    }
-    100% {
-      transform: translateY(-100vh);
-      opacity: 0; /* Se desvanece al final */
-    }
-  }
-  
-  
-  /* Contenedor principal */
-  .container {
-    background-color: rgba(74, 72, 72, 0.8); /* Fondo ligeramente transparente */
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.5);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 300px;
-  }
-  
-  /* Título */
-  h1 {
-    margin-bottom: 20px;
-    font-size: 2em;
-    color: #BB86FC; /* Color de acento: púrpura neón */
-  }
-  
-  /* Estilos del formulario */
-  form {
-    width: 110%;
-  }
-  
-  label {
-    width: 80px;
-    text-align: right;
-    margin-right: 10px;
-    color: #EAEAEA; /* Gris claro para el texto de las etiquetas */
-  }
-  
-  input[type="text"], input[type="password"] {
-    width: 180px;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: none;
-    border-radius: 5px;
-    background-color: #2A2A2A; /* Fondo oscuro en los campos de entrada */
-    color: #EAEAEA; /* Texto claro en los campos de entrada */
-  }
-  
-  /* Estilo del botón */
-  button {
-    width: 100%;
-    padding: 10px;
-    background-color: #BB86FC; /* Fondo de botón: verde neón */
-    border: none;
-    border-radius: 5px;
-    color: #121212; /* Texto oscuro en el botón */
-    font-size: 1em;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  button:hover {
-    background-color: #9828ed; /* Cambio a púrpura neón en hover */
-  }
+.separator > .div2{
+  width: 100%;
+  height: 3px;
+  border-radius: 5px;
+  opacity: 80%;
+  background: linear-gradient(145deg, transparent 15%,#d5dcf9, #a7b0ca);
+}
 
-  #sigin {
-    background-color: #BB86FC;
-    border: none;
-    border-radius: 5px;
-    border-style:dotted;
-  }
+.separator > span {
+  color: #f0ecec;
+  font-weight: 600;
+}
+
+.error-login{
+  color:#f82f2f;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.error-login.show{
+  opacity: 1;
+}
+
+
+.sign-up-input{
+  height: 40px;
+}
+
+#login-error{
+  margin: 10px;
+}
+
+#signup-form{
+  padding-bottom: 10px;
+}

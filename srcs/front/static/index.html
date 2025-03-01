@@ -1,33 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <!-- Title -->
+        <title>Pong Game</title>
+
+        <!-- Metadata -->
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Pong Game</title>
+
+        <!-- Font -->
+        <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+
+        <!-- BootStrap -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="css/home.css">
+
+        <!-- Stylesheet (CSS) -->
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/bg-particle.css">
         <link rel="stylesheet" href="css/login.css">
+
+        <link rel="stylesheet" href="css/home.css">
+        <link rel="stylesheet" href="css/header.css">
+        <!-- <link rel="stylesheet" href="css/profile.css">
+        <link rel="stylesheet" href="css/friends.css"> -->
+        <!-- <link rel="stylesheet" href="css/game.css"> -->
+
         <link rel="stylesheet" href="css/profile.css">
         <link rel="stylesheet" href="css/friends.css">
         <link rel="stylesheet" href="css/game.css">
+        <!-- Three.js -->
+        <script type="importmap">
+            {
+                "imports": {
+                "three": "./three/build/three.module.js"
+                }
+            }
+            </script>
+        <!-- Simplex Noise CDN -->
+<!--         <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.0.0/simplex-noise.js"></script> -->
+
+        <link rel="stylesheet" href="css/tournament.css">
+        <link rel="stylesheet" href="css/bracket.css">
+
+
     </head>
     <body>
+        <!-- Particle Background -->
         <div id="particle-background"></div>
-        <header id="header-container">
-            <!-- Header menu will be injected here -->
-        </header>
+
+        <!-- main app content -->
         <div id="app">
-            <!-- main app content here, like the navigation, game, etc. -->
-            <div id="content-area"></div> <!-- Dynamic content area where the login form will be rendered -->
+
+            <!-- Header -->
+            <div id="header-area">
+
+            </div>
+
+            <!-- Dynamic content area -->
+            <div id="content-area">
+
+            </div>
         </div>
-        <script src="js/particle_background.js"></script>
+
+
+        <!-- JavaScript -->
+        <script type="module" src="js/particle_background.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script type="module" src="js/main.js"></script>
         <script type="module" src="js/logout.js"></script>
         <script type="module" src="js/login.js"></script>
         <script type="module" src="js/profile.js"></script>
-        <script type="module" src="js/header.js"></script>
         <script type="module" src="js/langs.js"></script>      
         <script type="module" src="js/twoFA.js"></script>
         <script type="module" src="js/friends.js"></script>
@@ -35,10 +78,34 @@
         <script type="module" src="js/game.js"></script>
         <script type="module" src="js/remoteGame.js"></script>
         <script type="module" src="js/localGame.js"></script>
+        <script type="module" src="js/AIGame.js"></script>
 
 
         <!-- Bootstrap js -->
+
+        <!-- <script type="module" src="js/threeTest.js"></script> -->
+        <script type="module" src="js/3DLocalGame.js"></script>
+        <script type="module" src="js/3DBall.js"></script>
+        <script type="module" src="js/3DPlayer.js"></script>
+        <script type="module" src="js/3DText.js"></script>
+        <script type="module" src="three/examples/jsm/controls/OrbitControls.js"></script>
+        <!-- <script type="module" src="js/simplexNoise.js"></script> -->
+        <script type="module" src="js/tournament.js"></script>
+
+        <!-- Bootstrap js -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
 
     </body>
 </html>
+
+
+<!-- 
+
+    1- Crear dos html uno con header completo y otro con solo boton idiomas
+
+    2- Crear div content-header vacio al principio
+
+    3- hacer fetch al back para pillar el header que toque
+
+ -->

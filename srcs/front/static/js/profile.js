@@ -1,5 +1,7 @@
 import { makeAuthenticatedRequest } from "./login.js";
-import { startGame } from "./remoteGame.js"
+// import { startGame } from "./remoteGame.js"
+// import { animate } from "./threeTest.js"
+
 
 
 var baseUrl = "http://localhost"; // change (parse) later
@@ -233,24 +235,24 @@ export const loadProfilePage = () => {
 
 
 //////////////////// TO DELETE ////////////////////////////////////////
-export const loadGame = (contentArea) => {
-    console.log('Loading game..');
-	fetch('html/game.html')  // Call the API endpoint to get the form as JSON
-        .then(response => response.text())
-        .then(data => {
-            if (data) {
-                    console.log('Game returned!');
-                    contentArea.innerHTML = data;
-					const canvas = document.getElementById("gameCanvas");
-					if (canvas)
-						startGame();
-					else
-						console.log("Error: Canvas not found");
+// export const loadGame = (contentArea) => {
+//     console.log('Loading game..');
+// 	fetch('html/game.html')  // Call the API endpoint to get the form as JSON
+//         .then(response => response.text())
+//         .then(data => {
+//             if (data) {
+//                     console.log('Game returned!');
+//                     contentArea.innerHTML = data;
+// 					const canvas = document.getElementById("gameCanvas");
+// 					if (canvas)
+// 						animate()
+// 					else
+// 						console.log("Error: Canvas not found");
 						
-            }
-        })
-        .catch(error => console.error('Error loading game:', error));
-};
+//             }
+//         })
+//         .catch(error => console.error('Error loading game:', error));
+// };
 
 //////////////////////////////////////////////////////////////
 

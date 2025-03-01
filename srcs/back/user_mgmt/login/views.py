@@ -21,6 +21,10 @@ from user_profile.models import Profile
 from .twoFA import TwoFA  
 import base64
 from datetime import datetime, timedelta
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
+from django.conf import settings
+from user_mgmt.utils.translations import add_language_context
 
 def generate_jwt_tokens(user):
     refresh = RefreshToken.for_user(user)
@@ -102,21 +106,49 @@ def verify_login_2fa(request):
     except User.DoesNotExist:
         return Response({'success': False, 'message': 'User does not exist.'}, status=404)
 
+# @api_view(['GET'])
+# @permission_classes([AllowAny])
+# def login_form_api(request):
+#     if request.method == "GET":
+#         print("Login form API called")
+#         form_html = render_to_string('login.html')
+#         return JsonResponse({'form_html': form_html}, content_type="application/json")
+#     else:
+#         return JsonResponse({'error': 'Invalid request method'}, status=405)
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def login_form_api(request):
+def login_form(request):
     if request.method == "GET":
         print("Login form API called")
-        form_html = render_to_string('login.html')
+        context = {}
+        add_language_context(request, context)
+        form_html = render_to_string('login_form.html', context)
         return JsonResponse({'form_html': form_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
+def signup_form(request):
+    print("Signup method called")
+    if request.method == "GET":
+        print("Signup form API called")
+        context = {}
+        add_language_context(request, context)
+        form_html = render_to_string('signup_form.html', context)
+        return JsonResponse({'form_html': form_html}, content_type="application/json")
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
 def verify_2fa_login_form(request):
-    form_html = render_to_string('2fa_verify.html')
-    # set languages..
+    context = {}
+    add_language_context(request, context)
+    form_html = render_to_string('2fa_verify.html', context)
     return JsonResponse({'form_html': form_html}, content_type="application/json")
 
 @api_view(['POST'])
@@ -148,13 +180,20 @@ def register_user(request):
         if User.objects.filter(email=email).exists():
             return JsonResponse({"error": "Email already registered."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # maybe to check also for invalid characters in username?
+        # UNCOMMENT FOR STRONG PASSWORD CHECK:
+        # temp_user = User(username=username, email=email, first_name=name)
+
+        # try:
+        #     validate_password(password, user=temp_user)
+        # except ValidationError as e:
+        #     print(e.messages)
+        #     return JsonResponse({"error": " ".join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
 
         user = User.objects.create(
             username=username,
             first_name=name,
             email=email,
-            password=make_password(password) # to hash it (? if its not done automatically ?)
+            password=make_password(password) 
         )
 
         # return JsonResponse({"message": "User registered successfully!", "user_id": user.id}, status=status.HTTP_201_CREATED)
@@ -211,8 +250,13 @@ def enable_2fa(request):
         # print("QR Image:", qr_image)
         # print("QR Base64:", qr_base64)
 
+        context = {"qr_code": qr_base64}
+        add_language_context(request, context)
+        setup_html = render_to_string("2fa_setup.html", context)
 
-        setup_html = render_to_string("2fa_setup.html", {"qr_code": qr_base64})
+        # context = add_language_context(request.COOKIES)
+        # setup_html = render_to_string("2fa_setup.html", {"qr_code": qr_base64}, context)
+
         return JsonResponse({
             "success": True,
             "setup_html": setup_html,

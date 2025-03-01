@@ -24,7 +24,7 @@ const display2FAMessage = (form, message, color) => {
 
 export const loadLogin2FAPage = () => {
     const contentArea = document.getElementById("content-area");
-    fetch(baseUrl + ":8000/api/2fa-login/", {method: "GET"})
+    fetch(baseUrl + ":8000/api/2fa-login/", {method: "GET", credentials: "include" })
         .then(response => response.json())
         .then(data => {
             if (data.form_html) {

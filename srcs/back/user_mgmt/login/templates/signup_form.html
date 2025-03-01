@@ -1,28 +1,44 @@
-<div id="login-container">
-	<div class="container">
-		<h1>Sign Up</h1>
-		<form id="signup-form" method="post" action="http://localhost:8000/api/register/">
-			<div style="display: flex; align-items: center; justify-content: space-between;">
-				<label for="username">{{username}}:</label>
-				<input style="margin-left: 39px;" type="text" id="username" name="username">
-			</div>
-			<div style="display: flex; align-items: center; justify-content: space-between;">
-				<label for="name">{{name}}:</label>
-				<input style="margin-left: 39px;" type="text" id="name" name="name">
-			</div>
-			<div style="display: flex; align-items: center; justify-content: space-between;">
-				<label for="password">{{password}}:</label>
-				<input type="password" id="password" name="password">
-			</div>
-			<div style="display: flex; align-items: center; justify-content: space-between;">
-				<label for="repassword">{{repeat_password}}:</label>
-				<input type="password" id="repassword" name="repassword">
-			</div>
-			<div style="display: flex; align-items: center; justify-content: space-between;">
-				<label for="email">{{email}}:</label>
-				<input type="text" id="email" name="email">
-			</div>
-			<button id="signup-submit" type="submit" value="submit">Submit</button>
-		</form>
+<div class="container d-flex justify-content-center align-items-center vh-100 px-3">
+	<div id="signup-container" class="form-container">
+	  <p id="login-error" class="error-login text-center">Error Text</p>
+	  <h1 class="text-center mb-4">{{sign_up}}</h1>
+	  <form id="signup-form" class="form" method="post" action="http://localhost:8000/api/register/">
+		<div class="row">
+		  <div class="form-group mb-3">
+			<label for="username">{{username}}</label>
+			<input class="form-control" type="text" id="username" name="username">
+		  </div>
+		  <div class="form-group mb-3">
+			<label for="name">{{name_wo}}</label>
+			<input class="form-control" type="text" id="name" name="name">
+		  </div>
+		  <div class="form-group mb-3">
+			<label for="password">{{password}}</label>
+			<input class="form-control" type="password" id="password" name="password">
+		  </div>
+		  <div class="form-group mb-3">
+			<label for="repassword">{{repeat_password}}</label>
+			<input class="form-control" type="password" id="repassword" name="repassword">
+		  </div>
+		  <div class="form-group mb-3">
+			<label for="email">{{email}}</label>
+			<input class="form-control" type="text" id="email" name="email">
+		  </div>
+		  <div class="col-12 text-center">
+			<button id="signup-submit" class="form-submit-btn btn w-100" type="submit">
+			  {{submit}}
+			</button>
+		  </div>
+		  <div class="col-12 text-center mt-2" >
+			<p id="login" style="margin-bottom: 10px; margin-top: 10px;">
+			  {{have_account}} 
+			  <button data-route="/login" id="login-link" class="not-account-btn btn btn-link" type="button">
+				{{click_here}}
+			  </button>
+			</p>
+		  </div>
+		</div>
+	  </form>
 	</div>
-</div>
+  </div>
+  

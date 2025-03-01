@@ -1,11 +1,38 @@
 import { makeAuthenticatedRequest } from "./login.js";
+import { drawHeader } from "./main.js";
 
 var baseUrl = "http://localhost";
 
+//Add to fetch:
+// const Enable3D = localStorage.getItem("3D-option") === "true";
+// "3d-option": Enable3D ? "True" : "False",
+
+const setUp3DListener = () => {
+    const switch3D = document.getElementById("3D-switch"); // ID del switch
+
+    if (switch3D) {
+        const isEnable = localStorage.getItem("3D-option") === "true";
+        switch3D.checked = isEnable;
+
+        // Escuchar cambios en el switch
+        switch3D.addEventListener("change", () => {
+            localStorage.setItem("3D-option", switch3D.checked);
+            console.log("3D-option is:", switch3D.checked);
+        });
+    } else {
+        console.log("Switch not found =(");
+    }
+};
+
 export const loadHomePage = () => {
     console.log('Loading home page...');
-    makeAuthenticatedRequest(baseUrl + ":8000/api/home-page/", {method: "GET"})
-        .then((response) => {
+    drawHeader(1).then(() => {
+    return makeAuthenticatedRequest(baseUrl + ":8000/api/home-page/", {
+        method: "GET",
+        credentials: "include"
+        });
+    })
+    .then((response) => {
             console.log('Response received:', response); // Log para confirmar la respuesta
             if (response.ok) {
                 console.log('Response is OK');
@@ -21,6 +48,10 @@ export const loadHomePage = () => {
                 console.log('2');
                 document.getElementById('content-area').innerHTML = data.home_html;
                 console.log('Home page loaded');
+
+                localStorage.setItem("3D-option", "Disable");
+                setUp3DListener();
+
             } else {
                 console.error("home_html not found in the response data");
             }

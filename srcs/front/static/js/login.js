@@ -1,9 +1,9 @@
-
 import { loadProfilePage } from "./profile.js";
 import { handleLogout } from "./logout.js"
 import { navigateTo } from "./main.js";
 import { loadHomePage } from "./home.js";
 import { updateLanguage } from "./langs.js";
+import { drawHeader } from "./main.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -54,7 +54,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
         // return Promise.reject("No access token.");
         navigateTo('/login', true); // + maybe remove everything from local storage? or just handleLogout?
     }
-
+    console.log(url);
     options = {
         ...options,
         headers: {
@@ -73,25 +73,35 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
                 return fetch(url, options); //retry the original request
             });
         } else {
-          return response; // means that response is valid
+            console.log(url);
+            return response; // means that response is valid
         }
     });
 };
 
 export const loadLoginPage = () => {
-    const contentArea = document.getElementById("content-area");
-    fetch('html/login_form.html')  // Call the API endpoint to get the form as JSON
-        .then(response => response.text())
-        .then(data => {
-            if (data) {
-                    console.log('Form html returned!');
-                    contentArea.innerHTML = data;
-            }
-        })
-        .catch(error => console.error('Error loading login form:', error));
+    drawHeader(2).then(() => {
+        return fetch(baseUrl + ":8000/api/login-form/", {
+            method: 'GET',
+            credentials: "include"
+        });
+    })
+    .then((response) => response.json())
+    .then(data => {
+        if (data.form_html) {
+            console.log('Form html returned!');
+            document.getElementById('content-area').innerHTML = data.form_html;
+        } else {
+            console.error('Form HTML not found in response:', data);
+        }
+    })
+    .catch(error => {
+        console.error('Error loading page', error);
+    });
 };
 
 export const handleLogin = () => {
+    
     const loginForm = document.getElementById('login-form');
     const formData = new FormData(loginForm);
     fetch(baseUrl + ":8000/api/login/", {
@@ -116,8 +126,9 @@ export const handleLogin = () => {
                 navigateTo('/home', true);
             }
                 
-        } else {
-            displayLoginError('Invalid credentials. Please try again.', 'login-form');
+        } 
+        else {
+            displayLoginError('login-form', `${data.error}`);
         }
         })
     .catch(error => {
@@ -127,57 +138,82 @@ export const handleLogin = () => {
 };
 
 export const handleSignup = () => {
-    const contentArea = document.getElementById("content-area");
     const loginForm = document.getElementById('login-form');
-    if (loginForm)
-        loginForm.remove();
-    fetch('html/signup_form.html')
-        .then(response => response.text())
-        .then(html => {
-            contentArea.innerHTML = html;
+    
+    if (loginForm) loginForm.remove();
+    
+    fetch(baseUrl + ":8000/api/signup-form/", {
+        method: 'GET',
+        credentials: "include"
+    })
+    .then(response => response.json()) // Expecting JSON response
+    .then(data => {
+        if (data && data.form_html) {
+            console.log('Form HTML returned!');
+            document.getElementById('content-area').innerHTML = data.form_html;
+
             const signupForm = document.getElementById('signup-form');
             if (signupForm) {
                 signupForm.addEventListener('submit', (event) => {
                     event.preventDefault();
-                    console.log('Submit of sign up clicked!');
+                    console.log('Submit of signup clicked!');
+                    
                     const formData = new FormData(signupForm);
-                    fetch(signupForm.action, {
+                    const formAction = signupForm.action || `${baseUrl}/api/signup/`; // Fallback action URL
+                    
+                    fetch(formAction, {
                         method: 'POST',
                         body: JSON.stringify(Object.fromEntries(formData)),
-                        headers: {'Content-Type': 'application/json'}
+                        headers: { 'Content-Type': 'application/json' }
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
                             localStorage.setItem('access_token', data.tokens.access);
                             localStorage.setItem('refresh_token', data.tokens.refresh);
+                            updateLanguage();
+                            //loadProfilePage();
                             navigateTo('/home', true);
-                        } else {
-                            displayLoginError(data.error + ' Please try again.', 'signup-form');
+                        } 
+                        else {
+                            displayLoginError('signup-form', `${data.error}`);
                         }
                     })
-                })
-            }
-        })
-        .catch(error => console.error('Error loading Sign In form:', error));
+                    .catch(error => {
+                        console.error('Error submitting signup form:', error);
+                    });
+                });
+            } 
+        }
+    })
+    .catch(error => {
+        console.error('Error loading Sign In form:', error);
+    });
 };
 
-export const displayLoginError = (message, form) => {
-    const loginContainer = document.getElementById('login-container');
-    if (!loginContainer)
+export const displayLoginError = (form, errorMessage) => {
+    const login_error = document.getElementById('login-error');
+    if (!login_error)
         return;
 
-    const existingError = document.getElementById('login-error');
-    if (existingError)
-        existingError.remove();
+    // const existingError = document.getElementById('login-error');
+    // if (existingError)
+    //     existingError.remove();
 
-    const errorMessage = document.createElement('div');
-    errorMessage.id = 'login-error';
-    errorMessage.style.color = 'red';
-    errorMessage.style.marginBottom = '15px';
-    errorMessage.textContent = message;
+    // const errorMessage = document.createElement('div');
+    // errorMessage.id = 'login-error';
+    // errorMessage.style.color = 'red';
+    // errorMessage.style.marginBottom = '15px';
+    // errorMessage.textContent = message;
+    // errorMessage.style.display = "flex";
 
-    loginContainer.prepend(errorMessage); //adding at the top of the login container
+    login_error.innerText = errorMessage;
+
+    login_error.classList.add('show');
+    setTimeout(() => {
+        login_error.classList.remove('show');
+      }, 2500);
+    // loginContainer.prepend(errorMessage); //adding at the top of the login container
     
     const loginForm = document.getElementById(form);
     if (loginForm) {
@@ -193,8 +229,8 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             console.log('Submit button clicked!');
 
-            // handleLogin();
-            navigateTo('/handle-login', true);
+            handleLogin(); 
+            //navigateTo('/handle-login', false); // Error when invalid login and refresh
         }
     });
 

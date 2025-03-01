@@ -53,3 +53,7 @@
     color: white;
     background-color: #444;  /* Change background color on hover */
 }
+
+.main-header{
+    margin-bottom: 20px;
+}
