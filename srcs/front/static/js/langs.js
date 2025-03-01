@@ -1,5 +1,5 @@
 import { makeAuthenticatedRequest } from "./login.js";
-import { clearURL, navigateTo } from "./main.js"
+import { checkPermission, navigateTo } from "./main.js";
 
 function getUserPreferenceLanguageFromDB() {
     return makeAuthenticatedRequest("http://localhost:8000/api/get-user-pref-lang", {
@@ -69,7 +69,9 @@ export async function updateLanguage(lang) {
     //STEP 2: Set language cookies
     setCookie("language", lang);
 
-    await saveUserPreferenceLanguageToDB(lang);
+    if (lang_is_defined && checkPermission()) {
+        await saveUserPreferenceLanguageToDB(lang);
+    }
 
     //STEP 4: Update button UI
     updateLanguageButtonUI(lang);
