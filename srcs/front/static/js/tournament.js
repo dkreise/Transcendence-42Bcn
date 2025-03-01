@@ -251,7 +251,7 @@ export function tournamentConnect(tourId, nPlayers=null) {
     
     socket.onerror = (error) => {
 		console.error("WebSocket encountered an error: ", error);
-		alert("Unable to connect to the server. Please check your connection.");
+		alert("ONERROR: Unable to connect to the server. Please check your connection.");
         localStorage.removeItem('inTournament');
         localStorage.removeItem("user_quit");
         localStorage.removeItem("currentTournamentId");
@@ -267,9 +267,9 @@ export function tournamentConnect(tourId, nPlayers=null) {
 
         // alert(localStorage.getItem("user_quit"));
         if (localStorage.getItem("user_quit") !== "true") {
-            alert("WebSocket connection close. Retrying...");
-            console.log("Disconnected unexpectedly. Reconnecting in 3 seconds...");
-            setTimeout(() => connectWebSocket(tourId), 3000);
+            // alert("ONCLOSE");
+            console.log("Closing websocket.");
+            //setTimeout(() => connectWebSocket(tourId), 3000);
         } else {
             console.log("User quit. No reconnection.");
             localStorage.removeItem('inTournament');
@@ -277,6 +277,7 @@ export function tournamentConnect(tourId, nPlayers=null) {
             localStorage.removeItem("currentTournamentId");
             navigateTo('/home', true);
         }
+        // navigateTo('/home', true);
 	};
 
 	socket.onmessage = (event) => { //we're receiving messages from the backend via WB
@@ -296,7 +297,15 @@ export function tournamentConnect(tourId, nPlayers=null) {
                 updatePlayerCount(data);
                 break;
             case "game_update":
-                alert("A player has disconnected. Waiting for reconnection...");
+                alert("GAME_UPDATE??  A player has disconnected. Waiting for reconnection...");
+                break;
+            case "full":
+                console.log("Tournament is full:", data.message);
+                alert(data.message);
+                localStorage.removeItem('inTournament');
+                localStorage.removeItem("user_quit");
+                localStorage.removeItem("currentTournamentId");
+                socket.close();
                 break;
             default:
                 console.warn("Unhandled message type: ", data.type);

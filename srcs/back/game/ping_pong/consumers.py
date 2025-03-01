@@ -40,14 +40,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 							active_tournaments[self.tour_id] = TournamentManager(self.scope, self.tour_id, max_user_cnt) #add tournament in array activetournaments
 						tournament = active_tournaments[self.tour_id]
 						# Check if the tournament is already full
-						if tournament.get_players_cnt() >= tournament.max_user_cnt:
+						if tournament.get_players_cnt() >= tournament.max_user_cnt or tournament.round > 0:
 							logger.info("Tournament is full. Rejecting connection.")
+							await self.accept()
 							await self.send(text_data=json.dumps({
-								"type": "error",
-								"message": "Tournament is full",
-								"status": "full"
+								"type": "full",
+								"message": "Tournament is full or has already started.",
 							}))
-							await self.close()
+							# await asyncio.sleep(0.5)  # Small delay to let the message reach the frontend
+							# await self.close()
 							return
 						status = tournament.add_player(self.user.username)
 						await self.channel_layer.group_add(self.tour_id, self.channel_name)
