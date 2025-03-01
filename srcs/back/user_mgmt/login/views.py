@@ -171,6 +171,9 @@ def register_user(request):
         
         if not re.match(r'^[a-zA-Z0-9.]+$', username):
             return JsonResponse({"error": "Username should consist only of letters, digits and dots(.)."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if len(username) < 2 or len(username) > 10 or len(name) < 2 or len(name) > 10:
+            return JsonResponse({"error": "Username and Name should be 2-10 (included) chars length."}, status=status.HTTP_400_BAD_REQUEST)
 
         if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
             return JsonResponse({"error": "Invalid email format."}, status=status.HTTP_400_BAD_REQUEST)
