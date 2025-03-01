@@ -187,14 +187,14 @@ export function clearURL() {
 }
 
 export function checkPermission () {
-    console.log(`Permissions: checking permissions`);
+    //console.log(`Permissions: checking permissions`);
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken) {
-        console.log(`Permissions: No access token, permission denied`);
+        //console.log(`Permissions: No access token, permission denied`);
         return false;
     }
-    console.log(`Permissions: We have access token, congrats!`);
+    //console.log(`Permissions: We have access token, congrats!`);
     return true;
 }
 
