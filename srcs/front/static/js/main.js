@@ -114,8 +114,16 @@ function router(args=null) {
 // contentArea.innerHTML = ''; // Clear previous content
 
     console.log(`Content cleared in router`);
-    
-    validateAccessAndRedirect(path); 
+
+    //Check if the user has the required permissions, if not, redirect
+    const publicPaths = ['/login', '/signup', '/login-intra', '/callback', '/two-fa-login'];
+    if (checkPermission() && publicPaths.includes(path)) {
+        navigateTo('/home');
+        return;
+    } else if (!checkPermission() && !publicPaths.includes(path)) {
+        navigateTo('/login');
+        return;
+    }
     
     if (routes[path]) {
         routes[path](args); // Call the function associated with the path
@@ -188,18 +196,6 @@ export function checkPermission () {
     }
     console.log(`Permissions: We have access token, congrats!`);
     return true;
-}
-
-//Check if the user has the required permissions, if not, redirect
-function validateAccessAndRedirect(path) {
-    const publicPaths = ['/login', '/signup', '/login-intra', '/callback', '/two-fa-login'];
-    if (checkPermission() && publicPaths.includes(path)) {
-        navigateTo('/home');
-        return;
-    } else if (!checkPermission() && !publicPaths.includes(path)) {
-        navigateTo('/login');
-        return;
-    }
 }
 
 function homePage() {
