@@ -115,6 +115,16 @@ function router(args=null) {
 
     console.log(`Content cleared in router`);
 
+    //Check if the user has the required permissions, if not, redirect
+    const publicPaths = ['/login', '/signup', '/login-intra', '/callback', '/two-fa-login'];
+    if (checkPermission() && publicPaths.includes(path)) {
+        navigateTo('/home');
+        return;
+    } else if (!checkPermission() && !publicPaths.includes(path)) {
+        navigateTo('/login');
+        return;
+    }
+    
     if (routes[path]) {
         routes[path](args); // Call the function associated with the path
     } else {
@@ -177,14 +187,14 @@ export function clearURL() {
 }
 
 export function checkPermission () {
-    console.log(`Permissions: checking permissions`);
+    //console.log(`Permissions: checking permissions`);
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken) {
-        console.log(`Permissions: No access token, permission denied`);
+        //console.log(`Permissions: No access token, permission denied`);
         return false;
     }
-    console.log(`Permissions: We have access token, congrats!`);
+    //console.log(`Permissions: We have access token, congrats!`);
     return true;
 }
 
