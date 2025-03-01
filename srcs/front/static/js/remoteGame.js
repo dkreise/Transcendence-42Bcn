@@ -40,8 +40,6 @@ function handleRoleAssignment(role) {
 function scaleGame(data)
 {
 	handleRoleAssignment(data.role);
-	//console.log("BACK width: " + data.padW + " height: " + data.padH);
-	//console.log("FRONT width: " + player.width + " height: " + player.height);
 	player.width = canvas.width * (data.padW / data.canvasX);
 	opponent.width = player.width;
 	player.height = canvas.height * (data.padH / data.canvasY);
@@ -69,10 +67,7 @@ async function readySteadyGo(countdown)
 	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
 	console.log(`[${getTimestamp()}] RSG: ${countdown}`);
 	if (countdown)
-	{
-		await new Promise(resolve => setTimeout(resolve, 1000));
-		await readySteadyGo(countdown - 1);
-	}
+		await setTimeout(async() => await readySteadyGo(--countdown), 1000);
 }
 
 function displayCountdown()
@@ -150,8 +145,6 @@ async function initializeWebSocket() {
 
 	socket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
-		const received = getTimestamp();
-		//console.log(`[${received}]data.type is: ${data.type}`);
 
 		switch (data.type) {
 			case "role":
@@ -159,32 +152,22 @@ async function initializeWebSocket() {
 				scaleGame(data);
 				break;
 			case "players":
-				if (player.role === "player1")
-				{
+				if (player.role === "player1") {
 					player.whoAmI = data.p1;
 					opponent.whoAmI = data.p2;
-				}
-				else
-				{
+				} else {
 					player.whoAmI = data.p2;
 					opponent.whoAmI = data.p1;
 				}
-				console.log(`[${received}] ${player.whoAmI} is ready to play!`)
 				socket.send(JSON.stringify({"type": "ready"}))
 				break;
 			case "status":
-				console.log(`[${received}]status msg received! wait = ${data.wait} back countdown ${data.countdown}`)
 				if (data.wait)
 				{
-				console.log(`[${received}]status:\n` + "wait: " + data.wait + "\ncountdown: " + data.countdown);
-					//if (data.countdown != 4)
-					//	displayCountdown(data.countdown);
-					//else
-					//	readySteadyGo(data.countdown - 2);
 					if (data.countdown != 4)
 						displayCountdown();
 					else
-						await setTimeout(async() => await readySteadyGo(data.countdown - 2), 10);
+						await readySteadyGo(data.countdown - 2);
 				}
 				else
 				{
@@ -194,12 +177,12 @@ async function initializeWebSocket() {
 				}
 				break;
 			case "update":
-				if (data.wait)
-					return;
 				if (data.players)
 				{
 					let pl1 = data["players"]["player1"]["y"] * backFactor["y"];
 					let pl2 = data["players"]["player2"]["y"] * backFactor["y"];
+					//console.log(`canvasH: ${canvas.height}\np1Y: ${pl1}\np2Y: ${pl2}`)
+					//console.log(`p1 Y: ${pl1} score: ${data['scores']['player1']}\n p2 Y: ${pl2} score: ${data['scores']['player2']}`);
 					if (player.role == "player1")
 					{
 						player.update(pl1, data["scores"]["player1"]);
@@ -228,18 +211,18 @@ async function initializeWebSocket() {
 function gameLoop() {
 	gameLoopId = requestAnimationFrame(gameLoop);
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "rgb(50 50 50 / 75%)";
+	ctx.fillStyle = "rgb(0 0 0 / 75%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 	player.draw(ctx);
 	opponent.draw(ctx);
-	player.drawScore(ctx, 1);
-	opponent.drawScore(ctx, 2);
+	player.drawScore(ctx);
+	opponent.drawScore(ctx);
 	interpolateBall();
 	ball.draw(ctx);
 
 	player.move(socket);
-	ball.move(player, opponent, gameLoopId, socket);
+	//ball.move(player, opponent, gameLoopId, socket);
 }
 
 export function startGame()

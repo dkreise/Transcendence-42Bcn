@@ -120,11 +120,44 @@ class GameManager:
 ##################################################
 
 	async def has_scored(self, role):
+		logger.info(f"{role} has scored in room {self.id}")
 		self.status = 1
 		await self.send_status(4)
-		asyncio.create_task(self.ready_steady_go())
+		self.rsg_task = asyncio.create_task(self.ready_steady_go())
 		self.scores[role] += 1
 		self.reset_ball(role)
+
+#	def is_paddle_collision(self):
+#
+#		if ((self.ball["x"] <= GameManager.paddle_config["width"]) and
+#			((self.ball["y"] < self.players["player1"]["y"] - GameManager.paddle_config["height"] // 2) or
+#			(self.ball["y"]) > self.players["player1"]["y"] + GameManager.paddle_config["height"] // 2)):
+#			return True
+#		if ((self.ball["x"] >= GameManager.board_config["width"] - GameManager.paddle_config["width"]) and
+#			((self.ball["y"] < self.players["player2"]["y"] - GameManager.paddle_config["height"] // 2) or
+#			(self.ball["y"]) > self.players["player2"]["y"] + GameManager.paddle_config["height"] // 2)):
+#			return True
+#		return False
+
+	def is_paddle_collision(self):
+		radius = GameManager.ball_config["rad"]
+		padH = GameManager.paddle_config["height"]
+		pl1 = self.players["player1"]["y"]
+		pl2 = self.players["player2"]["y"]
+
+		if self.ball["x"] - radius <= GameManager.paddle_config["width"]:
+			logger.info(f"collision p1 area")
+			if self.ball["y"] + radius > pl1 - padH // 2:
+				return True
+			if self.ball["y"] - radius < pl1 + padH // 2:
+				return True
+		elif self.ball["x"] + radius >= GameManager.board_config["width"] - GameManager.paddle_config["width"]:
+			logger.info(f"collision p2 area")
+			if self.ball["y"] + radius > pl2 - padH // 2:
+				return True
+			if self.ball["y"] - radius < pl2 + padH // 2:
+				return True
+		return False
 
 	async def update_ball(self):
 		self.ball["x"] += self.ball["xspeed"]
@@ -132,8 +165,10 @@ class GameManager:
 		paddle_collision = self.is_paddle_collision()
 
 		if paddle_collision:
+			#logger.info("paddle collision")
 			self.ball["xspeed"] *= -1
 		if self.ball["y"] <= 0 or self.ball["y"] >= GameManager.board_config["height"]:
+			#logger.info("top and bottom walls collision")
 			self.ball["yspeed"] *= -1
 		if not paddle_collision and self.ball["x"] < GameManager.paddle_config["width"]:
 			self.has_scored("player1")
@@ -152,13 +187,9 @@ class GameManager:
 ##################################################
 
 	async def ready_steady_go(self): #RSG
-		logger.info(f"RSG: Entering => status: {self.status}")
 		try:
-			logger.info(f"RSG: pre-countdown => status: {self.status}")
 			await asyncio.sleep(4)
-			logger.info(f"RSG: post-countdown => status: {self.status}")
 			self.status = 0
-			logger.info(f"RSG: Countdown finished. new status: {self.status}")
 			await self.send_status(0)
 		except Exception as e:
 			logger.error(f"Error in Ready Steady Go: {e}")
@@ -176,20 +207,6 @@ class GameManager:
 			self.ball["yspeed"] = -4
 
 ####################################################
-
-	def is_paddle_collision(self):
-
-		if ((self.ball["x"] <= GameManager.paddle_config["width"]) and
-			((self.ball["y"] < self.players["player1"]["y"] - GameManager.paddle_config["height"] // 2) or
-			(self.ball["y"]) > self.players["player1"]["y"] + GameManager.paddle_config["height"] // 2)):
-			return True
-		if ((self.ball["x"] >= GameManager.board_config["width"] - GameManager.paddle_config["width"]) and
-			((self.ball["y"] < self.players["player2"]["y"] - GameManager.paddle_config["height"] // 2) or
-			(self.ball["y"]) > self.players["player2"]["y"] + GameManager.paddle_config["height"] // 2)):
-			return True
-		return False
-
-######################################################
 
 	async def disconnect_countdown(self): #0 => task cancelled || 1 => task finished
 		try:

@@ -48,21 +48,16 @@ export class Player {
 		this.score = newScore;
 	}
 
-	drawScore(ctx, playerID) {
+	drawScore(ctx) {
 		let x;
 		let fontSize = Math.floor(this.canvas.width * 0.05);
 		ctx.fillStyle = "rgb(100, 100, 100 / 50%)";
 		ctx.font = `${fontSize}px Arial`;
-		if (playerID === 1)
+		if (this.x == 0)
 			x = this.canvas.width / 4;
 		else
 			x = this.canvas.width * 3 / 4;
 		ctx.fillText(`Score: ${this.score}`, x, this.canvas.height / 10);
-	}
-
-	scored(socket) {
-		this.score++;
-		this.send(socket);
 	}
 
 	displayEndgameMessage(ctx, oppScore, msg) {
@@ -87,27 +82,16 @@ export class Player {
 		if (socket.readyState === WebSocket.OPEN)
 		{
 			//console.log("front y: " + this.y + " backFactor: " + this.backFactor);
-			//console.log(this.role + "'s paddle: " + this.y + " sending: " + this.y * this.backFactor);
+			console.log(`${this.role}'s paddle: ${this.y} sending: ${this.y / this.backFactor}`);
 			const data = {
 				"type": "update",
 				"role": this.role,
-				"y": this.y * this.backFactor,
+				"y": this.y / this.backFactor,
 				"score": this.score,
 			};
 			socket.send(JSON.stringify(data));
 		}
 	}
-//	resize(canvas, wScale, hScale)
-//	{
-//		this.width = canvas.width * this.wFactor;
-//		this.height = canvas.height * this.hFactor;
-//		if (this.role == "player2")
-//			this.x = canvas.width - canvas.width * 0.01
-//		this.x *= wScale;
-//		this.y *= hScale;
-//		this.speed = canvas.height * this.sFactor;
-//		this.canvas = canvas;
-//	}
 }
 
 
@@ -162,7 +146,7 @@ export class Ball {
 			this.xspeed = -this.xspeed;
 			this.send(socket);
 		}
-
+/*
 		if (this.x - this.radius <= 0)
 		{
 			opponent.scored(socket);
@@ -174,7 +158,7 @@ export class Ball {
 			player.scored(socket);
 			this.resetPosition();
 			this.send(socket);
-		}
+		}*/
 	}
 	send(socket) {
 		if (socket.readyState === WebSocket.OPEN)
@@ -189,13 +173,4 @@ export class Ball {
 			socket.send(JSON.stringify(data));
 		}
 	}
-	//resize(canvas, wScale, hScale)
-	//{
-	//	this.radius = canvas.width * this.radFactor;
-	//	this.x *= wScale;
-	//	this.y *= hScale;
-	//	this.xspeed *= wScale;
-	//	this.yspeed *= hScale;
-	//	this.canvas = canvas;
-	//}
 }
