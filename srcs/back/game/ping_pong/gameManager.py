@@ -119,6 +119,13 @@ class GameManager:
 
 ##################################################
 
+	async def has_scored(self, role):
+		self.status = 1
+		await self.send_status(4)
+		asyncio.create_task(self.ready_steady_go())
+		self.scores[role] += 1
+		self.reset_ball(role)
+
 	async def update_ball(self):
 		self.ball["x"] += self.ball["xspeed"]
 		self.ball["y"] += self.ball["yspeed"]
@@ -129,37 +136,39 @@ class GameManager:
 		if self.ball["y"] <= 0 or self.ball["y"] >= GameManager.board_config["height"]:
 			self.ball["yspeed"] *= -1
 		if not paddle_collision and self.ball["x"] < GameManager.paddle_config["width"]:
-			self.scores["player1"] += 1
-			self.reset_ball(1)
+			self.has_scored("player1")
+			#self.scores["player1"] += 1
+			#self.reset_ball(1)
 			if self.scores["player1"] == GameManager.board_config["max_score"]:
 				await self.declare_winner("player1")
 		elif (not paddle_collision and
 			self.ball["x"] > GameManager.board_config["width"] - GameManager.paddle_config["width"]):
-			self.scores["player2"] += 1
-			self.reset_ball(0)
+			self.has_scored("player2")
+			#self.scores["player2"] += 1
+			#self.reset_ball(0)
 			if self.scores["player2"] == GameManager.board_config["max_score"]:
 				await self.declare_winner("player2")
 
 ##################################################
 
-	async def ready_steady_go(self):
-		await asyncio.sleep(4)
-		self.status = 0
-		await self.send_status(0)
-
-	async def scored(self):	#role [string] => role of the player who scored
-		self.status = 1
-		self.scores[role] += 1
-		self.ball["xspeed"]	*= -1
-		await self.send_status(4)
-		await self.ready_steady_go()
+	async def ready_steady_go(self): #RSG
+		logger.info(f"RSG: Entering => status: {self.status}")
+		try:
+			logger.info(f"RSG: pre-countdown => status: {self.status}")
+			await asyncio.sleep(4)
+			logger.info(f"RSG: post-countdown => status: {self.status}")
+			self.status = 0
+			logger.info(f"RSG: Countdown finished. new status: {self.status}")
+			await self.send_status(0)
+		except Exception as e:
+			logger.error(f"Error in Ready Steady Go: {e}")
 
 #################################################
 
-	def reset_ball(self, new_dir): #new_dir [bool] true when player1 scored
+	def reset_ball(self, role):
 		self.ball["x"] = GameManager.board_config["width"] // 2
 		self.ball["y"] = GameManager.board_config["height"] // 2
-		if new_dir:
+		if role == "player1":
 			self.ball["xspeed"] = -4
 			self.ball["yspeed"] = 4
 		else:
@@ -234,7 +243,6 @@ class GameManager:
 		logger.info(f"Player {winner_id} wins in room {self.id}")
 		message = {
 			"type": "endgame",
-			"wait": 1,
 			"winnerID": winner_id,
 			"loserID": next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
 			#"loserID": next((loser for loser in self.users if loser != winner_id), None)
@@ -292,16 +300,15 @@ class GameManager:
 	async def game_loop(self):
 		logger.info(f"Starting game loop with status: {self.status}")
 		try:
-			while self.status == 1:
-				await asyncio.sleep(0.1)
-			while self.status == 0:
-				async with self.ball_lock:
-					await self.update_ball()
-				await self.update_game()
+			while True:
+				#logger.info(f"Game loop => status: {self.status}")
+				if self.status == 0:
+					async with self.ball_lock:
+						await self.update_ball()
+					await self.update_game()
 				await asyncio.sleep(0.016)
 		except Exception as e:
 			logger.error(f"Error in game loop: {e}")
-
 
 #########################################################
 
@@ -344,14 +351,17 @@ class GameManager:
 ##############################################################
 
 	async def start_game(self, user):
-		logger.info(f"\033[1;33m{user} is Trying to start the game in room {self.id}\033[0m")
-		if self.game_loop_task is None:
-			self.status = 1
-			logger.info(f"{user} is starting the countdown")
-			await self.send_status(4)
-			logger.info(f"\033[1;33mThe game has started in room {self.id}\033[0m")
-			asyncio.create_task(self.ready_steady_go())
-			self.game_loop_task = asyncio.create_task(self.game_loop())
+		try: 
+			logger.info(f"\033[1;33m{user} is Trying to start the game in room {self.id}\033[0m")
+			if self.game_loop_task is None:
+				self.status = 1
+				logger.info(f"{user} is starting the countdown")
+				await self.send_status(4)
+				self.rsg_task = asyncio.create_task(self.ready_steady_go())
+				logger.info(f"\033[1;33mThe game has started in room {self.id}\033[0m")
+				self.game_loop_task = asyncio.create_task(self.game_loop())
+		except Exception as e:
+			logger.error(f"Error while trying to start the game: {e}")
 
 	async def stop_game (self):
 		logger.info(f"The game has stopped in room {self.id}")
