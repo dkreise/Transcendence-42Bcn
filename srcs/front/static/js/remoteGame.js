@@ -1,5 +1,6 @@
 import { Ball, Player } from "./remoteClasses.js";
-import { setupControls } from "./localGame.js"
+import { setupControls } from "./localGame.js";
+import { refreshAccessToken } from "./login.js";
 
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
@@ -39,7 +40,7 @@ function handleRoleAssignment(role) {
 
 function scaleGame(data)
 {
-	handleRoleAssignment(data.role);
+	// handleRoleAssignment(data.role);
 	player.width = canvas.width * (data.padW / data.canvasX);
 	opponent.width = player.width;
 	player.height = canvas.height * (data.padH / data.canvasY);
@@ -137,9 +138,21 @@ async function initializeWebSocket() {
 		console.error("WebSocket encountered an error:", error);
 		alert("Unable to connect to the server. Please check your connection.");
 	};
-	socket.onclose = () => {
+	socket.onclose = async (event) => {
+		console.log("WebSocket closed with code:", event.code);
+
 		console.warn("WebSocket connection closed. Retrying...");
-		if (retries++ <= 5)
+		if (event.code === 4001) {
+			// Token expired; refresh token logic
+			try {
+				await refreshAccessToken();
+			  // Reconnect with the new token
+				initializeWebSocket();
+			} catch (err) {
+			  console.error("Failed to refresh token", err);
+			  handleLogout();
+			}
+		} else if (retries++ <= 5)
 			setTimeout(initializeWebSocket, 1000);
 	};
 
