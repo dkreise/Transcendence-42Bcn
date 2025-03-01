@@ -41,7 +41,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 							active_tournaments[self.tour_id] = TournamentManager(self.scope, self.tour_id, max_user_cnt) #add tournament in array activetournaments
 						tournament = active_tournaments[self.tour_id]
 						# Check if the tournament is already full
-						if tournament.get_players_cnt() >= tournament.max_user_cnt or tournament.round > 0:
+						if self.user.username not in tournament.users and (tournament.get_players_cnt() >= tournament.max_user_cnt or tournament.round > 0):
 							logger.info("Tournament is full. Rejecting connection.")
 							await self.accept()
 							await self.send(text_data=json.dumps({
@@ -74,6 +74,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 								"redirect": page['redirect'],
 								"status": "waiting",
 								"request": True,
+								"replace": True,
 							}))
 						else:
 							# page = tournament.get_bracket_page(self.user.username) 
@@ -258,6 +259,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 				elif dtype == "game_started":
 					logger.info(f"GAME STARTED BY {self.user.username}")
 					tournament.set_match_start(self.user.username)
+				
+				elif dtype == "wants_to_play":
+					logger.info("REQUEST TO PLAY")
+					needs_to_play = tournament.if_needs_to_play(self.user.username)
+					logger.info(f"needs to play ? {needs_to_play}")
+					await self.send(text_data=json.dumps({
+						"type": "needs_to_play",
+						"needs_to_play": needs_to_play,
+					}))
 
 			except Exception as e:
 				logger.error(f"\033[1;31mError receiving a message via WebSocket: {e}")
@@ -296,6 +306,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			"needs_to_play": round_data['needs_to_play'],
 			"opponent": round_data['opponent'],
 			"status": "playing",
+			"replace": True,
 		}))
 
 	async def tournament_ends(self, event):

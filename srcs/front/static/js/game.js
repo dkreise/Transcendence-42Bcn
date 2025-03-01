@@ -124,15 +124,19 @@ export const gameLocal = () => {
     }
 }
 
-export const tournamentGameAIstart = () => {
-    clearIntervalIDGame();
-    const tourId = localStorage.getItem("currentTournamentId");
-    let args = {
-        tournament: true,
-        tournamentId: tourId,
-    }
-    gameAI(args);
-}
+// export const tournamentGameAIstart = () => {
+//     clearIntervalIDGame();
+//     if (socket.readyState === WebSocket.OPEN)
+//     {
+//         socket.send(JSON.stringify({ "type": "wants_to_play" }));
+//     }
+//     // const tourId = localStorage.getItem("currentTournamentId");
+//     // let args = {
+//     //     tournament: true,
+//     //     tournamentId: tourId,
+//     // }
+//     // gameAI(args);
+// }
 
 export const gameAI = (args) => {
 
@@ -169,9 +173,11 @@ export const gameAI = (args) => {
                     const button = document.getElementById('play-again');
                     if (button && !tournament) {
                         button.setAttribute("data-route", "/play-ai");
+                        button.setAttribute("replace-url", true);
                     } else if (button && tournament) {
                         button.textContent = "Quit Tournament";
                         button.setAttribute("data-route", "/quit-tournament");
+                        button.setAttribute("replace-url", true);
                         // button.removeAttribute("data-route");
                         // button.addEventListener('click', () => {
                         //     // handle give up!! quit?

@@ -109,7 +109,7 @@ class TournamentManager:
 		return page
 
 	def get_bracket_page(self, username):
-		if self.get_players_cnt() == 1:
+		if self.get_players_cnt() == 1 or self.finished:
 			return self.get_final_page()
 		context = {
 			'pairs': self.pairs,
@@ -485,3 +485,17 @@ class TournamentManager:
 			if (pair[0] == us1 and pair[1] == us2) or (pair[0] == us2 and pair[1] == us1):
 				return i
 		return -1
+
+	def if_needs_to_play(self, username):
+		# needs_to_play = False
+		if username not in self.players:
+			return False
+		opponent = self.get_opponent(username)
+		match_i = self.get_match_idx(username, opponent)
+		if match_i == -1:
+			return False
+		if self.matches_finished[match_i]:
+			return False
+		if self.finished:
+			return False
+		return True

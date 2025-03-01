@@ -2,6 +2,7 @@ import { loadHomePage } from "./home.js";
 import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame } from "./AIGame.js"
+import { gameAI } from "./game.js";
 
 var baseUrl = "http://localhost"; // TODO: change (parse) later
 let socket = null;
@@ -10,13 +11,13 @@ export const manageTournamentHomeBtn = () => {
     const inTournament = localStorage.getItem('inTournament');
     
     if (inTournament === 'waiting') {
-        navigateTo('/waiting-room');
+        navigateTo('/waiting-room', true);
     } else if (inTournament === 'playing') {
-        navigateTo('/tournament-bracket');
+        navigateTo('/tournament-bracket', true);
     } else if (inTournament === 'finished') {
-        navigateTo('/end-tournament');
+        navigateTo('/end-tournament', true);
     } else {
-        navigateTo('/tournament-home');
+        navigateTo('/tournament-home', true);
     }
 };
 
@@ -139,6 +140,26 @@ export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) =>
     }
 }
 
+export const tournamentGameAIRequest = () => {
+    clearIntervalIDGame();
+    if (socket.readyState === WebSocket.OPEN)
+    {
+        socket.send(JSON.stringify({ "type": "wants_to_play" }));
+    }
+}
+
+export const tournamentGameAIstart = (data, tourId) => {
+    if (data.needs_to_play) {
+        let args = {
+            tournament: true,
+            tournamentId: tourId,
+        }
+        gameAI(args);                    
+    } else {
+        navigateTo('/tournament', true);
+    }
+}
+
 function addGameButton(data) {
     // tournament ID needed!! or maybe not..
     console.log('Player needs to play!!');
@@ -169,7 +190,8 @@ function changePage(data) {
     document.getElementById('content-area').innerHTML = data.html;
     if (data.redirect) {
         let path = data.redirect;
-        history.pushState({ path }, null, path);
+        // history.pushState({ path }, null, path);
+        history.replaceState({ path }, null, path);
     }
     if (data.needs_to_play) {
         addGameButton(data);
@@ -256,6 +278,7 @@ export function tournamentConnect(tourId, nPlayers=null) {
         localStorage.removeItem('inTournament');
         localStorage.removeItem("user_quit");
         localStorage.removeItem("currentTournamentId");
+        localStorage.removeItem("gameState");
             navigateTo('/home', true);
         reject("WebSocket error");
 	};
@@ -276,6 +299,7 @@ export function tournamentConnect(tourId, nPlayers=null) {
             localStorage.removeItem('inTournament');
             localStorage.removeItem("user_quit");
             localStorage.removeItem("currentTournamentId");
+            localStorage.removeItem("gameState");
             navigateTo('/home', true);
         }
         // navigateTo('/home', true);
@@ -307,6 +331,9 @@ export function tournamentConnect(tourId, nPlayers=null) {
                 localStorage.removeItem("user_quit");
                 localStorage.removeItem("currentTournamentId");
                 socket.close();
+                break;
+            case "needs_to_play":
+                tournamentGameAIstart(data, tourId);
                 break;
             default:
                 console.warn("Unhandled message type: ", data.type);

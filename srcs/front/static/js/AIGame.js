@@ -129,7 +129,8 @@ function doMovesAI() {
         return;
 
     console.log("doing it each sec");
-    saveGameState();
+    if (tournamentId)
+        saveGameState();
     targetY = predictBallY();
     if (targetY === null)   
         return;
