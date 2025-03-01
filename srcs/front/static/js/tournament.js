@@ -36,11 +36,12 @@ export const loadTournamentHomePage = () => {
     });
 };
 
-export const createTournament = () => {
+export const createTournament = async () => {
     const nPlayers = getNumberOfPlayers();
-    const tourId = getTournamentId(); //TODO: check to avoid not repeating id?
-
-    tournamentConnect(tourId, nPlayers);
+    const tourId = await getTournamentId(); 
+    // alert(tourId)
+    if (tourId > 0)
+        tournamentConnect(tourId, nPlayers);
 };
 
 export const joinTournament = () => {
@@ -316,8 +317,27 @@ export function tournamentConnect(tourId, nPlayers=null) {
 
 ////////////////// UTILS //////////////////////
 
-function getTournamentId() {
-    return Math.floor(1000000 + Math.random() * 9000000); // Ensures a 7-digit number
+async function getTournamentId() {
+    let id = Math.floor(1000000 + Math.random() * 9000000); // Ensures a 7-digit number
+    // let id = 1234567
+    try {
+        const response = await makeAuthenticatedRequest(baseUrl + `:8001/api/check-tournament/${id}/`, 
+            { method: "GET", credentials: "include" });
+        const data = await response.json();
+        
+        console.log("ACTIVE?");
+        console.log(data.active);
+
+        if (!data.active) {
+            return id;  // If not active, return the id
+        } else {
+            alert("Oops. Try again.");
+            return -1;  // If the ID is active, return -1
+        }
+    } catch (error) {
+        console.error('Failed to fetch tournament status:', error);
+        return -1;  // Return -1 in case of an error
+    }
 }
 
 function getNumberOfPlayers() {

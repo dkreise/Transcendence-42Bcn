@@ -8,13 +8,14 @@ import json
 import logging
 import uuid
 import asyncio
+from .websocket_state import active_tournaments, active_tournaments_lock
 
 logger = logging.getLogger(__name__)
 
 active_games = {}
 active_games_lock = asyncio.Lock()
-active_tournaments = {}
-active_tournaments_lock = asyncio.Lock()
+# active_tournaments = {}
+# active_tournaments_lock = asyncio.Lock()
 
 
 class ThrowError(Exception):
