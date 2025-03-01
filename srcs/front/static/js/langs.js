@@ -69,9 +69,7 @@ export async function updateLanguage(lang) {
     //STEP 2: Set language cookies
     setCookie("language", lang);
 
-    if (lang_is_defined) {
-        saveUserPreferenceLanguageToDB(lang);
-    }
+    saveUserPreferenceLanguageToDB(lang);
 
     //STEP 4: Update button UI
     updateLanguageButtonUI(lang);
