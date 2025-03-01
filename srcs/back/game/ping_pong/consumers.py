@@ -268,6 +268,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"type": "needs_to_play",
 						"needs_to_play": needs_to_play,
 					}))
+				
+				elif dtype == "get_status":
+					status = tournament.get_status()
+					await self.send(text_data=json.dumps({
+						"type": "status",
+						"status": status,
+					}))
 
 			except Exception as e:
 				logger.error(f"\033[1;31mError receiving a message via WebSocket: {e}")

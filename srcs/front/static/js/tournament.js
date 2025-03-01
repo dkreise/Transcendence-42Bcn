@@ -9,6 +9,19 @@ let socket = null;
 
 export const manageTournamentHomeBtn = () => { 
     const inTournament = localStorage.getItem('inTournament');
+    if (!socket || !inTournament) {
+        if (socket) {
+            console.log("socket there is..");
+            if (socket.readyState === WebSocket.OPEN)
+            {
+                socket.send(JSON.stringify({ "type": "get_status" }));
+            }        
+        } else {
+            console.log("socket is not here..");
+            navigateTo('/tournament-home', true);
+        }  
+        return;      
+    }
     
     if (inTournament === 'waiting') {
         navigateTo('/waiting-room', true);
@@ -269,6 +282,11 @@ export function tournamentConnect(tourId, nPlayers=null) {
         let status = localStorage.getItem('inTournament');
         if (!status)
             localStorage.setItem('inTournament', 'waiting');
+        window.addEventListener("beforeunload", () => {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                localStorage.setItem("currentTournamentId", tourId);
+            }
+        });
         resolve(socket); // Resolve the promise once the socket is open
     };
     
@@ -288,7 +306,7 @@ export function tournamentConnect(tourId, nPlayers=null) {
         // localStorage.removeItem('inTournament');
 		// //setTimeout(tournamentConnect, 1000) //waits 1s and tries to reconnect
         // navigateTo('/home', true);
-
+        socket = null;
         // alert(localStorage.getItem("user_quit"));
         if (localStorage.getItem("user_quit") !== "true") {
             // alert("ONCLOSE");
@@ -334,6 +352,10 @@ export function tournamentConnect(tourId, nPlayers=null) {
                 break;
             case "needs_to_play":
                 tournamentGameAIstart(data, tourId);
+                break;
+            case "status":
+                localStorage.setItem('inTournament', data.status);
+                navigateTo('/tournament');
                 break;
             default:
                 console.warn("Unhandled message type: ", data.type);

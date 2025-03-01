@@ -499,3 +499,10 @@ class TournamentManager:
 		if self.finished:
 			return False
 		return True
+
+	def get_status(self):
+		if self.finished:
+			return 'finished'
+		if self.round == 0:
+			return 'waiting'
+		return 'playing'
