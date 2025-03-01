@@ -10,7 +10,7 @@ import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
 import { manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage} from "./tournament.js";
-
+import { loadPageNotFound } from "./errorHandler.js";
 
 const historyTracker = [];
 
@@ -50,6 +50,7 @@ const routes = {
     '/create-tournament': createTournament,
     '/join-tournament': joinTournament,
     '/end-tournament': loadFinalTournamentPage,
+    '/page-not-found': loadPageNotFound,
     
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
@@ -115,24 +116,32 @@ function router(args=null) {
 
     console.log(`Content cleared in router`);
 
-    //Check if the user has the required permissions, if not, redirect
-    const publicPaths = ['/login', '/signup', '/login-intra', '/callback', '/two-fa-login'];
-    if (checkPermission() && publicPaths.includes(path)) {
-        navigateTo('/home');
-        return;
-    } else if (!checkPermission() && !publicPaths.includes(path)) {
-        navigateTo('/login');
-        return;
+    const redirectPath = getRedirectionIfNeeded(path);
+    if (redirectPath) {
+        navigateTo(redirectPath)
+        return; 
     }
-    
-    if (routes[path]) {
-        routes[path](args); // Call the function associated with the path
-    } else {
-        alert("path doesn't exists");
-        console.log(`Route ${path} not handled`);
-        // showNotFound(); // Handle unknown routes
-    }
+    routes[path](args);
 }
+
+function getRedirectionIfNeeded(path=null) {
+    
+    if (!routes[path]) {
+        return '/page-not-found';
+    }
+
+    //Check if the user has the required permissions, if not, redirect
+    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login'];
+    const openPaths = ['/page-not-found', '/callback']; //open for authenticated and not authenticated
+    if (checkPermission() && publicPaths.includes(path)) {
+        return '/home';
+    } else if (!checkPermission() && !publicPaths.includes(path) && !openPaths.includes(path)) {
+        return '/login';
+    }
+    return null;
+}
+
+
 
 // function showNotFound() {
 //     console.log("Rendering 404 Page");

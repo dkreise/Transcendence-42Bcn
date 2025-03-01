@@ -75,6 +75,8 @@ def get_lang_words(lang):
             'disable_2FA': "Desactivar 2FA",
             'add_2FA': "Agregar 2FA",
             'my_friends': "Mis amigos",
+            "page_not_found": "Página no encontrada",
+            "msg_page_not_found": "¡Ups! La página que buscas no existe.",
         } 
 
     elif lang == 'ca':
@@ -143,6 +145,8 @@ def get_lang_words(lang):
             'disable_2FA': "Desactivar 2FA",
             'add_2FA': "Afegir 2FA",
             'my_friends': "Els meus amics",
+            "page_not_found": "Pàgina no trobada",
+            "msg_page_not_found": "Ups! La pàgina que busques no existeix.",
         }
 
     elif lang == 'ru':
@@ -211,6 +215,8 @@ def get_lang_words(lang):
             'disable_2FA': "Отключить 2FA",
             'add_2FA': "Добавить 2FA",
             'my_friends': "Мои друзья",
+            "page_not_found": "Страница hе hайдена",
+            "msg_page_not_found": "Упс! Страница, которую вы ищете, не существует.",
         }
 
     elif lang == 'lv':
@@ -279,6 +285,8 @@ def get_lang_words(lang):
             'disable_2FA': "Atspējot 2FA",
             'add_2FA': "Pievienot 2FA",
             'my_friends': "Mani draugi",
+            "page_not_found": "Lapa nav atrasta",
+            "msg_page_not_found": "Ups! Lapa, kuru meklējat, neeksistē.",
         }
         
     else:
@@ -347,4 +355,6 @@ def get_lang_words(lang):
             'disable_2FA': "Disable 2FA",
             'add_2FA': "Add 2FA",
             'my_friends': "My Friends",
+            "page_not_found": "Page not found",
+            "msg_page_not_found": "Oops! The page you are looking for doesn’t exist.",
         }
