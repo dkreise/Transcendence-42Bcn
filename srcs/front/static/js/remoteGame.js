@@ -40,15 +40,15 @@ function handleRoleAssignment(role) {
 function scaleGame(data)
 {
 	handleRoleAssignment(data.role);
-	console.log("BACK width: " + data.padW + " height: " + data.padH);
-	console.log("FRONT width: " + player.width + " height: " + player.height);
+	//console.log("BACK width: " + data.padW + " height: " + data.padH);
+	//console.log("FRONT width: " + player.width + " height: " + player.height);
 	player.width = canvas.width * (data.padW / data.canvasX);
 	opponent.width = player.width;
 	player.height = canvas.height * (data.padH / data.canvasY);
 	opponent.height = player.height;
 	if (player.x != 0)
 		player.x = canvas.width - player.width;
-	console.log("FRONT 2 width: " + player.width + " height: " + player.height);
+	//console.log("FRONT 2 width: " + player.width + " height: " + player.height);
 	backFactor["x"] = canvas.width / data.canvasX;
 	backFactor["y"] = canvas.height / data.canvasY;
 	player.backFactor = backFactor["y"];
@@ -228,6 +228,8 @@ async function initializeWebSocket() {
 function gameLoop() {
 	gameLoopId = requestAnimationFrame(gameLoop);
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = "rgb(50 50 50 / 75%)";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
 	player.draw(ctx);
 	opponent.draw(ctx);
