@@ -225,6 +225,12 @@ function gameLoop() {
 	//ball.move(player, opponent, gameLoopId, socket);
 }
 
+window.addEventListener("resize", () => {
+	if (!player || !player.canvas) return ;
+	console.log("player canvas width: " + player.canvas.width);
+	console.log("actual canvas width: " + canvas.width);
+});
+
 export function startGame()
 {
 	canvas = document.getElementById('newGameCanvas');

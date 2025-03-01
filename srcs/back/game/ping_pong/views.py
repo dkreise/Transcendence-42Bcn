@@ -186,3 +186,56 @@ def play_game(request):
     add_language_context(request, context)
     game_html = render_to_string('remote_game.html', context)
     return JsonResponse({'game_html': game_html}, content_type="application/json")
+    # add_language_context(request.COOKIES, context)
+    # game_html = render_to_string('remote_game.html', context)
+    # return JsonResponse({'game_html': game_html}, content_type="application/json")
+
+@api_view(['GET'])
+def get_game_dict(request):
+    context = {}
+    add_language_context(request, context)
+    return JsonResponse({'dict': context}, status=200)
+
+
+# def save_remote_score(room_id, winner_id, scores, players):
+#     """
+#     Save the game result in the database while preventing race conditions.
+    
+#     :param room_id: ID of the game room.
+#     :param winner_id: The ID of the winning player.
+#     :param scores: Dictionary containing scores for player1 and player2.
+#     :param players: Dictionary containing player IDs and aliases.
+#     """
+#     try:
+#         with transaction.atomic():  # Ensure atomicity
+#             player1_id = players.get("player1")
+#             player2_id = players.get("player2")
+
+#             # Fetch users (set to None if they don't exist)
+#             # player1 = User.objects.filter(id=player1_id).first()
+#             # player2 = User.objects.filter(id=player2_id).first()
+#             winner = User.objects.filter(id=winner_id).first()
+#             player1 = winner
+#             player2 = User.objects.filter(id=player1_id).first() if player1_id == winner_id else User.objects.filter(id=player2_id).first()
+#             score1 = scores["player1"] if scores["player1"] > scores["player2"] else scores["player2"]
+#             score2 = scores["player1"] if scores["player1"] < scores["player2"] else scores["player2"]
+#             # Save the game result
+#             game = Game.objects.create(
+#                 player1=player1,
+#                 # alias1=players.get("alias1", "Guest" if not player1 else player1.username),
+#                 score_player1=score1,
+#                 player2=player2,
+#                 # alias2=players.get("alias2", "Guest" if not player2 else player2.username),
+#                 score_player2=score2,
+#                 winner=winner,
+#                 tournament_id=-1  # Set tournament_id accordingly if needed
+#             )
+#             game.save()
+
+#             return game  # Return the saved game instance
+
+#     except Exception as e:
+#         print(f"Error saving game result: {e}")
+#         return None
+
+
