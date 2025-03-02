@@ -108,7 +108,7 @@ export function drawHeader(headerType) {
 export function cleanupGames() {
     cleanup3D();
     cleanupLocal();
-    cleanupAI();
+    // cleanupAI();
 }
 
 // The router() function determines which handler function to call 
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Handle error, possibly redirect to another page or show an alert
         });
     }
-    
+
     window.addEventListener("load", connectWS(localStorage.getItem('access_token')));
    
     // Event delegation for data-route attributes

@@ -153,10 +153,10 @@ export async function gameLocal () {
 }
 
 
-export const gameAI = async (args) => {
+export const gameAI = (args) => {
     // const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
-    // Enable3D = localStorage.getItem("3D-option");
+    Enable3D = localStorage.getItem("3D-option");
 
     if (!checkPermission) {
         navigateTo('/login');
@@ -183,6 +183,10 @@ export const gameAI = async (args) => {
             return response.json();
         })
         .then(data => {
+            // if (data.game_html)
+            //     console.log("html here");
+            // if (Enable3D === "false")
+            //     console.log("3d false");
             if (data.game_html && Enable3D === "false") {
                 console.log('AI game returned!');
                 document.getElementById('content-area').innerHTML = data.game_html;
