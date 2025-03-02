@@ -32,10 +32,10 @@ const fetchLastTenGames = () => {
 }
 
 const renderLastTenGamesChart = (gamesData, username) => {
-    let graphContainer = document.createElement('canvas');
-    graphContainer.id = 'last-ten-games-chart';
-    graphContainer.style.maxWidth = '600px';
-    document.querySelector('.statistics-block').appendChild(graphContainer);
+    // let graphContainer = document.createElement('canvas');
+    // graphContainer.id = 'last-ten-games-chart';
+    // graphContainer.style.maxWidth = '600px';
+    // document.querySelector('.statistics-block').appendChild(graphContainer);
 
     const ctx = document.getElementById('last-ten-games-chart').getContext('2d');
 
@@ -141,18 +141,20 @@ const renderLastTenGamesChart = (gamesData, username) => {
 };
 
 export const loadMatchHistoryPage = () => {
-    makeAuthenticatedRequest(baseUrl + ":8000/api/match-history-page/", {method: "GET"})
-        .then(response => response.json())
-        .then(data => {
-            if (data.match_history_html) {
-                document.getElementById('content-area').innerHTML = data.match_history_html;
-            } else {
-                console.error('Error fetching settings:', data.error);
-            }
+    drawHeader('main').then(() => {
+       return makeAuthenticatedRequest(baseUrl + ":8000/api/match-history-page/", {method: "GET"})
+            .then(response => response.json())
+            .then(data => {
+                if (data.match_history_html) {
+                    document.getElementById('content-area').innerHTML = data.match_history_html;
+                } else {
+                    console.error('Error fetching settings:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching settings:', error);
+            });
         })
-        .catch(error => {
-            console.error('Error fetching settings:', error);
-        });
 }
 
 const applyFilters = () => {
@@ -184,7 +186,8 @@ const applyFilters = () => {
 
 export const loadProfileSettingsPage = () => {
     console.log("LOADING PROFILE...")
-    makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {
+    drawHeader('main').then(() => {
+    return  makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {
         method: "GET",
         credentials: 'include'
     })
@@ -202,11 +205,12 @@ export const loadProfileSettingsPage = () => {
         .catch(error => {
             console.error('Error fetching settings:', error);
         });
+    })
 };
 
 export const loadProfilePage = () => {
     console.log('Loading profile page..');
-    drawHeader(1).then(() => {
+    drawHeader('main').then(() => {
     return makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {
         method: "GET",
         credentials: 'include'

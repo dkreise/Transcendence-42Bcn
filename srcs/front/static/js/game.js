@@ -6,7 +6,7 @@ import { startLocalGame } from "./localGame.js";
 import { startGame } from "./remoteGame.js"; 
 import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
 import { loadBracketTournamentPage } from "./tournament.js";
-
+import { drawHeader } from "./main.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -16,23 +16,25 @@ export const playLocal = () => {
         navigateTo('/login');
     } else {
         console.log('Loading get second name page...')
-        makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/get-name/", {
-            method: "GET",
+        drawHeader('main').then(() => {
+          return  makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/get-name/", {
+                method: "GET",
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.get_name_html) {
+                    document.getElementById('content-area').innerHTML = data.get_name_html;
+                } else {
+                    console.log('Response: ', data);
+                    console.error('Failed to fetch second player:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Catch error fetching second player page: ', error);
+                if (error == "No access token.")
+                    navigateTo('/login');
+            });
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.get_name_html) {
-                document.getElementById('content-area').innerHTML = data.get_name_html;
-            } else {
-                console.log('Response: ', data);
-                console.error('Failed to fetch second player:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Catch error fetching second player page: ', error);
-            if (error == "No access token.")
-                navigateTo('/login');
-        });
     }
 } 
 
@@ -47,17 +49,19 @@ export const playAI = (args) => {
             gameAI(args);
         } else {
             console.log('Loading get difficulty page...')
-            makeAuthenticatedRequest(baseUrl + ":8001/api/game/ai/get-difficulty", {
-                method: "GET",
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.get_difficulty_html) {
-                    document.getElementById('content-area').innerHTML = data.get_difficulty_html;
-                } else {
-                    console.log('Response: ', data);
-                    console.error('Failed to fetch difficulty:', data.error);
-                }
+            drawHeader('main').then(() => {
+              return  makeAuthenticatedRequest(baseUrl + ":8001/api/game/ai/get-difficulty", {
+                    method: "GET",
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.get_difficulty_html) {
+                        document.getElementById('content-area').innerHTML = data.get_difficulty_html;
+                    } else {
+                        console.log('Response: ', data);
+                        console.error('Failed to fetch difficulty:', data.error);
+                    }
+                })
             })
             .catch(error => {
                 console.error('Catch error fetching difficulty page: ', error);
@@ -181,8 +185,10 @@ export const playOnline = () => {
         navigateTo('/login');
     } else {
         console.log('Loading online game...')
-        makeAuthenticatedRequest(baseUrl + ":8001/api/game/remote/play/", {
-            method: "GET",
+        drawHeader('main').then(() => {
+          return  makeAuthenticatedRequest(baseUrl + ":8001/api/game/remote/play/", {
+                method: "GET",
+            })
         })
         .then(response => response.json())
         .then(data => {
@@ -217,6 +223,7 @@ export function play3D() {
     const contentArea = document.getElementById('content-area');
     contentArea.style.padding = 0;
     contentArea.innerHTML = ''; // Clear previous content
+    drawHeader('3d');
     makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
         method: "POST",
         body: JSON.stringify({
@@ -233,8 +240,8 @@ export function play3D() {
             console.log('3D game returned!');
 
             // start3DLocalGame(data['player1'], data['player2'], data['main_user']);
-            start3DLocalGame('player1', '@42nzhuzhle', 2);
-            // start3DAIGame(localStorage.getItem('username'));
+           // start3DLocalGame('player1', '@42nzhuzhle', 2);
+             start3DAIGame(localStorage.getItem('username'));
 
 
         } else {

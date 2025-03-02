@@ -66,16 +66,19 @@ export function drawHeader(headerType) {
         let url;
 
         switch (headerType) {
-            case 1:
+            case 'main':
                 url = ":8000/api/get-main-header/";
                 break;
             
-            case 2:
+            case 'login':
                 url = ":8000/api/get-languages-header/";
                 break;
 
+            case '3d':
+                url = ":8000/api/get-3D-header/"; 
+                break;
             default:
-                // borrar header!!!!!!! para el roberto de tomorrow
+                document.getElementById('header-area').innerHTML = '';
                 resolve();  // IMPORTANTE: Se debe resolver la promesa en el caso por defecto
                 return;
         }

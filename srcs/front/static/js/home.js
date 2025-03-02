@@ -26,7 +26,7 @@ const setUp3DListener = () => {
 
 export const loadHomePage = () => {
     console.log('Loading home page...');
-    drawHeader(1).then(() => {
+    drawHeader('main').then(() => {
     return makeAuthenticatedRequest(baseUrl + ":8000/api/home-page/", {
         method: "GET",
         credentials: "include"

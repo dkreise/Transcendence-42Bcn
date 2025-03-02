@@ -80,7 +80,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
 };
 
 export const loadLoginPage = () => {
-    drawHeader(2).then(() => {
+    drawHeader('login').then(() => {
         return fetch(baseUrl + ":8000/api/login-form/", {
             method: 'GET',
             credentials: "include"
@@ -141,10 +141,11 @@ export const handleSignup = () => {
     const loginForm = document.getElementById('login-form');
     
     if (loginForm) loginForm.remove();
-    
-    fetch(baseUrl + ":8000/api/signup-form/", {
-        method: 'GET',
-        credentials: "include"
+    drawHeader('login').then(() => {
+     return   fetch(baseUrl + ":8000/api/signup-form/", {
+            method: 'GET',
+            credentials: "include"
+        })
     })
     .then(response => response.json()) // Expecting JSON response
     .then(data => {

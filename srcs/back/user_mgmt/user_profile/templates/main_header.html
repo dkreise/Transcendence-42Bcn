@@ -52,11 +52,11 @@
               {{lang}}
             </button>
             <ul class="dropdown-menu d-none" id="language-menu">
-              <li><button class="dropdown-item " data-lang="en" style="font-size: small;">EN</button></li>
-              <li><button class="dropdown-item" data-lang="ca" style="font-size: small;">CA</button></li>
-              <li><button class="dropdown-item" data-lang="es" style="font-size: small;">ES</button></li>
-              <li><button class="dropdown-item" data-lang="lv" style="font-size: small;">LV</button></li>
-              <li><button class="dropdown-item" data-lang="ru" style="font-size: small;">RU</button></li>
+              <li><button class="dropdown-item " data-lang="en" style="font-size:x-small;">EN</button></li>
+              <li><button class="dropdown-item" data-lang="ca" style="font-size: x-small;">CA</button></li>
+              <li><button class="dropdown-item" data-lang="es" style="font-size: x-small;">ES</button></li>
+              <li><button class="dropdown-item" data-lang="lv" style="font-size: x-small;">LV</button></li>
+              <li><button class="dropdown-item" data-lang="ru" style="font-size: x-small;">RU</button></li>
             </ul>
           </li>
           <li class="nav-item">
@@ -65,7 +65,9 @@
           <li class="nav-item">
             <a class="nav-link active"href="/profile" data-route="/profile">{{profile_wo}}</a>
           </li>
-          <button class="btn btn-outline-danger me-2" style="margin-left: 2rem;" type="button" data-route="/logout">{{logout}}</button>
+          <li class="nav-item">
+            <button class="btn btn-outline-danger ms-1" type="button" data-route="/logout">{{logout}}</button>
+          </li>
         </ul>
       </div>
     </div>

@@ -333,3 +333,12 @@ def get_languages_header(request):
     add_language_context(request, context)
     header_html = render_to_string('language_header.html', context)
     return JsonResponse({'header_html': header_html}, content_type="application/json")
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_3D_header(request):
+    print('3D header api called')
+    context = {}
+    add_language_context(request, context)
+    header_html = render_to_string('3d_header.html', context)
+    return JsonResponse({'header_html': header_html}, content_type="application/json")
