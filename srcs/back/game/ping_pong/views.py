@@ -205,6 +205,13 @@ def play_game(request):
 def get_username(request):
     return JsonResponse({'status': 'success', 'username': request.user.username}, status=200)
 
+@api_view(['GET'])
+def get_game_dict(request):
+    context = {}
+    add_language_context(request, context)
+    return JsonResponse({'dict': context}, status=200)
+
+
 # def save_remote_score(room_id, winner_id, scores, players):
 #     """
 #     Save the game result in the database while preventing race conditions.
@@ -245,4 +252,5 @@ def get_username(request):
 #     except Exception as e:
 #         print(f"Error saving game result: {e}")
 #         return None
+
 

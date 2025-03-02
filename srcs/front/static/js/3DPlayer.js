@@ -49,34 +49,29 @@ const TEXT_PARAMS_NAME = {
     bevelSegments: 5
 }
 
-const GEOMETRY = new CapsuleGeometry(paddle.radius, paddle.length, paddle.capSeg, paddle.radSeg);
-GEOMETRY.rotateZ(Math.PI * 0.5)
+// const GEOMETRY = new CapsuleGeometry(paddle.radius, paddle.length, paddle.capSeg, paddle.radSeg);
+// GEOMETRY.rotateZ(Math.PI * 0.5)
 // GEOMETRY.rotateY(Math.PI * 0.5)
-const MATERIAL = new THREE.MeshPhongMaterial({ 
-    color: paddle.color,
-    specular: 0xFFFFFF, 
-    shininess: 100 });
+// const MATERIAL = new THREE.MeshPhongMaterial({ 
+//     color: paddle.color,
+//     specular: 0xFFFFFF, 
+//     shininess: 100 });
 
-const HELPER_GEO = new CapsuleGeometry(paddle.radius + ballParams.radius, paddle.length + 0.5, paddle.capSeg, 8)
-HELPER_GEO.rotateZ(Math.PI * 0.5)
-HELPER_GEO.rotateX(Math.PI / 8)
+// const HELPER_GEO = new CapsuleGeometry(paddle.radius + ballParams.radius, paddle.length + 0.5, paddle.capSeg, 8)
+// HELPER_GEO.rotateZ(Math.PI * 0.5)
+// HELPER_GEO.rotateX(Math.PI / 8)
 
-export class Player {
-
-    constructor(limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
+export class BasicPlayer {
+    constructor(dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
+        this.dict = dict;
         this.speed = paddle.speed;
         this.color = paddle.color;
         this.loader = new FontLoader();
-        // this.textGeo = null;
-        // this.textMat = null;
         this.textMesh = null;
-        // this.textNameGeo = null;
-        // this.textNameMat = null;
         this.textName = null;
         this.fontPath = paddle.fontPath;
         this.loadedFont = null;
         this.limits = limits;
-        // this.ifAI = ifAI;
         this.up = false;
         this.down = false;
         this.score = 0;
@@ -88,12 +83,52 @@ export class Player {
         this.text = `${this.score}`;
         this.initial = position;
         this.initial.y += field.height;
-
         this.rotationX = rotationX;
         this.rotationY = rotationY;
         this.rotationZ = rotationZ;
-        this.geometry = GEOMETRY; //new THREE.BoxGeometry(this.width, this.height, this.depth);
-        this.material = MATERIAL; //new THREE.MeshBasicMaterial({ color: this.color });
+        this.geometry = null;
+        this.material = null;
+        this.mesh = null;
+        this.collitionMat = null;
+        this.helperGeo = null;
+        this.collitionMesh = null;
+    }
+}
+
+export class Player extends BasicPlayer {
+
+    constructor(dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
+        super(dict, limits, scene, role, name, position, rotationX, rotationY, rotationZ)
+        // this.dict = dict;
+        // this.speed = paddle.speed;
+        // this.color = paddle.color;
+        // this.loader = new FontLoader();
+        // this.textMesh = null;
+        // this.textName = null;
+        // this.fontPath = paddle.fontPath;
+        // this.loadedFont = null;
+        // this.limits = limits;
+        // this.up = false;
+        // this.down = false;
+        // this.score = 0;
+        // this.role = role; // 1 - right or -1 - left (AI)
+        // this.name = name;
+        // // console.log(`My name is ${this.name}`)
+        // // console.log(`Originally ${name}`)
+        // this.scene = scene;
+        // this.text = `${this.score}`;
+        // this.initial = position;
+        // this.initial.y += field.height;
+
+        // this.rotationX = rotationX;
+        // this.rotationY = rotationY;
+        // this.rotationZ = rotationZ;
+        this.geometry = new CapsuleGeometry(paddle.radius, paddle.length, paddle.capSeg, paddle.radSeg);; //new THREE.BoxGeometry(this.width, this.height, this.depth);
+        this.geometry.rotateZ(Math.PI * 0.5);
+        this.material = new THREE.MeshPhongMaterial({ 
+            color: paddle.color,
+            specular: 0xFFFFFF, 
+            shininess: 100 }); //new THREE.MeshBasicMaterial({ color: this.color });
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
@@ -102,8 +137,12 @@ export class Player {
             opacity: 0.5, 
             visible: false 
         });
+        
+        this.helperGeo = new CapsuleGeometry(paddle.radius + ballParams.radius, paddle.length + 0.5, paddle.capSeg, 8)
+        this.helperGeo.rotateZ(Math.PI * 0.5)
+        this.helperGeo.rotateX(Math.PI / 8)
         this.collitionMesh = new THREE.Mesh(
-            HELPER_GEO,
+            this.helperGeo,
             this.collitionMat,
         )
         this.mesh.add(this.collitionMesh);
@@ -193,32 +232,12 @@ export class Player {
     getType() {
         return ("localfinish");
     }
-
-    // die () {
-    //     this.collitionMat.dispose();
-    //     HELPER_GEO.dispose();
-    //     this.collitionMesh.dispose();
-
-    //     this.geometry.dispose();
-    //     this.material.dispose();
-    //     this.mesh.dispose();
-
-    //     this.textMesh.geometry.dispose();
-    //     this.textMesh.material.dispose();
-    //     this.textMesh.dispose();
-
-    //     this.textName.geometry.dispose();
-    //     this.textName.material.dispose();
-    //     this.textName.dispose();
-
-    //     this.scene.remove(this.collitionMesh, this.mesh, this.textMesh, this.textName);
-    // }
 }
 
 export class AIPlayer extends Player {
 
-    constructor(limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
-        super(limits, scene, role, name, position, rotationX, rotationY, rotationZ);
+    constructor(dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
+        super(dict, limits, scene, role, name, position, rotationX, rotationY, rotationZ);
         this.setText(TEXT_PARAMS);
         // console.log(`My text is ${this.text}, my role is: ${this.text}`);
 
@@ -253,7 +272,7 @@ export class AIPlayer extends Player {
     setText() {
         this.text = `${this.name} - ${this.score}`;
         if (this.role === 1) {
-            this.text = `you - ${this.score}`
+            this.text = this.dict['you'] + ` - ${this.score}`
         }
     }
 
@@ -398,4 +417,13 @@ export class AIController {
             }
         }
     }
+}
+
+export class OnlinePlayer extends BasicPlayer {
+    constructor(dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
+        super(dict, limits, scene, role, name, position, rotationX, rotationY, rotationZ);
+        this.backY = 0;
+
+    }
+    
 }

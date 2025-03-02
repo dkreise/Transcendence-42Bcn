@@ -1,14 +1,15 @@
 import { loadLoginPage, handleLogin, handleSignup } from "./login.js";
 import { loadProfilePage, loadProfileSettingsPage, loadMatchHistoryPage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
-import { loadHomePage } from "./home.js";
+import { loadHomePage, setUp3DListener } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
-
-// import { setDifficulty } from "./AIGame.js"
+import { cleanupLocal } from "./localGame.js"
+import { cleanupAI } from "./AIGame.js"
 import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
+import { connectWS } from "./onlineStatus.js";
 import { manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage} from "./tournament.js";
 import { loadPageNotFound } from "./errorHandler.js";
 
@@ -38,11 +39,11 @@ const routes = {
     '/play-local': playLocal,
     '/play-ai': (args) => playAI(args),
     '/play-online': playOnline,
-    '/play-local/game': gameLocal,
+    '/game-local': gameLocal,
     // '/tournament': playTournament,
     // '/play-ai/set-difficulty/': setDifficulty,
     '/play-3d': play3D,
-    '/play-ai/game': (args) => gameAI(args),
+    '/game-ai': (args) => gameAI(args),
     '/tournament': manageTournamentHomeBtn,
     '/tournament-home': loadTournamentHomePage,
     '/waiting-room': loadWaitingRoomPage,
@@ -103,13 +104,19 @@ export function drawHeader(headerType) {
     });
 }
 
+export function cleanupGames() {
+    cleanup3D();
+    cleanupLocal();
+    cleanupAI();
+}
+
 // The router() function determines which handler function to call 
 // based on the current path (window.location.pathname).
 // If the path exists in the routes object, its associated function is executed.
 
 function router(args=null) {
     
-    cleanup3D();
+    cleanupGames();
     let path = window.location.pathname;
 // const contentArea = document.getElementById('content-area');
 // contentArea.innerHTML = ''; // Clear previous content
@@ -234,24 +241,12 @@ document.addEventListener('DOMContentLoaded', () => {
         cleanup3D();       // Always clean up before routing
         router();          // Then handle the new route
     });
+
+    window.addEventListener("load", connectWS(localStorage.getItem('access_token')));
    
     // Event delegation for data-route attributes
     document.body.addEventListener('click', (event) => {
-        // const target = event.target;
 
-        // // Check if the clicked element has the 'data-route' attribute
-        // if (target && target.hasAttribute('data-route')) {
-        //     const route = target.getAttribute('data-route');
-        //     console.log(`a data rout clicked... ${route}`)
-        //     console.log(`Type is ${target.type}, tag is ${target.tagName}`)
-
-        //     if (target.tagName === 'BUTTON' && target.type === 'submit') {
-        //         console.log(`An event is prevented!  ${route}`)
-        //         event.preventDefault();
-        //     }
-
-        //     navigateTo(route);
-        // }
         const target = event.target.closest('[data-route]');
 
         if (target) {

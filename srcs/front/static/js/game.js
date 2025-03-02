@@ -1,5 +1,4 @@
 import { makeAuthenticatedRequest } from "./login.js";
-// import { addLogoutListener } from "./logout.js";
 import { navigateTo, checkPermission } from "./main.js"
 import { startAIGame } from "./AIGame.js";
 import { startLocalGame } from "./localGame.js";
@@ -7,6 +6,7 @@ import { startGame } from "./remoteGame.js";
 import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
 import { loadBracketTournamentPage } from "./tournament.js";
 
+let Enable3D = false;
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -38,8 +38,18 @@ export const playLocal = () => {
 
 export const playAI = (args) => {
 
+    Enable3D = localStorage.getItem("3D-option");
+    console.log(`Play AI, Enable 3D: ${Enable3D}`)
+
     if (!checkPermission) {
         navigateTo('/login');
+    } else if (Enable3D === "true") {
+        //HERE SOMETHING WITH LANGUAGES
+        // const contentArea = document.getElementById('content-area');
+        // contentArea.innerHTML = ''; // Clear previous content
+        // start3DAIGame(localStorage.getItem('username'));
+        play3D();
+    
     } else {
         console.log("Playing AI game. Tournament mode:", args?.tournament); 
         if (args?.tournament === "true") {
@@ -119,7 +129,10 @@ export const gameLocal = async () => {
     });
 }
 
-export const gameAI = (args) => {
+export const gameAI = async (args) => {
+    // const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
+
+    // Enable3D = localStorage.getItem("3D-option");
 
     if (!checkPermission) {
         navigateTo('/login');
@@ -144,7 +157,7 @@ export const gameAI = (args) => {
             return response.json();
         })
         .then(data => {
-            if (data.game_html) {
+            if (data.game_html && Enable3D === "false") {
                 console.log('AI game returned!');
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
@@ -162,6 +175,7 @@ export const gameAI = (args) => {
                         });
                     }
                     startAIGame(data['player1'], data['player2'], data['main_user'], tournament);
+     
                 } else {
                     console.log("Error: Canvas not found");
                 }
@@ -176,7 +190,11 @@ export const gameAI = (args) => {
     }
 } 
 
-export const playOnline = () => {
+export async function playOnline () {
+
+    Enable3D = localStorage.getItem("3D-option");
+    console.log(`Enable 3D: ${Enable3D}`)
+    const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
     if (!checkPermission) {
         navigateTo('/login');
@@ -187,13 +205,17 @@ export const playOnline = () => {
         })
         .then(response => response.json())
         .then(data => {
-            if (data.game_html) {
+            if (data.game_html && Enable3D === "false") {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
                 if (canvas)
                     startGame();
                 else
                     console.log("Error: Canvas not found");
+            } else if (Enable3D === "true") {
+                    //HERE SOMETHING WITH LANGUAGES
+                // start3DOnlineGame(localStorage.getItem('username'));
+                start3DAIGame(localStorage.getItem('username'), dictionary);
             } else {
                 console.log('Response: ', data);
                 console.error('Failed to load remote game:', data.error);
@@ -208,15 +230,23 @@ export const playOnline = () => {
     // makeAuthenticatedRequest() // to POST the results
 } 
 
-export function play3D() {
+export async function play3D() {
 
     if (!checkPermission) {
         navigateTo('/login');
     } else {
-        console.log("Navigating to /play-local/game");
+        console.log("Navigating to /play-ai/3D");
     }
+    const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
     const contentArea = document.getElementById('content-area');
+    // contentArea.style.padding = 0;
     contentArea.innerHTML = ''; // Clear previous content
+    
+    console.log('3D game returned! Dictionary:');
+    console.log(dictionary);
+    // start3DLocalGame(data['player1'], data['player2'], data['main_user']);
+    // start3DLocalGame('player1', '@42nzhuzhle', 2);
+    start3DAIGame(localStorage.getItem('username'), dictionary);
     makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
         method: "POST",
         body: JSON.stringify({
@@ -235,10 +265,12 @@ export function play3D() {
             // start3DLocalGame(data['player1'], data['player2'], data['main_user']);
             start3DLocalGame('player1', '@42nzhuzhle', 2);
 
-        } else {
-            console.log('Response: ', data);
-            console.error('Failed to fetch the local game:', data.error);
-        }
+}
+
+async function getDictFor3DGame() {
+    const response = await makeAuthenticatedRequest(baseUrl + ":8001/api/get-game-dict", {
+        method: "GET",
+        credentials: "include"
     })
     .catch(error => {
         console.error('Catch error loading local game: ', error);

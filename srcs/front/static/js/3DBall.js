@@ -35,9 +35,9 @@ export class Ball extends EventDispatcher {
     maxScore = ballParams.maxScore;
     // tPos = null;
     
-    constructor(scene, limits, players, ifAI) {
+    constructor(dict, scene, limits, players, ifAI) {
         super(); // Calls the parent class constructor
-
+        this.dict = dict;
         this.ai = ifAI;
         this.speed = ballParams.speed;
         // this.inicial = ballParams.velocity.normalize();
@@ -103,7 +103,7 @@ export class Ball extends EventDispatcher {
         
         const winner = this.players[0].score >= this.maxScore ? this.players[0] : this.players[1];
         // const name = this.players[0].score >= this.maxScore ? this.players[0].name : this.players[1].name;
-        const msg = `${winner.name} won ${this.players[0].score}-${this.players[1].score} !`
+        const msg = `${winner.name} ` + this.dict['wins'] + ` ${this.players[0].score}-${this.players[1].score} !`
         this.resetVelocity();
         const type = winner.getType();
         // console.log(type)
@@ -218,5 +218,13 @@ export class Ball extends EventDispatcher {
         this.resetPos();
         this.dispatchEvent({ type: 'aipause'});
     }
+}
+
+export class OnlineBall extends Ball {
+
+    constructor (dict, scene, limits, players, ifAI) {
+        super(dict, scene, limits, players, ifAI);
+    }
+
 }
 
