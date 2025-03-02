@@ -67,14 +67,14 @@
                         {% endif %}
                         <div class="user-info">
                             {{ friend.user.username }}
-                            {% if friend.user.email %}
+                            <!-- {% if friend.user.email %}
                                 ({{ friend.user.email }})
-                            {% endif %}
+                            {% endif %} -->
                         </div>
                         <span class="d-flex align-items-center ms-3 me-3">
                             <span 
                                 class="status-dot me-1 
-                                {% if friend.online_status %}
+                                {% if friend.profile.online_status %}
                                     status-online
                                 {% else %}
                                     status-offline

@@ -1,9 +1,9 @@
 import { loadProfilePage } from "./profile.js";
 import { handleLogout } from "./logout.js"
-import { navigateTo } from "./main.js";
+import { navigateTo, drawHeader } from "./main.js";
 import { loadHomePage } from "./home.js";
 import { updateLanguage } from "./langs.js";
-import { drawHeader } from "./main.js";
+import { connectWS } from "./onlineStatus.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -102,6 +102,7 @@ export const loadLoginPage = () => {
 
 export const handleLogin = () => {
     
+    console.log("LOGGING");
     const loginForm = document.getElementById('login-form');
     const formData = new FormData(loginForm);
     fetch(baseUrl + ":8000/api/login/", {
@@ -121,8 +122,10 @@ export const handleLogin = () => {
             } else {
                 localStorage.setItem('access_token', data.tokens.access);
                 localStorage.setItem('refresh_token', data.tokens.refresh);
-            
+                console.log("LOGGING, ws???");
+                connectWS(data.tokens.access);
                 updateLanguage();
+
                 navigateTo('/home', true);
             }
                 
