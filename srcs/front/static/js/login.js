@@ -80,7 +80,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
 };
 
 export const loadLoginPage = () => {
-    drawHeader(2).then(() => {
+    drawHeader('login').then(() => {
         return fetch(baseUrl + ":8000/api/login-form/", {
             method: 'GET',
             credentials: "include"
@@ -100,49 +100,42 @@ export const loadLoginPage = () => {
     });
 };
 
-export const handleLogin = () => {
-    
-    console.log("LOGGING");
+export const handleLogin = async () => {
+
     const loginForm = document.getElementById('login-form');
     const formData = new FormData(loginForm);
+
     fetch(baseUrl + ":8000/api/login/", {
         method: 'POST',
         body: JSON.stringify(Object.fromEntries(formData)),
         headers: { 'Content-Type': 'application/json' }
-
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(response => response.json()) 
+    .then(async (data) => { 
         if (data.success) {
-
             if (data.two_fa_required) {
-                // displayLoginError('2fa required...', 'login-form');
                 localStorage.setItem('temp_token', data.temp_token);
                 navigateTo('/two-fa-login', true);
             } else {
                 localStorage.setItem('access_token', data.tokens.access);
                 localStorage.setItem('refresh_token', data.tokens.refresh);
-                console.log("LOGGING, ws???");
+                await updateLanguage(); 
                 connectWS(data.tokens.access);
-                updateLanguage();
 
                 navigateTo('/home', true);
             }
-                
-        } 
-        else {
+        } else {
             displayLoginError('login-form', `${data.error}`);
         }
-        })
+    })
     .catch(error => {
         console.error('Error logging in:', error);
         alert('An error occurred during login.');
     });
 };
 
-export const handleSignup = () => {
+export const handleSignup = async () => {
     const loginForm = document.getElementById('login-form');
-    
     if (loginForm) loginForm.remove();
     
     fetch(baseUrl + ":8000/api/signup-form/", {
@@ -157,29 +150,26 @@ export const handleSignup = () => {
 
             const signupForm = document.getElementById('signup-form');
             if (signupForm) {
-                signupForm.addEventListener('submit', (event) => {
+                signupForm.addEventListener('submit', async (event) => {
                     event.preventDefault();
                     console.log('Submit of signup clicked!');
-                    
                     const formData = new FormData(signupForm);
-                    const formAction = signupForm.action || `${baseUrl}/api/signup/`; // Fallback action URL
-                    
+                    const formAction = signupForm.action || `${baseUrl}/api/signup/`;
                     fetch(formAction, {
                         method: 'POST',
                         body: JSON.stringify(Object.fromEntries(formData)),
                         headers: { 'Content-Type': 'application/json' }
                     })
                     .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            localStorage.setItem('access_token', data.tokens.access);
-                            localStorage.setItem('refresh_token', data.tokens.refresh);
-                            updateLanguage();
-                            //loadProfilePage();
+                    .then(async (signupData) => {
+                        if (signupData.success) {
+                            localStorage.setItem('access_token', signupData.tokens.access);
+                            localStorage.setItem('refresh_token', signupData.tokens.refresh);
+                            let lang = getCookie("language") || "en";
+                            await updateLanguage(lang);
                             navigateTo('/home', true);
-                        } 
-                        else {
-                            displayLoginError('signup-form', `${data.error}`);
+                        } else {
+                            displayLoginError('signup-form', `${signupData.error}`);
                         }
                     })
                     .catch(error => {
@@ -238,4 +228,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+
+function getCookie(name) {
+    const cookies = document.cookie.split(";");
+
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        
+        if (cookie.startsWith(name + "=")) {
+            return cookie.substring(name.length + 1);
+        }
+    }
+    return null;
+}
 

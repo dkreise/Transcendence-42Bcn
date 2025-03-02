@@ -1,3 +1,5 @@
+import { loadProfilePage } from "./profile.js";
+import { displayLoginError } from "./login.js";
 import { clearURL, navigateTo } from "./main.js";
 import { connectWS } from "./onlineStatus.js";
  
@@ -52,8 +54,6 @@ export const handle42Callback = () => {
                     
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('refresh_token', data.refresh_token);
-                    localStorage.setItem('username', data.username);
-                    localStorage.setItem('name', data.name);
                     clearURL();
                     connectWS(data.access_token);
                     console.log(history.state)
@@ -94,4 +94,3 @@ export function showModalError(message) {
         text: message,
         backdrop: false,
     });
-}
