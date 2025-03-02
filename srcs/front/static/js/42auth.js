@@ -39,7 +39,6 @@ export const handle42Callback = () => {
                     localStorage.setItem('refresh_token', data.refresh_token);
                     localStorage.setItem('intra_token', data.intra_token);
                     localStorage.setItem('username', data.username);
-                    localStorage.setItem('name', data.name);
                     clearURL();
                     console.log(history.state)
                     navigateTo('/home', true);
