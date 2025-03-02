@@ -26,7 +26,7 @@ export const setUp3DListener = () => {
 
 export const loadHomePage = () => {
     console.log('Loading home page...');
-    drawHeader(1).then(() => {
+    drawHeader('main').then(() => {
     return makeAuthenticatedRequest(baseUrl + ":8000/api/home-page/", {
         method: "GET",
         credentials: "include"
@@ -48,7 +48,7 @@ export const loadHomePage = () => {
                 console.log('2');
                 document.getElementById('content-area').innerHTML = data.home_html;
                 console.log('Home page loaded');
-
+              
                 if (!localStorage.getItem("3D-option")) {
                     localStorage.setItem("3D-option", "false")
                 }
@@ -58,5 +58,6 @@ export const loadHomePage = () => {
                 console.error("home_html not found in the response data");
             }
         })
+
         .catch((error) => console.log("Error loading home page:", error));
 };

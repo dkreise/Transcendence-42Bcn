@@ -4,7 +4,7 @@
     bottom: 0;
     width: 10px;
     height: 10px;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(238, 211, 255, 0.8);
     border-radius: 50%;
     animation-name: float-up;
     animation-timing-function: ease-out;

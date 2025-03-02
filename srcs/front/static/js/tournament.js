@@ -1,6 +1,7 @@
 import { loadHomePage } from "./home.js";
 import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
+import { drawHeader } from "./main.js";
 
 var baseUrl = "http://localhost"; // TODO: change (parse) later
 let socket = null;
@@ -20,19 +21,21 @@ export const manageTournamentHomeBtn = () => {
 };
 
 export const loadTournamentHomePage = () => {
-    makeAuthenticatedRequest(baseUrl + ":8001/api/tournament-home-page/", 
-        {method: "GET", credentials: "include"})
-    .then((response) => response.json())
-    .then(data => {
-        if (data.tournament_home_page_html) {
-            document.getElementById('content-area').innerHTML = data.tournament_home_page_html;
-        } else {
-            console.error('Tournament home page HTML not found in response:', data);
-        }
-    })
-    .catch(error => {
-        console.error('Error loading page', error);
-    });
+    drawHeader('main').then(() => {
+      return  makeAuthenticatedRequest(baseUrl + ":8001/api/tournament-home-page/", 
+            {method: "GET", credentials: "include"})
+        .then((response) => response.json())
+        .then(data => {
+            if (data.tournament_home_page_html) {
+                document.getElementById('content-area').innerHTML = data.tournament_home_page_html;
+            } else {
+                console.error('Tournament home page HTML not found in response:', data);
+            }
+        })
+        .catch(error => {
+            console.error('Error loading page', error);
+        });
+    })     
 };
 
 export const createTournament = () => {
