@@ -101,6 +101,7 @@ export const loadLoginPage = () => {
 };
 
 export const handleLogin = async () => {
+
     const loginForm = document.getElementById('login-form');
     const formData = new FormData(loginForm);
 
@@ -118,9 +119,7 @@ export const handleLogin = async () => {
             } else {
                 localStorage.setItem('access_token', data.tokens.access);
                 localStorage.setItem('refresh_token', data.tokens.refresh);
-                
                 await updateLanguage(); 
-                console.log("LOGGING, ws???");
                 connectWS(data.tokens.access);
 
                 navigateTo('/home', true);

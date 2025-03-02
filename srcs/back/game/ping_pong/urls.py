@@ -8,6 +8,7 @@ urlpatterns = [
     path('send_score/', views.send_score, name='send_score'),
     path('scores/', views.score_list, name='score_list'),
     path('winner/', views.winner_page, name='winner'),
+    path("api/get-username/", views.get_username, name="get_username"),
 
     path('api/game/local/get-name/', localGame.get_second_name, name='get_second_name'),
     path('api/game/local/play/', localGame.play_game, name='play_game'),

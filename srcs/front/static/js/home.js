@@ -48,7 +48,6 @@ export const loadHomePage = () => {
                 console.log('2');
                 document.getElementById('content-area').innerHTML = data.home_html;
                 console.log('Home page loaded');
-              
                 if (!localStorage.getItem("3D-option")) {
                     localStorage.setItem("3D-option", "false")
                 }
@@ -58,6 +57,5 @@ export const loadHomePage = () => {
                 console.error("home_html not found in the response data");
             }
         })
-
         .catch((error) => console.log("Error loading home page:", error));
 };

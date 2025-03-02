@@ -1,14 +1,13 @@
 import { makeAuthenticatedRequest } from "./login.js";
 // import { addLogoutListener } from "./logout.js";
-import { navigateTo, checkPermission } from "./main.js"
+import { navigateTo, checkPermission, drawHeader } from "./main.js"
 import { startAIGame } from "./AIGame.js";
 import { startLocalGame } from "./localGame.js";
 import { startGame } from "./remoteGame.js"; 
 import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
 import { loadBracketTournamentPage } from "./tournament.js";
-import { drawHeader } from "./main.js";
-let Enable3D = false;
 
+let Enable3D = false;
 var baseUrl = "http://localhost"; // change (parse) later
 
 export const playLocal = () => {
@@ -84,13 +83,22 @@ export const playAI = (args) => {
 } 
 
 export async function gameLocal () {
-
     Enable3D = localStorage.getItem("3D-option");
     console.log(`Enable 3D: ${Enable3D}`)
     // Enable3D = localStorage.getItem("3D-option") === "true";
     // "3d-option": Enable3D ? "True" : "False",
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
+    Enable3D = localStorage.getItem("3D-option");
+    console.log(`Enable 3D: ${Enable3D}`)
+    // Enable3D = localStorage.getItem("3D-option") === "true";
+    // "3d-option": Enable3D ? "True" : "False",
+    const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
+    const username = await getUsername();
+    if (!username) {
+        navigateTo('/logout');
+        return;
+    }
     if (!checkPermission) {
         navigateTo('/login');
     } else {
@@ -101,7 +109,7 @@ export async function gameLocal () {
         const secondPlayerName = playerNameInput ? playerNameInput.value.trim() : null;
         console.log(`Stored second player name: ${secondPlayerName}`);
         console.log(`Username: ${localStorage.getItem('username')}`);
-        if (secondPlayerName === localStorage.getItem('username')) {
+        if (secondPlayerName === username) {
             alert("Both names cannot be equal. Set another name");
             navigateTo('/play-local', true);
             return ;
@@ -283,4 +291,18 @@ async function getDictFor3DGame() {
 
     const data = await response.json();
     return data.dict;
+}
+
+async function getUsername() {
+    try {
+        const response = await makeAuthenticatedRequest("http://localhost:8001/api/get-username", {
+            method: "GET",
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data.status === "success" ? data.username : null;
+    } catch (error) {
+        console.error("Error fetching username:", error); // Improved error logging
+        return null;
+    }
 }
