@@ -8,6 +8,8 @@ import { params, field } from "./3DLocalGame.js";
 // import { pause } from "./3DLocalGame.js";
 // import { Player, AIPlayer, AIController } from './3DPlayer.js';
 
+const ballCoef = 0.3;
+
 const TEXT_PARAMS = {
     size: 3,
     depth: 0.5,
@@ -29,14 +31,45 @@ export const ballParams = {
     fontPath: "../three/examples/fonts/helvetiker_regular.typeface.json",
 }
 
-export class Ball extends EventDispatcher {
+export class BasicBall extends EventDispatcher {
+    constructor(dict, scene, limits, players, ifAI) {
+        super(); // Calls the parent class constructor
+        this.dict = dict;
+        this.ai = ifAI;
+        this.speed = null;
+        // this.inicial = ballParams.velocity.normalize();
+        this.velocity = null;
+        this.radius = null;
+        this.color = ballParams.color;
+        this.limits = limits;
+        this.scene = scene;
+        this.players = players;
+        this.scored = -1;
+        this.geometry = null;
+        this.material = null;
+        // change later for standard or phong material later
+        this.mesh = null;
+        this.ray = null;
+
+        // this.isPaused = false;
+        // this.createCountdownText();
+        this.loadedFont = null;
+    }
+
+    resetPos() {
+        // console.log("In Basic ball reset position");
+        this.mesh.position.set(0, field.height, 0);
+    }
+}
+
+export class Ball extends BasicBall {
 
     
     maxScore = ballParams.maxScore;
     // tPos = null;
     
     constructor(dict, scene, limits, players, ifAI) {
-        super(); // Calls the parent class constructor
+        super(dict, scene, limits, players, ifAI); // Calls the parent class constructor
         this.dict = dict;
         this.ai = ifAI;
         this.speed = ballParams.speed;
@@ -49,7 +82,7 @@ export class Ball extends EventDispatcher {
         this.scene = scene;
         this.players = players;
         this.scored = -1;
-
+        console.log("In ball constructor");
         this.geometry = new THREE.SphereGeometry(this.radius);
         this.material = new THREE.MeshPhongMaterial({ 
             color: ballParams.color, 
@@ -66,7 +99,7 @@ export class Ball extends EventDispatcher {
         this.ray = new Raycaster();
         this.ray.near = 0;
         this.ray.far = limits.y * 2.5;
-        this.isPaused = false;
+        // this.isPaused = false;
         // this.createCountdownText();
         this.loadedFont = null;
         // this.loader = new FontLoader();
@@ -92,9 +125,10 @@ export class Ball extends EventDispatcher {
         console.log(`Reset velocity: ${this.velocity.x}x${this.velocity.y}x${this.velocity.z}`)
     }
 
-    resetPos() {
-        this.mesh.position.set(0, field.height, 0);
-    }
+    // resetPos() {
+    //     console.log("In ball reset position");
+    //     this.mesh.position.set(0, field.height, 0);
+    // }
 
     checkScore() {
         if (this.players[1].score < this.maxScore && this.players[0].score < this.maxScore) {
@@ -220,10 +254,55 @@ export class Ball extends EventDispatcher {
     }
 }
 
-export class OnlineBall extends Ball {
+export class OnlineBall extends BasicBall {
 
-    constructor (dict, scene, limits, players, ifAI) {
+    constructor (data, dict, scene, limits, players, ifAI) {
         super(dict, scene, limits, players, ifAI);
+        // this.radius = data.ballRad / 10;
+        // this.inicial = new Vector3(data.ballSy / 10, 0, data.ballSx / 10)
+        this.radius = ballParams.radius;
+        this.inicial = ballParams.velocity;
+        this.velocity = this.inicial.clone();
+
+        this.geometry = new THREE.SphereGeometry(this.radius);
+        this.material = new THREE.MeshPhongMaterial({ 
+            color: ballParams.color, 
+            specular: 0xFFFFFF, 
+            shininess: 100 });
+        // change later for standard or phong material later
+        this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh.castShadow = true;
+        this.mesh.receiveShadow = true;
+        this.resetPos();
+        this.scene.add(this.mesh);
+        // this.velocity.multiplyScalar(this.speed);
+        
+        this.ray = new Raycaster();
+        this.ray.near = 0;
+        this.ray.far = limits.y * 2.5;
+        // this.isPaused = false;
+        // this.createCountdownText();
+        this.loadedFont = null;
+    }
+
+    backY() {
+        return (this.limits.x - this.mesh.position.x);
+    }
+
+    backX() {
+        return (this.mesh.position.z + this.limits.y);
+    }
+
+    frontY() {
+
+    }
+    frontX() {
+
+    }
+
+    interpolate() {
+        // ball.x += (targetBallX - ball.x) * ballCoef;
+        // ball.y += (targetBallY - ball.y) * ballCoef;
     }
 
 }

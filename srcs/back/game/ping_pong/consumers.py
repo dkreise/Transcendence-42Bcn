@@ -106,7 +106,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 							"canvasY": game.board_config["height"],
 							"padW": game.paddle_config["width"],
 							"padH": game.paddle_config["height"],
-							"padS": game.paddle_config["speed"]
+							"padS": game.paddle_config["speed"],
+							"ballRad": game.ball_config["rad"],		# ball radius
+							"ballSx": game.ball_config["xspeed"],		# ball speed
+							"ballSy": game.ball_config["yspeed"]		# ball speed
 						}))
 						await self.channel_layer.group_add(self.room_id, self.channel_name)
 						logger.info(f"role sent. current users: {game.users} len: {len(game.users)}")

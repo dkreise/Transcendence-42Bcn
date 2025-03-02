@@ -41,6 +41,8 @@ export class SceneText {
         this.tryAgain = null;
         this.winnerMessage = null;
         this.countdownText = null;
+        this.waiting = null;
+        this.enemy = null;
         this.group.add(this.button);
         this.group.setRotationFromEuler(new THREE.Euler(this.rotationX, this.rotationY, this.rotationZ, "ZYX"));
     }
@@ -68,9 +70,17 @@ export class SceneText {
         this.countdownText = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
         this.countdownText.position.set(0, params.textY, 0);
         this.countdownText.visible = false;
+        const waitingGeo = this.createTextGeometry("Waiting for enemy ...", this.loadedBoldFont, textWinner);
+        this.waiting = new THREE.Mesh(waitingGeo, new THREE.MeshNormalMaterial());
+        this.waiting.position.set(0, params.textY, 1.5);
+        this.waiting.visible = false;
+        const enemyGeo = this.createTextGeometry("Found an enemy!", this.loadedBoldFont, textWinner);
+        this.enemy = new THREE.Mesh(enemyGeo, new THREE.MeshNormalMaterial());
+        this.enemy.position.set(0, params.textY, 1.5);
+        this.enemy.visible = false;
         this.winnerMessage = this.createWinnerMessage("winner", this.loadedBoldFont)
         this.winnerMessage.visible = false;
-        this.group.add(this.start, this.tryAgain, this.countdownText, this.winnerMessage);
+        this.group.add(this.start, this.tryAgain, this.enemy, this.waiting, this.countdownText, this.winnerMessage);
 
     }
 
@@ -124,19 +134,46 @@ export class RemoteSceneText extends SceneText {
         super(scene, scene, dict, rotationX, rotationY, rotationZ);
         // this.button.geometry.rotateY(Math.PI * 0.25);
         // this.button.geometry.getAttribute('position').needsUpdate = true;
-        button.position.set(0, params.textY, 0); // Adjust position in the scene
+        // this.button.position.set(0, params.textY, 0); // Adjust position in the scene
+        this.waiting = null;
     }
+}    
+//     async createText() {
+//         this.loadedBoldFont = await this.loadFont(this.fontPathBold);
+//         this.start = this.createButtonText(this.dict['start'], this.loadedBoldFont);
+//         this.tryAgain = this.createButtonText(this.dict['try_again'], this.loadedBoldFont);
+//         this.tryAgain.visible = false;
+//         const textGeo = this.createTextGeometry("3", this.loadedBoldFont, textWinner);
+//         this.countdownText = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
+//         this.countdownText.position.set(0, params.textY, 0);
+//         this.countdownText.visible = false;
+//         const waitingGeo = this.createTextGeometry("Waiting for enemy ...", this.loadedBoldFont, textWinner);
+//         this.waiting = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
+//         this.waiting.position.set(0, params.textY, 1.5);
+//         this.waiting.visible = false;
+//         this.winnerMessage = this.createWinnerMessage("winner", this.loadedBoldFont)
+//         this.winnerMessage.visible = false;
+//         this.group.add(this.start, this.tryAgain, this.waiting, this.countdownText, this.winnerMessage);
 
+//     }
+    // async createWaitingMsg() {
+    //     const textGeo = this.createTextGeometry("Waiting for enemy ...", this.loadedBoldFont, textWinner);
+    //     const textMat = new THREE.MeshNormalMaterial();
+    //     const textMesh = new THREE.Mesh(textGeo, textMat);
+    //     textMesh.position.set(0, params.textY, 1.5); // Center the text
+    //     // textMesh.visible = false;
+    //     this.waiting = textMesh;
+    //     return textMesh;
+    // }
 
+    // createWinnerMessage(msg) {
+    //     const textGeo = this.createTextGeometry(msg, this.loadedBoldFont, textWinner);
+    //     textGeo.rotateY(Math.PI * 0.5);
+    //     const textMat = new THREE.MeshNormalMaterial();
+    //     const textMesh = new THREE.Mesh(textGeo, textMat);
+    //     textMesh.position.set(0, params.textY + 5, 1.5); // Center the text
+    //     this.winnerMessage = textMesh;
+    //     this.scene.add(textMesh);  
+    // }
 
-    createWinnerMessage(msg) {
-        const textGeo = this.createTextGeometry(msg, this.loadedBoldFont, textWinner);
-        textGeo.rotateY(Math.PI * 0.5);
-        const textMat = new THREE.MeshNormalMaterial();
-        const textMesh = new THREE.Mesh(textGeo, textMat);
-        textMesh.position.set(0, params.textY + 5, 1.5); // Center the text
-        this.winnerMessage = textMesh;
-        this.scene.add(textMesh);  
-    }
-
-}
+// }

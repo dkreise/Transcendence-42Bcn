@@ -16,7 +16,7 @@ import { drawHeader } from "./main.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
  
-let renderer, scene, camera, player, opponent, waiting = false;
+let renderer, scene, camera, player, opponent, waiting = false, mainplayer;
 let limits, planeGeo, planeMat, plane, controls, ai, loader, countdownText;
 let player1, player2, ball, gameLoopId, targetBallX, targetBallY; // if the main user is player 1 or 2
 let text, mainUser, lights, dict, socket = null;
@@ -59,6 +59,11 @@ const   size = {
     width: window.innerWidth,
     height: window.innerHeight,
 }
+
+let backFactor = {
+	"x": null,
+	"y": null
+};
 
 //---------------------------------------------------------------------------------//
 // ------------------ LOCAL GAME WITH ANOTHER PLAYER FUNCTIONS ------------------- //
@@ -176,9 +181,12 @@ export async function start3DRemoteGame(dict) {
     window.gameDict = dict;
     gameStarted = false;
     waiting = false;
+    pause = false;
     await setupScene();
-    text = new RemoteSceneText(scene, dict, 0, -Math.PI / 2, -Math.PI / 2);
+    // text = new RemoteSceneText(scene, dict, 0, -Math.PI / 2, -Math.PI / 2);
+    text = new SceneText(scene, dict, 0, -Math.PI / 2, 0);
     await text.createText();
+    // text.createWaitingMsg();
     // text.group.rotation.y = text.rotation;
     camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 1000);
     camera.position.set(-39.5, 22.5, 0);
@@ -188,16 +196,16 @@ export async function start3DRemoteGame(dict) {
     await createLights(-20);
     
     await setupField();
-    // controls.target.set(0, 7, 0);
+    controls.target.set(0, 7, 0);
     // scene.lights[dirLight].position.x *= -1;
-    console.log('Starting remote 3D game...');
+    // console.log('Starting remote 3D game...');
 
-    player1 = new OnlinePlayer(dict, limits, scene, -1, "", new THREE.Vector3(0, 0, -field.y + 2), -0.1, -0.5, 0);
-    console.log(`player1: ${field.y}`)
-    player2 = new OnlinePlayer(dict, limits, scene, 1, "", new THREE.Vector3(0, 0, field.y - 2), -0.1, -0.5, 0);
-    // ball = new OnlineBall(dict, scene, limits, [player1, player2], false);
-    // targetBallX = ball.mesh.position.z;
-    // targetBallY = ball.mesh.position.x;
+    // player1 = new OnlinePlayer(dict, limits, scene, -1, "", new THREE.Vector3(0, 0, -field.y + 2), -0.1, -0.5, 0);
+    // console.log(`player1: ${field.y}`)
+    // player2 = new OnlinePlayer(dict, limits, scene, 1, "", new THREE.Vector3(0, 0, field.y - 2), -0.1, -0.5, 0);
+    // // ball = new OnlineBall(dict, scene, limits, [player1, player2], false);
+    // // targetBallX = ball.mesh.position.z;
+    // // targetBallY = ball.mesh.position.x;
     // initializeWebSocket();
     setupRemoteEvents();
     
@@ -209,57 +217,57 @@ export async function start3DRemoteGame(dict) {
 }
 
 async function setupRemoteEvents() {
-    ball.addEventListener("remotefinish", (e) => {
-        // handleEndGame(e.message);
-        // if (!player1 || !player2) return;
-        // saveScore(player1.score, player2.score, mainUser);
+    // ball.addEventListener("remotefinish", (e) => {
+    //     // handleEndGame(e.message);
+    //     // if (!player1 || !player2) return;
+    //     // saveScore(player1.score, player2.score, mainUser);
 
-        console.log('goal!! player name', e.message);
-    })
+    //     console.log('goal!! player name', e.message);
+    // })
 
-    ball.addEventListener("remotepause", (e) => {
-        console.log('goal!! pause');
-        // pause = true;
-        // // HERE SINCRONIZE WITH BACKEND
-        // showCountdown(() => {
-        //     console.log("Game resuming!");
-        //     ball.resetVelocity(); // Randomize direction
-        //     console.log(`Velocity reset to x - ${ball.velocity.x}, z - ${ball.velocity.z}`);
-        //     pause = false;
-        //     // this.dispatchEvent({ type: 'airestart'});
-        //     // this.isPaused = false;
-        // });
-        // pause = false;
-        // console.log('goal!! pause');
-    })
+    // ball.addEventListener("remotepause", (e) => {
+    //     console.log('goal!! pause');
+    //     // pause = true;
+    //     // // HERE SINCRONIZE WITH BACKEND
+    //     // showCountdown(() => {
+    //     //     console.log("Game resuming!");
+    //     //     ball.resetVelocity(); // Randomize direction
+    //     //     console.log(`Velocity reset to x - ${ball.velocity.x}, z - ${ball.velocity.z}`);
+    //     //     pause = false;
+    //     //     // this.dispatchEvent({ type: 'airestart'});
+    //     //     // this.isPaused = false;
+    //     // });
+    //     // pause = false;
+    //     // console.log('goal!! pause');
+    // })
 
     window.addEventListener("keydown", (e) => {
             if (e.code === "Space" && !gameStarted && !gameEnded) {
-            console.log("Spacebar pressed! Starting game...");
+            // console.log("Spacebar pressed! Starting game...");
             // if (gameStarted) return; // Prevent multiple starts
-            waiting = true;
-            gameStarted = true;
+            // waiting = true;
+            // gameStarted = true;
             text.start.visible = false; // Hide the button
             text.button.visible = false;
-            // initializeWebSocket();
+            initializeWebSocket();
             // WAITING TEXT HERE
 
         }
         if (e.code === "Space" && !gameStarted && gameEnded) {
-            console.log("Spacebar pressed! Try again...");
+            // console.log("Spacebar pressed! Try again...");
             // if (gameStarted) return; // Prevent multiple starts
             // restartOnline(); //WRITE THIS FUNCTION
          
         }
     });
-    ball.addEventListener("onrestart", (e) => {
-        // console.log('goal!!', e.message);
-        pause = false;
+    // ball.addEventListener("onrestart", (e) => {
+    //     // console.log('goal!!', e.message);
+    //     pause = false;
 
-        // console.log('goal!! restart');
-    })
+    //     // console.log('goal!! restart');
+    // })
     
-    window.addEventListener("click", (event) => { buttonsManager(event) });
+    window.addEventListener("click", (event) => { buttonsManager(event) }); // add a different action here
 }
 
 // Event listeners for player controls
@@ -286,23 +294,24 @@ async function initializeWebSocket(roomId = 123) {
     //const roomID = new URLSearchParams(window.location.search).get("room") || "default";
     // const roomId = 123;
     let retries = 0;
-
+    // console.log("Initializing Web socket...");
     let token = localStorage.getItem("access_token");
     if (!token)
     {   
         try {
             token = await refreshAccessToken();
         } catch (err) {
-          console.error("Failed to refresh token", err);
+          console.log("Failed to refresh token");
           handleLogout();
         }
-        console.warn("No access token found");
+        console.log("No access token found");
         return ;
     }
     if (!socket)
     {
+        text.waiting.visible = true;
         socket = new WebSocket(`ws://localhost:8001/ws/G/${roomId}/?token=${token}`);
-        console.log("Socket created!");
+        // console.log("Socket created!");
     }
     socket.onopen = () => console.log("WebSocket connection established.");
     socket.onerror = (error) => {
@@ -333,11 +342,18 @@ async function initializeWebSocket(roomId = 123) {
         switch (data.type) {
             case "role":
                 // handleRoleAssignment(data.role);
-                scaleGame(data);
+                await scaleGame(data);
                 break;
             case "players":
-                player1.name = data.p1;
-                player2.name = data.p2;
+                // console.log(`Player 1 name: ${data.p1}, Player 2 name: ${data.p2}`)
+                // player1.name = data.p1;
+                // player2.name = data.p2;
+                text.waiting.visible = false;
+                text.enemy.visible = true;
+                await player1.setupText();
+                await player2.setupText();
+                player1.setName(data.p1);
+                player2.setName(data.p2);
 
                 socket.send(JSON.stringify({"type": "ready"}))
                 break;
@@ -345,42 +361,58 @@ async function initializeWebSocket(roomId = 123) {
                 if (data.wait)
                 {
                     if (data.countdown != 4)
-                        displayCountdown();
+                        console.log("count = 0, waiting"); // displayCountdown();
                     else
-                        await readySteadyGo(data.countdown - 2);
+                        await firstCountdown(() => {
+                            console.log("Game resuming!");
+                            
+                            // ball.resetVelocity(); // Randomize direction
+                            // console.log(`Velocity reset to x - ${ball.velocity.x}, z - ${ball.velocity.z}`);
+                            // pause = false;
+
+                            // this.dispatchEvent({ type: 'airestart'});
+                            // this.isPaused = false;
+                        });    
+                    console.log("count = 4, Show Countdown"); //await readySteadyGo(data.countdown - 2);
                 }
                 else
                 {
                     console.log("let's start the game!");
-                    setupControls(player, opponent)
-                    gameLoop();
+                    // setupControls(player, opponent)
+                    // gameLoop();
                 }
                 break;
             case "update":
                 if (data.players)
                 {
-                    let pl1 = data["players"]["player1"]["y"] * backFactor["y"];
-                    let pl2 = data["players"]["player2"]["y"] * backFactor["y"];
-                    //console.log(`canvasH: ${canvas.height}\np1Y: ${pl1}\np2Y: ${pl2}`)
-                    //console.log(`p1 Y: ${pl1} score: ${data['scores']['player1']}\n p2 Y: ${pl2} score: ${data['scores']['player2']}`);
-                    if (player.role == "player1")
-                    {
-                        player.update(pl1, data["scores"]["player1"]);
-                        opponent.update(pl2, data["scores"]["player2"]);
-                    }
-                    else if (player.role == "player2") 
-                    {
-                        player.update(pl2, data["scores"]["player2"]);
-                        opponent.update(pl1, data["scores"]["player1"]);
-                    }
+                    gameStarted = true;
+                    // console.log("update data players");
+                    // let pl1 = data["players"]["player1"]["y"] * backFactor["y"];
+                    // let pl2 = data["players"]["player2"]["y"] * backFactor["y"];
+                    let pl1 = data["players"]["player1"]["y"];
+                    let pl2 = data["players"]["player2"]["y"];
+                    // //console.log(`canvasH: ${canvas.height}\np1Y: ${pl1}\np2Y: ${pl2}`)
+                    console.log(`p1 Y: ${pl1} `);
+                    // if (player.role == "player1")
+                    // {
+                    player1.update(pl1, data["scores"]["player1"]);
+                    player2.update(pl2, data["scores"]["player2"]);
+                    // }
+                    // else if (player.role == "player2") 
+                    // {
+                    //     player.update(pl2, data["scores"]["player2"]);
+                    //     opponent.update(pl1, data["scores"]["player1"]);
+                    // }
                 }
                 if (data.ball) {
+                    // gameStarted = true;
+                    // console.log("update data ball");
                     targetBallX = data.ball.x * backFactor["x"];
                     targetBallY = data.ball.y * backFactor["y"];
                 }
                 break ;
             case "endgame":
-                handleEndgame(data);
+                console.log("endgame!"); //handleEndgame(data);
                 break;
             default:
                 console.warn("Unhandled message type:", data.type);
@@ -388,40 +420,36 @@ async function initializeWebSocket(roomId = 123) {
     };
 }
 
-// function scaleGame(data)
-// {
-// 	handleRoleAssignment(data.role);
-// 	player.width = canvas.width * (data.padW / data.canvasX);
-// 	opponent.width = player.width;
-// 	player.height = canvas.height * (data.padH / data.canvasY);
-// 	opponent.height = player.height;
-// 	if (player.x != 0)
-// 		player.x = canvas.width - player.width;
-// 	//console.log("FRONT 2 width: " + player.width + " height: " + player.height);
-// 	backFactor["x"] = canvas.width / data.canvasX;
-// 	backFactor["y"] = canvas.height / data.canvasY;
-// 	player.backFactor = backFactor["y"];
-// 	opponent.backFactor = backFactor["y"];
-// }
+async function scaleGame(data)
+{
+	
+    player1 = new OnlinePlayer(data, dict, limits, scene, -1, "", new THREE.Vector3(0, 0, -field.y), -0.1, -0.5, 0);
+    // console.log(`player1: ${field.y}`)
+    // await player1.setupText();
+    console.log(`convert 0 to front: ${player1.convertXFromBack(0.5)}`);
+    console.log(`convert 0 to back: ${player1.convertXToBack(0)}`);
+    player2 = new OnlinePlayer(data, dict, limits, scene, 1, "", new THREE.Vector3(0, 0, field.y), -0.1, -0.5, 0);
+    // await player1.setupText();
+    ball = new OnlineBall(data, dict, scene, limits, [player1, player2], false);
+    targetBallX = ball.backX();
+    targetBallY = ball.backY();
+	backFactor["x"] = limits.y * 2 / data.canvasX;
+	backFactor["y"] = limits.x * 2 / data.canvasY;
+    console.log(`backFactor X: ${backFactor["x"]}, backFactor Y: ${backFactor["y"]}`);
+    waiting = true;
+    //HERE WaITING TEXT LINE
+    handleRoleAssignment(data.role);
+}
 
 function handleRoleAssignment(role) {
-	console.log("Hi! I'm " + role);
+	// console.log("Hi! I'm " + role);
 	if (role === "player1") {
-		// player1. ;
-        // opponent = new OnlinePlayer(dict, limits, scene, 1, playerName2 = "opponent", new THREE.Vector3(0, 0, field.y - 2), -0.1, -0.5, 0);
-        // ball = new OnlineBall(dict, scene, limits, [player, opponent], false);
-        // mainUser = 1;
         setupRemoteControls(player1);
+        mainplayer = player1;
 	} else if (role === "player2") {
-        // opponent = new OnlinePlayer(dict, limits, scene, -1, playerName1 = "opponent", new THREE.Vector3(0, 0, -field.y + 2), -0.1, -0.5, 0);
-        // player = new OnlinePlayer(dict, limits, scene, 1, playerName2 = "player", new THREE.Vector3(0, 0, field.y - 2), -0.1, -0.5, 0);
-        // ball = new OnlineBall(dict, scene, limits, [opponent, player], false);
         setupRemoteControls(player2);
+        mainplayer = player2;
 	}
-
-    // targetBallX = ball.mesh.position.z;
-    // targetBallY = ball.mesh.position.x;
-    // setupEvents(); //DO REMOTE EVENTS??? 
 }
 
 
@@ -432,15 +460,22 @@ async function animateRemote() {
     const deltaTime = clock.getDelta();
     const dt = Math.min(deltaTime, 0.1)
     
-    // if (gameStarted && !pause) {
-    //     ball.update(dt);
-    //     player1.move();
-    //     player2.move();
-    // } else {
+    // if (!gameStarted) {
     //     ball.resetPos();
     //     player1.resetPos();
     //     player2.resetPos();
     // }
+    if (gameStarted && !pause) {
+        
+	    // interpolateBall();
+	    // ball.draw();
+        mainplayer.move(socket);
+	    // player1.move(socket);
+    } else if (waiting) {
+        ball.resetPos();
+        player1.resetPos();
+        player2.resetPos();
+    }
 
     // HERE WHILE WAITING MOVE THE CAMERA
     
@@ -457,7 +492,7 @@ async function animateRemote() {
     // console.log(`target ${controls.target.x}x${controls.target.y}x${controls.target.z}`)
     // Update scene and render 
     renderer.render(scene, camera);
-    gameLoopId = requestAnimationFrame(animateLocal);
+    gameLoopId = requestAnimationFrame(animateRemote);
 }
 
 //--------------------------------------------------------------------//
@@ -697,7 +732,7 @@ async function buttonsManager(event) {
     }
 }
 
-function showCountdown(callback) {
+async function showCountdown(callback) {
     let count = 2;
     text.updateGeometry(text.countdownText, "3", textWinner);
     text.countdownText.visible = true;
@@ -713,7 +748,32 @@ function showCountdown(callback) {
             text.updateGeometry(text.countdownText, `${count}`, textWinner);
         }
         count--;  
-    }, 500);
+    }, 1000);
+}
+
+async function firstCountdown(callback) {
+    let count = 3;
+    // if (count = 2)
+    // text.updateGeometry(text.countdownText, "3", textWinner);
+    
+    // text.countdownText.visible = true;
+    const interval = setInterval(() => {
+        // console.log(window.gameDict);
+        
+        if (count == 2) {
+            text.enemy.visible = false;
+            text.countdownText.visible = true;
+        } else if (count === 0) {
+            text.updateGeometry(text.countdownText, window.gameDict['go'], textWinner);
+        } else if (count < 0) {
+            clearInterval(interval);
+            text.countdownText.visible = false; // Hide instead of remove
+            callback(); // Resume the game  
+        } else {
+            text.updateGeometry(text.countdownText, `${count}`, textWinner);
+        }
+        count--;  
+    }, 1000);
 }
 
 async function handleEndGame(message) {
@@ -796,7 +856,8 @@ export async function cleanup3D() {
     
     // Stop animation loop
     cancelAnimationFrame(gameLoopId);
-    // contentArea.style.padding = "3rem"; //to restore the padding when exit the 3D
+    const contentArea = document.getElementById('content-area');
+    contentArea.style.padding = "3rem"; //to restore the padding when exit the 3D
     // Remove event listeners (if any)
     window.removeEventListener("resize", handleResize);
     window.removeEventListener("click", buttonsManager);

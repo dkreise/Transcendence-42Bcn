@@ -54,9 +54,9 @@ scores
 
 class GameManager:
 
-	ball_config = {"rad": 10, "xspeed": 4, "yspeed": 4}
-	board_config = {"width": 800, "height": 400, "max_score": 5}
-	paddle_config = {"width": 10, "height": 80, "speed": 5}
+	ball_config = {"rad": 70, "xspeed": 8, "yspeed": 5}
+	board_config = {"width": 400, "height": 300, "max_score": 5}
+	paddle_config = {"width": 10, "height": 50, "speed": 5}
 	countdown = 5
 
 	def __init__(self, game_id):
@@ -71,10 +71,10 @@ class GameManager:
 		self.status = 1
 		self.ready = 0
 		self.ball = {
-			"x": GameManager.board_config["width"] // 2,
-			"y": GameManager.board_config["height"] // 2,
-			"xspeed": 4,
-			"yspeed": 4
+			"x": 0.5,
+			"y": 0.5,
+			"xspeed": GameManager.ball_config["xspeed"],
+			"yspeed": GameManager.ball_config["yspeed"]
 		}
 
 ###############################################
@@ -102,11 +102,11 @@ class GameManager:
 			self.users.append(user)
 			if len(self.players) == 0:
 				logger.info(f"adding {user} as player1")
-				self.players["player1"] = {"id": user, "y": 250}
+				self.players["player1"] = {"id": user, "y": 0.5}
 				return "player1"
 			else:
 				logger.info(f"adding {user} as player2")
-				self.players["player2"] = {"id": user, "y": 250}
+				self.players["player2"] = {"id": user, "y": 0.5}
 				self.status = 0
 				return "player2"
 		return "viewer"
@@ -139,28 +139,46 @@ class GameManager:
 #			return True
 #		return False
 
+	# def is_paddle_collision(self):
+	# 	radius = GameManager.ball_config["rad"]
+	# 	padH = GameManager.paddle_config["height"]
+	# 	pl1 = self.players["player1"]["y"]
+	# 	pl2 = self.players["player2"]["y"]
+
+	# 	if self.ball["x"] - radius <= GameManager.paddle_config["width"] :
+	# 		logger.info(f"collision p1 area")
+	# 		if self.ball["y"] + radius > pl1 - padH // 2:
+	# 			return True
+	# 		if self.ball["y"] - radius < pl1 + padH // 2:
+	# 			return True
+	# 	elif self.ball["x"] + radius >= GameManager.board_config["width"] - GameManager.paddle_config["width"]:
+	# 		logger.info(f"collision p2 area")
+	# 		if self.ball["y"] + radius > pl2 - padH // 2:
+	# 			return True
+	# 		if self.ball["y"] - radius < pl2 + padH // 2:
+	# 			return True
+	# 	return False
+
 	def is_paddle_collision(self):
 		radius = GameManager.ball_config["rad"]
 		padH = GameManager.paddle_config["height"]
 		pl1 = self.players["player1"]["y"]
 		pl2 = self.players["player2"]["y"]
 
-		if self.ball["x"] - radius <= GameManager.paddle_config["width"]:
-			logger.info(f"collision p1 area")
-			if self.ball["y"] + radius > pl1 - padH // 2:
+		if self.ball["x"] * GameManager.paddle_config["width"] - radius <= GameManager.paddle_config["width"]:
+			if self.ball["y"] * GameManager.paddle_config["height"] + radius > pl1 - padH // 2:
 				return True
-			if self.ball["y"] - radius < pl1 + padH // 2:
+			if self.ball["y"] * GameManager.paddle_config["height"] - radius < pl1 + padH // 2:
 				return True
-		elif self.ball["x"] + radius >= GameManager.board_config["width"] - GameManager.paddle_config["width"]:
-			logger.info(f"collision p2 area")
-			if self.ball["y"] + radius > pl2 - padH // 2:
+		elif self.ball["x"] * GameManager.paddle_config["width"] + radius >= GameManager.board_config["width"] - GameManager.paddle_config["width"]:
+			if self.ball["y"] * GameManager.paddle_config["height"] + radius > pl2 - padH // 2:
 				return True
-			if self.ball["y"] - radius < pl2 + padH // 2:
+			if self.ball["y"] * GameManager.paddle_config["height"] - radius < pl2 + padH // 2:
 				return True
 		return False
 
 	async def update_ball(self):
-		self.ball["x"] += self.ball["xspeed"]
+		self.ball["x"]  += self.ball["xspeed"]
 		self.ball["y"] += self.ball["yspeed"]
 		paddle_collision = self.is_paddle_collision()
 

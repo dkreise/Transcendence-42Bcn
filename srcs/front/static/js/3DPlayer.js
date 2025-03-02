@@ -6,6 +6,7 @@ import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
 import { ballParams } from "./3DBall.js";
 import { field } from "./3DLocalGame.js";
 import { EventDispatcher } from "../three/build/three.core.js";
+import { RoundedBoxGeometry } from '../three/examples/jsm/geometries/RoundedBoxGeometry.js'
 
 export const paddle = {
     radius: 0.5,
@@ -92,39 +93,12 @@ export class BasicPlayer {
         this.collitionMat = null;
         this.helperGeo = null;
         this.collitionMesh = null;
+        // this.setupText();
+        // this.drawGeometry();
+        // this.drawPaddle();
     }
-}
 
-export class Player extends BasicPlayer {
-
-    constructor(dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
-        super(dict, limits, scene, role, name, position, rotationX, rotationY, rotationZ)
-        // this.dict = dict;
-        // this.speed = paddle.speed;
-        // this.color = paddle.color;
-        // this.loader = new FontLoader();
-        // this.textMesh = null;
-        // this.textName = null;
-        // this.fontPath = paddle.fontPath;
-        // this.loadedFont = null;
-        // this.limits = limits;
-        // this.up = false;
-        // this.down = false;
-        // this.score = 0;
-        // this.role = role; // 1 - right or -1 - left (AI)
-        // this.name = name;
-        // // console.log(`My name is ${this.name}`)
-        // // console.log(`Originally ${name}`)
-        // this.scene = scene;
-        // this.text = `${this.score}`;
-        // this.initial = position;
-        // this.initial.y += field.height;
-
-        // this.rotationX = rotationX;
-        // this.rotationY = rotationY;
-        // this.rotationZ = rotationZ;
-        this.geometry = new CapsuleGeometry(paddle.radius, paddle.length, paddle.capSeg, paddle.radSeg);; //new THREE.BoxGeometry(this.width, this.height, this.depth);
-        this.geometry.rotateZ(Math.PI * 0.5);
+    drawPaddle() {
         this.material = new THREE.MeshPhongMaterial({ 
             color: paddle.color,
             specular: 0xFFFFFF, 
@@ -138,50 +112,49 @@ export class Player extends BasicPlayer {
             visible: false 
         });
         
-        this.helperGeo = new CapsuleGeometry(paddle.radius + ballParams.radius, paddle.length + 0.5, paddle.capSeg, 8)
-        this.helperGeo.rotateZ(Math.PI * 0.5)
-        this.helperGeo.rotateX(Math.PI / 8)
+        // this.helperGeo = new CapsuleGeometry(paddle.radius + ballParams.radius, paddle.length + 0.5, paddle.capSeg, 8)
+        // this.helperGeo.rotateZ(Math.PI * 0.5)
+        // this.helperGeo.rotateX(Math.PI / 8)
         this.collitionMesh = new THREE.Mesh(
             this.helperGeo,
             this.collitionMat,
         )
         this.mesh.add(this.collitionMesh);
         this.mesh.position.copy(this.initial);
+        // console.log(`I'm ${this.name}, my role is ${this.role}, my position is ${this.initial.z}`);
         this.scene.add(this.mesh);
-        this.setupText(TEXT_PARAMS);
     }
 
-    resetAll() {
-        this.score = 0;
-        this.setText();
-        this.textMesh.geometry.dispose();
-        this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
-        
+    async setupText() {
+        this.loadedFont = await this.loadFont(this.fontPath);
+        // this.loader.load(this.fontPath, ( font ) => {
+        //     this.loadedFont = font;
+        const textGeo = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
+        // textGeo.rotateY(-Math.PI * this.rotationY)
+        this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ color: paddle.color }));
+        const geoName = this.createTextGeometry(this.name, this.loadedFont, TEXT_PARAMS_NAME);
+        this.textName = new THREE.Mesh(geoName, new THREE.MeshStandardMaterial({ color: paddle.color }));
         this.textMesh.castShadow = true;
         this.textMesh.receiveShadow = true;
-        this.textMesh.geometry.getAttribute('position').needsUpdate = true;
-        this.resetPos;
+        this.textMesh.position.set(field.x + 3, 8, (this.limits.y - 5) * this.role);
+        this.textName.castShadow = true;
+        this.textName.receiveShadow = true;
+        this.textName.position.set(field.x + 3, 12, (this.limits.y - 7) * this.role);
+        // console.log("GEOMETRY TEXT CREATED");
+        this.scene.add(this.textMesh, this.textName);
+        // } );
     }
 
-    resetPos() {
-        this.mesh.position.copy(this.initial);
-    }
-    setupText(params) {
-        this.loader.load(this.fontPath, ( font ) => {
-            this.loadedFont = font;
-            const textGeo = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
-            // textGeo.rotateY(-Math.PI * this.rotationY)
-            this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ color: paddle.color }));
-            const geoName = this.createTextGeometry(this.name, this.loadedFont, TEXT_PARAMS_NAME);
-            this.textName = new THREE.Mesh(geoName, new THREE.MeshStandardMaterial({ color: paddle.color }));
-            this.textMesh.castShadow = true;
-            this.textMesh.receiveShadow = true;
-            this.textMesh.position.set(field.x + 3, 8, (this.limits.y - 5) * this.role);
-            this.textName.castShadow = true;
-            this.textName.receiveShadow = true;
-            this.textName.position.set(field.x + 3, 12, (this.limits.y - 7) * this.role);
-            this.scene.add(this.textMesh, this.textName);
-        } );
+    loadFont(path) {
+        return new Promise((resolve, reject) => {
+            this.loader.load(path, (font) => {
+                console.log("Font loaded");
+                resolve(font);  // Resolve with the loaded font
+            }, undefined, (error) => {
+                console.log("Font loading failed", error);
+                reject(error);  // Reject if there's an error
+            });
+        });
     }
 
     createTextGeometry(text, font, params) {
@@ -197,6 +170,64 @@ export class Player extends BasicPlayer {
         textGeo.rotateZ(Math.PI * this.rotationZ);
         // console.log(`Players creating Text: ${this.rotationX}x${this.rotationY}x${this.rotationZ}`)
         return textGeo;
+    }
+
+
+
+    setText() {
+        // Reload in AI
+        this.text = `${this.score}`;
+        return (this.text);
+    }
+
+    updateGeo(mesh, text) {
+        // console.log(`My name is ${this.name}`);
+        // if (!mesh || !geometry)
+        //     return ;
+        mesh.geometry.dispose();
+        mesh.geometry = this.createTextGeometry(text, this.loadedFont, TEXT_PARAMS);
+        
+        mesh.castShadow = true;
+        mesh.receiveShadow = true;
+        mesh.geometry.getAttribute('position').needsUpdate = true;
+        // console.log(`All good`);
+    }
+
+    resetPos() {
+        this.mesh.position.copy(this.initial);
+    }
+}
+
+export class Player extends BasicPlayer {
+
+    constructor(dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
+        super(dict, limits, scene, role, name, position, rotationX, rotationY, rotationZ)
+        this.setupText();
+        this.drawGeometry();
+        this.drawPaddle();
+        
+
+    }
+
+    drawGeometry() {
+        this.geometry = new CapsuleGeometry(paddle.radius, paddle.length, paddle.capSeg, paddle.radSeg);
+        this.geometry.rotateZ(Math.PI * 0.5);
+        this.helperGeo = new CapsuleGeometry(paddle.radius + ballParams.radius, paddle.length + 0.5, paddle.capSeg, 8)
+        this.helperGeo.rotateZ(Math.PI * 0.5);
+        this.helperGeo.rotateX(Math.PI / 8);
+    }
+
+    resetAll() {
+        this.score = 0;
+        // this.setText();
+        // this.textMesh.geometry.dispose();
+        // this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
+        
+        // this.textMesh.castShadow = true;
+        // this.textMesh.receiveShadow = true;
+        // this.textMesh.geometry.getAttribute('position').needsUpdate = true;
+        this.updateGeo(this.textMesh, this.setText());
+        this.resetPos;
     }
 
     move() {
@@ -220,13 +251,14 @@ export class Player extends BasicPlayer {
     scored() {
         this.score++;
         // this.text = `${this.name} - ${this.score}`;
-        this.setText();
-        this.textMesh.geometry.dispose();
-        this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
+        // this.setText();
+        this.updateGeo(this.textMesh, this.setText());
+        // this.textMesh.geometry.dispose();
+        // this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
         
-        this.textMesh.castShadow = true;
-        this.textMesh.receiveShadow = true;
-        this.textMesh.geometry.getAttribute('position').needsUpdate = true;
+        // this.textMesh.castShadow = true;
+        // this.textMesh.receiveShadow = true;
+        // this.textMesh.geometry.getAttribute('position').needsUpdate = true;
     }
 
     getType() {
@@ -238,17 +270,19 @@ export class AIPlayer extends Player {
 
     constructor(dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
         super(dict, limits, scene, role, name, position, rotationX, rotationY, rotationZ);
-        this.setText(TEXT_PARAMS);
+        
+        this.setText();
+        this.setupText();
         // console.log(`My text is ${this.text}, my role is: ${this.text}`);
 
 
     }
 
-    setupText(params) {
+    setupText() {
     // this is the ai version - to be reloaded in AI
         this.loader.load(this.fontPath, ( font ) => {
             this.loadedFont = font;
-            const textGeo = this.createTextGeometry(this.text, this.loadedFont, params);
+            const textGeo = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
             // textGeo.rotateX(Math.PI * 0.5)
             // textGeo.rotateX(-Math.PI * 0.1)
             this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ color: paddle.color }));
@@ -274,18 +308,22 @@ export class AIPlayer extends Player {
         if (this.role === 1) {
             this.text = this.dict['you'] + ` - ${this.score}`
         }
+        return (this.text);
+
     }
 
-    scored() {
-        this.score++;
-        // this.text = `${this.name} - ${this.score}`;
-        this.setText();
-        this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
+    // scored() {
+    //     this.score++;
+    //     // this.text = `${this.name} - ${this.score}`;
+    //     this.setText();
+    //     // this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
         
-        this.textMesh.castShadow = true;
-        this.textMesh.receiveShadow = true;
-        this.textMesh.geometry.getAttribute('position').needsUpdate = true;
-    }
+    //     // this.textMesh.castShadow = true;
+    //     // this.textMesh.receiveShadow = true;
+    //     // this.textMesh.geometry.getAttribute('position').needsUpdate = true;
+    //     this.updateScoreGeo();
+
+    // }
 
     getType() {
         return ("aifinish");
@@ -420,10 +458,108 @@ export class AIController {
 }
 
 export class OnlinePlayer extends BasicPlayer {
-    constructor(dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
+    constructor(data, dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
         super(dict, limits, scene, role, name, position, rotationX, rotationY, rotationZ);
-        this.backY = 0;
+        this.backY = (limits.x * 2) / data.canvasY / 10;
+        this.width = limits.y * 2 * data.padW / data.canvasX;
+        this.height = limits.x * 2 * data.padH / data.canvasY;
+        // console.log(`Creating paddles, width ${this.width}, height ${this.height}`)
+        this.initial.z = position.z - (this.role * this.width / 2);
+        this.speed = data.padS;
+        this.backendRole = "player1";
+        if (role == 1)
+            this.backendRole = "player2";
+        this.drawGeometry();
+        this.drawPaddle();
+        
+    }
+
+    setName(name) {
+        this.name = name;
+        this.updateGeo(this.textName, this.name);
 
     }
-    
+
+    update(newY, newScore) {
+		this.mesh.position.x = this.convertXFromBack(newY);
+        if (this.score != newScore) {
+		    this.score = newScore;
+            this.updateGeo(this.textMesh, this.setText());
+        }
+
+	}
+
+    move(socket) {
+		const oldY = this.mesh.position.x;
+        // console.log(`The arrow left is ${this.down}, mesh pos is ${this.mesh.position.x - paddle.length / 2}, limits are ${this.limits.x * -1 + 0.5}`)
+        if (this.down && ((this.mesh.position.x - this.height / 2) > (this.limits.x * -1 + 0.75))) {
+            console.log("Move 2 down, arrow left");
+            this.mesh.position.x -= this.speed;
+        }
+        if (this.up && (this.mesh.position.x + this.height / 2) < this.limits.x - 0.75) {
+            console.log("Move 2 up, arrow right");
+            this.mesh.position.x += this.speed;
+        }
+		if (socket.readyState === WebSocket.OPEN && this.mesh.position.x != oldY) {
+			console.log("sending");
+            this.send(socket);
+        }
+	}
+
+    send(socket) {
+		if (socket.readyState === WebSocket.OPEN)
+		{
+            
+            //console.log("front y: " + this.y + " backFactor: " + this.backFactor);
+			console.log(`${this.backendRole}'s paddle: ${this.mesh.position.x} converted: ${this.convertXToBack(this.mesh.position.x)}`);
+            console.log(`sending: ${this.convertXToBack(this.mesh.position.x) }`);
+			const data = {
+				"type": "update",
+				"role": this.backendRole,
+				"y": this.convertXToBack(this.mesh.position.x),
+				"score": this.score,
+			};
+			socket.send(JSON.stringify(data));
+		}
+	}
+
+    convertXFromBack(backY) {
+        return (this.limits.x  - backY * this.limits.x * 2);
+    }
+    convertXToBack(frontY) {
+        return ((this.limits.x - frontY) / (this.limits.x * 2));
+    }
+    // updateNameGeo() {
+    //     this.textMesh.geometry.dispose();
+    //     this.textMesh.geometry = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
+        
+    //     this.textMesh.castShadow = true;
+    //     this.textMesh.receiveShadow = true;
+    //     this.textMesh.geometry.getAttribute('position').needsUpdate = true;
+    // }
+
+    // setupText() {
+    //     this.loader.load(this.fontPath, ( font ) => {
+    //         this.loadedFont = font;
+    //         const textGeo = this.createTextGeometry(this.text, this.loadedFont, TEXT_PARAMS);
+    //         // textGeo.rotateY(-Math.PI * this.rotationY)
+    //         this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ color: paddle.color }));
+    //         const geoName = this.createTextGeometry(this.name, this.loadedFont, TEXT_PARAMS_NAME);
+    //         this.textName = new THREE.Mesh(geoName, new THREE.MeshStandardMaterial({ color: paddle.color }));
+    //         this.textMesh.castShadow = true;
+    //         this.textMesh.receiveShadow = true;
+    //         this.textMesh.position.set(field.x + 3, 8, (this.limits.y - 5) * this.role);
+    //         this.textName.castShadow = true;
+    //         this.textName.receiveShadow = true;
+    //         this.textName.position.set(field.x + 3, 12, (this.limits.y - 7) * this.role);
+    //         this.scene.add(this.textMesh, this.textName);
+    //         // this.scene.add(this.textName);
+    //     } );
+    // }
+
+    drawGeometry() {
+        this.geometry =  new RoundedBoxGeometry(this.height, this.width, this.width, 1);
+        this.helperGeo = new RoundedBoxGeometry(this.height + 0.1, this.width, this.width + ballParams.radius, 1)
+    }
+   
 }
