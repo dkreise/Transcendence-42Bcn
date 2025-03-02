@@ -1,293 +1,100 @@
-import { makeAuthenticatedRequest } from "./login.js";
-import { navigateTo, checkPermission } from "./main.js"
-import { startAIGame } from "./AIGame.js";
-import { startLocalGame } from "./localGame.js";
-import { startGame } from "./remoteGame.js"; 
-import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
-import { loadBracketTournamentPage } from "./tournament.js";
+import { loadProfilePage } from "./profile.js";
+import { displayLoginError } from "./login.js";
+import { clearURL, navigateTo } from "./main.js";
+import { connectWS } from "./onlineStatus.js";
+ 
 
-let Enable3D = false;
+var baseUrl = "http://localhost";
 
-var baseUrl = "http://localhost"; // change (parse) later
+export const handleLoginIntra = () => {
+    console.log(`login 42 clicked: ${window.location.pathname}`);
+    const currentPath = '/';
+    window.history.replaceState({ fromOAuth: true, previousPath: currentPath  }, null, '/');
+    console.log(history.state)
+    window.location.href = "http://localhost:8000/api/login-intra";
+}
 
-export const playLocal = () => {
-
-    if (!checkPermission) {
-        navigateTo('/login');
-    } else {
-        console.log('Loading get second name page...')
-        makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/get-name/", {
-            method: "GET",
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.get_name_html) {
-                document.getElementById('content-area').innerHTML = data.get_name_html;
-            } else {
-                console.log('Response: ', data);
-                console.error('Failed to fetch second player:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Catch error fetching second player page: ', error);
-            if (error == "No access token.")
-                navigateTo('/login');
-        });
-    }
-} 
-
-export const playAI = (args) => {
-
-    Enable3D = localStorage.getItem("3D-option");
-    console.log(`Play AI, Enable 3D: ${Enable3D}`)
-
-    if (!checkPermission) {
-        navigateTo('/login');
-    } else if (Enable3D === "true") {
-        //HERE SOMETHING WITH LANGUAGES
-        // const contentArea = document.getElementById('content-area');
-        // contentArea.innerHTML = ''; // Clear previous content
-        // start3DAIGame(localStorage.getItem('username'));
-        play3D();
-    
-    } else {
-        console.log("Playing AI game. Tournament mode:", args?.tournament); 
-        if (args?.tournament === "true") {
-            console.log("This is a tournament game! in playAI");
-            gameAI(args);
-        } else {
-            console.log('Loading get difficulty page...')
-            makeAuthenticatedRequest(baseUrl + ":8001/api/game/ai/get-difficulty", {
-                method: "GET",
+export const handle42Callback = () => {
+    const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        const err = urlParams.get('error');
+        console.log(`Windows location is ${window.location.href}`)
+        window.history.replaceState(null, null, '/');
+        if (err) {
+            console.log(`error string: ${err}`);
+            // alert("Access denied. Try again later");
+            clearURL();
+            showModalError(`An error occurred: ${err}. Try again later.`);
+            navigateTo("/login");
+            // displayLoginError('Invalid credentials. Please try again.', 'login-form');
+        }
+        else if (code && state){
+            const queryParams = new URLSearchParams({code , state}).toString();
+            console.log(code, state);
+             
+            const url = `http://localhost:8000/api/login-intra/callback?${queryParams}`;
+            console.log(`Sending GET request to: ${url}`);
+            fetch(url, {
+                method: 'POST',
+                credentials: "include", 
+                headers: {
+                    'Content-Type': 'application/json'
+                },
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.get_difficulty_html) {
-                    document.getElementById('content-area').innerHTML = data.get_difficulty_html;
+            .then(response => {
+                if (!response.ok) {
+                    // Throw an error with status code for better debugging
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {		
+                if (data.access_token && data.refresh_token){
+                    
+                    localStorage.setItem('access_token', data.access_token);
+                    localStorage.setItem('refresh_token', data.refresh_token);
+                    // localStorage.setItem('intra_token', data.intra_token);
+                    localStorage.setItem('username', data.username);
+                    localStorage.setItem('name', data.name);
+                    clearURL();
+                    connectWS(data.access_token);
+                    console.log(history.state)
+                    navigateTo('/home', true);
+                    
+                    // loadProfilePage();
+                } else if (data.two_fa_required) {
+                    localStorage.setItem('temp_token', data.temp_token);
+                    localStorage.setItem('intra_token', data.intra_token);
+                    navigateTo('/two-fa-login', true);
                 } else {
-                    console.log('Response: ', data);
-                    console.error('Failed to fetch difficulty:', data.error);
+                    clearURL();
+                    showModalError("An error occurred. Try again later.");
+                    navigateTo("/login");
+                    // displayLoginError('Invalid credentials. Please try again.', 'login-form');
                 }
             })
             .catch(error => {
-                console.error('Catch error fetching difficulty page: ', error);
-                if (error == "No access token.")
-                    navigateTo('/login');
+                clearURL();
+                // alert("Access denied. Try again later");
+                if (error.message.includes("401")) {
+                    showModalError("Unauthorized access. Please check your credentials.");
+                } else if (error.message.includes("403")) {
+                    showModalError("Access denied. You do not have permission.");
+                } else {
+                    showModalError("An error occurred. Try again later.");
+                }
+                navigateTo("/login");
+                // displayLoginError('Invalid credentials. Please try again.', 'login-form');
             });
         }
-    }
-} 
+};
 
-export const gameLocal = async () => {
-    
-    // Retrieve the second player's name from the form
-    const playerNameInput = document.getElementById("player-name");
-    const secondPlayerName = playerNameInput ? playerNameInput.value.trim() : null;
-    
-    console.log(`Stored second player name: ${secondPlayerName}`);
-
-    const username = await getUsername();
-    if (!username) {
-        navigateTo('/home');
-        return;
-    }
-
-    if (secondPlayerName === username) {
-        alert("Both names cannot be equal. Set another name");
-        navigateTo('/play-local');
-        return ;
-    }
-    
-    makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
-        method: "POST",
-        body: JSON.stringify({
-            'second-player': secondPlayerName,  // Stringify the body data
-        }),
-        headers: {"Content-Type": "application/json"},
-    })
-    .then(response => {
-        console.log('Raw response:', response);  // Add this line to inspect the raw response
-        return response.json();
-    })
-    .then(data => {
-        if (data.game_html) {
-            console.log('Local game returned!');
-            document.getElementById('content-area').innerHTML = data.game_html;
-            const canvas = document.getElementById("newGameCanvas");
-            if (canvas)
-                startLocalGame(data['player1'], data['player2'], data['main_user']);
-            else
-            console.log("Error: Canvas not found");
-
-        } else {
-            console.log('Response: ', data);
-            console.error('Failed to fetch the local game:', data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Catch error loading local game: ', error);
+export function showModalError(message) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: message,
+        backdrop: false,
     });
-}
-
-export const gameAI = async (args) => {
-    // const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
-
-    // Enable3D = localStorage.getItem("3D-option");
-
-    if (!checkPermission) {
-        navigateTo('/login');
-    } else {
-        let tournament = null;
-        console.log("Playing AI game. Tournament mode:", args?.tournament); 
-        if (args?.tournament === "true") {
-            console.log("This is a tournament game! in gameAI");
-            console.log(args.tournamentId);
-            tournament = {tournament: true, id: args.tournamentId};
-            console.log(tournament.id);
-        }
-        makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
-            method: "POST",
-            body: JSON.stringify({
-                'second-player': "AI",  // Stringify the body data
-            }),
-            headers: {"Content-Type": "application/json"},
-        })
-        .then(response => {
-            console.log('Raw response:', response);  // Add this line to inspect the raw response
-            return response.json();
-        })
-        .then(data => {
-            if (data.game_html && Enable3D === "false") {
-                console.log('AI game returned!');
-                document.getElementById('content-area').innerHTML = data.game_html;
-                const canvas = document.getElementById("newGameCanvas");
-                if (canvas) {
-                    const button = document.getElementById('play-again');
-                    if (button && !tournament) {
-                        button.setAttribute("data-route", "/play-ai");
-                    } else if (button && tournament) {
-                        button.textContent = "Give Up";
-                        // button.setAttribute("data-route", "/");
-                        button.addEventListener('click', () => {
-                            // clearInterval(intervalId);
-                            //navigateTo('/tournament-bracket', true);
-                            loadBracketTournamentPage(tournament.id);
-                        });
-                    }
-                    startAIGame(data['player1'], data['player2'], data['main_user'], tournament);
-     
-                } else {
-                    console.log("Error: Canvas not found");
-                }
-            } else {
-                console.log('Response: ', data);
-                console.error('Failed to fetch the local game:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Catch error loading local game: ', error);
-        });
-    }
-} 
-
-export async function playOnline () {
-
-    Enable3D = localStorage.getItem("3D-option");
-    console.log(`Enable 3D: ${Enable3D}`)
-    const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
-
-    if (!checkPermission) {
-        navigateTo('/login');
-    } else {
-        console.log('Loading online game...')
-        makeAuthenticatedRequest(baseUrl + ":8001/api/game/remote/play/", {
-            method: "GET",
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.game_html && Enable3D === "false") {
-                document.getElementById('content-area').innerHTML = data.game_html;
-                const canvas = document.getElementById("newGameCanvas");
-                if (canvas)
-                    startGame();
-                else
-                    console.log("Error: Canvas not found");
-            } else if (Enable3D === "true") {
-                    //HERE SOMETHING WITH LANGUAGES
-                // start3DOnlineGame(localStorage.getItem('username'));
-                start3DAIGame(localStorage.getItem('username'), dictionary);
-            } else {
-                console.log('Response: ', data);
-                console.error('Failed to load remote game:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Catch error loading remote game: ', error);
-            if (error == "No access token.")
-                navigateTo('/login');
-        });
-    }
-    // makeAuthenticatedRequest() // to POST the results
-} 
-
-export async function play3D() {
-
-    if (!checkPermission) {
-        navigateTo('/login');
-    } else {
-        console.log("Navigating to /play-ai/3D");
-    }
-    const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
-    const contentArea = document.getElementById('content-area');
-    // contentArea.style.padding = 0;
-    contentArea.innerHTML = ''; // Clear previous content
-    
-    console.log('3D game returned! Dictionary:');
-    console.log(dictionary);
-    // start3DLocalGame(data['player1'], data['player2'], data['main_user']);
-    // start3DLocalGame('player1', '@42nzhuzhle', 2);
-    start3DAIGame(localStorage.getItem('username'), dictionary);
-    makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
-        method: "POST",
-        body: JSON.stringify({
-            'second-player': 'somename',  // Stringify the body data
-        }),
-        headers: {"Content-Type": "application/json"},
-    })
-    .then(response => {
-        console.log('Raw response:', response);  // Add this line to inspect the raw response
-        return response.json();
-    })
-    .then(data => {
-        if (data.game_html) {
-            console.log('3D game returned!');
-
-            // start3DLocalGame(data['player1'], data['player2'], data['main_user']);
-            start3DLocalGame('player1', '@42nzhuzhle', 2);
-
-}
-
-async function getDictFor3DGame() {
-    const response = await makeAuthenticatedRequest(baseUrl + ":8001/api/get-game-dict", {
-        method: "GET",
-        credentials: "include"
-    })
-    .catch(error => {
-        console.error('Catch error loading local game: ', error);
-    });
- 
-}
-
-async function getUsername() {
-    try {
-        const response = await makeAuthenticatedRequest("http://localhost:8001/api/get-username", {
-            method: "GET",
-            credentials: "include",
-        });
-        const data = await response.json();
-        return data.status === "success" ? data.username : null;
-    } catch (error) {
-        console.error("Error fetching username:", error); // Improved error logging
-        return null;
-    }
 }

@@ -1,5 +1,3 @@
-import { loadProfilePage } from "./profile.js";
-import { displayLoginError } from "./login.js";
 import { clearURL, navigateTo } from "./main.js";
 import { connectWS } from "./onlineStatus.js";
  
@@ -54,7 +52,6 @@ export const handle42Callback = () => {
                     
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('refresh_token', data.refresh_token);
-                    // localStorage.setItem('intra_token', data.intra_token);
                     localStorage.setItem('username', data.username);
                     localStorage.setItem('name', data.name);
                     clearURL();
@@ -89,15 +86,6 @@ export const handle42Callback = () => {
             });
         }
 };
-
-export function showModalError(message) {
-    Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: message,
-        backdrop: false,
-    });
-}
 
 export function showModalError(message) {
     Swal.fire({
