@@ -9,12 +9,12 @@ from django.db import transaction
 from channels.layers import get_channel_layer
 
 def get_game_model():
-    from .models import Game  # Import inside function
-    return Game
+	 from .models import Game  # Import inside function
+	 return Game
 
 def get_game_model():
-    from .models import Game  # Import inside function
-    return Game
+	 from .models import Game  # Import inside function
+	 return Game
 
 
 logger = logging.getLogger(__name__)
@@ -54,9 +54,9 @@ scores
 
 class GameManager:
 
-	ball_config = {"rad": 10, "xspeed": 4, "yspeed": 4}
-	board_config = {"width": 800, "height": 400, "max_score": 5}
-	paddle_config = {"width": 10, "height": 80, "speed": 5}
+	ball_config = {"rad": 7, "xspeed": 5, "yspeed":8}
+	board_config = {"width": 400, "height": 300, "max_score": 5}
+	paddle_config = {"width": 10, "height": 50, "speed": 5}
 	countdown = 5
 
 	def __init__(self, game_id):
@@ -70,11 +70,13 @@ class GameManager:
 		self.game_loop_task = None
 		self.status = 1
 		self.ready = 0
+		self.start = True
+		self.channel_layer = get_channel_layer()
 		self.ball = {
 			"x": GameManager.board_config["width"] // 2,
 			"y": GameManager.board_config["height"] // 2,
-			"xspeed": 4,
-			"yspeed": 4
+			"xspeed": GameManager.ball_config["xspeed"],
+			"yspeed": GameManager.ball_config["yspeed"]
 		}
 
 ###############################################
@@ -86,27 +88,34 @@ class GameManager:
 			self.cancel_disconnect_task()
 			role = next((key for key, value in self.players.items() if value["id"] == user), None)
 			if role:
+				if user in self.users:
+					logger.info(f"{user} is already in the room. Rejecting new connection")
+					#await self.send_reject(channel, "You're already connected to this room!")
+					return "4000"
 				if len(self.players) == 2:
 					self.status = 0
-				self.users.append(user)
+					self.users.append(user)
 				return role
-			return None
+			logger.info(f"Reconnection error for user {user}. Please, try again later")
+			#await self.send_reject(channel, "Error trying to reconnect. Try again later")
+			return "4001"
 
 		#if play == False:
 			#handle viewers
 
 		elif len(self.players) >= 2:
 			logger.info(f"Access denied to {user}. Room {self.id} is already full")
-			return None
+			#await self.send_reject(channel, "The room is already full!")
+			return "4002"
 		else:
 			self.users.append(user)
 			if len(self.players) == 0:
 				logger.info(f"adding {user} as player1")
-				self.players["player1"] = {"id": user, "y": 250}
+				self.players["player1"] = {"id": user, "y": (GameManager.board_config["height"] - GameManager.paddle_config["height"]) // 2}
 				return "player1"
 			else:
 				logger.info(f"adding {user} as player2")
-				self.players["player2"] = {"id": user, "y": 250}
+				self.players["player2"] = {"id": user, "y": (GameManager.board_config["height"] - GameManager.paddle_config["height"]) // 2}
 				self.status = 0
 				return "player2"
 		return "viewer"
@@ -122,65 +131,64 @@ class GameManager:
 	async def has_scored(self, role):
 		logger.info(f"{role} has scored in room {self.id}")
 		self.status = 1
+		self.reset_positions(role)
 		await self.send_status(4)
 		self.rsg_task = asyncio.create_task(self.ready_steady_go())
 		self.scores[role] += 1
-		self.reset_ball(role)
 
-#	def is_paddle_collision(self):
-#
-#		if ((self.ball["x"] <= GameManager.paddle_config["width"]) and
-#			((self.ball["y"] < self.players["player1"]["y"] - GameManager.paddle_config["height"] // 2) or
-#			(self.ball["y"]) > self.players["player1"]["y"] + GameManager.paddle_config["height"] // 2)):
-#			return True
-#		if ((self.ball["x"] >= GameManager.board_config["width"] - GameManager.paddle_config["width"]) and
-#			((self.ball["y"] < self.players["player2"]["y"] - GameManager.paddle_config["height"] // 2) or
-#			(self.ball["y"]) > self.players["player2"]["y"] + GameManager.paddle_config["height"] // 2)):
-#			return True
-#		return False
-
-	def is_paddle_collision(self):
+	def is_pad_col_side(self):
 		radius = GameManager.ball_config["rad"]
 		padH = GameManager.paddle_config["height"]
 		pl1 = self.players["player1"]["y"]
 		pl2 = self.players["player2"]["y"]
 
 		if self.ball["x"] - radius <= GameManager.paddle_config["width"]:
-			logger.info(f"collision p1 area")
-			if self.ball["y"] + radius > pl1 - padH // 2:
-				return True
-			if self.ball["y"] - radius < pl1 + padH // 2:
+			#logger.info(f"collision p1 area. pl1 = {pl1}")
+			if ((self.ball["y"] - radius > pl1 - 1) and
+				(self.ball["y"] + radius < pl1 + padH + 1)):
 				return True
 		elif self.ball["x"] + radius >= GameManager.board_config["width"] - GameManager.paddle_config["width"]:
-			logger.info(f"collision p2 area")
-			if self.ball["y"] + radius > pl2 - padH // 2:
-				return True
-			if self.ball["y"] - radius < pl2 + padH // 2:
+			if ((self.ball["y"] - radius > pl2 - 1) and
+				(self.ball["y"] + radius < pl2 + padH + 1)):
 				return True
 		return False
+
+	def is_pad_col_top(self):
+		radius = GameManager.ball_config["rad"]
+		padH = GameManager.paddle_config["height"]
+		padW = GameManager.paddle_config["width"]
+		pl1_x = padW
+		pl2_x = GameManager.board_config["width"] - padW
+		pl1_y = self.players["player1"]["y"]
+		pl2_y = self.players["player2"]["y"]
+		
+		if self.ball["x"] - radius <= pl1_x and (pl1_y - radius <= self.ball["y"] <= pl1_y + padH + radius):
+			if self.ball["y"] - radius <= pl1_y or self.ball["y"] + radius >= pl1_y + padH:
+				 return True
+		if self.ball["x"] + radius >= pl2_x and (pl2_y - radius <= self.ball["y"] <= pl2_y + padH + radius):
+			if self.ball["y"] - radius <= pl2_y or self.ball["y"] + radius >= pl2_y + padH:
+				return True
+		return False
+	
 
 	async def update_ball(self):
 		self.ball["x"] += self.ball["xspeed"]
 		self.ball["y"] += self.ball["yspeed"]
-		paddle_collision = self.is_paddle_collision()
 
-		if paddle_collision:
-			#logger.info("paddle collision")
+		if self.is_pad_col_side():
 			self.ball["xspeed"] *= -1
-		if self.ball["y"] <= 0 or self.ball["y"] >= GameManager.board_config["height"]:
-			#logger.info("top and bottom walls collision")
+		elif self.is_pad_col_top():
 			self.ball["yspeed"] *= -1
-		if not paddle_collision and self.ball["x"] < GameManager.paddle_config["width"]:
-			self.has_scored("player1")
-			#self.scores["player1"] += 1
-			#self.reset_ball(1)
+		elif self.ball["y"] <= 0 or self.ball["y"] >= GameManager.board_config["height"]:
+			self.ball["yspeed"] *= -1
+		elif self.ball["x"] - GameManager.ball_config["rad"] <= 0:
+			logger.info(f"{self.players['player1']} has scored")
+			await self.has_scored("player1")
 			if self.scores["player1"] == GameManager.board_config["max_score"]:
 				await self.declare_winner("player1")
-		elif (not paddle_collision and
-			self.ball["x"] > GameManager.board_config["width"] - GameManager.paddle_config["width"]):
-			self.has_scored("player2")
-			#self.scores["player2"] += 1
-			#self.reset_ball(0)
+		elif self.ball["x"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]:
+			logger.info(f"{self.players['player2']} has scored")
+			await self.has_scored("player2")
 			if self.scores["player2"] == GameManager.board_config["max_score"]:
 				await self.declare_winner("player2")
 
@@ -196,7 +204,7 @@ class GameManager:
 
 #################################################
 
-	def reset_ball(self, role):
+	def reset_positions(self, role):
 		self.ball["x"] = GameManager.board_config["width"] // 2
 		self.ball["y"] = GameManager.board_config["height"] // 2
 		if role == "player1":
@@ -205,6 +213,8 @@ class GameManager:
 		else:
 			self.ball["xspeed"] = 4
 			self.ball["yspeed"] = -4
+		self.players["player1"]["y"] = (GameManager.board_config["height"] - GameManager.paddle_config["height"]) // 2
+		self.players["player2"]["y"] = (GameManager.board_config["height"] - GameManager.paddle_config["height"]) // 2
 
 ####################################################
 
@@ -317,6 +327,7 @@ class GameManager:
 	async def game_loop(self):
 		logger.info(f"Starting game loop with status: {self.status}")
 		try:
+			self.start = False
 			while True:
 				#logger.info(f"Game loop => status: {self.status}")
 				if self.status == 0:
@@ -334,27 +345,8 @@ class GameManager:
 			"type": "update",
 			"ball": self.ball,
 			"players": self.players,
-			"scores": self.scores
-		}
-		channel_layer = get_channel_layer()
-		await channel_layer.group_send(
-			self.id,
-			{
-				"type": "send_game_msg", #function in PongConsumer
-				"message": message
-			})
-
-############################################################
-
-	async def send_status(self, countdown):
-		logger.info(f"sending status msg (GM) wait: {self.status} cd: {countdown}")
-		message = {
-			"type": "status",
-			"ball": self.ball,
-			"players": self.players,
 			"scores": self.scores,
-			"wait": self.status,
-			"countdown": countdown
+			"start": self.start
 		}
 		channel_layer = get_channel_layer()
 		await channel_layer.group_send(
@@ -363,7 +355,6 @@ class GameManager:
 				"type": "send_game_msg", #function in PongConsumer
 				"message": message
 			})
-		logger.info("\033[1;35mStatus Sent\033[0m")
 
 ##############################################################
 
@@ -411,13 +402,52 @@ class GameManager:
 		logger.info("sending players' id (gameMan)")
 		message = {
 			"type": "players",
-			"p1": self.players["player1"]["id"],
-			"p2": self.players["player2"]["id"]
+			"player1": self.players["player1"]["id"],
+			"player2": self.players["player2"]["id"]
 		}
-		channel_layer = get_channel_layer()
-		await channel_layer.group_send(
+		await self.channel_layer.group_send(
 			self.id,
 			{
 				"type": "send_game_msg", #function in PongConsumer
+				"message": message
+			})
+
+	async def send_status(self, countdown):
+		logger.info(f"sending status msg (GM) wait: {self.status} cd: {countdown}")
+		message = {
+			"type": "status",
+			"ball": self.ball,
+			"players": self.players,
+			"scores": self.scores,
+			"wait": self.status,
+			"countdown": countdown
+		}
+		await self.channel_layer.group_send(
+			self.id,
+			{
+				"type": "send_game_msg", #function in PongConsumer
+				"message": message
+			})
+		logger.info(f"send_status: {self.players}")
+		logger.info("\033[1;35mStatus Sent\033[0m")
+	
+	async def send_role(self, channel_name, role):
+		logger.info(f"Sending role and GameManager configs")
+		message = {
+			"type": "role",
+			"role": role,
+			"canvasX": GameManager.board_config["width"],	# canvas width
+			"canvasY": GameManager.board_config["height"],	# canvas height
+			"padW": GameManager.paddle_config["width"],	# paddle width
+			"padH": GameManager.paddle_config["height"],	# paddle height
+			"padS": GameManager.paddle_config["speed"],	# paddle speed
+			"ballRad": GameManager.ball_config["rad"],		# ball radius
+			"ballSx": GameManager.ball_config["xspeed"],	# ball xspeed
+			"ballSy": GameManager.ball_config["yspeed"]	# ball yspeed
+		}
+		await self.channel_layer.send(
+			channel_name,
+			{
+				"type": "send_game_msg", # function in PongConsumer
 				"message": message
 			})
