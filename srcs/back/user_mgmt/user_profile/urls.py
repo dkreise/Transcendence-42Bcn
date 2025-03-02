@@ -16,6 +16,8 @@ urlpatterns = [
     path("api/save-user-pref-lang", views.save_user_pref_lang, name="save_user_pref_lang"),
     path("api/get-user-pref-lang/", views.get_user_pref_lang, name="get_user_pref_lang"),
     path('api/home-page/', views.home_page, name='home'),
+    path('api/get-main-header/', views.get_main_header, name='mainheader'),
+    path('api/get-languages-header/', views.get_languages_header, name='languagesheader'),
 ] 
 
 if settings.DEBUG:

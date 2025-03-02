@@ -191,6 +191,7 @@ def play_game(request):
     # game_html = render_to_string('remote_game.html', context)
     # return JsonResponse({'game_html': game_html}, content_type="application/json")
 
+
 @api_view(["GET"])
 def check_tournament_id(request, tour_id):
     print(f"TOUR ID:: {tour_id}")
@@ -219,6 +220,13 @@ def check_tournament_id(request, tour_id):
 #         return JsonResponse({"active": is_active})
 #     except Exception as e:
 #         return JsonResponse({"error": str(e)}, status=500)
+
+@api_view(['GET'])
+def get_game_dict(request):
+    context = {}
+    add_language_context(request, context)
+    return JsonResponse({'dict': context}, status=200)
+
 
 # def save_remote_score(room_id, winner_id, scores, players):
 #     """
@@ -260,4 +268,5 @@ def check_tournament_id(request, tour_id):
 #     except Exception as e:
 #         print(f"Error saving game result: {e}")
 #         return None
+
 

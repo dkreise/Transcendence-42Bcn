@@ -41,7 +41,16 @@ def get_lang_words(lang):
             'round': "Ronda",
             'tournament_finished': "El torneo ha terminado",
             'winner_wo': "El ganador es",
-
+            "start": "¡Comenzar!",
+            "try_again": "Inténtalo de nuevo",
+            "ready": "¿Listo?",
+            "go": "¡Vamos!",
+            "enemy": "Enemigo",
+            "waiting_enemy": "Esperando al enemigo...",
+            "enemy_connected": "¡Enemigo conectado!",
+            "wins": "Gana",
+            "exit": "Salir",
+            
         }
     elif lang == 'ca':
         return {
@@ -71,6 +80,15 @@ def get_lang_words(lang):
             'round': "Ronda",
             'tournament_finished': "El torneig ha acabat",
             'winner_wo': "El guanyador és",
+            "start": "Començar!",
+            "try_again": "Torna-ho a provar",
+            "ready": "Preparat?",
+            "go": "Som-hi!",
+            "enemy": "Enemic",
+            "waiting_enemy": "Esperant l'enemic...",
+            "enemy_connected": "Enemic connectat!",
+            "wins": "Guanya",
+            "exit": "Sortir",
         }
     elif lang == 'ru':
         return {
@@ -100,6 +118,15 @@ def get_lang_words(lang):
             'round': "Раунд",
             'tournament_finished': "Турнир завершен",
             'winner_wo': "Победитель:",
+            "start": "Старт!",
+            "try_again": "Попробуйте снова",
+            "ready": "Готов?",
+            "go": "Поехали!",
+            "enemy": "Враг",
+            "waiting_enemy": "Ожидание врага...",
+            "enemy_connected": "Враг подключен!",
+            "wins": "Побеждает",
+            "exit": "Выход",
         }
     elif lang == 'lv':
         return {
@@ -129,6 +156,15 @@ def get_lang_words(lang):
             'round': "Ronde",
             'tournament_finished': "Turnīrs ir beidzies",
             'winner_wo': "Uzvarētājs ir",
+            "start": "Sākt!",
+            "try_again": "Mēģini vēlreiz",
+            "ready": "Gatavs ?",
+            "go": "Aiziet !",
+            "enemy": "Ienaidnieks",
+            "waiting_enemy": "Gaida ienaidnieku...",
+            "enemy_connected": "Ienaidnieks pievienojās!",
+            "wins": "Uzvar",
+            "exit": "Iziet",
         }
     else:  # Default to English if no match
         return {
@@ -158,4 +194,15 @@ def get_lang_words(lang):
             'round': "Round",
             'tournament_finished': "The tournament has finished",
             'winner_wo': "The winner is",
+            "start": "START !",
+            "try_again": "TRY AGAIN",
+            "ready": "READY ?",
+            "go": "GO !",
+            "enemy": "Enemy",
+            "waiting_enemy": "Waiting for the enemy...",
+            "enemy_connected": "Enemy connected !",
+            "wins": "wins",
+            "exit": "EXIT",
+            ###### to be added
+            "you": "you",
         }

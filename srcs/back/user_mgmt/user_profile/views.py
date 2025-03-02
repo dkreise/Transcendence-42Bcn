@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate, login
 from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
@@ -17,6 +18,11 @@ from django.utils.translation import activate
 from django.contrib.auth.decorators import login_required
 from rest_framework_simplejwt.tokens import AccessToken
 from .models import Profile
+import redis
+
+redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
+redis_client.set("test", "Hello Redis!")
+print(redis_client.get("test"))  # Should print: b'Hello Redis!'
 
 def get_photo_url(user):
     photo_url = None
@@ -215,6 +221,11 @@ def search_users(request):
     if (not hasattr(request.user, 'profile')):
         Profile.objects.create(user=request.user)
     friends = request.user.profile.friends.all()
+    for friend in friends:
+        name = friend.user.username  # Assuming the name of the friend is stored in the 'name' field
+        online_status = friend.online_status  # Assuming the online status is stored in the 'online_status' field
+        print(f"Name: {name}, Online Status: {online_status}")
+    
     if query:
         users = User.objects.filter(Q(username__icontains=query) | Q(email__icontains=query)).exclude(id=request.user.id)
         results = [
@@ -227,11 +238,15 @@ def search_users(request):
         ]
     else:
         results = []
+    # for friend in friends if hasattr(friend.user, 'profile')
+    # print(friend.user.username)
+    # print(redis_client.exists(f"user:{friend.user.id}:online"))
     friend_list = [
         {
             'photo_url': get_photo_url(friend.user),
             'profile': friend,
-            'user': friend.user
+            'user': friend.user,
+            # 'online_status': friend.is_online
         }
         for friend in friends if hasattr(friend.user, 'profile')
     ]
@@ -242,6 +257,7 @@ def search_users(request):
         'query': query
     }
     print(results)
+    # print(friends[1].username)
     add_language_context(request, context)
     search_users_html = render_to_string('search_users.html', context)
     return JsonResponse({'search_users_html': search_users_html}, content_type="application/json")
@@ -321,3 +337,18 @@ def home_page(request):
         return JsonResponse({'home_html': home_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_main_header(request):
+    print('Main Header api called')
+    header_html = render_to_string('main_header.html')
+    return JsonResponse({'header_html': header_html}, content_type="application/json")
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_languages_header(request):
+    print('Languages header api called')
+    header_html = render_to_string('language_header.html')
+    return JsonResponse({'header_html': header_html}, content_type="application/json")

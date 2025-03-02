@@ -1,13 +1,13 @@
-
 import { loadProfilePage } from "./profile.js";
 import { handleLogout } from "./logout.js"
-import { navigateTo } from "./main.js";
+import { navigateTo, drawHeader } from "./main.js";
 import { loadHomePage } from "./home.js";
 import { updateLanguage } from "./langs.js";
+import { connectWS } from "./onlineStatus.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
-function refreshAccessToken() {
+export async function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refresh_token");
     if (!refreshToken) {
         console.error("No refresh token found. User needs to log in again.");
@@ -40,7 +40,7 @@ function refreshAccessToken() {
         }
     })
     .catch((error) => {
-        console.error("Error during token refresh:", error);
+        console.log("Error during token refresh:", error);
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         throw error;
@@ -80,9 +80,11 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
 };
 
 export const loadLoginPage = () => {
-    fetch(baseUrl + ":8000/api/login-form/", {
-        method: 'GET',
-        credentials: "include"
+    drawHeader(2).then(() => {
+        return fetch(baseUrl + ":8000/api/login-form/", {
+            method: 'GET',
+            credentials: "include"
+        });
     })
     .then((response) => response.json())
     .then(data => {
@@ -100,6 +102,7 @@ export const loadLoginPage = () => {
 
 export const handleLogin = () => {
     
+    console.log("LOGGING");
     const loginForm = document.getElementById('login-form');
     const formData = new FormData(loginForm);
     fetch(baseUrl + ":8000/api/login/", {
@@ -121,12 +124,17 @@ export const handleLogin = () => {
                 localStorage.setItem('refresh_token', data.tokens.refresh);
                 localStorage.setItem('username', data.username);
             
+                console.log("LOGGING, ws???");
+                connectWS(data.tokens.access);
+
                 updateLanguage();
+
                 navigateTo('/home', true);
             }
                 
-        } else {
-            displayLoginError('Invalid credentials. Please try again.', 'login-form');
+        } 
+        else {
+            displayLoginError('login-form', `${data.error}`);
         }
         })
     .catch(error => {
@@ -173,8 +181,9 @@ export const handleSignup = () => {
                             updateLanguage();
                             //loadProfilePage();
                             navigateTo('/home', true);
-                        } else {
-                            displayLoginError(`${data.error} Please try again.`, 'signup-form');
+                        } 
+                        else {
+                            displayLoginError('signup-form', `${data.error}`);
                         }
                     })
                     .catch(error => {
@@ -189,22 +198,29 @@ export const handleSignup = () => {
     });
 };
 
-export const displayLoginError = (message, form) => {
-    const loginContainer = document.getElementById('login-container');
-    if (!loginContainer)
+export const displayLoginError = (form, errorMessage) => {
+    const login_error = document.getElementById('login-error');
+    if (!login_error)
         return;
 
-    const existingError = document.getElementById('login-error');
-    if (existingError)
-        existingError.remove();
+    // const existingError = document.getElementById('login-error');
+    // if (existingError)
+    //     existingError.remove();
 
-    const errorMessage = document.createElement('div');
-    errorMessage.id = 'login-error';
-    errorMessage.style.color = 'red';
-    errorMessage.style.marginBottom = '15px';
-    errorMessage.textContent = message;
+    // const errorMessage = document.createElement('div');
+    // errorMessage.id = 'login-error';
+    // errorMessage.style.color = 'red';
+    // errorMessage.style.marginBottom = '15px';
+    // errorMessage.textContent = message;
+    // errorMessage.style.display = "flex";
 
-    loginContainer.prepend(errorMessage); //adding at the top of the login container
+    login_error.innerText = errorMessage;
+
+    login_error.classList.add('show');
+    setTimeout(() => {
+        login_error.classList.remove('show');
+      }, 2500);
+    // loginContainer.prepend(errorMessage); //adding at the top of the login container
     
     const loginForm = document.getElementById(form);
     if (loginForm) {
@@ -220,8 +236,8 @@ document.addEventListener("DOMContentLoaded", () => {
             event.preventDefault();
             console.log('Submit button clicked!');
 
-            // handleLogin();
-            navigateTo('/handle-login', true);
+            handleLogin(); 
+            //navigateTo('/handle-login', false); // Error when invalid login and refresh
         }
     });
 

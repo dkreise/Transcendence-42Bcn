@@ -23,6 +23,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 from rest_framework import status
 from django.templatetags.static import static
 import re
@@ -57,10 +59,14 @@ def login_intra(request):
 def gen_state():
 	return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
 
+# @method_decorator(csrf_exempt, name='dispatch')
 class Callback42API(APIView):
     """ """
 
     permission_classes = [AllowAny]
+
+    # def has_permission(self, request, view):
+    #     return True  # Explicitly allow all requests
 
     def post(self, request):
         # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
@@ -83,7 +89,7 @@ class Callback42API(APIView):
                 raise AuthenticationFailed("Authentication failed")
             print("42 username !!!!!!!!!!!!!!!!!!:", user.username)
             # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
-            django_login(request, user)
+            # django_login(request, user)
 
             profile = user.profile
             if profile.two_fa:
@@ -108,7 +114,7 @@ class Callback42API(APIView):
                 'two_fa_required': False,
                 'refresh_token': str(refresh_token),
                 'access_token': str(refresh_token.access_token), 
-                'intra_token': str(intra_token),
+                # 'intra_token': str(intra_token),
                 'username': user.username,
                 'name': user.first_name
             }

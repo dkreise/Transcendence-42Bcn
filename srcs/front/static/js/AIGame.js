@@ -333,30 +333,13 @@ document.addEventListener("click", function (event) {
     }
 });
 
+export function cleanupAI() {
+    if (!ball) return;
 
-// document.addEventListener("DOMContentLoaded", function () {
-//     const difficultyButtons = document.querySelectorAll(".difficulty-btn");
-//     const difficultyInput = document.getElementById("difficulty-level");
+    cancelAnimationFrame(gameLoopId);
+    player = null;
+    AI = null;
+    ball = null;
+    console.log("✅ AI game cleaned up!");
+}
 
-//     difficultyButtons.forEach(button => {
-//         button.addEventListener("click", function () {
-//             // Remove active class from all buttons
-//             difficultyButtons.forEach(btn => btn.classList.remove("active"));
-
-//             // Add active class to selected button
-//             this.classList.add("active");
-
-//             // Set the hidden input value
-//             difficultyInput.value = this.getAttribute("data-value");
-//             console.log("LEVEL SELECTED:");
-//             console.log(difficultyInput.value);
-//         });
-//     });
-
-//     // document.getElementById("play-ai-form").addEventListener("submit", function (event) {
-//     //     if (!difficultyInput.value) {
-//     //         event.preventDefault(); // Prevent form submission if no difficulty is selected
-//     //         alert("Please select a difficulty level before starting the game.");
-//     //     }
-//     // });
-// });

@@ -24,8 +24,11 @@ services:
     container_name: user-mgmt
     depends_on:
       - db
+      - redis
     environment:
       - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
+      - DJANGO_SETTINGS_MODULE=user_mgmt.settings
+      - REDIS_HOST=redis  # Connect to Redis container
     env_file:
       - .env
     networks:
@@ -51,6 +54,10 @@ services:
       - game:/usr/src/app
     ports:
       - "8001:8001"
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   redis:
     container_name: redis

@@ -80,10 +80,10 @@ export async function updateLanguage(lang) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("headerLoaded", () => {
     const headerContainer = document.getElementById("header-container");
-
     if (headerContainer) {
+        console.log('header event recived');
         const languageButton = document.getElementById("language-button");
         const languageMenu = document.getElementById("language-menu");
     
@@ -92,13 +92,15 @@ document.addEventListener("DOMContentLoaded", () => {
             languageButton.addEventListener("click", () => {
                 languageMenu.classList.toggle("d-none");
             });
+
+            languageMenu.addEventListener("click", event => {
+                const lang = event.target.getAttribute("data-lang");
+                if (lang) {
+                    updateLanguage(lang);
+                }
+            });
         }
     
-        languageMenu.addEventListener("click", event => {
-            const lang = event.target.getAttribute("data-lang");
-            if (lang) {
-                updateLanguage(lang);
-            }
-        });
+        
     }
 });

@@ -1,13 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
+        <!-- Title -->
+        <title>Pong Game</title>
+
+        <!-- Metadata -->
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Pong Game</title>
+
+        <!-- Font -->
+        <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
+
+        <!-- BootStrap -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="css/home.css">
+
+        <!-- Stylesheet (CSS) -->
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/bg-particle.css">
         <link rel="stylesheet" href="css/login.css">
+
+        <link rel="stylesheet" href="css/home.css">
+        <link rel="stylesheet" href="css/header.css">
+        <!-- <link rel="stylesheet" href="css/profile.css">
+        <link rel="stylesheet" href="css/friends.css"> -->
+        <!-- <link rel="stylesheet" href="css/game.css"> -->
+
         <link rel="stylesheet" href="css/profile.css">
         <link rel="stylesheet" href="css/friends.css">
         <link rel="stylesheet" href="css/game.css">
@@ -21,50 +39,33 @@
             </script>
         <!-- Simplex Noise CDN -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.0.0/simplex-noise.js"></script>
-
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <link rel="stylesheet" href="css/tournament.css">
         <link rel="stylesheet" href="css/bracket.css">
 
+
     </head>
     <body>
+        <!-- Particle Background -->
         <div id="particle-background"></div>
-        <div id="app">
-            <header id="header-container">
-                <div class="position-absolute top-0 end-0 mt-4 me-4">
-                    <button 
-                        id="language-button" 
-                        class="bg-grey border-0 text-white p-2 rounded" 
-                        style="font-size: 16px; outline: none; background-color: black;">
-                        EN
-                    </button>
-                    <ul 
-                        id="language-menu"
-                        class="list-unstyled bg-grey text-white p-2 rounded d-none position-absolute" 
-                        style="top: 50px; right: 0; z-index: 1000;">
-                        <li class="border-bottom">
-                            <button class="btn btn-link text-white  text-decoration-none d-block p-2" data-lang="ca">CA</button>
-                        </li>
-                        <li class="border-bottom">
-                            <button class="btn btn-link text-white  text-decoration-none d-block p-2" data-lang="en">EN</button>
-                        </li>
-                        <li class="border-bottom">
-                            <button class="btn btn-link text-white text-decoration-none p-2" data-lang="es">ES</button>
-                        </li>
-                        <li class="border-bottom">
-                            <button class="btn btn-link text-white text-decoration-none p-2" data-lang="lv">LV</button>
-                        </li>
-                        <li class="border-bottom">
-                            <button class="btn btn-link text-white text-decoration-none p-2" data-lang="ru">RU</button>
-                        </li>
-                    </ul>
-                </div>
-            </header>
 
-            <!-- main app content here, like the navigation, game, etc. -->
-            <div id="content-area"></div> <!-- Dynamic content area where the login form will be rendered -->
+        <!-- main app content -->
+        <div id="app">
+
+            <!-- Header -->
+            <div id="header-area">
+
+            </div>
+
+            <!-- Dynamic content area -->
+            <div id="content-area">
+
+            </div>
         </div>
 
-        <script src="js/particle_background.js"></script>
+
+        <!-- JavaScript -->
+        <script type="module" src="js/particle_background.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script type="module" src="js/main.js"></script>
         <script type="module" src="js/logout.js"></script>
@@ -79,6 +80,9 @@
         <script type="module" src="js/localGame.js"></script>
         <script type="module" src="js/AIGame.js"></script>
 
+
+        <!-- Bootstrap js -->
+
         <!-- <script type="module" src="js/threeTest.js"></script> -->
         <script type="module" src="js/3DLocalGame.js"></script>
         <script type="module" src="js/3DBall.js"></script>
@@ -90,7 +94,18 @@
 
         <!-- Bootstrap js -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+        <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> -->
 
     </body>
 </html>
+
+
+<!-- 
+
+    1- Crear dos html uno con header completo y otro con solo boton idiomas
+
+    2- Crear div content-header vacio al principio
+
+    3- hacer fetch al back para pillar el header que toque
+
+ -->
