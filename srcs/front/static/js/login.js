@@ -125,7 +125,7 @@ export const handleLogin = async () => {
                 navigateTo('/home', true);
             }
         } else {
-            displayLoginError('login-form', `${data.error}`);
+            displayLoginError('login-form', 'Invalid Credentials');
         }
     })
     .catch(error => {
