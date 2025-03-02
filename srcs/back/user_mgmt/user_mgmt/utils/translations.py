@@ -11,6 +11,7 @@ def add_language_context(request, context):
 def get_lang_words(lang):
     if lang == 'es':
         return {
+            'lang': "ES",
             'profile_wo': "Perfil",
             'welcome': "Bienvenido",
             'settings': "Configuraciones",
@@ -75,12 +76,12 @@ def get_lang_words(lang):
             'disable_2FA': "Desactivar 2FA",
             'add_2FA': "Agregar 2FA",
             'my_friends': "Mis amigos",
-            'lang': "ES",
             'logout': "Cerrar sesión",
         } 
 
     elif lang == 'ca':
         return {
+            'lang': "CA",
             'profile_wo': "Perfil",
             'welcome': "Benvingut",
             'settings': "Configuracions",
@@ -145,12 +146,12 @@ def get_lang_words(lang):
             'disable_2FA': "Desactivar 2FA",
             'add_2FA': "Afegir 2FA",
             'my_friends': "Els meus amics",
-            'lang': "CA",
             'logout': "Tancar sessió",
         }
 
     elif lang == 'ru':
         return {
+            'lang': "RU",
             'profile_wo': "Профиль",
             'welcome': "Добро пожаловать",
             'settings': "Настройки",
@@ -215,12 +216,12 @@ def get_lang_words(lang):
             'disable_2FA': "Отключить 2FA",
             'add_2FA': "Добавить 2FA",
             'my_friends': "Мои друзья",
-            'lang': "RU",
             'logout': "Выйти из системы",
         }
 
     elif lang == 'lv':
         return {
+            'lang': "LV",
             'profile_wo': "Profils",
             'welcome': "Laipni lūdzam",
             'settings': "Iestatījumi",
@@ -285,12 +286,12 @@ def get_lang_words(lang):
             'disable_2FA': "Atspējot 2FA",
             'add_2FA': "Pievienot 2FA",
             'my_friends': "Mani draugi",
-            'lang': "LV",
             'logout': "Iziet",
         }
         
     else:
         return {
+            'lang': "EN",
             'profile_wo': "Profile",
             'welcome': "Welcome",
             'settings': "Settings",
@@ -355,6 +356,5 @@ def get_lang_words(lang):
             'disable_2FA': "Disable 2FA",
             'add_2FA': "Add 2FA",
             'my_friends': "My Friends",
-            'lang': "EN",
             'logout': "Logout",
         }
