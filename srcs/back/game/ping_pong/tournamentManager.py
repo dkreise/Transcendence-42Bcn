@@ -46,6 +46,7 @@ class TournamentManager:
 		self.matches_finished = []
 		self.timer_id = -1
 		self.timer_task = None
+		self.countdown_task = None
 		self.results_strings = []
 
 	def get_players_cnt(self):
@@ -231,6 +232,11 @@ class TournamentManager:
 			logger.info("tournament finished")
 			if not timeout:
 				await self.save_tournament_result(winner, True, False)
+			if timeout and self.get_players_cnt() == 1:
+				await self.save_tournament_result(self.players[0], True, False)
+			if not self.countdown_task:
+				logger.info("STARTING COUNTDOWN")
+				self.countdown_task = asyncio.create_task(self.start_countdown_until_close())
 			return 'finished'
 		# elif (cnt * 2 == round_player_cnt):
 		elif all(self.matches_finished):
@@ -239,7 +245,7 @@ class TournamentManager:
 			return 'new'
 		else:
 			logger.info("waiting for round to finish")
-			return 'waiting'
+			return 'continue'
 	
 	@sync_to_async
 	def save_game_result(self, winner, win_score, loser, los_score):
@@ -332,6 +338,8 @@ class TournamentManager:
 			if (self.get_players_cnt() == 1):
 				logger.info("tournament finished")
 				await self.save_tournament_result(self.players[0], True, False)
+				if not self.countdown_task:
+					self.countdown_task = asyncio.create_task(self.start_countdown_until_close())
 				return 'finished'
 			else:
 				return 'continue'
@@ -506,3 +514,14 @@ class TournamentManager:
 		if self.round == 0:
 			return 'waiting'
 		return 'playing'
+
+	async def start_countdown_until_close(self):
+		await asyncio.sleep(20)
+		logger.info("TIME TO DELETE")
+		channel_layer = get_channel_layer()
+		await channel_layer.group_send(
+			self.id,
+			{
+				"type": "tournament_delete",
+			}
+		)

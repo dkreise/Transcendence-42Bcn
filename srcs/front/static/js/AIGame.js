@@ -46,6 +46,7 @@ function loadGameState() {
     const savedState = localStorage.getItem("gameState");
     const username = localStorage.getItem("username");
     if (savedState) {
+        console.log("WE HAVE SAVED STATE")
         const gameState = JSON.parse(savedState);
         mainUser = gameState.mainUserNmb;
         if (mainUser == 1) {
@@ -114,12 +115,12 @@ function predictBallY() {
     tempY = tempY + tempYspeed * timeToLeftRight;
 
     let error = Math.random() * errorRange - errorRange ;/// 2;  // Random error between ±errorRange/2
-    console.log('DIFFICULTY:');
-    console.log(difficulty);
-    console.log('ERROR-RANGE:');
-    console.log(errorRange);
-    console.log('ERROR:');
-    console.log(error);
+    // console.log('DIFFICULTY:');
+    // console.log(difficulty);
+    // console.log('ERROR-RANGE:');
+    // console.log(errorRange);
+    // console.log('ERROR:');
+    // console.log(error);
     return Math.max(0, Math.min(canvas.height, tempY + error));
     // return tempY;
 }
@@ -128,7 +129,7 @@ function doMovesAI() {
     if (!AI || !ball)
         return;
 
-    console.log("doing it each sec");
+    // console.log("doing it each sec");
     if (tournamentId)
         saveGameState();
     targetY = predictBallY();
@@ -182,18 +183,25 @@ function gameAILoop() {
     }
     
     // Endgame check
-    if (gameStop) {
-        cancelAnimationFrame(gameLoopId);
-        if (intervalID) {
-            clearInterval(intervalID);
-            intervalID = null;
-        }
-        return;
-    }
-    if (player.score >= maxScore || AI.score >= maxScore) {
+    // if (gameStop) {
+    //     cancelAnimationFrame(gameLoopId);
+    //     if (intervalID) {
+    //         clearInterval(intervalID);
+    //         intervalID = null;
+    //     }
+    //     if (tournamentId) {
+    //         console.log('TOURNAMENT GAME FINISHED');
+    //         // console.log(tournamentId);
+    //         saveTournamentGameResult(winner, looser, player.score, AI.score);
+    //     } else {
+    //         console.log("SIMPLE GAME FINISHED");
+    //     }
+    //     return;
+    // }
+    if (gameStop || player.score >= maxScore || AI.score >= maxScore) {
         localStorage.removeItem("gameState");
-        const winner = player.score > AI.score ? player.name : "@AI";
-        const looser = player.score > AI.score ? "@AI" : player.name;
+        let winner = player.score > AI.score ? player.name : "@AI";
+        let looser = player.score > AI.score ? "@AI" : player.name;
         const winnerMsg = player.score > AI.score ? `${player.name} Wins!` : `${AI.name} Wins!`;
         let finalScore = "";
         if (mainUser == 1)
@@ -201,7 +209,12 @@ function gameAILoop() {
         else
             finalScore = `${AI.score} - ${player.score}`;
         cancelAnimationFrame(gameLoopId);
-        player.displayEndgameMessage(ctx, finalScore, winnerMsg);
+        if (!gameStop)
+            player.displayEndgameMessage(ctx, finalScore, winnerMsg);
+        else {
+            winner = "@AI";
+            looser = player.name;
+        }
         // saveScore();
 
         if (intervalID) {
@@ -210,8 +223,8 @@ function gameAILoop() {
         }
 
         if (tournamentId) {
-            console.log('TOURNAMENT GAME FINISHED, ID:: ');
-            console.log(tournamentId);
+            console.log('TOURNAMENT GAME FINISHED');
+            // console.log(tournamentId);
             saveTournamentGameResult(winner, looser, player.score, AI.score);
         } else {
             console.log("SIMPLE GAME FINISHED");
@@ -254,7 +267,7 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
     ctx = canvas.getContext("2d");
     console.log(mainUserNmb);
     console.log(playerName1);
-    console.log(playerName2)
+    console.log(playerName2);
 
     canvas.width = window.innerWidth * 0.65; // % of screen width
     canvas.height = canvas.width * 0.57; // % of screen height
@@ -263,25 +276,42 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
 
     // Initialize players and ball
     console.log('Starting AI game...');
-    if (mainUserNmb == 1) {
-        player = new Player(canvas, 0, playerName1, 0);
-        AI = new Player(canvas, 1, playerName2, canvas.width - 10);
-    } else {
-        player = new Player(canvas, 1, playerName2, canvas.width - 10);
-        AI = new Player(canvas, 0, playerName1, 0);
-    }
-    ball = new Ball(canvas);
-    loadGameState();
-    console.log(canvas.width);
-    console.log(canvas.height);
+    // if (!gameStop) {
+    //     console.log("game was not stopped!");
+        if (mainUserNmb == 1) {
+            player = new Player(canvas, 0, playerName1, 0);
+            AI = new Player(canvas, 1, playerName2, canvas.width - 10);
+        } else {
+            player = new Player(canvas, 1, playerName2, canvas.width - 10);
+            AI = new Player(canvas, 0, playerName1, 0);
+        }
+        ball = new Ball(canvas);
+        loadGameState();
+    // } else {
+    //     console.log("game was stopped");
+    // }
+    // console.log(canvas.width);
+    // console.log(canvas.height);
 
     errorRange = (canvas.height / 10) * (2 / difficulty);  // Higher difficulty = smaller error
 
     setupControlsAI();
+    // window.addEventListener("beforeunload", (event) => {
+    //     if (tournamentId) {
+    //         // alert("beforeunload in game.js");
+    //         console.log("socket: ", socket);
+    //         console.log("socket ready state == open: ", socket.readyState === WebSocket.OPEN);
+    //         event.preventDefault();
+    //         event.returnValue = "Are you sure you want to leave?";
+            
+    //         if (socket && socket.readyState === WebSocket.OPEN) {
+    //             saveGameState();
+    //         }            
+    //     }
+    // });
     intervalID = setInterval(doMovesAI, 1000);
     console.log(tournamentId);
     gameAILoop();
-    // check if game is stopped and set timer
 }
 
 document.addEventListener("click", function (event) {

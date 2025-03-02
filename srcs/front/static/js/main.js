@@ -174,9 +174,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let shouldRoute = true;
     const tourId = localStorage.getItem("currentTournamentId");
-    if (tourId) {
+    const tourReload = localStorage.getItem("tournamentReload");
+    if (tourId && tourReload) {
         shouldRoute = false;
         console.log("Reconnecting WebSocket after page reload...");
+        localStorage.removeItem("tournamentReload");
         // tournamentConnect(tourId);
         tournamentConnect(tourId).then(() => {
             console.log("WebSocket connection established, now navigating to ...");

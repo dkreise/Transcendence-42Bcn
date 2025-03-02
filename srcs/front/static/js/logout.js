@@ -1,5 +1,6 @@
 import { loadLoginPage } from "./login.js";
 import { navigateTo } from "./main.js";
+import { disconnectTournamentWS } from "./tournament.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -26,6 +27,8 @@ export const handleLogout = () => {
             console.log('Error logging out: ', error);
         });
     }
+
+    disconnectTournamentWS();
 
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');

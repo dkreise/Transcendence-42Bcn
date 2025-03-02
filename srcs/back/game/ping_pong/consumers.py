@@ -230,6 +230,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 									"status": "finished",
 								}
 							)
+					elif status == "continue":
+						await self.channel_layer.group_send(
+								self.tour_id,
+								{
+									"type": "tournament_update",
+									"message": "Tournament has updated",
+									"status": "playing",
+								}
+							)
 
 				elif dtype == "quit":
 					logger.info("player wants to quit the tournament. handling quit..:")
@@ -275,6 +284,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"type": "status",
 						"status": status,
 					}))
+				
+				# elif dtype == "tournament_delete":
+				# 	logger.info("WE RECEIVED that it's needed to delete")
+				# 	await self.tournament_delete()
 
 			except Exception as e:
 				logger.error(f"\033[1;31mError receiving a message via WebSocket: {e}")
@@ -339,6 +352,19 @@ class PongConsumer(AsyncWebsocketConsumer):
 			"opponent": page['opponent'],
 			"status": "playing",
 		}))
+	
+	async def tournament_delete(self, event):
+		logger.info("Removing user from group BECAUSE IT'S TIME..")
+		await self.channel_layer.group_discard(
+			self.tour_id,
+			self.channel_name
+		)
+		async with active_tournaments_lock:
+			if self.tour_id in active_tournaments:
+				logger.info("DELETING TOURNAMENT!!")
+				del active_tournaments[self.tour_id]
+		logger.info("closing...")
+		await self.close()
 
 	async def new_player_cnt(self, event):
 		tournament = active_tournaments[self.tour_id]
@@ -346,6 +372,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 			"type": "new_player_cnt",
 			"player_cnt": tournament.get_players_cnt(),
 		}))
+	
+	# async def start_countdown_until_close(self):
+	# 	async with active_tournaments_lock:
+	# 		tournament = active_tournaments[self.tour_id]
+	# 		if tournament.needs_countdown:
+	# 			tournament.nees
+	# 			await asyncio.sleep(30)
+		
 
 ###################### UTILS #############################
 
