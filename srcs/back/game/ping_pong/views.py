@@ -12,6 +12,7 @@ from game.utils.translations import add_language_context
 from django.utils.translation import activate
 from django.template.loader import render_to_string
 from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 # from django.db import transaction
 # from django.contrib.auth import get_user_model
 
@@ -19,6 +20,7 @@ from django.http import JsonResponse
 
  
 @api_view(['GET'])
+@login_required
 def player_list(request):
     players = User.objects.all()  # Get all players from the database
     serializer = PlayerSerializer(players, many=True)  # Serialize the players
@@ -26,12 +28,14 @@ def player_list(request):
 
 
 @api_view(['GET'])
+@login_required
 def score_list(request):
     scores = Game.objects.all()  # Get all players from the database
     serializer = GameSerializer(scores, many=True)  # Serialize the players
     return Response(serializer.data)  # Return the serialized data in the response
 
 @api_view(['GET'])
+@login_required
 def get_current_players(request):
     try:
         # Fetch all users
@@ -53,6 +57,7 @@ def get_current_players(request):
 
 
 @api_view(['POST'])
+@login_required
 def send_score(request):
     try:
         # Extract data from request
@@ -89,6 +94,7 @@ def winner_page(request):
     return render(request, 'winner.html')
 
 @api_view(['GET'])
+@login_required
 def get_player_game_statistics(request, player_id):
     print("GAME stats request: ", request)
     games_played = Game.objects.filter(Q(player1_id=player_id) | Q(player2_id=player_id)).count()
@@ -100,6 +106,7 @@ def get_player_game_statistics(request, player_id):
     })
 
 @api_view(['GET'])
+@login_required
 def get_player_last_ten_games(request, player_id):
     try:
         games = (
@@ -126,6 +133,7 @@ def get_player_last_ten_games(request, player_id):
         return Response({"error": f"An unexpected error ocurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
+@login_required
 def get_player_all_games(request, player_id):
     try:
         games = (
@@ -166,6 +174,7 @@ def get_player_all_games(request, player_id):
         return Response({"error": f"An unexpected error ocurred: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
+@login_required
 def get_difficulty_level(request):
     print("we are inside")
     if request.user:
@@ -179,6 +188,7 @@ def get_difficulty_level(request):
         return JsonResponse({'error': 'user not authenticated'}, status=402)
 
 @api_view(['GET'])
+@login_required
 def play_game(request):
     context = {
         'user': request.user,
@@ -189,6 +199,11 @@ def play_game(request):
     # add_language_context(request.COOKIES, context)
     # game_html = render_to_string('remote_game.html', context)
     # return JsonResponse({'game_html': game_html}, content_type="application/json")
+
+@api_view(['GET'])
+@login_required
+def get_username(request):
+    return JsonResponse({'status': 'success', 'username': request.user.username}, status=200)
 
 # def save_remote_score(room_id, winner_id, scores, players):
 #     """

@@ -38,7 +38,6 @@ export const handle42Callback = () => {
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('refresh_token', data.refresh_token);
                     localStorage.setItem('intra_token', data.intra_token);
-                    localStorage.setItem('username', data.username);
                     clearURL();
                     console.log(history.state)
                     navigateTo('/home', true);
@@ -47,7 +46,6 @@ export const handle42Callback = () => {
                 } else if (data.two_fa_required) {
                     localStorage.setItem('temp_token', data.temp_token);
                     localStorage.setItem('intra_token', data.intra_token);
-                    localStorage.setItem('username', data.username);
                     navigateTo('/two-fa-login', true);
                 } else {
                     clearURL();

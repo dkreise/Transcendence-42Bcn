@@ -68,54 +68,55 @@ export const playAI = (args) => {
     }
 } 
 
-export const gameLocal = () => {
-
-    if (!checkPermission) {
-        navigateTo('/login');
-    } else {
-        console.log("Navigating to /play-local/game");
-
+export const gameLocal = async () => {
+    
     // Retrieve the second player's name from the form
-        const playerNameInput = document.getElementById("player-name");
-        const secondPlayerName = playerNameInput ? playerNameInput.value.trim() : null;
-        console.log(`Stored second player name: ${secondPlayerName}`);
-        console.log(`Username: ${localStorage.getItem('username')}`);
-        if (secondPlayerName === localStorage.getItem('username')) {
-            alert("Both names cannot be equal. Set another name");
-            navigateTo('/play-local');
-            return ;
-        }
-        
-        makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
-            method: "POST",
-            body: JSON.stringify({
-                'second-player': secondPlayerName,  // Stringify the body data
-            }),
-            headers: {"Content-Type": "application/json"},
-        })
-        .then(response => {
-            console.log('Raw response:', response);  // Add this line to inspect the raw response
-            return response.json();
-        })
-        .then(data => {
-            if (data.game_html) {
-                console.log('Local game returned!');
-                document.getElementById('content-area').innerHTML = data.game_html;
-                const canvas = document.getElementById("newGameCanvas");
-                if (canvas)
-                    startLocalGame(data['player1'], data['player2'], data['main_user']);
-                else
-                console.log("Error: Canvas not found");
+    const playerNameInput = document.getElementById("player-name");
+    const secondPlayerName = playerNameInput ? playerNameInput.value.trim() : null;
+    
+    console.log(`Stored second player name: ${secondPlayerName}`);
 
-            } else {
-                console.log('Response: ', data);
-                console.error('Failed to fetch the local game:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Catch error loading local game: ', error);
-        });
+    const username = await getUsername();
+    if (!username) {
+        navigateTo('/home');
+        return;
     }
+
+    if (secondPlayerName === username) {
+        alert("Both names cannot be equal. Set another name");
+        navigateTo('/play-local');
+        return ;
+    }
+    
+    makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
+        method: "POST",
+        body: JSON.stringify({
+            'second-player': secondPlayerName,  // Stringify the body data
+        }),
+        headers: {"Content-Type": "application/json"},
+    })
+    .then(response => {
+        console.log('Raw response:', response);  // Add this line to inspect the raw response
+        return response.json();
+    })
+    .then(data => {
+        if (data.game_html) {
+            console.log('Local game returned!');
+            document.getElementById('content-area').innerHTML = data.game_html;
+            const canvas = document.getElementById("newGameCanvas");
+            if (canvas)
+                startLocalGame(data['player1'], data['player2'], data['main_user']);
+            else
+            console.log("Error: Canvas not found");
+
+        } else {
+            console.log('Response: ', data);
+            console.error('Failed to fetch the local game:', data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Catch error loading local game: ', error);
+    });
 }
 
 export const gameAI = (args) => {
@@ -233,8 +234,6 @@ export function play3D() {
 
             // start3DLocalGame(data['player1'], data['player2'], data['main_user']);
             start3DLocalGame('player1', '@42nzhuzhle', 2);
-            // start3DAIGame(localStorage.getItem('username'));
-
 
         } else {
             console.log('Response: ', data);
@@ -245,4 +244,18 @@ export function play3D() {
         console.error('Catch error loading local game: ', error);
     });
  
+}
+
+async function getUsername() {
+    try {
+        const response = await makeAuthenticatedRequest("http://localhost:8001/api/get-username", {
+            method: "GET",
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data.status === "success" ? data.username : null;
+    } catch (error) {
+        console.error("Error fetching username:", error); // Improved error logging
+        return null;
+    }
 }
