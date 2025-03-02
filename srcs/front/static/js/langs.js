@@ -97,13 +97,15 @@ document.addEventListener("headerLoaded", () => {
             languageButton.addEventListener("click", () => {
                 languageMenu.classList.toggle("d-none");
             });
+
+            languageMenu.addEventListener("click", event => {
+                const lang = event.target.getAttribute("data-lang");
+                if (lang) {
+                    updateLanguage(lang);
+                }
+            });
         }
     
-        languageMenu.addEventListener("click", event => {
-            const lang = event.target.getAttribute("data-lang");
-            if (lang) {
-                updateLanguage(lang);
-            }
-        });
+        
     }
 });

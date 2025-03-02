@@ -5,7 +5,7 @@ from .tournamentManager import TournamentManager
 from datetime import datetime
 from django.conf import settings
 import json
-import logging
+import logging 
 import uuid
 import asyncio
 
@@ -90,31 +90,45 @@ class PongConsumer(AsyncWebsocketConsumer):
 						if self.room_id not in active_games:
 							active_games[self.room_id] = GameManager(self.room_id)
 						# TODO: False should be dynamic (player = T / viewer = F)
-						self.role = await active_games[self.room_id].join_room(self.user.username, False)
+						game = active_games[self.room_id]
+						self.role = await game.join_room(self.user.username, False)
 						if not self.role:
 							await self.close()
 							return
-						await self.channel_layer.group_add(self.room_id, self.channel_name)
-						await self.accept()
-
-						logger.info(f"Role: {self.role}")
-
 						# Notify the client of their role
+						logger.info(f"sending role msg to {self.role}")
+						await self.accept()
 						await self.send(json.dumps({
 							"type": "role",
 							"role": self.role,
-							"user": self.user.username
+							#"user": self.user.username,
+							"canvasX": game.board_config["width"],
+							"canvasY": game.board_config["height"],
+							"padW": game.paddle_config["width"],
+							"padH": game.paddle_config["height"],
+							"padS": game.paddle_config["speed"]
 						}))
+						await self.channel_layer.group_add(self.room_id, self.channel_name)
+						logger.info(f"role sent. current users: {game.users} len: {len(game.users)}")
+						if len(game.users) == 2:
+							await game.send_players_id()
+							#asyncio.sleep(2)
+							#logger.info(f"{self.role} starts the game")
+							#await game.start_game()
+						else:
+							await game.send_status(0)
+						#logger.info(f"Role: {self.role}")
+
 				except Exception as e:
-					logger.error(f"Error connecting to the game: {e}")
+					logger.error(f"\033[1;31mError connecting to the game: {e}\033[0m")
 					await self.close()
 
 			else:
-				raise ThrowError("unexpected input when connecting to websocket")
+				raise ThrowError("\033[1;31mUnexpected input when connecting to websocket\033[0m")
 		except Exception as e:
-			logger.error(f"\033[1;31mError during Websocket connect: {e}")
+			logger.error(f"\033[1;31mError during Websocket connect: {e}\033[0m")
 			await self.close()
-
+ 
 ###################################################
 
 	async def disconnect(self, close_code):
@@ -152,6 +166,27 @@ class PongConsumer(AsyncWebsocketConsumer):
 ##################################################
 
 	async def receive(self, text_data):
+		#logger.info("\033[1;32mRECEIVE METHOD CALLED\033[0m")
+		if self.type == "G":
+			ready_lock = asyncio.Lock()
+			try:
+				data = json.loads(text_data)
+				game = active_games[self.room_id]
+				if data["type"] == "update":
+					game.handle_message(self.role, data)
+					await game.update_game()
+				elif data["type"] == "ready":
+					async with active_games_lock:
+						game.ready += 1
+						logger.info(f"{self.user} is ready: {game.ready}")
+						if game.ready == 2:
+							game.status = 1
+							logger.info(f"{self.role} ({self.user})starts the game")
+							await game.start_game(self.user)
+				elif data["type"] == "close":
+					logger.info("\033[1;32mRECEIVE METHOD CALLED: closed WS\033[0m")
+			except Exception as e:
+				logger.error(f"\033[1;31mError receiving a message via WebSocket: {e}\033[0m")
 		if self.type == "T":
 			try:
 				data = json.loads(text_data)
@@ -205,25 +240,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 			except Exception as e:
 				logger.error(f"\033[1;31mError receiving a message via WebSocket: {e}")
-
-		elif self.type == "G":
-			try:
-				data = json.loads(text_data)
-				if data["type"] == "update":
-					game = active_games[self.room_id]
-					game.handle_message(self.role, data)
-					await game.broadcast_state()
-			except Exception as e:
-				logger.error(f"\033[1;31mError receiving a message via WebSocket: {e}")
 	
 ###################################################
 
-	async def send_game_update(self, event):
-		message = event["message"]
-		await self.send(text_data=json.dumps(message))
-
-	async def send_game_status(self, event):
-		logger.info("sending status msg (pong)")
+	async def send_game_msg(self, event):
+		#logger.info(f"SGM: sending message {event['message']}")
 		await self.send(text_data=json.dumps(event["message"]))
 
 ###################################################
