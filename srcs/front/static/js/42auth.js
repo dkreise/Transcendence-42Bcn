@@ -94,3 +94,4 @@ export function showModalError(message) {
         text: message,
         backdrop: false,
     });
+}

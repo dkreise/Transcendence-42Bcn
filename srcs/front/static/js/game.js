@@ -89,11 +89,6 @@ export async function gameLocal () {
     // "3d-option": Enable3D ? "True" : "False",
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
-    Enable3D = localStorage.getItem("3D-option");
-    console.log(`Enable 3D: ${Enable3D}`)
-    // Enable3D = localStorage.getItem("3D-option") === "true";
-    // "3d-option": Enable3D ? "True" : "False",
-    const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
     const username = await getUsername();
     if (!username) {
         navigateTo('/logout');
@@ -245,6 +240,7 @@ export async function playOnline () {
             } else if (Enable3D === "true") {
                     //HERE SOMETHING WITH LANGUAGES
                 // start3DOnlineGame(localStorage.getItem('username'));
+                document.getElementById('content-area').innerHTML = ""; 
                 start3DAIGame(localStorage.getItem('username'), dictionary);
             } else {
                 console.log('Response: ', data);
@@ -269,7 +265,7 @@ export async function play3D() {
     }
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
     const contentArea = document.getElementById('content-area');
-    // contentArea.style.padding = 0;
+    contentArea.style.padding = 0;
     contentArea.innerHTML = ''; // Clear previous content
     
     console.log('3D game returned! Dictionary:');
