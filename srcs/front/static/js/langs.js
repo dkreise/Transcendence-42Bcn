@@ -80,10 +80,10 @@ export async function updateLanguage(lang) {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("headerLoaded", () => {
     const headerContainer = document.getElementById("header-container");
-
     if (headerContainer) {
+        console.log('header event recived');
         const languageButton = document.getElementById("language-button");
         const languageMenu = document.getElementById("language-menu");
     

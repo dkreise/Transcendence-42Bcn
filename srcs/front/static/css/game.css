@@ -33,7 +33,12 @@ canvas {
 	display: block;
 	width: 100%;
 	height: 100%;
+    /* border: 2px solid white;
+    background-color: black;
+    margin: 20px auto; */
+
 	image-rendering: pixelated; /* Prevent blurry rendering on scale */
+
 }
 
 .form-column {

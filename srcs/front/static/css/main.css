@@ -1,0 +1,56 @@
+/* html {
+	box-sizing: border-box;
+}
+  
+*,
+*::before,
+*::after {
+	box-sizing: inherit;
+} */
+
+body {
+	background: linear-gradient(135deg, #121212, #3a3a3a, #121212);
+	background-size: 200% 200%;
+	animation: gradientAnimation 10s ease infinite; 
+	font-family: "Be Vietnam Pro", Arial, sans-serif;
+}
+
+html, body {
+	margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow-x: hidden;
+  }
+
+#app {
+	color: #e1e1e1;
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+  }
+  #header-area {
+	flex: 0 0 auto;
+  }
+  #content-area {
+	flex: 1; /* Ocupa el espacio sobrante */
+        display: flex; /* Para centrar vertical y horizontal */
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+  }
+  
+  .footer {
+    text-align: center;
+    padding: 1.5rem;
+    margin-top: 3rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+  .checkbox-row {
+	width: 100%;
+	display: flex;
+	justify-content: flex-start;
+	margin-bottom: 2rem;
+  }

@@ -5,11 +5,13 @@ import { loadHomePage } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
+
 // import { setDifficulty } from "./AIGame.js"
 import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
 import { connectWS } from "./onlineStatus.js";
 import { manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage} from "./tournament.js";
+
 
 const historyTracker = [];
 
@@ -38,6 +40,7 @@ const routes = {
     '/play-ai': (args) => playAI(args),
     '/play-online': playOnline,
     '/play-local/game': gameLocal,
+    // '/tournament': playTournament,
     // '/play-ai/set-difficulty/': setDifficulty,
     '/play-3d': play3D,
     '/play-ai/game': (args) => gameAI(args),
@@ -53,6 +56,52 @@ const routes = {
     // '/login': (args) => loadLoginPage(args),
 };
 
+var baseUrl = "http://localhost"; // change (parse) later
+
+// --- headerType = 1 --> draw mainHeader
+// --- headerType = 2 --> only lenguaje button
+// --- headerType = 3 --> clear Header
+
+export function drawHeader(headerType) {
+    return new Promise((resolve, reject) => {
+        let url;
+
+        switch (headerType) {
+            case 1:
+                url = ":8000/api/get-main-header/";
+                break;
+            
+            case 2:
+                url = ":8000/api/get-languages-header/";
+                break;
+
+            default:
+                // borrar header!!!!!!! para el roberto de tomorrow
+                resolve();  // IMPORTANTE: Se debe resolver la promesa en el caso por defecto
+                return;
+        }
+
+        fetch(baseUrl + url, {
+            method: 'GET',
+            credentials: "include"
+        })
+        .then((response) => response.json())
+        .then(data => {
+            if (data.header_html) {
+                console.log('Header! returned!');
+                document.getElementById('header-area').innerHTML = data.header_html;
+                document.dispatchEvent(new CustomEvent("headerLoaded"));
+                console.log('header event active');
+            } else
+                console.error('Header not found in response:', data);
+            resolve();
+        })
+        .catch(error => {
+            console.error('Error loading Header =(', error);
+            reject(error);
+        });
+    });
+}
 
 // The router() function determines which handler function to call 
 // based on the current path (window.location.pathname).
@@ -67,6 +116,16 @@ function router(args=null) {
 
     console.log(`Content cleared in router`);
 
+    //Check if the user has the required permissions, if not, redirect
+    const publicPaths = ['/login', '/signup', '/login-intra', '/callback', '/two-fa-login'];
+    if (checkPermission() && publicPaths.includes(path)) {
+        navigateTo('/home');
+        return;
+    } else if (!checkPermission() && !publicPaths.includes(path)) {
+        navigateTo('/login');
+        return;
+    }
+    
     if (routes[path]) {
         routes[path](args); // Call the function associated with the path
     } else {
@@ -129,19 +188,19 @@ export function clearURL() {
 }
 
 export function checkPermission () {
-    console.log(`Permissions: checking permissions`);
+    //console.log(`Permissions: checking permissions`);
     const accessToken = localStorage.getItem('access_token');
 
     if (!accessToken) {
-        console.log(`Permissions: No access token, permission denied`);
+        //console.log(`Permissions: No access token, permission denied`);
         return false;
     }
-    console.log(`Permissions: We have access token, congrats!`);
+    //console.log(`Permissions: We have access token, congrats!`);
     return true;
 }
 
 function homePage() {
-    const contentArea = document.getElementById('content-area');
+    // const contentArea = document.getElementById('content-area');
     
     if (checkPermission ()) {
         navigateTo('/home');
@@ -151,8 +210,6 @@ function homePage() {
         navigateTo('/login');
     }
 }
-
-var baseUrl = "http://localhost"; // change (parse) later
 
 // popstate: Ensures navigation works when the user uses the browser's 
 // back or forward buttons.
@@ -173,18 +230,28 @@ document.addEventListener('DOMContentLoaded', () => {
    
     // Event delegation for data-route attributes
     document.body.addEventListener('click', (event) => {
-        const target = event.target;
+        // const target = event.target;
 
-        // Check if the clicked element has the 'data-route' attribute
-        if (target && target.hasAttribute('data-route')) {
+        // // Check if the clicked element has the 'data-route' attribute
+        // if (target && target.hasAttribute('data-route')) {
+        //     const route = target.getAttribute('data-route');
+        //     console.log(`a data rout clicked... ${route}`)
+        //     console.log(`Type is ${target.type}, tag is ${target.tagName}`)
+
+        //     if (target.tagName === 'BUTTON' && target.type === 'submit') {
+        //         console.log(`An event is prevented!  ${route}`)
+        //         event.preventDefault();
+        //     }
+
+        //     navigateTo(route);
+        // }
+        const target = event.target.closest('[data-route]');
+
+        if (target) {
             const route = target.getAttribute('data-route');
-            console.log(`a data rout clicked... ${route}`)
-            console.log(`Type is ${target.type}, tag is ${target.tagName}`)
+            console.log(`Data-route clicked: ${route}`);
 
-            if (target.tagName === 'BUTTON' && target.type === 'submit') {
-                console.log(`An event is prevented!  ${route}`)
-                event.preventDefault();
-            }
+            event.preventDefault();
 
             const shouldReplace = target.hasAttribute('replace-url');
 

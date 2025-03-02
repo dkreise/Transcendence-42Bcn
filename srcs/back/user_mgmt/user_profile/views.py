@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from django.contrib.auth import authenticate, login
 from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
@@ -327,3 +328,18 @@ def home_page(request):
         return JsonResponse({'home_html': home_html}, content_type="application/json")
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_main_header(request):
+    print('Main Header api called')
+    header_html = render_to_string('main_header.html')
+    return JsonResponse({'header_html': header_html}, content_type="application/json")
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_languages_header(request):
+    print('Languages header api called')
+    header_html = render_to_string('language_header.html')
+    return JsonResponse({'header_html': header_html}, content_type="application/json")
