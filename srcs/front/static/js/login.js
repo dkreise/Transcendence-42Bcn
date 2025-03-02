@@ -7,7 +7,7 @@ import { connectWS } from "./onlineStatus.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
-function refreshAccessToken() {
+export async function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refresh_token");
     if (!refreshToken) {
         console.error("No refresh token found. User needs to log in again.");
@@ -40,7 +40,7 @@ function refreshAccessToken() {
         }
     })
     .catch((error) => {
-        console.error("Error during token refresh:", error);
+        console.log("Error during token refresh:", error);
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         throw error;

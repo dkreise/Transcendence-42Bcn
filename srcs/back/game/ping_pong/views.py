@@ -190,6 +190,13 @@ def play_game(request):
     # game_html = render_to_string('remote_game.html', context)
     # return JsonResponse({'game_html': game_html}, content_type="application/json")
 
+@api_view(['GET'])
+def get_game_dict(request):
+    context = {}
+    add_language_context(request, context)
+    return JsonResponse({'dict': context}, status=200)
+
+
 # def save_remote_score(room_id, winner_id, scores, players):
 #     """
 #     Save the game result in the database while preventing race conditions.
@@ -230,4 +237,5 @@ def play_game(request):
 #     except Exception as e:
 #         print(f"Error saving game result: {e}")
 #         return None
+
 

@@ -52,16 +52,16 @@ class JwtAuthMiddleware:
     
     async def __call__(self, scope, receive=None, send=None):
         """Entry point for WebSocket and HTTP requests."""
-        print("@@@@@@@@@@@@@@@@@@@@@@@  TOKEN: HA PASADO POR MIDDLEWARE @@@@@@@@@@@@@@@@@")
-        print("SCOPE: ", scope)
+        #print("@@@@@@@@@@@@@@@@@@@@@@@  TOKEN: HA PASADO POR MIDDLEWARE @@@@@@@@@@@@@@@@@")
+        #print("SCOPE: ", scope)
 
         try:
             query_string = scope.get('query_string', b'').decode('utf-8')
             query_params = parse_qs(query_string)
             token = query_params.get('token', [None])[0]
-            print("@@@@@@@@@@@@@@@@@@@@@@@  1!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
+            #print("@@@@@@@@@@@@@@@@@@@@@@@  1!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
             if token:
-                print("@@@@@@@@@@@@@@@@@@@@@@@  2!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
+                #print("@@@@@@@@@@@@@@@@@@@@@@@  2!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
                 username = await self.verify_token(token)
                 if username:
                     scope['user'] = await get_user_from_token(username)

@@ -6,20 +6,23 @@ export class Player {
 
 	constructor(canvas, role) {
 		console.log(`Canvas size: ${canvas.width} x ${canvas.height}`)
-		this.width = canvas.width * 0.01;
-		this.height = canvas.height * 0.2;
-		if (role === "player1")
-			this.x = 0;
-		else
-			this.x = canvas.width - this.width;
-		this.y = canvas.height / 2 - this.height / 2;
-		this.speed = canvas.height * this.sFactor; // Speed scales with canvas height
+		this.width = canvas.width * 0.03;
+		this.height = canvas.height * 0.1;
 		this.color = "white";
 		this.up = false;
 		this.down = false;
 		this.score = 0;
-		this.role = role; // "player1" or "player2"
 		this.canvas = canvas;
+		this.backFactor = 0;
+		this.whoAmI = null;
+		this.role = role; // "player1" or "player2"
+		if (this.role === "player1")
+			this.x = 0;
+		else
+			this.x = canvas.width - this.width;
+		this.y = (canvas.height / 2 - this.height / 2);
+		this.speed = canvas.height * this.sFactor; // Speed scales with canvas height
+		console.log("role: " + this.role + " y: " + this.y + " x: " + this.x);
 	}
  
 	draw(ctx) {
@@ -45,62 +48,56 @@ export class Player {
 		this.score = newScore;
 	}
 
-	drawScore(ctx, playerID) {
+	drawScore(ctx) {
 		let x;
-		ctx.fillStyle = "white";
-		ctx.font = "40px Arial";
-		if (playerID === 1)
+		let fontSize = Math.floor(this.canvas.width * 0.05);
+		ctx.fillStyle = "rgb(100, 100, 100 / 50%)";
+		ctx.font = `${fontSize}px Arial`;
+		if (this.x == 0)
 			x = this.canvas.width / 4;
 		else
 			x = this.canvas.width * 3 / 4;
-		ctx.fillText(`Score: ${this.score}`, x, 30);
+		ctx.fillText(`Score: ${this.score}`, x, this.canvas.height / 10);
 	}
 
-	scored(socket) {
-		this.score++;
-		this.send(socket);
-	}
+	displayEndgameMessage(ctx, oppScore, msg) {
+		let finalScore;
+		if (this.role == "player1")
+			finalScore = `${this.score} - ${oppScore}`;
+		else
+			finalScore = `${oppScore} - ${this.score}`;
+		let fontSize = Math.floor(this.canvas.width * 0.05);
 
-	displayEndgameMessage(ctx, finalScore, msg) {
+		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
 		ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 		ctx.fillStyle = "white";
-		ctx.font = "50px Arial";
+		ctx.font = `${fontSize}px Arial`;
 		ctx.textAlign = "center";
 		ctx.fillText(msg, this.canvas.width / 2, this.canvas.height / 2 - 20);
-		ctx.font = "40px Arial";
+		ctx.font = `${fontSize - 10}px Arial`;
 		ctx.fillText(finalScore, this.canvas.width / 2, this.canvas.height / 2 + 30);
 	}
 	send(socket) {
-		console.log("I'm sending my role: " + this.role);
 		if (socket.readyState === WebSocket.OPEN)
 		{
+			//console.log("front y: " + this.y + " backFactor: " + this.backFactor);
+			console.log(`${this.role}'s paddle: ${this.y} sending: ${this.y / this.backFactor}`);
 			const data = {
 				"type": "update",
 				"role": this.role,
-				"paddle": this.y,
+				"y": this.y / this.backFactor,
 				"score": this.score,
 			};
 			socket.send(JSON.stringify(data));
 		}
-	}
-	resize(canvas, wScale, hScale)
-	{
-		this.width = canvas.width * this.wFactor;
-		this.height = canvas.height * this.hFactor;
-		if (this.role == "player2")
-			this.x = canvas.width - canvas.width * 0.01
-		this.x *= wScale;
-		this.y *= hScale;
-		this.speed = canvas.height * this.sFactor;
-		this.canvas = canvas;
 	}
 }
 
 
 export class Ball {
 	radFactor = 0.01;
-	sFactor = 0.01;
+	sFactor = 0.02;
 
 	constructor(canvas) {
 		this.canvas = canvas;
@@ -118,12 +115,6 @@ export class Ball {
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
 		ctx.fill();
-	}
-
-	update(newX, newY) {
-		// Update ball position from server data
-		this.x = newX;
-		this.y = newY;
 	}
 
 	resetPosition() {
@@ -155,7 +146,7 @@ export class Ball {
 			this.xspeed = -this.xspeed;
 			this.send(socket);
 		}
-
+/*
 		if (this.x - this.radius <= 0)
 		{
 			opponent.scored(socket);
@@ -167,7 +158,7 @@ export class Ball {
 			player.scored(socket);
 			this.resetPosition();
 			this.send(socket);
-		}
+		}*/
 	}
 	send(socket) {
 		if (socket.readyState === WebSocket.OPEN)
@@ -181,14 +172,5 @@ export class Ball {
 			};
 			socket.send(JSON.stringify(data));
 		}
-	}
-	resize(canvas, wScale, hScale)
-	{
-		this.radius = canvas.width * this.radFactor;
-		this.x *= wScale;
-		this.y *= hScale;
-		this.xspeed *= wScale;
-		this.yspeed *= hScale;
-		this.canvas = canvas;
 	}
 }

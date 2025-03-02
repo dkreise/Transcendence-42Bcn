@@ -54,6 +54,10 @@ services:
       - game:/usr/src/app
     ports:
       - "8001:8001"
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   redis:
     container_name: redis
