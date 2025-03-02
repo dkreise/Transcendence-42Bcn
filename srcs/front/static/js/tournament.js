@@ -1,21 +1,37 @@
 import { loadHomePage } from "./home.js";
 import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
+import { clearIntervalIDGame } from "./AIGame.js"
+import { gameAI } from "./game.js";
+import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame } from "./remoteGame.js"
 
 var baseUrl = "http://localhost"; // TODO: change (parse) later
 let socket = null;
 
 export const manageTournamentHomeBtn = () => { 
     const inTournament = localStorage.getItem('inTournament');
+    if (!socket || !inTournament) {
+        if (socket) {
+            console.log("socket there is..");
+            if (socket.readyState === WebSocket.OPEN)
+            {
+                socket.send(JSON.stringify({ "type": "get_status" }));
+            }        
+        } else {
+            console.log("socket is not here..");
+            navigateTo('/tournament-home', true);
+        }  
+        return;      
+    }
     
     if (inTournament === 'waiting') {
-        navigateTo('/waiting-room');
+        navigateTo('/waiting-room', true);
     } else if (inTournament === 'playing') {
-        navigateTo('/tournament-bracket');
+        navigateTo('/tournament-bracket', true);
     } else if (inTournament === 'finished') {
-        navigateTo('/end-tournament');
+        navigateTo('/end-tournament', true);
     } else {
-        navigateTo('/tournament-home');
+        navigateTo('/tournament-home', true);
     }
 };
 
@@ -35,11 +51,12 @@ export const loadTournamentHomePage = () => {
     });
 };
 
-export const createTournament = () => {
+export const createTournament = async () => {
     const nPlayers = getNumberOfPlayers();
-    const tourId = getTournamentId(); //TODO: check to avoid not repeating id?
-
-    tournamentConnect(tourId, nPlayers);
+    const tourId = await getTournamentId(); 
+    // alert(tourId)
+    if (tourId > 0)
+        tournamentConnect(tourId, nPlayers);
 };
 
 export const joinTournament = () => {
@@ -59,7 +76,14 @@ function isOnBracketPage() {
 	return window.location.pathname.includes("bracket");
 }
 
+function isOnTournamentHomePage() {
+	return (window.location.pathname.includes("tournament-home") || window.location.pathname.includes("join-tournament") || window.location.pathname.includes("create-tournament"));
+}
+
+
 export const loadWaitingRoomPage = () => {
+    if (socket)
+        console.log("socket there is..");
     if (socket.readyState === WebSocket.OPEN)
 	{
 		const data = {
@@ -76,7 +100,13 @@ export const loadBracketTournamentPage = () => {
 			"type": "bracket_page_request",
 		};
 		socket.send(JSON.stringify(data));
+        console.log("we have sent the request for bracket page!")
 	}
+    else {
+        console.log(socket.readyState);
+        // alert("waiting for websoket connection")
+        // loadBracketTournamentPage();
+    }
 };
 
 export const loadFinalTournamentPage = () => {
@@ -88,6 +118,23 @@ export const loadFinalTournamentPage = () => {
 		socket.send(JSON.stringify(data));
 	}
 };
+
+export const quitTournament = () => {
+    clearIntervalIDGame();
+    console.log("QUIT button clicked")
+    if (!socket) {
+        navigateTo('/home', true);
+        return;
+    }
+    localStorage.setItem("user_quit", "true");
+    if (socket.readyState === WebSocket.OPEN)
+        {
+            const data = {
+                "type": "quit",
+            };
+            socket.send(JSON.stringify(data));
+        }
+}
 
 export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) => {
     const button = document.getElementById('play-again');
@@ -111,6 +158,26 @@ export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) =>
     }
 }
 
+export const tournamentGameAIRequest = () => {
+    clearIntervalIDGame();
+    if (socket.readyState === WebSocket.OPEN)
+    {
+        socket.send(JSON.stringify({ "type": "wants_to_play" }));
+    }
+}
+
+export const tournamentGameAIstart = (data, tourId) => {
+    if (data.needs_to_play) {
+        let args = {
+            tournament: true,
+            tournamentId: tourId,
+        }
+        gameAI(args);                    
+    } else {
+        navigateTo('/tournament', true);
+    }
+}
+
 function addGameButton(data) {
     // tournament ID needed!! or maybe not..
     console.log('Player needs to play!!');
@@ -124,32 +191,63 @@ function addGameButton(data) {
     playButton.id = "play-game-in-tournament";
     playButton.textContent = "Play My Game";
     if (data.opponent == "@AI") {
-        playButton.setAttribute("data-route", "/play-ai");
+        playButton.setAttribute("data-route", '/tournament-game-ai');
         // Pass arguments as a JSON string inside `data-args`
-        playButton.setAttribute("data-args", JSON.stringify({ tournament: "true", tournamentId: 1234 }));
+        // playButton.setAttribute("data-args", JSON.stringify({ tournament: "true", tournamentId: 1234 }));
     }
+	else {
+        playButton.setAttribute("data-route", '/play-online');
+	}
+    playButton.addEventListener('click', () => {
+        if (socket.readyState === WebSocket.OPEN)
+        {
+			//CHANGED BY NURIA
+            //socket.send(JSON.stringify({ "type": "game_started" }));
+            socket.send(JSON.stringify({ "type": "start_game" }));
+        }
+    });
     bracketSection.append(playButton);
 }
 
-function uploadTournamentPage(data) {
+function changePage(data) {
     document.getElementById('content-area').innerHTML = data.html;
+    if (data.redirect) {
+        let path = data.redirect;
+        // history.pushState({ path }, null, path);
+        history.replaceState({ path }, null, path);
+    }
+    if (data.needs_to_play) {
+        addGameButton(data);
+    }
+}
+
+function uploadTournamentPage(data) {
+    console.log("CUR PATHNAME: ", window.location.pathname);
+    if (data.redirect == "/tournament-bracket") {
+        if (isOnWaitingRoomPage() || isOnBracketPage() || isOnTournamentHomePage()) {
+            changePage(data);
+        }
+    } else if (data.redirect == "/end-tournament") {
+        if (isOnBracketPage()) {
+            changePage(data);
+        }
+    }
+    if (data.request) {
+        console.log("IT WAS A REQUEST");
+        changePage(data);
+    }
+
+    // document.getElementById('content-area').innerHTML = data.html;
     const bracketSection = document.getElementById("bracket");
     if (bracketSection) {
         console.log("bracket section here");
     } else {
         console.log("no bracket section...");
     }
-    if (data.redirect) {
-        // window.location.href = data.redirect; // Change the URL/route
-        // history.pushState({}, '', data.redirect);
-        // navigateTo(data.redirect);
-        let path = data.redirect;
-        history.pushState({ path }, null, path);
-        // historyTracker.push({ action: 'pushState', path });
-    }
-    if (data.needs_to_play) {
-        addGameButton(data);
-    }
+
+    // if (data.needs_to_play) {
+    //     addGameButton(data);
+    // }
     setTournamentStatus(data.status)
     
     if (data.status === 'finish') {
@@ -170,14 +268,17 @@ function updatePlayerCount(data) {
     }
 }
 
-function tournamentConnect(tourId, nPlayers=null) {
+export async function tournamentConnect(tourId, nPlayers=null) {
+    return new Promise((resolve, reject) => {
 	const token = localStorage.getItem("access_token");
 	if (!token)
 	{
 		console.warn("No access token found");
+        reject("No access token found");
 		return ;
 	}
-	// console.log("token is: " + token);
+
+    localStorage.setItem("currentTournamentId", tourId);
     console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
 
     if (nPlayers) {
@@ -188,23 +289,71 @@ function tournamentConnect(tourId, nPlayers=null) {
     
     socket.onopen = () => {
         console.log("WebSocket connection established");
-        localStorage.setItem('inTournament', 'waiting');
+        let status = localStorage.getItem('inTournament');
+        if (!status)
+            localStorage.setItem('inTournament', 'waiting');
+        window.addEventListener("beforeunload", () => {
+            // alert("beforeunload in tournaments.js")
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                localStorage.setItem("currentTournamentId", tourId);
+                localStorage.setItem("tournamentReload", true);
+            }
+        });
+        resolve(socket); // Resolve the promise once the socket is open
     };
     
     socket.onerror = (error) => {
 		console.error("WebSocket encountered an error: ", error);
-		alert("Unable to connect to the server. Please check your connection.");
+		alert("ONERROR: Unable to connect to the server. Please check your connection.");
         localStorage.removeItem('inTournament');
+        localStorage.removeItem("user_quit");
+        localStorage.removeItem("currentTournamentId");
+        localStorage.removeItem("gameState");
+            navigateTo('/home', true);
+        reject("WebSocket error");
 	};
 
 	socket.onclose = () => {
-		console.warn("WebSocket connection close. Retrying...");
-        localStorage.removeItem('inTournament');
-		setTimeout(tournamentConnect, 1000) //waits 1s and tries to reconnect
+		// //console.warn("WebSocket connection close. Retrying...");
+        // localStorage.removeItem('inTournament');
+		// //setTimeout(tournamentConnect, 1000) //waits 1s and tries to reconnect
+        // navigateTo('/home', true);
+        socket = null;
+        // alert(localStorage.getItem("user_quit"));
+        if (localStorage.getItem("user_quit") == "true") {
+            console.log("User quit. No reconnection.");
+            localStorage.removeItem('inTournament');
+            localStorage.removeItem("user_quit");
+            localStorage.removeItem("currentTournamentId");
+            localStorage.removeItem("gameState");
+            navigateTo('/home', true);
+        } else if (localStorage.getItem("tournamentReload")) {
+            console.log("Closing websocket.");
+        } else {
+            console.log("Closing websocket onclose");
+            localStorage.removeItem('inTournament');
+            localStorage.removeItem("currentTournamentId");
+            localStorage.removeItem("gameState");
+        }
+
+        // if (localStorage.getItem("user_quit") !== "true") {
+        //     // alert("ONCLOSE");
+        //     console.log("Closing websocket.");
+        //     //setTimeout(() => connectWebSocket(tourId), 3000);
+        // } else {
+        //     console.log("User quit. No reconnection.");
+        //     localStorage.removeItem('inTournament');
+        //     localStorage.removeItem("user_quit");
+        //     localStorage.removeItem("currentTournamentId");
+        //     localStorage.removeItem("gameState");
+        //     navigateTo('/home', true);
+        // }
+        // // navigateTo('/home', true);
 	};
 
-	socket.onmessage = (event) => { //we're receiving messages from the backend via WB
+	socket.onmessage = async (event) => { //we're receiving messages from the backend via WB
 		const data = JSON.parse(event.data);
+        localStorage.setItem("currentTournamentId", tourId);
 
 		console.log(data);
 		switch(data.type)
@@ -219,18 +368,79 @@ function tournamentConnect(tourId, nPlayers=null) {
                 updatePlayerCount(data);
                 break;
             case "game_update":
-                alert("A player has disconnected. Waiting for reconnection...");
+                alert("GAME_UPDATE??  A player has disconnected. Waiting for reconnection...");
                 break;
+            case "full":
+                console.log("Tournament is full:", data.message);
+                alert(data.message);
+                localStorage.removeItem('inTournament');
+                localStorage.removeItem("user_quit");
+                localStorage.removeItem("currentTournamentId");
+                socket.close();
+                break;
+            case "needs_to_play":
+                tournamentGameAIstart(data, tourId);
+                break;
+            case "status":
+                localStorage.setItem('inTournament', data.status);
+                navigateTo('/tournament');
+                break;
+			case "role":
+				handleRoleAssignment(data.role);
+				scaleGame(data);
+				break;
+			case "players":
+				setWhoAmI(data);
+				socket.send(JSON.stringify({"type": "ready"}));
+				break;
+			case "status":
+				await handleStatus(data);
+				break;
+			case "update":
+				handleUpdate(data);
+				break;
+			case "endgame":
+				handleEndgame(data);
+				break;
+			case "reject":
+				alert(`Connection rejected: ${data.reason}`);
+				//return client to tournament home page or bracket page
+				break;
             default:
                 console.warn("Unhandled message type: ", data.type);
 		}
-	}
+	};
+});
+}
+
+export function startTournamentGame()
+{
+	socket.send(JSON.stringify({"type": "start_game"}));
 }
 
 ////////////////// UTILS //////////////////////
 
-function getTournamentId() {
-    return Math.floor(1000000 + Math.random() * 9000000); // Ensures a 7-digit number
+async function getTournamentId() {
+    let id = Math.floor(1000000 + Math.random() * 9000000); // Ensures a 7-digit number
+    // let id = 1234567
+    try {
+        const response = await makeAuthenticatedRequest(baseUrl + `:8001/api/check-tournament/${id}/`, 
+            { method: "GET", credentials: "include" });
+        const data = await response.json();
+        
+        console.log("ACTIVE?");
+        console.log(data.active);
+
+        if (!data.active) {
+            return id;  // If not active, return the id
+        } else {
+            alert("Oops. Try again.");
+            return -1;  // If the ID is active, return -1
+        }
+    } catch (error) {
+        console.error('Failed to fetch tournament status:', error);
+        return -1;  // Return -1 in case of an error
+    }
 }
 
 function getNumberOfPlayers() {
@@ -247,5 +457,18 @@ function getNumberOfPlayers() {
 function setTournamentStatus(status) {
     if (status) {
         localStorage.setItem('inTournament', status);
+    }
+}
+
+export function disconnectTournamentWS() {
+    if (socket) {
+        localStorage.setItem("user_quit", "true");
+        if (socket.readyState === WebSocket.OPEN)
+            {
+                const data = {
+                    "type": "quit",
+                };
+                socket.send(JSON.stringify(data));
+            }
     }
 }

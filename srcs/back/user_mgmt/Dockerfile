@@ -24,4 +24,5 @@ EXPOSE 8000
 #ENTRYPOINT ["./entrypoint.sh"]
 
 # Run the Django application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "user_mgmt.asgi:application"]
+# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

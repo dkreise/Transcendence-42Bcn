@@ -8,9 +8,9 @@ from django.contrib.auth import get_user_model
 from django.db import transaction
 from channels.layers import get_channel_layer
 
-def get_game_model():
-	 from .models import Game  # Import inside function
-	 return Game
+def get_game_model(): 
+    from .models import Game  # Import inside function
+    return Game
 
 def get_game_model():
 	 from .models import Game  # Import inside function
@@ -88,6 +88,7 @@ class GameManager:
 			self.cancel_disconnect_task()
 			role = next((key for key, value in self.players.items() if value["id"] == user), None)
 			if role:
+				logger.info(f"users in the room: {self.users}")
 				if user in self.users:
 					logger.info(f"{user} is already in the room. Rejecting new connection")
 					#await self.send_reject(channel, "You're already connected to this room!")

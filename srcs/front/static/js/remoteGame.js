@@ -1,5 +1,7 @@
 import { Ball, Player } from "./remoteClasses.js";
-import { setupControls } from "./localGame.js"
+import { setupControls } from "./localGame.js";
+import { refreshAccessToken } from "./login.js";
+import { startTournamentGame } from "./tournament.js";
 
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
@@ -26,7 +28,7 @@ function interpolateBall() {
 	ball.y += (targetBallY - ball.y) * ballCoef;
 }
 
-function handleRoleAssignment(role) {
+export function handleRoleAssignment(role) {
 	console.log("Hi! I'm " + role);
 	if (role === "player1") {
 		player = new Player(canvas, "player1");
@@ -37,7 +39,7 @@ function handleRoleAssignment(role) {
 	}
 }
 
-function scaleGame(data)
+export function scaleGame(data)
 {
 	player.width = canvas.width * (data.padW / data.canvasX);
 	opponent.width = player.width;
@@ -102,7 +104,7 @@ function displayCountdown()
 	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 + fontSize / 2);
 }
 
-function handleEndgame(data) {
+export function handleEndgame(data) {
 	const { wait, winnerId, loserRole } = data;
 	
 	if (player.whoAmI == winnerId)
@@ -120,6 +122,47 @@ function getTimestamp() {
 	const date = new Date();
 
 	return `${date.getDate()}-${date.getMonth() + 1} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
+}
+
+export function setWhoAmI(data)
+{
+	player.whoAmI = data[player.role];
+	opponent.whoAmI = data[opponent.role];
+}
+
+export async function handleStatus(data)
+{
+	
+	player.update(data.players, data.scores);
+	opponent.update(data.players, data.scores);
+	if (data.wait) // data.wait [bool]
+	{
+		if (gameLoopId)
+			cancelAnimationFrame(gameLoopId);
+		if (data.countdown != 4)
+			displayCountdown();
+		else
+			await readySteadyGo(data.countdown - 2);
+	}
+	else
+	{
+		console.log("let's start the game!");
+		setupControls(player, opponent)
+		gameLoop();
+	}
+}
+
+export function handleUpdate(data)
+{
+	if (data.players)
+	{
+		player.update(data.players, data.scores);
+		opponent.update(data.players, data.scores);
+	}
+	if (data.ball) {
+		targetBallX = data.ball.x * backFactor["x"];
+		targetBallY = data.ball.y * backFactor["y"];
+	}
 }
 
 //async function initializeWebSocket(roomId) {
@@ -144,11 +187,22 @@ async function initializeWebSocket() {
 		console.error("WebSocket encountered an error:", error);
 		alert("Unable to connect to the server. Please check your connection.");
 	};
-	socket.onclose = (event) => {
-		console.log(`WebSocket connection closed with code ${event.code}`);
-		//console.log(`WS: closing reason ${event.reason}`);
-		//if (event.code >= 4000 && event.code < 4005)
-		//	alert(event.reason);
+	socket.onclose = async (event) => {
+		console.log("WebSocket closed with code:", event.code);
+
+		console.warn("WebSocket connection closed. Retrying...");
+		if (event.code === 4001) {
+			// Token expired; refresh token logic
+			try {
+				await refreshAccessToken();
+			  // Reconnect with the new token
+				initializeWebSocket();
+			} catch (err) {
+			  console.error("Failed to refresh token", err);
+			  handleLogout();
+			}
+		} else if (retries++ <= 5)
+			setTimeout(initializeWebSocket, 1000);
 	};
 
 	socket.onmessage = async (event) => {
@@ -161,43 +215,44 @@ async function initializeWebSocket() {
 				scaleGame(data);
 				break;
 			case "players":
-				player.whoAmI = data[player.role];
-				opponent.whoAmI = data[opponent.role];
-				socket.send(JSON.stringify({"type": "ready"}))
+				setWhoAmI(data);
+				socket.send(JSON.stringify({"type": "ready"}));
 				break;
 			case "status":
-				console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
-				player.update(data.players, data.scores);
-				opponent.update(data.players, data.scores);
-				if (data.wait) // data.wait [bool]
-				{
-					if (gameLoopId)
-						cancelAnimationFrame(gameLoopId);
-					if (data.countdown != 4)
-						displayCountdown();
-					else
-						await readySteadyGo(data.countdown - 2);
-				}
-				else
-				{
-					console.log("let's start the game!");
-					console.log(`canvas W: ${canvas. width} H: ${canvas.height}`);
-					console.log(`paddle me: ${player. width} you: ${opponent.width}`);
-					console.log(`x: ${player.x} y: ${player.y}\nx: ${opponent.x} y: ${opponent.y}`);
-					setupControls(player, opponent)
-					gameLoop();
-				}
+				handleStatus(data);
+			//	console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
+			//	player.update(data.players, data.scores);
+			//	opponent.update(data.players, data.scores);
+			//	if (data.wait) // data.wait [bool]
+			//	{
+			//		if (gameLoopId)
+			//			cancelAnimationFrame(gameLoopId);
+			//		if (data.countdown != 4)
+			//			displayCountdown();
+			//		else
+			//			await readySteadyGo(data.countdown - 2);
+			//	}
+			//	else
+			//	{
+			//		console.log("let's start the game!");
+			//		console.log(`canvas W: ${canvas. width} H: ${canvas.height}`);
+			//		console.log(`paddle me: ${player. width} you: ${opponent.width}`);
+			//		console.log(`x: ${player.x} y: ${player.y}\nx: ${opponent.x} y: ${opponent.y}`);
+			//		setupControls(player, opponent)
+			//		gameLoop();
+			//	}
 				break;
 			case "update":
-				if (data.players)
-				{
-					player.update(data.players, data.scores);
-					opponent.update(data.players, data.scores);
-				}
-				if (data.ball) {
-					targetBallX = data.ball.x * backFactor["x"];
-					targetBallY = data.ball.y * backFactor["y"];
-				}
+				handleUpdate(data);
+			//	if (data.players)
+			//	{
+			//		player.update(data.players, data.scores);
+			//		opponent.update(data.players, data.scores);
+			//	}
+			//	if (data.ball) {
+			//		targetBallX = data.ball.x * backFactor["x"];
+			//		targetBallY = data.ball.y * backFactor["y"];
+			//	}
 				break ;
 			case "reject":
 				alert(`Connection rejected: ${data.reason}`);
@@ -211,6 +266,8 @@ async function initializeWebSocket() {
 		}
 	};
 }
+
+
 
 function gameLoop() {
 	gameLoopId = requestAnimationFrame(gameLoop);
@@ -238,6 +295,7 @@ window.addEventListener("resize", () => {
 export function startGame()
 {
 	canvas = document.getElementById('newGameCanvas');
+	const tourId = localStorage.getItem('currentTournamentId');
 	if (!canvas)
 	{
 		alert("Unable to display the game. Please, try again later");
@@ -247,5 +305,8 @@ export function startGame()
 	ball = new Ball(canvas);
 	targetBallX = ball.x;
 	targetBallY = ball.y;
-	initializeWebSocket();
+	if (!tourId)
+		initializeWebSocket();
+	else
+		startTournamentGame();
 }

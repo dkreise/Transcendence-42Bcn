@@ -217,3 +217,7 @@ SIMPLE_JWT = {
     'TOKEN_TYPE_CLAIM': 'token_type',
     'TOKEN_BLACKLIST_ENABLED': True,  # Enable blacklist feature
 }
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Using Redis as broker
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'

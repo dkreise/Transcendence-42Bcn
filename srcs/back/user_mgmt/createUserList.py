@@ -1,11 +1,17 @@
 from django.contrib.auth.models import User
-user1 = User.objects.create_user(username='dins', password='1234')
-user2 = User.objects.create_user(username='bobby', password='1234')
-user3 = User.objects.create_user(username='nuria', password='1234')
-user4 = User.objects.create_user(username='julia', password='1234')
-user5 = User.objects.create_user(username='diana', password='1234')
-user1.save()
-user2.save()
-user3.save()
-user4.save()
-user5.save()
+from user_profile.models import Profile
+
+def create_user_and_profile(username, password):
+    user, created = User.objects.get_or_create(username=username)
+    if created:
+        user.set_password(password)
+        user.save()
+
+    Profile.objects.get_or_create(user=user)
+
+# Call the function for each user
+create_user_and_profile('dins', '1234')
+create_user_and_profile('bobby', '1234')
+create_user_and_profile('nuria', '1234')
+create_user_and_profile('julia', '1234')
+create_user_and_profile('diana', '1234')

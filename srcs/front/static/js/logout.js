@@ -1,5 +1,8 @@
 import { loadLoginPage } from "./login.js";
 import { navigateTo } from "./main.js";
+import { disconnectTournamentWS } from "./tournament.js";
+import { disconnectWS } from "./onlineStatus.js"
+
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -27,11 +30,17 @@ export const handleLogout = () => {
         });
     }
 
+    disconnectTournamentWS();
+    disconnectWS()
+    console.log("WebSocket closed upon logout.");
+
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    localStorage.removeItem('intra_token');
+    // localStorage.removeItem('intra_token');
     localStorage.removeItem('username');
     localStorage.removeItem('name');
+    localStorage.removeItem('inTournament');
+    localStorage.removeItem('currentTournamentId');
     localStorage.setItem("3D-option", "false")
 
     //contentArea.innerHTML = ''; // to clear user content

@@ -1,9 +1,13 @@
 from django.utils.translation import activate
+from django.http import HttpRequest
 
 def add_language_context(request, context):
     # if context is None:
     #     context = {} 
-    lang = request.COOKIES.get('language') or 'en'
+    # lang = request.COOKIES.get('language') or 'en'
+    if not isinstance(request, HttpRequest):  # Ensure it's a Django HttpRequest
+        request = None  # Set to None if not valid
+    lang = request.COOKIES.get('language') if request else 'en'
     lang_words = get_lang_words(lang)
     context.update(lang_words)
     # return context
@@ -154,8 +158,8 @@ def get_lang_words(lang):
             'winner_wo': "Uzvarētājs ir",
             "start": "Sākt!",
             "try_again": "Mēģini vēlreiz",
-            "ready": "Gatavs?",
-            "go": "Aiziet!",
+            "ready": "Gatavs ?",
+            "go": "Aiziet !",
             "enemy": "Ienaidnieks",
             "waiting_enemy": "Gaida ienaidnieku...",
             "enemy_connected": "Ienaidnieks pievienojās!",
@@ -190,13 +194,15 @@ def get_lang_words(lang):
             'round': "Round",
             'tournament_finished': "The tournament has finished",
             'winner_wo': "The winner is",
-            "start": "START!",
+            "start": "START !",
             "try_again": "TRY AGAIN",
-            "ready": "READY?",
-            "go": "GO!",
+            "ready": "READY ?",
+            "go": "GO !",
             "enemy": "Enemy",
             "waiting_enemy": "Waiting for the enemy...",
-            "enemy_connected": "Enemy connected!",
-            "wins": "Wins",
+            "enemy_connected": "Enemy connected !",
+            "wins": "wins",
             "exit": "EXIT",
+            ###### to be added
+            "you": "you",
         }

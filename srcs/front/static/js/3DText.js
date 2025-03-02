@@ -24,12 +24,13 @@ export const textWinner = {
 
 export class SceneText {
 
-    constructor(scene, rotationX = 0, rotationY = 0, rotationZ = 0) {
+    constructor(scene, dict, rotationX = 0, rotationY = 0, rotationZ = 0) {
         this.scene = scene;
         this.loader = new FontLoader();
         this.fontPathRegular = "../three/examples/fonts/helvetiker_regular.typeface.json";
         this.fontPathBold = "../three/examples/fonts/helvetiker_regular.typeface.json";
         this.loadedBoldFont = null;
+        this.dict = dict;
         this.rotationX = rotationX;
         this.rotationZ = rotationZ;
         this.rotationY = rotationY;
@@ -60,8 +61,8 @@ export class SceneText {
 
     async createText() {
         this.loadedBoldFont = await this.loadFont(this.fontPathBold);
-        this.start = this.createButtonText("START !", this.loadedBoldFont);
-        this.tryAgain = this.createButtonText("TRY AGAIN", this.loadedBoldFont);
+        this.start = this.createButtonText(this.dict['start'], this.loadedBoldFont);
+        this.tryAgain = this.createButtonText(this.dict['try_again'], this.loadedBoldFont);
         this.tryAgain.visible = false;
         const textGeo = this.createTextGeometry("3", this.loadedBoldFont, textWinner);
         this.countdownText = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
@@ -117,29 +118,16 @@ export class SceneText {
     }
 }
 
-export class LocalSceneText extends SceneText {
+export class RemoteSceneText extends SceneText {
 
-    constructor(scene) {
-        super(scene, 0.5);
+    constructor(scene, dict, rotationX = 0, rotationY = 0, rotationZ = 0) {
+        super(scene, scene, dict, rotationX, rotationY, rotationZ);
         // this.button.geometry.rotateY(Math.PI * 0.25);
         // this.button.geometry.getAttribute('position').needsUpdate = true;
+        button.position.set(0, params.textY, 0); // Adjust position in the scene
     }
 
-    // createButton() {
-    //     const buttonGeo = new RoundedBoxGeometry(15, 5, 3, field.radius, field.seg * 3); // Button size
-    //     buttonGeo.rotateY(Math.PI * 0.25);
-    //     const buttonMat = new THREE.MeshPhongMaterial({ 
-    //         color: params.buttonColor,
-    //         specular: 0xFFFFFF, 
-    //         shininess: 100,
-    //         });
-    //     const button = new THREE.Mesh(buttonGeo, buttonMat);
-    //     button.castShadow = true;
-    //     button.receiveShadow = true;
-    //     button.position.set(0, params.textY, 0); // Adjust position in the scene
-    //     this.scene.add(button);
-    //     return button;
-    // }
+
 
     createWinnerMessage(msg) {
         const textGeo = this.createTextGeometry(msg, this.loadedBoldFont, textWinner);

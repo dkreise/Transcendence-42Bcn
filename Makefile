@@ -34,7 +34,7 @@ mi:
 	@$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py migrate"
 
 fill:
-	@$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py shell < createUserList.py"
+	@$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py shell < createUserList.py"
 	@$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py shell < createGameList.py"
 
 #stop -> stops services
@@ -57,6 +57,10 @@ logs:
 
 back:
 	docker restart ${OF}
+
+mgmt:
+	docker restart user-mgmt
+
 
 fclean: down
 	@if [ -n "$(D_PS)" ]; then \

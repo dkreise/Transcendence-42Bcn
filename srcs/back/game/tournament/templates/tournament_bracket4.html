@@ -29,10 +29,10 @@
 
         <!-- First Round -->
         <div class="round round-one">
-            {% for pair in pairs.0 %}
+            {% for pair, bool_winner in pairs_and_winners.0 %}
             <ul class="matchup">
-                <li class="team team-top">{{ pair.0 }}</li>
-                <li class="team team-bottom">{{ pair.1 }}</li>
+                <li class="team team-top {% if bool_winner.0 %}winner{% endif %}">{{ pair.0 }}</li>
+                <li class="team team-bottom {% if bool_winner.1 %}winner{% endif %}">{{ pair.1 }}</li>
             </ul>
             {% endfor %}
             <!-- for testing -->
@@ -62,4 +62,10 @@
             {% endif %}
         </div>
     </section>
+
+    <div class="d-flex justify-content-center">
+        <div class="col-12 col-md-6">
+            <button class="btn btn-grey-purple btn-large w-100" replace-url data-route="/quit-tournament">Quit Tournament</button>
+        </div>
+    </div>
 </div>

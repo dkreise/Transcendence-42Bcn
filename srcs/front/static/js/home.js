@@ -58,5 +58,5 @@ export const loadHomePage = () => {
                 console.error("home_html not found in the response data");
             }
         })
-        .catch((error) => console.error("Error loading home page:", error));
+        .catch((error) => console.log("Error loading home page:", error));
 };

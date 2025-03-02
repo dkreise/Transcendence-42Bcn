@@ -105,3 +105,13 @@ export function startLocalGame(playerName1, playerName2, mainUserNmb) {
     setupControls(player1, player2);
     gameLocalLoop();
 }
+
+export function cleanupLocal() {
+    if (!ball) return;
+    // console.log("✅ Local game cleaned up!");
+    cancelAnimationFrame(gameLoopId);
+    player1 = null;
+    player2 = null;
+    ball = null;
+    console.log("✅ Local game cleaned up!");
+}

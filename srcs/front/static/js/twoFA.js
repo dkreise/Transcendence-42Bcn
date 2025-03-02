@@ -112,6 +112,7 @@ const verify2FALogin = () => {
             console.log("2fa code CORRECT !!");
             localStorage.setItem('access_token', data.tokens.access);
             localStorage.setItem('refresh_token', data.tokens.refresh);
+            localStorage.setItem('username', data.username);
             localStorage.removeItem('temp_token');
             // updateLanguage();
             navigateTo('/home', true);
