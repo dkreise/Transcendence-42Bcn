@@ -400,7 +400,8 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 				handleUpdate(data);
 				break;
 			case "endgame":
-				handleEndgame(data);
+                handleEndgame(data);
+                saveTournamentGameResult(data["winnerID"], data["loserID"], 3, 5);
 				break;
 			case "reject":
 				alert(`Connection rejected: ${data.reason}`);

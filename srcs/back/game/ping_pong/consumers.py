@@ -238,6 +238,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 					}))
 
 				elif dtype == "game_result":
+					# await self.channel_layer.group_send(
+					# 	self.tour_id,
+					# 	{
+					# 		"type": "tournament_game_result",
+					# 		"message": data,
+					# 	}
+					# )
 					logger.info("RECEIVED. we need to handle game result")
 					status = await tournament.handle_game_end(data, False)
 					if status == "new":
@@ -320,7 +327,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 						opp = tournament.get_opponent(self.user.username)
 						if opp == "@AI":
 							return
-						self.room_id = "test" + self.tour_id + "_" + str(tournament.round)
+						self.room_id = "T_" + self.tour_id + "_" + str(tournament.round)
 						logger.info(f"T roomID: {self.room_id}")
 						async with active_games_lock:
 							if self.room_id not in active_games:
@@ -374,6 +381,16 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def send_game_msg(self, event):
 		# logger.info(f"SGM: sending message {event['message']}")
 		await self.send(text_data=json.dumps(event["message"]))
+
+	async def send_game_msg_tour(self, event):
+		data = event["message"]
+		winner = data["winnerID"]
+		loser = data["loserID"]
+		logger.info(f"TRYING sending game msg tour for: {self.user.username}")
+		logger.info(f"winner: {winner}")
+		if (self.user.username == winner):
+			logger.info(f"sending game msg tour for: {self.user.username}")
+			await self.send(text_data=json.dumps(event["message"]))
 
 ###################################################
 
@@ -436,12 +453,38 @@ class PongConsumer(AsyncWebsocketConsumer):
 			"player_cnt": tournament.get_players_cnt(),
 		}))
 	
-	# async def start_countdown_until_close(self):
-	# 	async with active_tournaments_lock:
-	# 		tournament = active_tournaments[self.tour_id]
-	# 		if tournament.needs_countdown:
-	# 			tournament.nees
-	# 			await asyncio.sleep(30)
+	# async def tournament_game_result(self, event):
+	# 	data = event["message"]
+	# 	logger.info("RECEIVED. we need to handle game result")
+	# 	status = await tournament.handle_game_end(data, False)
+	# 	if status == "new":
+	# 		tournament.increase_round()
+	# 		await self.channel_layer.group_send(
+	# 				self.tour_id,
+	# 				{
+	# 					"type": "tournament_starts",
+	# 					"message": "New round has started",
+	# 					"status": "playing",
+	# 				}
+	# 			)
+	# 	elif status == "finished":
+	# 		await self.channel_layer.group_send(
+	# 				self.tour_id,
+	# 				{
+	# 					"type": "tournament_ends",
+	# 					"message": "Tournament has finished",
+	# 					"status": "finished",
+	# 				}
+	# 			)
+	# 	elif status == "continue":
+	# 		await self.channel_layer.group_send(
+	# 				self.tour_id,
+	# 				{
+	# 					"type": "tournament_update",
+	# 					"message": "Tournament has updated",
+	# 					"status": "playing",
+	# 				}
+	# 			)
 		
 
 ###################### UTILS #############################

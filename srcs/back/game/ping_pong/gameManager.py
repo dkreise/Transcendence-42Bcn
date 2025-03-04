@@ -55,7 +55,7 @@ scores
 class GameManager:
 
 	ball_config = {"rad": 7, "xspeed": 5, "yspeed":8}
-	board_config = {"width": 400, "height": 300, "max_score": 5}
+	board_config = {"width": 400, "height": 300, "max_score": 2}
 	paddle_config = {"width": 10, "height": 50, "speed": 5}
 	countdown = 5
 
@@ -260,15 +260,19 @@ class GameManager:
 	async def declare_winner(self, winner_role):
 
 		winner_id = self.players[winner_role]["id"]
+		loser_id = next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
 
-		game = get_game_model()
+		if not "T_" in self.id:
+			game = get_game_model()
 
-		#save the game result
-		saved_game = await self.save_game_score(winner_id)
+			#save the game result
+			saved_game = await self.save_game_score(winner_id)
 
-		if saved_game:
-			logger.info(f"Game successfully saved: {saved_game}")
+			if saved_game:
+				logger.info(f"Game successfully saved: {saved_game}")
 		logger.info(f"Player {winner_id} wins in room {self.id}")
+		logger.info(f"Player {loser_id} loses in room {self.id}")
+		self.game_loop_task_cancel()
 		message = {
 			"type": "endgame",
 			"winnerID": winner_id,
@@ -276,12 +280,21 @@ class GameManager:
 			#"loserID": next((loser for loser in self.users if loser != winner_id), None)
 		}
 		channel_layer = get_channel_layer()
-		await channel_layer.group_send(
-			self.id,
-			{
-				"type": "send_game_msg", #function in PongConsumer
-				"message": message
-			})
+		if "T_" in self.id:
+			logger.info("GAME ENDED IN TOURNAMENT")
+			await channel_layer.group_send(
+				self.id,
+				{
+					"type": "send_game_msg_tour", #function in PongConsumer
+					"message": message
+				})
+		else:
+			await channel_layer.group_send(
+				self.id,
+				{
+					"type": "send_game_msg", #function in PongConsumer
+					"message": message
+				})
 
 #########################################################
 
@@ -289,6 +302,7 @@ class GameManager:
 	def save_game_score(self, winner_id):
 		try:
 			Game = get_game_model()
+			User = get_user_model()
 			with transaction.atomic(): #Ensure atomicity
 				winner = User.objects.filter(id=winner_id).first()
 				player1 = winner
