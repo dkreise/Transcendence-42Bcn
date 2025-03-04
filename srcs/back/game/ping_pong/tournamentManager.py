@@ -121,10 +121,11 @@ class TournamentManager:
 		}
 		logger.info(f"round:: {self.round}")
 		add_language_context(self.scope.get('request', {}), context)
-		if self.max_user_cnt <= 4:
-			html = render_to_string('tournament_bracket4.html', context)
-		else:
-			html = render_to_string('tournament_bracket8.html')
+		html = render_to_string('tournament_bracket4.html', context)
+		# if self.max_user_cnt <= 4:
+		# 	html = render_to_string('tournament_bracket4.html', context)
+		# else:
+		# 	html = render_to_string('tournament_bracket8.html')
 
 		needs_to_play = username in self.players
 		opponent = self.get_opponent(username)

@@ -76,6 +76,10 @@
     background-color: #595e61 !important;
 }
 
+.bracket {
+    color: #595e61;
+}
+
 .winner {
     font-weight: bold;
     color: #bae6bc; /* Green color */
