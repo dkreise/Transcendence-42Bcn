@@ -201,9 +201,9 @@ function addGameButton(data) {
     playButton.addEventListener('click', () => {
         if (socket.readyState === WebSocket.OPEN)
         {
-			//CHANGED BY NURIA
-            //socket.send(JSON.stringify({ "type": "game_started" }));
-            socket.send(JSON.stringify({ "type": "start_game" }));
+			//CHANGED BY diana
+            socket.send(JSON.stringify({ "type": "game_started" }));
+            // socket.send(JSON.stringify({ "type": "start_game" }));
         }
     });
     bracketSection.append(playButton);
@@ -381,7 +381,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
             case "needs_to_play":
                 tournamentGameAIstart(data, tourId);
                 break;
-            case "status":
+            case "tournament_status":
                 localStorage.setItem('inTournament', data.status);
                 navigateTo('/tournament');
                 break;
@@ -394,7 +394,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 				socket.send(JSON.stringify({"type": "ready"}));
 				break;
 			case "status":
-				await handleStatus(data);
+				await handleStatus(data, socket);
 				break;
 			case "update":
 				handleUpdate(data);

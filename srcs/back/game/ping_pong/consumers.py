@@ -310,7 +310,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				elif dtype == "get_status":
 					status = tournament.get_status()
 					await self.send(text_data=json.dumps({
-						"type": "status",
+						"type": "tournament_status",
 						"status": status,
 					}))
 				elif dtype == "start_game":
@@ -318,7 +318,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 						logger.info(f"{self.user.username} wants to start the game")
 						tournament.set_match_start(self.user.username)
 						opp = tournament.get_opponent(self.user.username)
-						self.room_id = "test3"
+						if opp == "@AI":
+							return
+						self.room_id = "test" + self.tour_id + "_" + str(tournament.round)
 						logger.info(f"T roomID: {self.room_id}")
 						async with active_games_lock:
 							if self.room_id not in active_games:
@@ -345,6 +347,21 @@ class PongConsumer(AsyncWebsocketConsumer):
 						logger.error(f"Tgame error {e}")
 						await self.close()
 				
+				elif dtype == "ready":
+					async with active_games_lock:
+						game = active_games[self.room_id]
+						game.ready += 1
+						logger.info(f"{self.user} is ready: {game.ready}")
+						if game.ready == 2:
+							game.status = 1
+							logger.info(f"{self.role} ({self.user})starts the game")
+							await game.start_game(self.user)
+				
+				elif dtype == "update":
+					game = active_games[self.room_id]
+					game.handle_message(self.role, data)
+					await game.update_game()
+				
 				# elif dtype == "tournament_delete":
 				# 	logger.info("WE RECEIVED that it's needed to delete")
 				# 	await self.tournament_delete()
@@ -355,7 +372,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 ###################################################
 
 	async def send_game_msg(self, event):
-		logger.info(f"SGM: sending message {event['message']}")
+		# logger.info(f"SGM: sending message {event['message']}")
 		await self.send(text_data=json.dumps(event["message"]))
 
 ###################################################

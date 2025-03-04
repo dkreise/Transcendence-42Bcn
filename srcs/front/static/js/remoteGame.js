@@ -30,6 +30,7 @@ function interpolateBall() {
 
 export function handleRoleAssignment(role) {
 	console.log("Hi! I'm " + role);
+	console.log("CANVAS: ", canvas);
 	if (role === "player1") {
 		player = new Player(canvas, "player1");
 		opponent = new Player(canvas, "player2");
@@ -130,9 +131,11 @@ export function setWhoAmI(data)
 	opponent.whoAmI = data[opponent.role];
 }
 
-export async function handleStatus(data)
+export async function handleStatus(data, tourSocket)
 {
-	
+	if (!socket) {
+		socket = tourSocket;
+	}
 	player.update(data.players, data.scores);
 	opponent.update(data.players, data.scores);
 	if (data.wait) // data.wait [bool]
@@ -168,7 +171,7 @@ export function handleUpdate(data)
 //async function initializeWebSocket(roomId) {
 async function initializeWebSocket() {
 	//const roomID = new URLSearchParams(window.location.search).get("room") || "default";
-	const roomId = 123;
+	const roomId = 1;
 	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
@@ -271,6 +274,7 @@ async function initializeWebSocket() {
 
 function gameLoop() {
 	gameLoopId = requestAnimationFrame(gameLoop);
+	console.log("IN GAME LOOP");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(0 0 0 / 75%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -300,6 +304,8 @@ export function startGame()
 	{
 		alert("Unable to display the game. Please, try again later");
 		return ;
+	} else {
+		console.log("CANVAS: ", canvas);
 	}
 	ctx = canvas.getContext('2d');
 	ball = new Ball(canvas);
