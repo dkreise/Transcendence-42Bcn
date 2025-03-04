@@ -126,7 +126,7 @@ def saveUser(token):
         if not user_data.get('login'):
             raise AuthenticationFailed("Couldn't recognize the user")
         # print("7777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
-        name42 = '@42' + user_data.get('login')
+        name42 = '@' + user_data.get('login')
         # print("42 username !!!!!!!!!!!!!!!!!!:", name42)  
         try:
             exist = User.objects.filter(username=name42).exists() # try catch
