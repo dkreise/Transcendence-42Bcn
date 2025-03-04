@@ -43,9 +43,14 @@ export class Player {
 			this.send(socket);
 	}
 
-	update(newY, newScore) {
-		this.y = newY;
-		this.score = newScore;
+	update(players, newScore) {
+	//	console.log(`role: ${this.role} bF: ${this.backFactor} pl: ${players[this.role]["y"]}`);
+		if (!this.role)
+			return ;
+		if (players[this.role] && players[this.role]["y"])
+			this.y = players[this.role]["y"] * this.backFactor;
+		if (newScore[this.role])
+			this.score = newScore[this.role];
 	}
 
 	drawScore(ctx) {
@@ -75,9 +80,10 @@ export class Player {
 		ctx.font = `${fontSize}px Arial`;
 		ctx.textAlign = "center";
 		ctx.fillText(msg, this.canvas.width / 2, this.canvas.height / 2 - 20);
-		ctx.font = `${fontSize - 10}px Arial`;
+		ctx.font = `${fontSize - 5}px Arial`;
 		ctx.fillText(finalScore, this.canvas.width / 2, this.canvas.height / 2 + 30);
 	}
+
 	send(socket) {
 		if (socket.readyState === WebSocket.OPEN)
 		{

@@ -15,6 +15,11 @@ active_games = {}
 active_games_lock = asyncio.Lock()
 active_tournaments = {}
 active_tournaments_lock = asyncio.Lock()
+ws_codes = {
+	"4000": "You're already in the room",
+	"4001": "Error trying to reconnect. Please, try again later",
+	"4002": "Access denied. The room is already full"
+}
 
 
 class ThrowError(Exception):
@@ -83,7 +88,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 					await self.close()
 
 			elif self.type == "G":
-				#call game manager
 				try:
 					self.room_id = self.scope['url_route']['kwargs']['tgID']
 					async with active_games_lock:
@@ -92,35 +96,24 @@ class PongConsumer(AsyncWebsocketConsumer):
 						# TODO: False should be dynamic (player = T / viewer = F)
 						game = active_games[self.room_id]
 						self.role = await game.join_room(self.user.username, False)
-						if not self.role:
-							await self.close()
+						await self.accept()
+						if "player" not in self.role:
+							await self.send(json.dumps({
+								"type": "reject",
+								"reason": ws_codes[self.role],
+								"code": self.role
+							}))
+							await self.close(int(self.role))
 							return
 						# Notify the client of their role
-						logger.info(f"sending role msg to {self.role}")
-						await self.accept()
-						await self.send(json.dumps({
-							"type": "role",
-							"role": self.role,
-							#"user": self.user.username,
-							"canvasX": game.board_config["width"],
-							"canvasY": game.board_config["height"],
-							"padW": game.paddle_config["width"],
-							"padH": game.paddle_config["height"],
-							"padS": game.paddle_config["speed"],
-							"ballRad": game.ball_config["rad"],		# ball radius
-							"ballSx": game.ball_config["xspeed"],		# ball speed
-							"ballSy": game.ball_config["yspeed"]		# ball speed
-						}))
 						await self.channel_layer.group_add(self.room_id, self.channel_name)
+						logger.info(f"sending role msg to {self.role}")
+						await game.send_role(self.channel_name, self.role)
 						logger.info(f"role sent. current users: {game.users} len: {len(game.users)}")
 						if len(game.users) == 2:
 							await game.send_players_id()
-							#asyncio.sleep(2)
-							#logger.info(f"{self.role} starts the game")
-							#await game.start_game()
 						else:
 							await game.send_status(0)
-						#logger.info(f"Role: {self.role}")
 
 				except Exception as e:
 					logger.error(f"\033[1;31mError connecting to the game: {e}\033[0m")
@@ -148,12 +141,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 				if self.role in game.players:
 					del game.players[self.role]
+					logger.info(f"Current users in the room: {game.users}")
 				if len(game.players) < 2:
 					game.stop_game()
 
 				if not game.players:
 					async with active_games_lock:
-						del active_games[self.room_id]
+						if self.room_id in active_games:
+							del active_games[self.room_id]
+							logger.info(f"Room {self.room_id} has been deleted")
 		elif self.type == "T":
 			# We will only disconnect socket when tournament is finished
 			await self.channel_layer.group_discard(
@@ -247,8 +243,18 @@ class PongConsumer(AsyncWebsocketConsumer):
 ###################################################
 
 	async def send_game_msg(self, event):
-		#logger.info(f"SGM: sending message {event['message']}")
 		await self.send(text_data=json.dumps(event["message"]))
+	
+	async def send_endgame(self, event):
+		logger.info("\033[1;32mEndgame, kudos to the winner!\033[0m")
+		try:
+			await self.send(text_data=json.dumps(event["message"]))
+			async with active_games_lock:
+				if self.room_id in active_games:
+					del active_games[self.room_id]
+					await self.close()
+		except Exception as e:
+			logger.error(f"Error sending endgame: {e}")
 
 ###################################################
 
