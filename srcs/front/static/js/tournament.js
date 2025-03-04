@@ -3,6 +3,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame } from "./AIGame.js"
 import { gameAI } from "./game.js";
+import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame } from "./remoteGame.js"
 
 var baseUrl = "http://localhost"; // TODO: change (parse) later
 let socket = null;
@@ -194,10 +195,15 @@ function addGameButton(data) {
         // Pass arguments as a JSON string inside `data-args`
         // playButton.setAttribute("data-args", JSON.stringify({ tournament: "true", tournamentId: 1234 }));
     }
+	else {
+        playButton.setAttribute("data-route", '/play-online');
+	}
     playButton.addEventListener('click', () => {
         if (socket.readyState === WebSocket.OPEN)
         {
+			//CHANGED BY diana
             socket.send(JSON.stringify({ "type": "game_started" }));
+            // socket.send(JSON.stringify({ "type": "start_game" }));
         }
     });
     bracketSection.append(playButton);
@@ -262,7 +268,7 @@ function updatePlayerCount(data) {
     }
 }
 
-export function tournamentConnect(tourId, nPlayers=null) {
+export async function tournamentConnect(tourId, nPlayers=null) {
     return new Promise((resolve, reject) => {
 	const token = localStorage.getItem("access_token");
 	if (!token)
@@ -345,7 +351,7 @@ export function tournamentConnect(tourId, nPlayers=null) {
         // // navigateTo('/home', true);
 	};
 
-	socket.onmessage = (event) => { //we're receiving messages from the backend via WB
+	socket.onmessage = async (event) => { //we're receiving messages from the backend via WB
 		const data = JSON.parse(event.data);
         localStorage.setItem("currentTournamentId", tourId);
 
@@ -375,15 +381,41 @@ export function tournamentConnect(tourId, nPlayers=null) {
             case "needs_to_play":
                 tournamentGameAIstart(data, tourId);
                 break;
-            case "status":
+            case "tournament_status":
                 localStorage.setItem('inTournament', data.status);
                 navigateTo('/tournament');
                 break;
+			case "role":
+				handleRoleAssignment(data.role);
+				scaleGame(data);
+				break;
+			case "players":
+				setWhoAmI(data);
+				socket.send(JSON.stringify({"type": "ready"}));
+				break;
+			case "status":
+				await handleStatus(data, socket);
+				break;
+			case "update":
+				handleUpdate(data);
+				break;
+			case "endgame":
+				handleEndgame(data);
+				break;
+			case "reject":
+				alert(`Connection rejected: ${data.reason}`);
+				//return client to tournament home page or bracket page
+				break;
             default:
                 console.warn("Unhandled message type: ", data.type);
 		}
 	};
 });
+}
+
+export function startTournamentGame()
+{
+	socket.send(JSON.stringify({"type": "start_game"}));
 }
 
 ////////////////// UTILS //////////////////////

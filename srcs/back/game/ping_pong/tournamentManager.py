@@ -8,9 +8,9 @@ from django.template.loader import render_to_string
 import random
 from game.utils.translations import add_language_context 
 from asgiref.sync import sync_to_async
-from celery import shared_task
+#from celery import shared_task
 from django.utils import timezone
-from celery.result import AsyncResult
+#from celery.result import AsyncResult
 
 logger = logging.getLogger(__name__)
 
@@ -67,13 +67,13 @@ class TournamentManager:
 			logger.info("user is already here!")
 			return "reload"
 		### only for testing:
-		if self.get_players_cnt() == 1 and self.max_user_cnt == 2:
-			self.test = 1
-			self.max_user_cnt = 4
-			self.users.append("@AI")
-			self.players.append("@AI")
-			self.users.append("@AI")
-			self.players.append("@AI")
+		# if self.get_players_cnt() == 1 and self.max_user_cnt == 2:
+		# 	self.test = 1
+		# 	self.max_user_cnt = 4
+		# 	self.users.append("@AI")
+		# 	self.players.append("@AI")
+		# 	self.users.append("@AI")
+		# 	self.players.append("@AI")
 		return "connect"
 		### end for testing
 	
@@ -433,7 +433,7 @@ class TournamentManager:
 				return
 	
 	async def check_unstarted_games(self):
-		await asyncio.sleep(20)
+		await asyncio.sleep(120)
 		now = timezone.now()
 		for i in range(len(self.matches_started)):
 			if self.matches_started[i] == False:

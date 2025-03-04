@@ -1,6 +1,7 @@
 import { Ball, Player } from "./remoteClasses.js";
 import { setupControls } from "./localGame.js";
 import { refreshAccessToken } from "./login.js";
+import { startTournamentGame } from "./tournament.js";
 
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
@@ -27,8 +28,9 @@ function interpolateBall() {
 	ball.y += (targetBallY - ball.y) * ballCoef;
 }
 
-function handleRoleAssignment(role) {
+export function handleRoleAssignment(role) {
 	console.log("Hi! I'm " + role);
+	console.log("CANVAS: ", canvas);
 	if (role === "player1") {
 		player = new Player(canvas, "player1");
 		opponent = new Player(canvas, "player2");
@@ -38,15 +40,16 @@ function handleRoleAssignment(role) {
 	}
 }
 
-function scaleGame(data)
+export function scaleGame(data)
 {
-	// handleRoleAssignment(data.role);
 	player.width = canvas.width * (data.padW / data.canvasX);
 	opponent.width = player.width;
 	player.height = canvas.height * (data.padH / data.canvasY);
 	opponent.height = player.height;
 	if (player.x != 0)
 		player.x = canvas.width - player.width;
+	else
+		opponent.x = canvas.width - opponent.width;
 	//console.log("FRONT 2 width: " + player.width + " height: " + player.height);
 	backFactor["x"] = canvas.width / data.canvasX;
 	backFactor["y"] = canvas.height / data.canvasY;
@@ -56,19 +59,25 @@ function scaleGame(data)
 
 async function readySteadyGo(countdown)
 {
-	const msg = ["Go!", "Steady...", "Ready..."];
-	let fontSize = Math.floor(canvas.width * 0.05);
+	const msg = ["1", "2", "3"];
+	let div = document.getElementById("wait");
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	div.textContent = msg[countdown];
+	div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
+
 	ctx.fillStyle = "rgb(100 100 100 / 50%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
-	ctx.font = `${fontSize}px Arial`;
-	ctx.textAlign = "center";
-	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
+	div.style.display = "block";
+//	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
+//	ctx.font = `${fontSize}px Arial`;
+//	ctx.textAlign = "center";
+//	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
 	console.log(`[${getTimestamp()}] RSG: ${countdown}`);
 	if (countdown)
 		await setTimeout(async() => await readySteadyGo(--countdown), 1000);
+	else
+		div.style.display = "none";
 }
 
 function displayCountdown()
@@ -96,7 +105,7 @@ function displayCountdown()
 	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 + fontSize / 2);
 }
 
-function handleEndgame(data) {
+export function handleEndgame(data) {
 	const { wait, winnerId, loserRole } = data;
 	
 	if (player.whoAmI == winnerId)
@@ -116,10 +125,53 @@ function getTimestamp() {
 	return `${date.getDate()}-${date.getMonth() + 1} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 }
 
+export function setWhoAmI(data)
+{
+	player.whoAmI = data[player.role];
+	opponent.whoAmI = data[opponent.role];
+}
+
+export async function handleStatus(data, tourSocket)
+{
+	if (!socket) {
+		socket = tourSocket;
+	}
+	player.update(data.players, data.scores);
+	opponent.update(data.players, data.scores);
+	if (data.wait) // data.wait [bool]
+	{
+		if (gameLoopId)
+			cancelAnimationFrame(gameLoopId);
+		if (data.countdown != 4)
+			displayCountdown();
+		else
+			await readySteadyGo(data.countdown - 2);
+	}
+	else
+	{
+		console.log("let's start the game!");
+		setupControls(player, opponent)
+		gameLoop();
+	}
+}
+
+export function handleUpdate(data)
+{
+	if (data.players)
+	{
+		player.update(data.players, data.scores);
+		opponent.update(data.players, data.scores);
+	}
+	if (data.ball) {
+		targetBallX = data.ball.x * backFactor["x"];
+		targetBallY = data.ball.y * backFactor["y"];
+	}
+}
+
 //async function initializeWebSocket(roomId) {
 async function initializeWebSocket() {
 	//const roomID = new URLSearchParams(window.location.search).get("room") || "default";
-	const roomId = 123;
+	const roomId = 1;
 	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
@@ -159,70 +211,70 @@ async function initializeWebSocket() {
 	socket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 
+		console.log(`data type is: ${data.type}`);
 		switch (data.type) {
 			case "role":
 				handleRoleAssignment(data.role);
 				scaleGame(data);
 				break;
 			case "players":
-				if (player.role === "player1") {
-					player.whoAmI = data.p1;
-					opponent.whoAmI = data.p2;
-				} else {
-					player.whoAmI = data.p2;
-					opponent.whoAmI = data.p1;
-				}
-				socket.send(JSON.stringify({"type": "ready"}))
+				setWhoAmI(data);
+				socket.send(JSON.stringify({"type": "ready"}));
 				break;
 			case "status":
-				if (data.wait)
-				{
-					if (data.countdown != 4)
-						displayCountdown();
-					else
-						await readySteadyGo(data.countdown - 2);
-				}
-				else
-				{
-					console.log("let's start the game!");
-					setupControls(player, opponent)
-					gameLoop();
-				}
+				handleStatus(data);
+			//	console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
+			//	player.update(data.players, data.scores);
+			//	opponent.update(data.players, data.scores);
+			//	if (data.wait) // data.wait [bool]
+			//	{
+			//		if (gameLoopId)
+			//			cancelAnimationFrame(gameLoopId);
+			//		if (data.countdown != 4)
+			//			displayCountdown();
+			//		else
+			//			await readySteadyGo(data.countdown - 2);
+			//	}
+			//	else
+			//	{
+			//		console.log("let's start the game!");
+			//		console.log(`canvas W: ${canvas. width} H: ${canvas.height}`);
+			//		console.log(`paddle me: ${player. width} you: ${opponent.width}`);
+			//		console.log(`x: ${player.x} y: ${player.y}\nx: ${opponent.x} y: ${opponent.y}`);
+			//		setupControls(player, opponent)
+			//		gameLoop();
+			//	}
 				break;
 			case "update":
-				if (data.players)
-				{
-					let pl1 = data["players"]["player1"]["y"] * backFactor["y"];
-					let pl2 = data["players"]["player2"]["y"] * backFactor["y"];
-					//console.log(`canvasH: ${canvas.height}\np1Y: ${pl1}\np2Y: ${pl2}`)
-					//console.log(`p1 Y: ${pl1} score: ${data['scores']['player1']}\n p2 Y: ${pl2} score: ${data['scores']['player2']}`);
-					if (player.role == "player1")
-					{
-						player.update(pl1, data["scores"]["player1"]);
-						opponent.update(pl2, data["scores"]["player2"]);
-					}
-					else if (player.role == "player2") 
-					{
-						player.update(pl2, data["scores"]["player2"]);
-						opponent.update(pl1, data["scores"]["player1"]);
-					}
-				}
-				if (data.ball) {
-					targetBallX = data.ball.x * backFactor["x"];
-					targetBallY = data.ball.y * backFactor["y"];
-				}
+				handleUpdate(data);
+			//	if (data.players)
+			//	{
+			//		player.update(data.players, data.scores);
+			//		opponent.update(data.players, data.scores);
+			//	}
+			//	if (data.ball) {
+			//		targetBallX = data.ball.x * backFactor["x"];
+			//		targetBallY = data.ball.y * backFactor["y"];
+			//	}
+				break ;
+			case "reject":
+				alert(`Connection rejected: ${data.reason}`);
+				socket.close();
 				break ;
 			case "endgame":
 				handleEndgame(data);
-				break;
+				break ;
 			default:
 				console.warn("Unhandled message type:", data.type);
 		}
 	};
 }
 
+
+
 function gameLoop() {
 	gameLoopId = requestAnimationFrame(gameLoop);
+	console.log("IN GAME LOOP");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(0 0 0 / 75%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -247,14 +299,20 @@ window.addEventListener("resize", () => {
 export function startGame()
 {
 	canvas = document.getElementById('newGameCanvas');
+	const tourId = localStorage.getItem('currentTournamentId');
 	if (!canvas)
 	{
 		alert("Unable to display the game. Please, try again later");
 		return ;
+	} else {
+		console.log("CANVAS: ", canvas);
 	}
 	ctx = canvas.getContext('2d');
 	ball = new Ball(canvas);
 	targetBallX = ball.x;
 	targetBallY = ball.y;
-	initializeWebSocket();
+	if (!tourId)
+		initializeWebSocket();
+	else
+		startTournamentGame();
 }

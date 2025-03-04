@@ -228,6 +228,7 @@ export async function playOnline () {
 
     Enable3D = localStorage.getItem("3D-option");
     console.log(`Enable 3D: ${Enable3D}`)
+	Enable3D = "false";
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
     if (!checkPermission) {
