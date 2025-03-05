@@ -78,6 +78,7 @@ class GameManager:
 			"xspeed": GameManager.ball_config["xspeed"],
 			"yspeed": GameManager.ball_config["yspeed"]
 		}
+		self.tour_id = None
 
 ###############################################
 
@@ -133,9 +134,13 @@ class GameManager:
 		logger.info(f"{role} has scored in room {self.id}")
 		self.status = 1
 		self.reset_positions(role)
+		self.scores[role] += 1
+		if self.scores["player1"] == GameManager.board_config["max_score"] or self.scores["player2"] == GameManager.board_config["max_score"]:
+			return
+		logger.info("sending status in has_scored")
 		await self.send_status(4)
 		self.rsg_task = asyncio.create_task(self.ready_steady_go())
-		self.scores[role] += 1
+		# self.scores[role] += 1
 
 	def is_pad_col_side(self):
 		radius = GameManager.ball_config["rad"]
@@ -199,6 +204,7 @@ class GameManager:
 		try:
 			await asyncio.sleep(4)
 			self.status = 0
+			logger.info("sending status in ready_steady")
 			await self.send_status(0)
 		except Exception as e:
 			logger.error(f"Error in Ready Steady Go: {e}")
@@ -258,6 +264,11 @@ class GameManager:
 #########################################################
 
 	async def declare_winner(self, winner_role):
+		if self.rsg_task:
+			self.rsg_task.cancel()
+			del self.rsg_task
+			self.rsg_task = None
+		# self.game_loop_task_cancel()
 
 		winner_id = self.players[winner_role]["id"]
 		loser_id = next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
@@ -272,15 +283,17 @@ class GameManager:
 				logger.info(f"Game successfully saved: {saved_game}")
 		logger.info(f"Player {winner_id} wins in room {self.id}")
 		logger.info(f"Player {loser_id} loses in room {self.id}")
-		self.game_loop_task_cancel()
+		
 		message = {
 			"type": "endgame",
 			"winnerID": winner_id,
 			"loserID": next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
 			#"loserID": next((loser for loser in self.users if loser != winner_id), None)
 		}
+		# logger.info(f"Player {message["loserID"]} loses in room {self.id}")
 		channel_layer = get_channel_layer()
 		if "T_" in self.id:
+			# self.game_loop_task_cancel()
 			logger.info("GAME ENDED IN TOURNAMENT")
 			await channel_layer.group_send(
 				self.id,
@@ -288,6 +301,7 @@ class GameManager:
 					"type": "send_game_msg_tour", #function in PongConsumer
 					"message": message
 				})
+			self.game_loop_task_cancel()
 		else:
 			await channel_layer.group_send(
 				self.id,
@@ -392,6 +406,7 @@ class GameManager:
 		if self.game_loop_task:
 			self.game_loop_task_cancel()
 			self.game_loop_task = None
+		logger.info("sending status in stop_game")
 		await self.send_status(GameManager.countdown)
 
 #################################################################

@@ -106,13 +106,17 @@ function displayCountdown()
 }
 
 export function handleEndgame(data) {
-	const { wait, winnerId, loserRole } = data;
+	const { wait, winnerID, loserID } = data;
 	
-	if (player.whoAmI == winnerId)
+	console.log(player.whoAmI);
+	console.log(player.role);
+	console.log(loserID);
+	console.log(winnerID);
+	if (player.whoAmI == winnerID)
 		player.scores++;
 	else
 		opponent.scores++;
-	if (loserRole == player.role)
+	if (loserID == player.whoAmI)
 		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
 	else
 		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
@@ -313,6 +317,13 @@ export function startGame()
 	targetBallY = ball.y;
 	if (!tourId)
 		initializeWebSocket();
-	else
+	else {
 		startTournamentGame();
+		const button = document.getElementById('play-again');
+        if (button) {
+            button.textContent = "Quit Tournament";
+            button.setAttribute("data-route", "/quit-tournament");
+            button.setAttribute("replace-url", true);
+        }
+	}
 }

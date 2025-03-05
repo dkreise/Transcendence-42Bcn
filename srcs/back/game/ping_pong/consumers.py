@@ -238,14 +238,18 @@ class PongConsumer(AsyncWebsocketConsumer):
 					}))
 
 				elif dtype == "game_result":
-					# await self.channel_layer.group_send(
-					# 	self.tour_id,
-					# 	{
-					# 		"type": "tournament_game_result",
-					# 		"message": data,
-					# 	}
-					# )
 					logger.info("RECEIVED. we need to handle game result")
+					if data["winner"] != "@AI" and data["loser"] != "@AI":
+						logger.info("deleting game group")
+						# await self.channel_layer.group_discard(
+						# 	self.room_id,
+						# 	self.channel_name
+						# )
+						# async with active_games_lock:
+						# 	del active_games[self.room_id]
+						if self.user.username == data["loser"]:
+							logger.info("for loser not handling the game res! return")
+							return
 					status = await tournament.handle_game_end(data, False)
 					if status == "new":
 						tournament.increase_round()
@@ -280,7 +284,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 					logger.info("player wants to quit the tournament. handling quit..:")
 					status = await tournament.handle_quit(self.user.username, False)
 					logger.info("we handled the quit. now disconnecting..:")
+					# if self.room_id in active_games:
+					# 	game = active_games[self.room_id]
+
+						# game.users.remove(user)
 					await self.disconnect(1000)
+					if self.room_id in active_games:
+						game = active_games[self.room_id]
+						await game.declare_winner("player2") # to handle properly
 					if status == "new":
 						tournament.increase_round()
 						await self.channel_layer.group_send(
@@ -309,9 +320,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 					logger.info("REQUEST TO PLAY")
 					needs_to_play = tournament.if_needs_to_play(self.user.username)
 					logger.info(f"needs to play ? {needs_to_play}")
+					opponent = None
+					if needs_to_play:
+						opponent = tournament.get_opponent(self.user.username)
 					await self.send(text_data=json.dumps({
 						"type": "needs_to_play",
 						"needs_to_play": needs_to_play,
+						"opponent": opponent,
 					}))
 				
 				elif dtype == "get_status":
@@ -333,6 +348,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 							if self.room_id not in active_games:
 								active_games[self.room_id] = GameManager(self.room_id)
 						game = active_games[self.room_id]
+						game.tour_id = self.tour_id
 						logger.info(f"START TGAME: users {game.users}")
 						self.role = await game.join_room(self.user.username, False)
 						logger.info(f"START TGAME: self.role {self.role}")
@@ -382,15 +398,25 @@ class PongConsumer(AsyncWebsocketConsumer):
 		# logger.info(f"SGM: sending message {event['message']}")
 		await self.send(text_data=json.dumps(event["message"]))
 
+	# async def send_game_msg_tour(self, message):
+	# 	logger.info("first send game msg tour is called!")
+	# 	await self.channel_layer.group_send(
+	# 		self.tour_id,
+	# 		{
+	# 			"type": "send_game_msg_tour",  # this is the handler on the consumer side
+	# 			"message": message
+	# 		}
+	# 	)
+
 	async def send_game_msg_tour(self, event):
 		data = event["message"]
 		winner = data["winnerID"]
 		loser = data["loserID"]
 		logger.info(f"TRYING sending game msg tour for: {self.user.username}")
 		logger.info(f"winner: {winner}")
-		if (self.user.username == winner):
-			logger.info(f"sending game msg tour for: {self.user.username}")
-			await self.send(text_data=json.dumps(event["message"]))
+		# if (self.user.username == winner):
+		logger.info(f"sending game msg tour for: {self.user.username}")
+		await self.send(text_data=json.dumps(event["message"]))
 
 ###################################################
 

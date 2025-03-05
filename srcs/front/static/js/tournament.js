@@ -2,7 +2,7 @@ import { loadHomePage } from "./home.js";
 import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame } from "./AIGame.js"
-import { gameAI } from "./game.js";
+import { gameAI, playOnline } from "./game.js";
 import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame } from "./remoteGame.js"
 
 var baseUrl = "http://localhost"; // TODO: change (parse) later
@@ -82,8 +82,11 @@ function isOnTournamentHomePage() {
 
 
 export const loadWaitingRoomPage = () => {
-    if (socket)
-        console.log("socket there is..");
+    if (!socket) {
+        console.log("socket is not here..");
+        navigateTo('/tournament-home', true);
+        return;
+    }
     if (socket.readyState === WebSocket.OPEN)
 	{
 		const data = {
@@ -94,6 +97,11 @@ export const loadWaitingRoomPage = () => {
 };
 
 export const loadBracketTournamentPage = () => {
+    if (!socket) {
+        console.log("socket is not here..");
+        navigateTo('/tournament-home', true);
+        return;
+    }
     if (socket.readyState === WebSocket.OPEN)
 	{
         const data = {
@@ -110,6 +118,11 @@ export const loadBracketTournamentPage = () => {
 };
 
 export const loadFinalTournamentPage = () => {
+    if (!socket) {
+        console.log("socket is not here..");
+        navigateTo('/tournament-home', true);
+        return;
+    }
     if (socket.readyState === WebSocket.OPEN)
 	{
         const data = {
@@ -158,11 +171,13 @@ export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) =>
     }
 }
 
-export const tournamentGameAIRequest = () => {
+export const tournamentGameRequest = () => {
     clearIntervalIDGame();
-    if (socket.readyState === WebSocket.OPEN)
+    if (socket && socket.readyState === WebSocket.OPEN)
     {
         socket.send(JSON.stringify({ "type": "wants_to_play" }));
+    } else {
+        navigateTo('/tournament', true);
     }
 }
 
@@ -196,7 +211,7 @@ function addGameButton(data) {
         // playButton.setAttribute("data-args", JSON.stringify({ tournament: "true", tournamentId: 1234 }));
     }
 	else {
-        playButton.setAttribute("data-route", '/play-online');
+        playButton.setAttribute("data-route", '/tournament-game-remote');
 	}
     playButton.addEventListener('click', () => {
         if (socket.readyState === WebSocket.OPEN)
@@ -379,7 +394,13 @@ export async function tournamentConnect(tourId, nPlayers=null) {
                 socket.close();
                 break;
             case "needs_to_play":
-                tournamentGameAIstart(data, tourId);
+                if (!data.needs_to_play)
+                    navigateTo('/tournament', true);
+                else if (data.opponent == "@AI") {
+                    tournamentGameAIstart(data, tourId);
+                } else {
+                    playOnline();
+                }
                 break;
             case "tournament_status":
                 localStorage.setItem('inTournament', data.status);

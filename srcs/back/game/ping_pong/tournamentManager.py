@@ -315,10 +315,6 @@ class TournamentManager:
 			return 'not started'
 		else:
 			logger.info("tournament has started")
-			# check if has finished game in cur round
-			# if not needs to play => just disconnect (already saved everything and removed)
-			# if is a winner => quit_winners++, save to tournmt table, check for tournmt end
-			# if game has not finished => force him as loser (handle_game_result)
 			is_winner = len(self.winners) >= self.round and username in self.winners[self.round - 1]
 			logger.info(f"is winner: {is_winner}")
 			if timeout:
