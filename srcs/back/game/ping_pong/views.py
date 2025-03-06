@@ -19,79 +19,79 @@ from django.contrib.auth.decorators import login_required
 # User = get_user_model()
 
  
-@api_view(['GET'])
-@login_required
-def player_list(request):
-    players = User.objects.all()  # Get all players from the database
-    serializer = PlayerSerializer(players, many=True)  # Serialize the players
-    return Response(serializer.data)  # Return the serialized data in the response
+# @api_view(['GET'])
+# @login_required
+# def player_list(request):
+#     players = User.objects.all()  # Get all players from the database
+#     serializer = PlayerSerializer(players, many=True)  # Serialize the players
+#     return Response(serializer.data)  # Return the serialized data in the response
 
 
-@api_view(['GET'])
-@login_required
-def score_list(request):
-    scores = Game.objects.all()  # Get all players from the database
-    serializer = GameSerializer(scores, many=True)  # Serialize the players
-    return Response(serializer.data)  # Return the serialized data in the response
+# @api_view(['GET'])
+# @login_required
+# def score_list(request):
+#     scores = Game.objects.all()  # Get all players from the database
+#     serializer = GameSerializer(scores, many=True)  # Serialize the players
+#     return Response(serializer.data)  # Return the serialized data in the response
 
-@api_view(['GET'])
-@login_required
-def get_current_players(request):
-    try:
-        # Fetch all users
-        users = list(User.objects.all())
+# @api_view(['GET'])
+# @login_required
+# def get_current_players(request):
+#     try:
+#         # Fetch all users
+#         users = list(User.objects.all())
         
-        # Ensure there are at least two users
-        if len(users) < 2:
-            return Response({"error": "Not enough players available"}, status=400)
+#         # Ensure there are at least two users
+#         if len(users) < 2:
+#             return Response({"error": "Not enough players available"}, status=400)
 
-        # Randomly select two different players
-        player1, player2 = random.sample(users, 2)
+#         # Randomly select two different players
+#         player1, player2 = random.sample(users, 2)
 
-        return Response({
-            "name1": player1.username,
-            "name2": player2.username
-        })
-    except Exception as e:
-        return Response({"error": str(e)}, status=500)
+#         return Response({
+#             "name1": player1.username,
+#             "name2": player2.username
+#         })
+#     except Exception as e:
+#         return Response({"error": str(e)}, status=500)
 
 
-@api_view(['POST'])
-@login_required
-def send_score(request):
-    try:
-        # Extract data from request
-        player1_name = request.data.get('player1')
-        player2_name = request.data.get('player2')
-        score1 = request.data.get('score1')
-        score2 = request.data.get('score2')
+# @api_view(['POST'])
+# @login_required
+# def send_score(request):
+#     try:
+#         # Extract data from request
+#         player1_name = request.data.get('player1')
+#         player2_name = request.data.get('player2')
+#         score1 = request.data.get('score1')
+#         score2 = request.data.get('score2')
 
-        # Validate players
-        player1 = User.objects.filter(username=player1_name).first() if score1 > score2 else User.objects.filter(username=player2_name).first() #if score2 > score1
-        player2 = User.objects.filter(username=player2_name).first() if score1 > score2 else User.objects.filter(username=player1_name).first() #if score2 > score1
+#         # Validate players
+#         player1 = User.objects.filter(username=player1_name).first() if score1 > score2 else User.objects.filter(username=player2_name).first() #if score2 > score1
+#         player2 = User.objects.filter(username=player2_name).first() if score1 > score2 else User.objects.filter(username=player1_name).first() #if score2 > score1
 
-        if not player1 or not player2:
-            return Response({"status": "failure"}, status=400)
+#         if not player1 or not player2:
+#             return Response({"status": "failure"}, status=400)
 
-        # Determine the winner
-        winner = player1 if score1 > score2 else player2 #if score2 > score1 else None
+#         # Determine the winner
+#         winner = player1 if score1 > score2 else player2 #if score2 > score1 else None
 
-        # Save to the database
-        game = Game.objects.create(
-            player1=player1,
-            score_player1=score1,
-            player2=player2,
-            score_player2=score2,
-            winner=winner
-        )
-        game.save()
+#         # Save to the database
+#         game = Game.objects.create(
+#             player1=player1,
+#             score_player1=score1,
+#             player2=player2,
+#             score_player2=score2,
+#             winner=winner
+#         )
+#         game.save()
         
-        return Response({"status": "success"})
-    except Exception:
-        return Response({"status": "failure"}, status=500)
+#         return Response({"status": "success"})
+#     except Exception:
+#         return Response({"status": "failure"}, status=500)
 
-def winner_page(request):
-    return render(request, 'winner.html')
+# def winner_page(request):
+#     return render(request, 'winner.html')
 
 @api_view(['GET'])
 @login_required

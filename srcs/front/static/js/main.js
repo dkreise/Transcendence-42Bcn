@@ -141,8 +141,8 @@ function getRedirectionIfNeeded(path=null) {
     }
 
     //Check if the user has the required permissions, if not, redirect
-    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login'];
-    const openPaths = ['/page-not-found', '/callback']; //open for authenticated and not authenticated
+    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/callback'];
+    const openPaths = ['/page-not-found']; //open for authenticated and not authenticated
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';
     } else if (!checkPermission() && !publicPaths.includes(path) && !openPaths.includes(path)) {
@@ -150,18 +150,6 @@ function getRedirectionIfNeeded(path=null) {
     }
     return null;
 }
-
-
-
-// function showNotFound() {
-//     console.log("Rendering 404 Page");
-//     contentArea.innerHTML = `
-//         <div>
-//             <h1>404 - Page Not Found</h1>
-//             <p>The requested page does not exist.</p>
-//         </div>
-//     `;
-// }
 
 // The navigateTo() function is responsible for programmatically changing 
 // the browser's history and triggering the router.
