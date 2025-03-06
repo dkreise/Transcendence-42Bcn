@@ -32,6 +32,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			self.type = self.scope['url_route']['kwargs']['type']
 			self.user = self.scope['user']
 			self.role = None
+			self.room_id = None
 			logger.info(f"SELF.TYPE: {self.type}")
 			if self.type == "T":
 				#call tournament manager
@@ -240,16 +241,16 @@ class PongConsumer(AsyncWebsocketConsumer):
 				elif dtype == "game_result":
 					logger.info("RECEIVED. we need to handle game result")
 					if data["winner"] != "@AI" and data["loser"] != "@AI":
-						logger.info("deleting game group")
-						# await self.channel_layer.group_discard(
-						# 	self.room_id,
-						# 	self.channel_name
-						# )
-						# async with active_games_lock:
-						# 	del active_games[self.room_id]
 						if self.user.username == data["loser"]:
 							logger.info("for loser not handling the game res! return")
 							return
+						logger.info("deleting game group")
+						await self.channel_layer.group_discard(
+							self.room_id,
+							self.channel_name
+						)
+						async with active_games_lock:
+							del active_games[self.room_id]
 					status = await tournament.handle_game_end(data, False)
 					if status == "new":
 						tournament.increase_round()
@@ -282,17 +283,28 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 				elif dtype == "quit":
 					logger.info("player wants to quit the tournament. handling quit..:")
+					us = self.user.username
+					op = tournament.get_opponent(us)
+					if self.room_id and self.room_id in active_games:
+						game = active_games[self.room_id]
+						async with active_games_lock:
+							if game.ready == 0 and us in game.users:
+								tournament.matches_started[tournament.get_match_idx(us, op)] = False
 					status = await tournament.handle_quit(self.user.username, False)
 					logger.info("we handled the quit. now disconnecting..:")
-					# if self.room_id in active_games:
-					# 	game = active_games[self.room_id]
-
-						# game.users.remove(user)
 					await self.disconnect(1000)
-					if self.room_id in active_games:
-						game = active_games[self.room_id]
-						await game.declare_winner("player2") # to handle properly
-					if status == "new":
+					logger.info(f"quit status : {status}")
+					if status == "remote":
+						
+						await game.stop_tournament_game(op, us)
+						# us is the one who quits
+						# if op has started the game (joined the room) but us not:
+							# we need to send to the op that his op has quitted and will not join the room
+						# if us has started the game but op not:
+							# we can just handle the end game in tourn
+							# DONE
+
+					elif status == "new":
 						tournament.increase_round()
 						await self.channel_layer.group_send(
 								self.tour_id,
@@ -309,6 +321,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 									"type": "tournament_ends",
 									"message": "Tournament has finished",
 									"status": "finished",
+								}
+							)
+					elif status == "continue":
+						await self.channel_layer.group_send(
+								self.tour_id,
+								{
+									"type": "tournament_update",
+									"message": "Tournament has updated",
+									"status": "playing",
 								}
 							)
 

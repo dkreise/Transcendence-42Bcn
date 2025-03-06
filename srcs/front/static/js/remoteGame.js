@@ -121,6 +121,7 @@ export function handleEndgame(data) {
 	else
 		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
 	cancelAnimationFrame(gameLoopId);
+	gameLoopId = null
 }
 
 function getTimestamp() {
@@ -137,7 +138,7 @@ export function setWhoAmI(data)
 
 export async function handleStatus(data, tourSocket)
 {
-	if (!socket) {
+	if (tourSocket) {
 		socket = tourSocket;
 	}
 	player.update(data.players, data.scores);
@@ -326,4 +327,10 @@ export function startGame()
             button.setAttribute("replace-url", true);
         }
 	}
+}
+
+export function cleanRemote() {
+	if (gameLoopId)
+		cancelAnimationFrame(gameLoopId);
+	gameLoopId = null;
 }

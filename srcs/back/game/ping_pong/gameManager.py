@@ -481,3 +481,30 @@ class GameManager:
 				"type": "send_game_msg", # function in PongConsumer
 				"message": message
 			})
+
+#################################################################
+
+	async def stop_tournament_game(self, winner, loser):
+		if self.rsg_task:
+			self.rsg_task.cancel()
+			del self.rsg_task
+			self.rsg_task = None
+		message = {
+			"type": "endgame",
+			"winnerID": winner,
+			"loserID": loser,
+		}
+		channel_layer = get_channel_layer()
+		if "T_" in self.id:
+			# self.game_loop_task_cancel()
+			logger.info("GAME ENDED IN TOURNAMENT")
+			await channel_layer.group_send(
+				self.id,
+				{
+					"type": "send_game_msg_tour", #function in PongConsumer
+					"message": message
+				})
+			# self.users.remove(loser)
+			if self.game_loop_task:
+				self.game_loop_task_cancel()
+				self.game_loop_task = None

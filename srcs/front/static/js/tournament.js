@@ -3,7 +3,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame } from "./AIGame.js"
 import { gameAI, playOnline } from "./game.js";
-import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame } from "./remoteGame.js"
+import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, cleanRemote } from "./remoteGame.js"
 
 var baseUrl = "http://localhost"; // TODO: change (parse) later
 let socket = null;
@@ -334,6 +334,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 		// //setTimeout(tournamentConnect, 1000) //waits 1s and tries to reconnect
         // navigateTo('/home', true);
         socket = null;
+        cleanRemote();
         // alert(localStorage.getItem("user_quit"));
         if (localStorage.getItem("user_quit") == "true") {
             console.log("User quit. No reconnection.");

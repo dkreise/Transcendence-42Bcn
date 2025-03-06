@@ -327,8 +327,12 @@ class TournamentManager:
 				self.users.remove(username)
 			else:
 				opponent = self.get_opponent(username)
-				data = {'winner': opponent, 'loser': username, 'winner_score': 0, 'loser_score': 0}
-				status = await self.handle_game_end(data, False)
+				match_i = self.get_match_idx(username, opponent)
+				if (not opponent == "@AI") and self.matches_started[match_i] and not self.matches_finished[match_i]:
+					status = 'remote'
+				else:
+					data = {'winner': opponent, 'loser': username, 'winner_score': 0, 'loser_score': 0}
+					status = await self.handle_game_end(data, False)
 				self.users.remove(username)
 				return status
 
