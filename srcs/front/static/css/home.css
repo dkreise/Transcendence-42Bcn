@@ -43,7 +43,8 @@
 
 /* Card / button */
 .card {
-  width: 90%;
+  width: 100%;
+  /* min-width: 380px; */
   border-radius: 14px;
   z-index: 1111;
   overflow: hidden;
@@ -59,6 +60,21 @@
               0px 4px 10px rgba(0, 0, 0, 0.3);
   opacity: 0.97;
 }
+
+#card-1,#card-2,#card-3,#card-4{
+  min-width: 330px;
+}
+
+  /* Para pantallas con ancho menor a 768px, se usa altura automática */
+  @media (max-width: 1400px) {
+    .card {
+      width: 90%;
+      min-width: none;
+    }
+    #card-1,#card-2,#card-3,#card-4{
+      min-width: none;
+    } 
+  }
 
 .blob {
   position: absolute;
@@ -104,20 +120,6 @@
               0px 6px 15px rgba(0, 0, 0, 0.4);
 }
 
-/* .card-title {
-  font-size: 1rem;
-}
-
-@media (min-width: 768px) {
-  .card-title {
-    font-size: 2rem;
-  }
-}
-@media (min-width: 992px) {
-  .card-title {
-    font-size: 2.5rem;
-  }
-} */
 .card p {
     text-align: center;
     /* font-size: x-large;

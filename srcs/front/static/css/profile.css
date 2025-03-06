@@ -6,7 +6,7 @@
     max-height: 700px; */
     background: linear-gradient(#0d0d0d, #212121) padding-box,
                 linear-gradient(145deg, transparent 15%,#d5dcf9, #a7b0ca) border-box;
-    border: 2px solid transparent;
+    /* border: 2px solid transparent; */
     padding: 32px 24px;
     padding-top: 10px;
     font-size: 14px;
@@ -20,7 +20,7 @@
     opacity: 0.85;
     
     margin: 5px;
-  }
+  } 
   
   .profile-card .card-body {
     padding: 0;
@@ -52,7 +52,6 @@
   .chart-card {
     background: linear-gradient(#0d0d0d, #212121) padding-box,
         linear-gradient(145deg, transparent 15%,#d5dcf9, #a7b0ca) border-box;
-    border: 2px solid transparent;
     padding: 32px 24px;
     padding-top: 10px;
     font-size: 14px;
@@ -100,4 +99,22 @@
     }
   }
   
+  .profile-card:hover, .chart-card:hover{
+    transform: none;
+  }
+
+  #card-profile {
+    height: 330px;
+  }
+  
+  #chart-card {
+    height: 420px;
+  }
+
+  /* Para pantallas con ancho menor a 768px, se usa altura automática */
+  @media (max-width: 768px) {
+    #card-profile {
+      height: auto;
+    }
+  }
   

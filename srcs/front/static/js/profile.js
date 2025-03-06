@@ -32,19 +32,18 @@ const fetchLastTenGames = () => {
 }
 
 const renderLastTenGamesChart = (gamesData, username) => {
-    // let graphContainer = document.createElement('canvas');
-    // graphContainer.id = 'last-ten-games-chart';
-    // graphContainer.style.maxWidth = '600px';
-    // document.querySelector('.statistics-block').appendChild(graphContainer);
-
     const ctx = document.getElementById('last-ten-games-chart').getContext('2d');
 
+    // Crear un gradiente para las barras
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(187, 134, 252, 1)');
+    gradient.addColorStop(1, 'rgba(187, 134, 252, 0.5)');
+    
     const gameCnt = parseInt(document.getElementById('games-played').textContent, 10);
-    console.log(gameCnt);
     const labels = gamesData.map((_, index) => {
         return `Game ${gameCnt - (gamesData.length - 1 - index)}`;
     });
-
+    
     const scores = gamesData.map((game) => {
         if (game.player1 === username) {
             return game.score_player1;
@@ -53,7 +52,7 @@ const renderLastTenGamesChart = (gamesData, username) => {
         }
         return 0;
     });
-
+    
     new Chart(ctx, {
         type: 'bar',
         data: {
@@ -61,17 +60,37 @@ const renderLastTenGamesChart = (gamesData, username) => {
             datasets: [{
                 label: 'Scores',
                 data: scores,
-                backgroundColor: "rgba(187, 134, 252, 1)",
+                backgroundColor: gradient,
                 borderColor: "rgba(152, 40, 237, 0.5)",
                 borderWidth: 1,
-            },]
+                borderRadius: 5, // Redondea las esquinas de las barras
+            }]
         },
         options: {
             responsive: true,
+            layout: {
+                padding: {
+                  top: 20,
+                  right: 10,
+                  bottom: 10,
+                  left: 10 
+                }
+            },
+            animation: {
+                duration: 1000,
+                easing: 'easeOutQuart'
+            },
             plugins: {
+                title: {
+                    display: true,
+                    text: 'Evolución de Partidas',
+                    font: { size: 18 },
+                    padding: {
+                      top: 10,
+                      bottom: 10
+                    }
+                },
                 tooltip: {
-                    // enabled: true,
-                    // mode: 'index',
                     callbacks: {
                         label: (tooltipItem) => {
                             const game = gamesData[tooltipItem.dataIndex];
@@ -109,37 +128,32 @@ const renderLastTenGamesChart = (gamesData, username) => {
                     display: false,
                 },
             },
-            onClick: (event, elements) => {
-                if (elements.length > 0) {
-                    const gameIndex = elements[0].index;
-                    const game = gamesData[gameIndex];
-                    const opponent = 
-                        game.player1 === username
-                            ? game.player2
-                            : game.player1;
-                    const score = 
-                        game.player1 === username
-                            ? game.score_player1
-                            : game.score_player2;
-                    alert(
-                        `Game Details:\nOpponent: ${opponent}\nYour Score: ${score}\nWinner: ${game.winner}`
-                    );
-                }
-            },
             scales: {
                 y: {
                     beginAtZero: true,
                     title: {
                         display: true,
                         text: 'Score',
+                    },
+                    grid: {
+                        color: 'rgba(200,200,200,0.2)',
+                    },
+                    ticks: {
+                        color: 'white',
                     }
                 },
+                x: {
+                    grid: {
+                        display: false,
+                    },
+                    ticks: {
+                        color: 'white',
+                    }
+                }
             },
         },
-
     });
-};
-
+}
 export const loadMatchHistoryPage = () => {
     drawHeader('main').then(() => {
        return makeAuthenticatedRequest(baseUrl + ":8000/api/match-history-page/", {method: "GET"})

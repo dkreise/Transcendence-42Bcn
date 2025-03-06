@@ -137,10 +137,12 @@ export const handleLogin = async () => {
 export const handleSignup = async () => {
     const loginForm = document.getElementById('login-form');
     if (loginForm) loginForm.remove();
-    
-    fetch(baseUrl + ":8000/api/signup-form/", {
-        method: 'GET',
-        credentials: "include"
+
+    drawHeader('login').then(() => {
+        return  fetch(baseUrl + ":8000/api/signup-form/", {
+            method: 'GET',
+            credentials: "include"
+        })
     })
     .then(response => response.json()) // Expecting JSON response
     .then(data => {
