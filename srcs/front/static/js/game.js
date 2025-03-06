@@ -19,6 +19,7 @@ export const playLocal = () => {
         drawHeader('main').then(() => {
           return  makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/get-name/", {
                 method: "GET",
+                // credentials: "include"
             })
             .then(response => response.json())
             .then(data => {

@@ -32,7 +32,7 @@ export const handle42Callback = () => {
         else if (code && state){
             const queryParams = new URLSearchParams({code , state}).toString();
             console.log(code, state);
-             
+              
             const url = `http://localhost:8000/api/login-intra/callback?${queryParams}`;
             console.log(`Sending GET request to: ${url}`);
             fetch(url, {
@@ -84,6 +84,12 @@ export const handle42Callback = () => {
                 navigateTo("/login");
                 // displayLoginError('Invalid credentials. Please try again.', 'login-form');
             });
+        } else {
+            console.log(`No relevant information provided in callback`);
+            // alert("Access denied. Try again later");
+            clearURL();
+            navigateTo("/login");
+            // displayLoginError('Invalid credentials. Please try again.', 'login-form');
         }
 };
 

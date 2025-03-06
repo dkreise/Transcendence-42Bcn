@@ -62,7 +62,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
             "Authorization": `Bearer ${accessToken}`, // adding authorization header with the access token
             // "Content-Type": "application/json",
         },
-        credencials: 'include',
+        credentials: "include",
     };
 
     return fetch(url, options).then((response) => {
