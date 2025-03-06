@@ -1,9 +1,10 @@
 import { makeAuthenticatedRequest } from "./login.js";
 
-var baseUrl = "http://localhost"; // change (parse) later
+var baseUrl = window.env.BASE_URL;
+var userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const loadFriendsSearchPage = () => {
-    makeAuthenticatedRequest(baseUrl + ":8000/api/search-users", {method: "GET", credentials: "include"})
+    makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/search-users", {method: "GET", credentials: "include"})
         .then((response) => response.json())
         .then(data => {
             if (data.search_users_html) {
@@ -23,7 +24,7 @@ const performSearch = () => {
     console.log('query:', query);
 
     if (query) {
-        makeAuthenticatedRequest(baseUrl + ":8000/api/search-users/?q=" + encodeURIComponent(query), {method: "GET"})
+        makeAuthenticatedRequest(baseUrl + userMgmtPort + "api/search-users/?q=" + encodeURIComponent(query), {method: "GET"})
             .then((response) => response.json())
             .then(data => {
                 if (data.search_users_html) {
@@ -39,7 +40,7 @@ const performSearch = () => {
 };
 
 const addFriend = (friendId) => {
-    makeAuthenticatedRequest(baseUrl + `:8000/api/add-friend/${friendId}/`, {method: "POST"})
+    makeAuthenticatedRequest(baseUrl + userMgmtPort + `/api/add-friend/${friendId}/`, {method: "POST"})
         .then((response) => response.json())
         .then(data => {
             if (data.status == "success") {
@@ -90,7 +91,7 @@ const addFriend = (friendId) => {
 };
 
 const removeFriend = (friendId) => {
-    makeAuthenticatedRequest(baseUrl + `:8000/api/remove-friend/${friendId}/`, {method: "POST"})
+    makeAuthenticatedRequest(baseUrl + userMgmtPort + `/api/remove-friend/${friendId}/`, {method: "POST"})
         .then((response) => response.json())
         .then(data => {
             if (data.status == "success") {

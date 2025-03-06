@@ -2,6 +2,9 @@ import { Ball, Player } from "./remoteClasses.js";
 import { setupControls } from "./localGame.js";
 import { refreshAccessToken } from "./login.js";
 
+var gamePort = window.env.GAME_PORT;
+var host = window.env.HOST;
+
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
 	"loser": "Better luck next time :')\n"
@@ -130,7 +133,7 @@ async function initializeWebSocket() {
 	}
 	if (!socket)
 	{
-		socket = new WebSocket(`ws://localhost:8001/ws/G/${roomId}/?token=${token}`);
+		socket = new WebSocket(`ws://${host}:${gamePort}/ws/G/${roomId}/?token=${token}`);
 		console.log("Socket created!");
 	}
 	socket.onopen = () => console.log("WebSocket connection established.");

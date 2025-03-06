@@ -7,6 +7,9 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+HOST_IP = settings.HOST_IP
+USER_MGMT_PORT = settings.USER_MGMT_PORT
+
 class CustomAuthentication(BaseAuthentication):
     def authenticate(self, request):
         auth_header = request.headers.get('Authorization')
@@ -15,7 +18,7 @@ class CustomAuthentication(BaseAuthentication):
             return None
         headers = {"Authorization": auth_header}
         print("@@@@@@@@@@@@@@@@@@@@@@ AUTH MIDDLEWARE @@@@@@@@")
-        req = requests.get('http://user-mgmt:8000/api/user-mgmt/verify-token/', headers=headers)
+        req = requests.get('http://user-mgmt:' + USER_MGMT_PORT + '/api/user-mgmt/verify-token/', headers=headers)
         if req.status_code == 200:
             username = req.json()['user']
             if username:

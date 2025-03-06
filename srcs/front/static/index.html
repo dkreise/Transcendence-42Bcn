@@ -36,6 +36,14 @@
         <!-- Simplex Noise CDN -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.0.0/simplex-noise.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            window.env = {
+                BASE_URL: `${window.location.protocol}//${window.location.hostname}:`, //"http://localhost:"
+                HOST: window.location.hostname,
+                USER_MGMT_PORT: "8000",
+                GAME_PORT: "8001",
+            };
+        </script>
         <link rel="stylesheet" href="css/tournament.css">
         <link rel="stylesheet" href="css/bracket.css">
 

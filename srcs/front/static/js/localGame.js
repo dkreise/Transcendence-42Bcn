@@ -1,7 +1,8 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { Ball, Player } from "./localClasses.js";
 
-var baseUrl = "http://localhost"; // change (parse) later
+var baseUrl = window.env.BASE_URL;
+var gamePort = window.env.GAME_PORT;
 
 // Game Initialization
 let canvas = null;
@@ -15,7 +16,7 @@ let maxScore = 2;
 
 export function saveScore(score1, score2, mainUser) {
 
-    makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/save-local-score/", {
+    makeAuthenticatedRequest(baseUrl + gamePort + "/api/game/local/save-local-score/", {
         method: "POST",
         body: JSON.stringify({
             // 'player1': player1.name,

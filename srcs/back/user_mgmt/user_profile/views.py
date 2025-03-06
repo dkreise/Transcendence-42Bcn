@@ -20,6 +20,12 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .models import Profile
 import redis
 
+PROTOCOL = "http"
+HOST_IP = settings.HOST_IP
+GAME_PORT = settings.GAME_PORT
+GAME_SERVICE_URL = PROTOCOL + "://game:" + GAME_PORT
+
+
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
 redis_client.set("test", "Hello Redis!")
 print(redis_client.get("test"))  # Should print: b'Hello Redis!'
@@ -30,7 +36,7 @@ def get_photo_url(user):
         if user.profile.external_photo_url:
             photo_url = user.profile.external_photo_url
         elif user.profile.photo:
-            photo_url = "http://localhost:8000" + user.profile.photo.url
+            photo_url = PROTOCOL + "://" + HOST_IP + ":" + user.profile.photo.url
     return photo_url
 
 @api_view(['GET'])
@@ -48,8 +54,8 @@ def user_info_api(request):
         return JsonResponse({'error': 'user not authenticated'}, status=401)
 
 def player_game_statistics(request, player_id):
-    game_service_url = 'http://game:8001'
-    endpoint = f'{game_service_url}/api/player/{player_id}/game_statistics/'
+    # game_service_url = 'http://game:8001'
+    endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/game_statistics/'
 
     auth_header = request.headers.get('Authorization')
     headers = {"Authorization": auth_header}
@@ -62,8 +68,8 @@ def player_game_statistics(request, player_id):
         return {'games_played': 0, 'games_won': 0}
 
 def player_tournament_statistics(request, player_id):
-    game_service_url = 'http://game:8001'
-    endpoint = f'{game_service_url}/api/player/{player_id}/tournament_statistics/'
+    # game_service_url = 'http://game:8001'
+    endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/tournament_statistics/'
 
     auth_header = request.headers.get('Authorization')
     headers = {"Authorization": auth_header}
@@ -80,8 +86,8 @@ def player_last_ten_games(request):
     if request.user.is_authenticated:
         player_id = request.user.id
         username = request.user.username
-        game_service_url = 'http://game:8001'
-        endpoint = f'{game_service_url}/api/player/{player_id}/last_ten_games'
+        # game_service_url = 'http://game:8001'
+        endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/last_ten_games'
 
         auth_header = request.headers.get('Authorization')
         headers = {"Authorization": auth_header}
@@ -99,8 +105,8 @@ def player_last_ten_games(request):
         return JsonResponse({'error': 'User not authenticated.'}, status=401)
 
 def player_all_games(request, player_id):
-    game_service_url = 'http://game:8001'
-    endpoint = f'{game_service_url}/api/player/{player_id}/all_games/'
+    # game_service_url = 'http://game:8001'
+    endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/all_games/'
 
     auth_header = request.headers.get('Authorization')
     headers = {"Authorization": auth_header}

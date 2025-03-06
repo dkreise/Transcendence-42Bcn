@@ -3,7 +3,10 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { drawHeader } from "./main.js";
 
-var baseUrl = "http://localhost"; // TODO: change (parse) later
+var baseUrl = window.env.BASE_URL;
+var host = window.env.HOST;
+var gamePort = window.env.GAME_PORT;
+
 let socket = null;
 
 export const manageTournamentHomeBtn = () => { 
@@ -22,7 +25,7 @@ export const manageTournamentHomeBtn = () => {
 
 export const loadTournamentHomePage = () => {
     drawHeader('main').then(() => {
-      return  makeAuthenticatedRequest(baseUrl + ":8001/api/tournament-home-page/", 
+      return  makeAuthenticatedRequest(baseUrl + gamePort + "/api/tournament-home-page/", 
             {method: "GET", credentials: "include"})
         .then((response) => response.json())
         .then(data => {
@@ -184,9 +187,9 @@ function tournamentConnect(tourId, nPlayers=null) {
     console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
 
     if (nPlayers) {
-        socket = new WebSocket(`ws://localhost:8001/ws/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
+        socket = new WebSocket(`ws://${host}:${gamePort}/ws/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
     } else {
-        socket = new WebSocket(`ws://localhost:8001/ws/T/${tourId}/?token=${token}`);
+        socket = new WebSocket(`ws://${host}:${gamePort}/ws/T/${tourId}/?token=${token}`);
     }
     
     socket.onopen = () => {

@@ -7,8 +7,10 @@ import { startGame } from "./remoteGame.js";
 import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
 import { loadBracketTournamentPage } from "./tournament.js";
 
+var baseUrl = window.env.BASE_URL;
+var gamePort = window.env.GAME_PORT;
+
 let Enable3D = false;
-var baseUrl = "http://localhost"; // change (parse) later
 
 export const playLocal = () => {
 
@@ -17,7 +19,7 @@ export const playLocal = () => {
     } else {
         console.log('Loading get second name page...')
         drawHeader('main').then(() => {
-          return  makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/get-name/", {
+          return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/get-name/", {
                 method: "GET",
             })
             .then(response => response.json())
@@ -60,7 +62,7 @@ export const playAI = (args) => {
         } else {
             console.log('Loading get difficulty page...')
             drawHeader('main').then(() => {
-              return  makeAuthenticatedRequest(baseUrl + ":8001/api/game/ai/get-difficulty", {
+              return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/ai/get-difficulty", {
                     method: "GET",
                 })
                 .then(response => response.json())
@@ -114,7 +116,7 @@ export async function gameLocal () {
             return ;
         }
         
-        makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
+        makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
             method: "POST",
             body: JSON.stringify({
                 'second-player': secondPlayerName,  // Stringify the body data
@@ -168,7 +170,7 @@ export const gameAI = async (args) => {
             tournament = {tournament: true, id: args.tournamentId};
             console.log(tournament.id);
         }
-        makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
+        makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
             method: "POST",
             body: JSON.stringify({
                 'second-player': "AI",  // Stringify the body data
@@ -224,7 +226,7 @@ export async function playOnline () {
     } else {
         console.log('Loading online game...')
         drawHeader('main').then(() => {
-          return  makeAuthenticatedRequest(baseUrl + ":8001/api/game/remote/play/", {
+          return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/remote/play/", {
                 method: "GET",
             })
         })
@@ -277,7 +279,7 @@ export async function play3D() {
 }
 
 async function getDictFor3DGame() {
-    const response = await makeAuthenticatedRequest(baseUrl + ":8001/api/get-game-dict", {
+    const response = await makeAuthenticatedRequest(baseUrl + gamePort+ "/api/get-game-dict", {
         method: "GET",
         credentials: "include"
     })
@@ -291,7 +293,7 @@ async function getDictFor3DGame() {
 
 async function getUsername() {
     try {
-        const response = await makeAuthenticatedRequest("http://localhost:8001/api/get-username", {
+        const response = await makeAuthenticatedRequest(baseUrl + gamePort + "/api/get-username", {
             method: "GET",
             credentials: "include",
         });

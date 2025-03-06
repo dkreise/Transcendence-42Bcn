@@ -31,11 +31,18 @@ SECRET_KEY = 'django-insecure-d0#pa6x9j=zb@!d&8#pe@x97)2o3qv#op6b((0r53-f^4k4&i@
 UID = os.environ.get('UID')
 SECRET = os.environ.get('SECRET')
 REDIRECT_URI = os.environ.get('REDIRECT_URI')
+PROTOCOL = os.environ.get('PROTOCOL')
+FRONT_PORT = os.environ.get('FRONT_PORT')
+HOST_IP = os.getenv('IP')
+USER_MGMT_PORT = os.environ.get('USER_MGMT_PORT')
+GAME_PORT = os.environ.get('GAME_PORT')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'game']
+if HOST_IP:
+    ALLOWED_HOSTS.append(HOST_IP)
 
 # Application definition
 
@@ -74,7 +81,7 @@ MIDDLEWARE = [
 CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8443",  # Allow your frontend's origin
+    f"http://{HOST_IP}:{FRONT_PORT}",  # Allow your frontend's origin
 ]
 
 CORS_ALLOW_CREDENTIALS = True  # This allows all origins, useful for dev.

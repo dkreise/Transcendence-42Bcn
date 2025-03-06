@@ -1,8 +1,11 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { checkPermission, navigateTo } from "./main.js";
 
+var baseUrl = window.env.BASE_URL;
+var userMgmtPort = window.env.USER_MGMT_PORT;
+
 function getUserPreferenceLanguageFromDB() {
-    return makeAuthenticatedRequest("http://localhost:8000/api/get-user-pref-lang", {
+    return makeAuthenticatedRequest(baseUrl + userMgmtPort + "api/get-user-pref-lang", {
         method: "GET",
         credentials: "include"  // This ensures cookies are sent along with the request 
     })
@@ -28,7 +31,7 @@ function setCookie(name, value) {
 }
 
 function saveUserPreferenceLanguageToDB(lang) {
-    makeAuthenticatedRequest("http://localhost:8000/api/save-user-pref-lang", {
+    makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/save-user-pref-lang", {
         method: "POST",
         credentials: "include",
         headers: {

@@ -1,7 +1,8 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { drawHeader } from "./main.js";
 
-var baseUrl = "http://localhost";
+var baseUrl = window.env.BASE_URL;
+var userMgmtPort = window.env.USER_MGMT_PORT;
 
 //Add to fetch:
 // const Enable3D = localStorage.getItem("3D-option") === "true";
@@ -27,7 +28,7 @@ export const setUp3DListener = () => {
 export const loadHomePage = () => {
     console.log('Loading home page...');
     drawHeader('main').then(() => {
-    return makeAuthenticatedRequest(baseUrl + ":8000/api/home-page/", {
+    return makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/home-page/", {
         method: "GET",
         credentials: "include"
         });

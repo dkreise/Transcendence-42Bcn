@@ -15,10 +15,21 @@ DOCKER_COMPOSE = docker-compose -f ./srcs/docker-compose.yml
 DC_RUN_GAME= run --rm game sh -c
 DC_RUN_USER= run --rm user-mgmt sh -c
 
+IP_ADDRESS=$(shell hostname -I | awk '{print $$1}')
+
 all: build
 
+SHELL := /bin/bash
+
+IP_ADDRESS=$(shell hostname -I | awk '{print $$1}')
+FRONT_PORT=8443
+
 build:
+	sed -i '/^IP=/d' srcs/.env && echo "IP=$(IP_ADDRESS)" >> srcs/.env
+	sed -i '/^REDIRECT_URI=/d' srcs/.env  # Remove any existing REDIRECT_URI entry
+	echo "REDIRECT_URI=http://${IP_ADDRESS}:${FRONT_PORT}/callback" >> srcs/.env  # Add the new REDIRECT_URI
 	@$(DOCKER_COMPOSE) build 
+
 # @$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py wait_for_db"
 # # @$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py wait_for_db"
 
@@ -82,7 +93,6 @@ fclean: down
 		rm -rf ./srcs/postgres/*; \
 	fi
 #docker system prune --all --force --volumes
-
 
 re: fclean all mi up
 

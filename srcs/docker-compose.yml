@@ -2,7 +2,6 @@ services:
 
   db:
     image: postgres
-    #image: postgres:alpine3.18
     container_name: db-postgres
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
@@ -37,7 +36,7 @@ services:
     volumes:
       - user-mgmt:/usr/src/app
     ports:
-      - "8000:8000"
+      - "${USER_MGMT_PORT}:${USER_MGMT_PORT}"
 
   game:
     build:
@@ -45,6 +44,8 @@ services:
     container_name: game
     depends_on:
       - db
+    environment:
+      - IP=${IP}
     env_file:
       - .env
     networks:
@@ -53,7 +54,7 @@ services:
     volumes:
       - game:/usr/src/app
     ports:
-      - "8001:8001"
+      - "${GAME_PORT}:${GAME_PORT}"
     logging:
       options:
         max-size: "10m"
@@ -76,21 +77,17 @@ services:
       dockerfile: Dockerfile
     container_name: front
     ports:
-      - "8443:8443"
+      - "${FRONT_PORT}:${FRONT_PORT}"
     networks:
       - trs_net
     restart: always
+    environment:
+      - USER_MGMT_PORT=${USER_MGMT_PORT}
+      - GAME_PORT=${GAME_PORT}
     volumes:
       - ./front/static:/usr/share/nginx/html/static # Mapea archivos locales a dentro del contenedor
 
 volumes:
-  # front_data:
-  #   driver: local
-  #   driver_opts:
-  #     device: "./front/static"
-  #     o: bind
-  #     type: none
-
   db_data:
     driver: local
     driver_opts:

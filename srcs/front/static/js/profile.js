@@ -1,11 +1,8 @@
 import { makeAuthenticatedRequest } from "./login.js";
-// import { startGame } from "./remoteGame.js"
-// import { animate } from "./threeTest.js"
 import { drawHeader } from "./main.js";
 
-
-
-var baseUrl = "http://localhost"; // change (parse) later
+var baseUrl = window.env.BASE_URL;
+var userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const displayUpdatingMessage = (message, color) => {
     const profileSettingsContainer = document.getElementById('profile-settings-form');
@@ -26,7 +23,7 @@ export const displayUpdatingMessage = (message, color) => {
 };
 
 const fetchLastTenGames = () => {
-    return makeAuthenticatedRequest(`${baseUrl}:8000/api/last-ten-games/`, {
+    return makeAuthenticatedRequest(`${baseUrl}${userMgmtPort}/api/last-ten-games/`, {
         method: "GET",
     }).then((response) => response.json());
 }
@@ -142,7 +139,7 @@ const renderLastTenGamesChart = (gamesData, username) => {
 
 export const loadMatchHistoryPage = () => {
     drawHeader('main').then(() => {
-       return makeAuthenticatedRequest(baseUrl + ":8000/api/match-history-page/", {method: "GET"})
+       return makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/match-history-page/", {method: "GET"})
             .then(response => response.json())
             .then(data => {
                 if (data.match_history_html) {
@@ -187,7 +184,7 @@ const applyFilters = () => {
 export const loadProfileSettingsPage = () => {
     console.log("LOADING PROFILE...")
     drawHeader('main').then(() => {
-    return  makeAuthenticatedRequest(baseUrl + ":8000/api/profile-settings-page/", {
+    return  makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/profile-settings-page/", {
         method: "GET",
         credentials: 'include'
     })
@@ -211,7 +208,7 @@ export const loadProfileSettingsPage = () => {
 export const loadProfilePage = () => {
     console.log('Loading profile page..');
     drawHeader('main').then(() => {
-    return makeAuthenticatedRequest(baseUrl + ":8000/api/profile-page/", {
+    return makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/profile-page/", {
         method: "GET",
         credentials: 'include'
         })
@@ -268,7 +265,7 @@ export const loadProfilePage = () => {
 const updateProfileSettings = (form) => {
     const formData = new FormData(form);
     console.log(formData);
-    makeAuthenticatedRequest(baseUrl + ":8000/api/update-profile-settings/", {
+    makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/update-profile-settings/", {
         method: "POST",
         body: formData,
         credentials: 'include',

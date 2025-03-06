@@ -5,7 +5,8 @@ import { loadHomePage } from "./home.js";
 import { updateLanguage } from "./langs.js";
 import { connectWS } from "./onlineStatus.js";
 
-var baseUrl = "http://localhost"; // change (parse) later
+var baseUrl = window.env.BASE_URL;
+var userMgmtPort = window.env.USER_MGMT_PORT;
 
 export async function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refresh_token");
@@ -15,7 +16,7 @@ export async function refreshAccessToken() {
         return Promise.reject("No refresh token available");
     }
 
-    return fetch(baseUrl + ":8000/api/token/refresh/", {
+    return fetch(baseUrl + userMgmtPort + "/api/token/refresh/", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({refresh: refreshToken}),
@@ -81,7 +82,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
 
 export const loadLoginPage = () => {
     drawHeader('login').then(() => {
-        return fetch(baseUrl + ":8000/api/login-form/", {
+        return fetch(baseUrl + userMgmtPort + "/api/login-form/", {
             method: 'GET',
             credentials: "include"
         });
@@ -105,7 +106,7 @@ export const handleLogin = async () => {
     const loginForm = document.getElementById('login-form');
     const formData = new FormData(loginForm);
 
-    fetch(baseUrl + ":8000/api/login/", {
+    fetch(baseUrl + userMgmtPort + "/api/login/", {
         method: 'POST',
         body: JSON.stringify(Object.fromEntries(formData)),
         headers: { 'Content-Type': 'application/json' }
@@ -138,7 +139,7 @@ export const handleSignup = async () => {
     const loginForm = document.getElementById('login-form');
     if (loginForm) loginForm.remove();
     
-    fetch(baseUrl + ":8000/api/signup-form/", {
+    fetch(baseUrl + userMgmtPort + "/api/signup-form/", {
         method: 'GET',
         credentials: "include"
     })
@@ -214,20 +215,20 @@ export const displayLoginError = (form, errorMessage) => {
     }
 };
 
-document.addEventListener("DOMContentLoaded", () => {
-    const contentArea = document.getElementById("content-area");
+// document.addEventListener("DOMContentLoaded", () => {
+//     const contentArea = document.getElementById("content-area");
 
-    contentArea.addEventListener('submit', (event) => {
-        if (event.target && event.target.id === "login-form") {
-            event.preventDefault();
-            console.log('Submit button clicked!');
+//     contentArea.addEventListener('submit', (event) => {
+//         if (event.target && event.target.id === "login-form") {
+//             event.preventDefault();
+//             console.log('Submit button clicked!');
 
-            handleLogin(); 
-            //navigateTo('/handle-login', false); // Error when invalid login and refresh
-        }
-    });
+//             handleLogin();
+//             //navigateTo('/handle-login', false); // Error when invalid login and refresh
+//         }
+//     });
 
-});
+// });
 
 function getCookie(name) {
     const cookies = document.cookie.split(";");

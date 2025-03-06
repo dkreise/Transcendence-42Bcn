@@ -2,7 +2,8 @@ import { loadLoginPage } from "./login.js";
 import { navigateTo } from "./main.js";
 import { disconnectWS } from "./onlineStatus.js"
 
-var baseUrl = "http://localhost"; // change (parse) later
+var baseUrl = window.env.BASE_URL;
+var userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const handleLogout = () => {
     const contentArea = document.getElementById("content-area");
@@ -11,7 +12,7 @@ export const handleLogout = () => {
     // const accessToken = localStorage.getItem('access_token');
 
     if (refreshToken) {
-        fetch(baseUrl + ":8000/api/logout/", {
+        fetch(baseUrl + userMgmtPort + "/api/logout/", {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

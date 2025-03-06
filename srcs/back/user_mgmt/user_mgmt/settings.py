@@ -20,6 +20,10 @@ from datetime import timedelta
 UID = os.environ.get('UID')
 SECRET = os.environ.get('SECRET')
 REDIRECT_URI = os.environ.get('REDIRECT_URI')
+HOST_IP = os.getenv('IP')
+FRONT_PORT = os.environ.get('FRONT_PORT')
+USER_MGMT_PORT = os.environ.get('USER_MGMT_PORT')
+GAME_PORT = os.environ.get('GAME_PORT')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -30,10 +34,11 @@ SECRET_KEY = 'django-insecure-^)=g1^6d1@)ddwk@+k*jnjh$63+j%m3!zng%yex8x*f7qi_&w6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-#ALLOWED_HOSTS = ['localhost', 'transcendence', 'user_mgmt'] 
 
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'user_mgmt', 'user_mgmt:8000'] #rarete tambien
 ALLOWED_HOSTS = ['*']
+if HOST_IP:
+    ALLOWED_HOSTS.append(HOST_IP)
 
 # Application definition
 
