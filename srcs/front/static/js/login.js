@@ -191,17 +191,6 @@ export const displayLoginError = (form, errorMessage) => {
     if (!login_error)
         return;
 
-    // const existingError = document.getElementById('login-error');
-    // if (existingError)
-    //     existingError.remove();
-
-    // const errorMessage = document.createElement('div');
-    // errorMessage.id = 'login-error';
-    // errorMessage.style.color = 'red';
-    // errorMessage.style.marginBottom = '15px';
-    // errorMessage.textContent = message;
-    // errorMessage.style.display = "flex";
-
     login_error.innerText = errorMessage;
 
     login_error.classList.add('show');

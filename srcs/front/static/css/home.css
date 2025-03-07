@@ -43,7 +43,7 @@
 
 /* Card / button */
 .card {
-  width: 100%;
+  width: 80%;
   /* min-width: 380px; */
   border-radius: 14px;
   z-index: 1111;
