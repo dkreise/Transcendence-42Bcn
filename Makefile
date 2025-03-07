@@ -58,6 +58,9 @@ logs:
 back:
 	docker restart ${OF}
 
+mgmt:
+	docker restart user-mgmt
+
 fclean: down
 	@if [ -n "$(D_PS)" ]; then \
 		echo "deleting containers"; \

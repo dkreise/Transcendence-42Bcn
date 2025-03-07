@@ -288,8 +288,9 @@ class GameManager:
 
 		#save the game result
 		logger.info(f"pre-save_game_score")
-		#saved_game = await self.save_game_score(winner_id)
-		saved_game = ""
+		logger.info(winner_id)
+		saved_game = await self.save_game_score(winner_id)
+		# saved_game = ""
 		logger.info(f"post-save_game_score")
 
 		if saved_game:
@@ -422,44 +423,49 @@ class GameManager:
 #			logger.error(f"save_game_score error: {e}")
 #			return None
 
-#	@sync_to_async
-#	def save_game_score(self, winner_id):
-#		try:
-#			Game = get_game_model()
-#			with transaction.atomic(): #Ensure atomicity
-#				User = get_user_model()
-#				winner = User.objects.filter(id=winner_id).first()
-#				player1 = winner
-#				if self.players["player1"]["id"] == winner_id:
-#					player2 = User.objects.filter(id=self.players["player1"]["id"])
-#				else:
-#					player2 = User.objects.filter(id=self.players["player2"]["id"])
-#
-#				logger.info(f"SGS: winner: {winner}, player1: {player1}")
-#
-#				if self.scores["player1"] > self.scores["player2"]:
-#					score1 = self.scores["player1"]
-#					score2 = self.scores["player2"]
-#				else:
-#					score1 = self.scores["player2"]
-#					score2 = self.scores["player1"]
-#
-#				# Save the game result
-#				game = Game.objects.create(
-#					player1=player1,
-#					score_player1=score1,
-#					player2=player2,
-#					score_player2=score2,
-#					winner=winner,
-#					tournament_id=-1 # we need to make it dynamic
-#				)
-#				game.save()
-#
-#				return game #return the saved game instance
-#
-#		except Exception as e:
-#			logger.info(f"Error saving game result: {e}")
-#			return None
+	@sync_to_async
+	def save_game_score(self, winner_id):
+		try:
+			Game = get_game_model()
+			with transaction.atomic(): #Ensure atomicity
+				User = get_user_model()
+
+				winner = User.objects.get(username=winner_id)
+				# player1 = winner
+				logger.info(winner_id)
+				logger.info(self.players["player1"]["id"])
+				# if self.players["player1"]["id"] == winner_id:
+				player1 = User.objects.get(username=self.players["player1"]["id"])
+				# else:
+				player2 = User.objects.get(username=self.players["player2"]["id"])
+				
+				# if self.scores["player1"] > self.scores["player2"]:
+				score1 = self.scores["player1"]
+				score2 = self.scores["player2"]
+
+				logger.info(f"SGS: winner: {winner.username}, player1: {player1.username}, player2: {player2.username}, score1: {score1}, score2: {score2}")
+
+				# else:
+				# 	score1 = self.scores["player2"]
+				# 	score2 = self.scores["player1"]
+
+				# Save the game result
+				game = Game.objects.create(
+					player1=player1,
+					score_player1=score1,
+					player2=player2,
+					score_player2=score2,
+					winner=winner,
+					tournament_id=-1 # we need to make it dynamic
+				)
+				game.save()
+
+				return game #return the saved game instance
+				# return None
+
+		except Exception as e:
+			logger.info(f"Error saving game result: {e}")
+			return None
 
 #########################################################
 

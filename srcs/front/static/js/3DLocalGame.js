@@ -875,7 +875,9 @@ function resetTeam() {
 window.addEventListener('resize', handleResize);
 
 async function handleResize() {
+    if (!scene) return ;
     const header = document.getElementById('header-container');
+    if (!header)    return ;
     headerHeight = header.offsetHeight;
     size.width = window.innerWidth;
     size.height = window.innerHeight - headerHeight;
