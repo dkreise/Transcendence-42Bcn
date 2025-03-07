@@ -148,7 +148,7 @@ export async function gameLocal () {
 export const gameAI = async (args) => {
     // const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
-    // Enable3D = localStorage.getItem("3D-option");
+    Enable3D = localStorage.getItem("3D-option");
 
     if (!checkPermission) {
         navigateTo('/login');

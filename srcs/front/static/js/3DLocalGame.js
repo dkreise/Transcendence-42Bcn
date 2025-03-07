@@ -350,17 +350,18 @@ async function initializeWebSocket(roomId = 123) {
                 // text.enemy.visible = true;
                 await player1.setupText();
                 await player2.setupText();
-                player1.setName(data.p1);
-                player2.setName(data.p2);
+                console.log(`player1: ${data.player1}, player2: ${data.player1}`)
+                player1.setName(data.player1);
+                player2.setName(data.player2);
 
                 socket.send(JSON.stringify({"type": "ready"}))
                 break;
             case "status":
                 if (data.wait)
                 {
-                    if (data.countdown != 4)
+                    if (data.countdown != 3)
                         console.log("count = 0, waiting"); // displayCountdown();
-                    else
+                    else {
                         await firstCountdown(() => {
                             console.log("Game resuming!");
                             
@@ -371,7 +372,8 @@ async function initializeWebSocket(roomId = 123) {
                             // this.dispatchEvent({ type: 'airestart'});
                             // this.isPaused = false;
                         });    
-                    console.log("count = 4, Show Countdown"); //await readySteadyGo(data.countdown - 2);
+                        console.log("count = 3, Show Countdown"); //await readySteadyGo(data.countdown - 2);
+                    }
                 }
                 else
                 {
@@ -875,7 +877,9 @@ function resetTeam() {
 window.addEventListener('resize', handleResize);
 
 async function handleResize() {
+    if (!scene) return ;
     const header = document.getElementById('header-container');
+    if (!header)    return ;
     headerHeight = header.offsetHeight;
     size.width = window.innerWidth;
     size.height = window.innerHeight - headerHeight;
