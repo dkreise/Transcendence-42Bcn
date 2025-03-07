@@ -57,11 +57,7 @@ posiciones en tanto por uno
 '''
 class GameManager:
 
-#<<<<<<< HEAD
-#	ball_config = {"rad": 70, "xspeed": 8, "yspeed": 5}
-#=======
 	ball_config = {"rad": 7, "xspeed": 5, "yspeed":8}
-#>>>>>>> remotePlayers
 	board_config = {"width": 400, "height": 300, "max_score": 3}
 	paddle_config = {"width": 10, "height": 50, "speed": 5}
 	countdown = 5
