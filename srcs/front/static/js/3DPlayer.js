@@ -389,7 +389,7 @@ export class OnlinePlayer extends BasicPlayer {
         this.textMesh.visible = false;
         this.textName.visible = false;
         this.textName.position.set(field.x + 3, 12, (this.limits.y - 7) * this.role);
-        // console.log("GEOMETRY TEXT CREATED");
+        console.log("GEOMETRY TEXT CREATED");
         this.scene.add(this.textMesh, this.textName);
     }
 
