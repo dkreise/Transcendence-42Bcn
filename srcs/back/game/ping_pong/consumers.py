@@ -142,6 +142,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				if self.role in game.players:
 					del game.players[self.role]
 					logger.info(f"Current users in the room: {game.users}")
+					logger.info(f"Current players in the room: {game.players}")
 				if len(game.players) < 2:
 					game.stop_game()
 

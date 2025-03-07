@@ -49,10 +49,10 @@ function scaleGame(data)
 	else
 		opponent.x = canvas.width - opponent.width;
 	//console.log("FRONT 2 width: " + player.width + " height: " + player.height);
-	backFactor["x"] = canvas.width / data.canvasX;
-	backFactor["y"] = canvas.height / data.canvasY;
-	player.backFactor = backFactor["y"];
-	opponent.backFactor = backFactor["y"];
+	//backFactor["x"] = canvas.width / data.canvasX;
+	//backFactor["y"] = canvas.height / data.canvasY;
+	//player.backFactor = backFactor["y"];
+	//opponent.backFactor = backFactor["y"];
 }
 
 async function readySteadyGo(countdown)
@@ -67,12 +67,8 @@ async function readySteadyGo(countdown)
 	ctx.fillStyle = "rgb(100 100 100 / 50%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	div.style.display = "block";
-//	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
-//	ctx.font = `${fontSize}px Arial`;
-//	ctx.textAlign = "center";
-//	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
 	console.log(`[${getTimestamp()}] RSG: ${countdown}`);
-	if (countdown)
+	if (countdown >= 0)
 		await setTimeout(async() => await readySteadyGo(--countdown), 1000);
 	else
 		div.style.display = "none";
@@ -119,10 +115,6 @@ function handleEndgame(data) {
 		opponent.scores++;
 		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
 	}
-	/*if (loser == player.whoA)
-		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
-	else
-		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);*/
 }
 
 function getTimestamp() {
