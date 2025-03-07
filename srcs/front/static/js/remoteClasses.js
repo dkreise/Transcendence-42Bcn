@@ -48,7 +48,8 @@ export class Player {
 		if (!this.role)
 			return ;
 		if (players[this.role] && players[this.role]["y"])
-			this.y = players[this.role]["y"] * this.backFactor;
+			//this.y = players[this.role]["y"] * this.backFactor;
+			this.y = players[this.role]["y"] * this.canvas.height;
 		if (newScore[this.role])
 			this.score = newScore[this.role];
 	}
@@ -92,7 +93,7 @@ export class Player {
 			const data = {
 				"type": "update",
 				"role": this.role,
-				"y": this.y / this.backFactor,
+				"y": this.y / this.canvas.height,
 				"score": this.score,
 			};
 			socket.send(JSON.stringify(data));
