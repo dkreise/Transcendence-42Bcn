@@ -51,7 +51,10 @@ scores
 	L player2	[int]	#player2's score
 '''
 
-
+'''
+midas => absoluto
+posiciones en tanto por uno
+'''
 class GameManager:
 
 #<<<<<<< HEAD
@@ -77,13 +80,8 @@ class GameManager:
 		self.start = True
 		self.channel_layer = get_channel_layer()
 		self.ball = {
-#<<<<<<< HEAD
-#			"x": 0.5,
-#			"y": 0.5,
-#=======
-			"x": GameManager.board_config["width"] // 2,
-			"y": GameManager.board_config["height"] // 2,
-#>>>>>>> remotePlayers
+			"x": 0.5,
+			"y": 0.5,
 			"xspeed": GameManager.ball_config["xspeed"],
 			"yspeed": GameManager.ball_config["yspeed"]
 		}
@@ -120,19 +118,11 @@ class GameManager:
 			self.users.append(user)
 			if len(self.players) == 0:
 				logger.info(f"adding {user} as player1")
-#<<<<<<< HEAD
-#				self.players["player1"] = {"id": user, "y": 0.5}
-#				return "player1"
-#			else:
-#				logger.info(f"adding {user} as player2")
-#				self.players["player2"] = {"id": user, "y": 0.5}
-#=======
-				self.players["player1"] = {"id": user, "y": (GameManager.board_config["height"] - GameManager.paddle_config["height"]) // 2}
+				self.players["player1"] = {"id": user, "y": 0.5}
 				return "player1"
 			else:
 				logger.info(f"adding {user} as player2")
-				self.players["player2"] = {"id": user, "y": (GameManager.board_config["height"] - GameManager.paddle_config["height"]) // 2}
-#>>>>>>> remotePlayers
+				self.players["player2"] = {"id": user, "y": 0.5}
 				self.status = 0
 				return "player2"
 		return "viewer"
@@ -152,10 +142,6 @@ class GameManager:
 		self.scores[role] += 1
 		logger.info(f"current scores: {self.scores}\nMAX scores: {GameManager.board_config['max_score']}")
 		if self.scores[role] == GameManager.board_config["max_score"]:
-		#	if self.game_loop_task:
-		#		self.game_loop_task_cancel()
-		#		self.game_loop_task = None
-			self.status = 1
 			await self.declare_winner(role)
 		else:
 			self.rsg_task = asyncio.create_task(self.ready_steady_go())
@@ -301,165 +287,6 @@ class GameManager:
 		if not loser:
 			logger.info("the f*ck no loser means?!")
 		await self.send_endgame(winner_id, loser)
-		#message = {
-		#	"type": "endgame",
-		#	"winnerID": winner_id,
-		#	"loserID": loser
-		#}
-		#logger.info(f"sending endgame msg. self.id: {self.id}")
-		#channel_layer = get_channel_layer()
-		#await channel_layer.group_send(
-		#	self.id,
-		#	{
-		#		"type": "send_endgame", #function in PongConsumer
-		#		"message": message
-		#	})
-
-#########################################################
-
-#	async def save_game_score(self, winner_id):
-#		try:
-#			logger.info("-1 get game Model")
-#			Game = get_game_model()
-#			logger.info("0 get user Model")
-#			User = get_user_model()
-#	
-#			logger.info("1 inside try")
-#			with transaction.atomic():
-#				logger.info("2 in atomic")
-#				# Grab the "winner" user object
-#				winner = User.objects.filter(id=winner_id).first()
-#				logger.info(f"3 winner is {winner}")
-#				if not winner:
-#					logger.info(f"No User found with id={winner_id}. Aborting save.")
-#					return None
-#				
-#				# Identify the other player's ID
-#				if self.players["player1"]["id"] == winner_id:
-#					other_player_id = self.players["player2"]["id"]
-#				else:
-#					other_player_id = self.players["player1"]["id"]
-#				logger.info(f"4 the other is {other_player}")
-#	
-#				# Make sure we're querying by the correct field.
-#				other_player = User.objects.filter(id=other_player_id).first()
-#				if not other_player:
-#					logger.info(f"No User found with id={other_player_id}. Aborting save.")
-#					return None
-#	
-#				# figure out which is "player1" in the DB sense
-#				# For example, we can store the actual in-game "player1" and "player2" exactly:
-#				#   self.players["player1"]["id"] → DB's "player1"
-#				#   self.players["player2"]["id"] → DB's "player2"
-#				# so we do:
-#				logger.info(f"5 getting db_player1")
-#	
-#				player1_id = self.players["player1"]["id"]
-#				db_player1 = User.objects.filter(id=player1_id).first()
-#	
-#				logger.info(f"6 getting db_player2")
-#				player2_id = self.players["player2"]["id"]
-#				db_player2 = User.objects.filter(id=player2_id).first()
-#	
-#				# figure out scores
-#				score_p1 = self.scores["player1"]
-#				score_p2 = self.scores["player2"]
-#	
-#				# Create and save
-#				logger.info(f"6 creating and saving the game")
-#				game = Game.objects.create(
-#					player1=db_player1,
-#					score_player1=score_p1,
-#					player2=db_player2,
-#					score_player2=score_p2,
-#					winner=winner,
-#					tournament_id=-1  # or some dynamic value
-#				)
-#				logger.info(f"7 game saved")
-#	
-#				return game
-#		except Exception as e:
-#			logger.info(f"Error saving game result: {e}")
-#			return None
-	
-#	async def save_game_score(self, winner_id):
-#		"""
-#		A fully async method, doing ORM calls via database_sync_to_async.
-#		"""
-#		try:
-#			# Start an atomic block in a low-level way:
-#			atomic_block = transaction.atomic()
-#			await database_sync_to_async(atomic_block.__enter__)()
-#
-#			# 1) get the winner user
-#			winner = await database_sync_to_async(User.objects.filter(id=winner_id).first)()
-#			if not winner:
-#				logger.info("No user found. Aborting.")
-#				# End the atomic block
-#				await database_sync_to_async(atomic_block.__exit__)(None, None, None)
-#				return None
-#
-#			# 2) figure out other stuff, e.g. the other player
-#			# We'll do multiple DB calls:
-#			player2_id = self.players["player2"]["id"]
-#			player2 = await database_sync_to_async(User.objects.filter(id=player2_id).first)()
-#
-#			# 3) Actually create the Game object
-#			game = await database_sync_to_async(Game.objects.create)(
-#				player1=db_player1,
-#				score_player1=score_p1,
-#				player2=db_player2,
-#				score_player2=score_p2,
-#				winner=winner,
-#				tournament_id=-1  # or some dynamic value
-#			)
-#
-#			# 4) commit atomic block
-#			await database_sync_to_async(atomic_block.__exit__)(None, None, None)
-#
-#			return game
-#		except Exception as e:
-#			logger.error(f"save_game_score error: {e}")
-#			return None
-
-#	@sync_to_async
-#	def save_game_score(self, winner_id):
-#		try:
-#			Game = get_game_model()
-#			with transaction.atomic(): #Ensure atomicity
-#				User = get_user_model()
-#				winner = User.objects.filter(id=winner_id).first()
-#				player1 = winner
-#				if self.players["player1"]["id"] == winner_id:
-#					player2 = User.objects.filter(id=self.players["player1"]["id"])
-#				else:
-#					player2 = User.objects.filter(id=self.players["player2"]["id"])
-#
-#				logger.info(f"SGS: winner: {winner}, player1: {player1}")
-#
-#				if self.scores["player1"] > self.scores["player2"]:
-#					score1 = self.scores["player1"]
-#					score2 = self.scores["player2"]
-#				else:
-#					score1 = self.scores["player2"]
-#					score2 = self.scores["player1"]
-#
-#				# Save the game result
-#				game = Game.objects.create(
-#					player1=player1,
-#					score_player1=score1,
-#					player2=player2,
-#					score_player2=score2,
-#					winner=winner,
-#					tournament_id=-1 # we need to make it dynamic
-#				)
-#				game.save()
-#
-#				return game #return the saved game instance
-#
-#		except Exception as e:
-#			logger.info(f"Error saving game result: {e}")
-#			return None
 
 #########################################################
 
