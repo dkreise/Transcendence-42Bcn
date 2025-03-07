@@ -1,7 +1,7 @@
 import { Ball, Player } from "./remoteClasses.js";
 import { setupControls } from "./localGame.js";
 import { refreshAccessToken } from "./login.js";
-import { startTournamentGame } from "./tournament.js";
+import { startTournamentGame, stopTournamentGame } from "./tournament.js";
 
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
@@ -20,6 +20,7 @@ let backFactor = {
 
 let socket = null;
 let gameLoopId = null;
+let gameStop = false;
  
 console.log("Hi! This is remoteGame.js :D");
 
@@ -171,6 +172,9 @@ export function handleUpdate(data)
 		targetBallX = data.ball.x * backFactor["x"];
 		targetBallY = data.ball.y * backFactor["y"];
 	}
+	if (gameStop) {
+		stopTournamentGame();
+	}
 }
 
 //async function initializeWebSocket(roomId) {
@@ -293,6 +297,10 @@ function gameLoop() {
 
 	player.move(socket);
 	//ball.move(player, opponent, gameLoopId, socket);
+
+	if (gameStop) {
+		stopTournamentGame();
+	}
 }
 
 window.addEventListener("resize", () => {
@@ -316,6 +324,7 @@ export function startGame()
 	ball = new Ball(canvas);
 	targetBallX = ball.x;
 	targetBallY = ball.y;
+	gameStop = false;
 	if (!tourId)
 		initializeWebSocket();
 	else {
@@ -333,4 +342,5 @@ export function cleanRemote() {
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
 	gameLoopId = null;
+	gameStop = true;
 }

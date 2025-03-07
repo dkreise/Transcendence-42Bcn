@@ -79,6 +79,7 @@ class GameManager:
 			"yspeed": GameManager.ball_config["yspeed"]
 		}
 		self.tour_id = None
+		self.rsg_task = None
 
 ###############################################
 

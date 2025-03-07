@@ -36,6 +36,10 @@ export const manageTournamentHomeBtn = () => {
 };
 
 export const loadTournamentHomePage = () => {
+    if (socket) {
+        navigateTo('/tournament');
+        return;
+    }
     makeAuthenticatedRequest(baseUrl + ":8001/api/tournament-home-page/", 
         {method: "GET", credentials: "include"})
     .then((response) => response.json())
@@ -436,9 +440,12 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 });
 }
 
-export function startTournamentGame()
-{
+export function startTournamentGame() {
 	socket.send(JSON.stringify({"type": "start_game"}));
+}
+
+export function stopTournamentGame() {
+    socket.send(JSON.stringify({"type": "stop_game"}));
 }
 
 ////////////////// UTILS //////////////////////
@@ -493,5 +500,23 @@ export function disconnectTournamentWS() {
                 };
                 socket.send(JSON.stringify(data));
             }
+    }
+}
+
+export function changePathFromGameCheck(prevPath, curPath) {
+    // '/tournament-game-ai': tournamentGameRequest,
+    // '/tournament-game-remote': tournamentGameRequest,
+    const pathAi = '/tournament-game-ai';
+    const pathRemote = '/tournament-game-remote';
+    let pathChange = true;
+    if (prevPath == pathAi && curPath == pathAi) {
+        pathChange = false;
+    } else if (prevPath == pathRemote && curPath == pathRemote) {
+        pathChange = false;
+    }
+    if (pathChange && prevPath == pathAi) {
+        console.log("CHANGING PATH from ai game");
+    } else if (pathChange && prevPath == pathRemote) {
+        console.log("CHANGING PATH from remote game");
     }
 }

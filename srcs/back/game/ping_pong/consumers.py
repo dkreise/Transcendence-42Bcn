@@ -251,6 +251,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 						)
 						async with active_games_lock:
 							del active_games[self.room_id]
+					self.room_id = None
 					status = await tournament.handle_game_end(data, False)
 					if status == "new":
 						tournament.increase_round()
@@ -286,6 +287,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					us = self.user.username
 					op = tournament.get_opponent(us)
 					if self.room_id and self.room_id in active_games:
+						# logger.info
 						game = active_games[self.room_id]
 						async with active_games_lock:
 							if game.ready == 0 and us in game.users:
@@ -295,15 +297,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 					await self.disconnect(1000)
 					logger.info(f"quit status : {status}")
 					if status == "remote":
-						
+						if not self.room_id:
+							self.room_id = "T_" + self.tour_id + "_" + str(tournament.round)
+							game = active_games[self.room_id]
+							# await self.channel_layer.group_add(self.room_id, self.channel_name)
 						await game.stop_tournament_game(op, us)
-						# us is the one who quits
-						# if op has started the game (joined the room) but us not:
-							# we need to send to the op that his op has quitted and will not join the room
-						# if us has started the game but op not:
-							# we can just handle the end game in tourn
-							# DONE
-
 					elif status == "new":
 						tournament.increase_round()
 						await self.channel_layer.group_send(
@@ -405,6 +403,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 					game = active_games[self.room_id]
 					game.handle_message(self.role, data)
 					await game.update_game()
+
+				elif dtype == "stop_game":
+					logger.info("SOMEONE CHANGED PATH")
+					game = active_games[self.room_id]
+					us = self.user.username
+					op = tournament.get_opponent(us)
+					await game.stop_tournament_game(op, us)
 				
 				# elif dtype == "tournament_delete":
 				# 	logger.info("WE RECEIVED that it's needed to delete")

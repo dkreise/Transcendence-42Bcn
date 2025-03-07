@@ -383,6 +383,8 @@ class TournamentManager:
 	def get_opponent(self, username):
 		needs_to_play = username in self.players
 		opponent = None
+		if self.round == 0:
+			return opponent
 		cur_pairs = self.pairs[self.round - 1]
 
 		if (needs_to_play):
