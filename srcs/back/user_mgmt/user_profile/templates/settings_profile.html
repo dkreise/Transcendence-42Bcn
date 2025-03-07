@@ -31,25 +31,27 @@
               <label for="email" class="form-label">{{email}}</label>
               <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" readonly>
             </div>
-            <div class="mb-3 text-center">
-              <button type="submit" id="save-settings-button" class="btn btn-primary">{{save}}</button>
-            </div>
+            <!-- <div class="mb-3 text-center">
+              <button type="submit" id="save-settings-button" class="form-submit-btn btn">{{save}}</button>
+            </div> -->
           </form>
         </div>
       </div>
     
       <!-- Sección de 2FA -->
-      <div class="row">
-        <div class="col-12 text-center mt-3">
-          {% if two_fa_enabled %}
-            <a href="/two-fa-disable" data-route="/two-fa-disable" id="two-fa-button" class="btn btn-danger">
-              {{disable_2FA}}
-            </a>
-          {% else %}
-            <a href="/two-fa-setup" data-route="/two-fa-setup" id="two-fa-button" class="btn btn-success">
-              {{add_2FA}}
-            </a>
-          {% endif %}
+    <div class="row">
+        <div class="mb-3 d-flex justify-content-center gap-3">
+            <button type="submit" id="save-settings-button" class="form-submit-btn btn" style="width: 40%;">{{save}}</button>
+          
+            {% if two_fa_enabled %}
+              <a href="/two-fa-disable" data-route="/two-fa-disable" id="two-fa-button" class="form-submit-btn btn" style="width: 24%; background:rgb(216, 73, 73);;">
+                {{disable_2FA}}
+              </a>
+            {% else %}
+              <a href="/two-fa-setup" data-route="/two-fa-setup" id="two-fa-button" class="form-submit-btn btn" style="width: 24%; background: #62d767;">
+                {{add_2FA}}
+              </a>
+            {% endif %}
         </div>
-      </div>
+    </div>
 </div>

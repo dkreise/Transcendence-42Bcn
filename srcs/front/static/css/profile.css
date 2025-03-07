@@ -163,18 +163,18 @@
   border: 1px solid #414141; /* Borde por defecto */
   border-color: #0d0d0d;
   transition: border-color 0.3s, background-color 0.3s;
-  width: 80%;
+  /* width: 80%;
   max-width: 350px;
-  margin: 0 auto;
+  margin: 0 auto; */
 }
 
-.form-label {
+/* .form-label {
   display: block;
   width: 50%;
   max-width: 300px;
-  margin: 0 auto 5px auto; /* 5px de margen inferior para separar del input */
+  margin: 0 auto 5px auto;
   text-align: center;
-}
+} */
 
 .form-control::placeholder {
   color: #cccccc; /* Color para el placeholder */
