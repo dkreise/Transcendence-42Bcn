@@ -57,9 +57,9 @@ posiciones en tanto por uno
 '''
 class GameManager:
 
-	ball_config = {"rad": 7, "xspeed": 5, "yspeed":8}
+	ball_config = {"rad": 7, "xspeed": 3, "yspeed": 0}
 	board_config = {"width": 400, "height": 300, "max_score": 3}
-	paddle_config = {"width": 10, "height": 50, "speed": 5}
+	paddle_config = {"width": 10, "height": 50, "speed": 150}
 	countdown = 5
 
 	def __init__(self, game_id):
@@ -126,17 +126,21 @@ class GameManager:
 #################################################
 
 	def handle_message(self, role, data):
+		logger.info(f"HM data: {data}")
+		logger.info(f"HM pre: {self.players}")
 		if data["type"] == "update" and data["role"] in self.players and data["y"]:
 			self.players[data["role"]]["y"] = data["y"]
+			#logger.info(f"pl {self.players[data['role']]} role: {data['role']} paddle position {data['y']}")
+		logger.info(f"HM post: {self.players}")
 
 ##################################################
 
 	async def has_scored(self, role):
-		logger.info(f"{role} has scored in room {self.id}")
+		# logger.info(f"{role} has scored in room {self.id}")
 		self.status = 1
 		self.reset_positions(role)
 		self.scores[role] += 1
-		logger.info(f"current scores: {self.scores}\nMAX scores: {GameManager.board_config['max_score']}")
+		# logger.info(f"current scores: {self.scores}\nMAX scores: {GameManager.board_config['max_score']}")
 		if self.scores[role] == GameManager.board_config["max_score"]:
 			await self.declare_winner(role)
 		else:
@@ -148,16 +152,17 @@ class GameManager:
 		boardH = GameManager.board_config["height"]
 		radius = GameManager.ball_config["rad"]
 		padH = GameManager.paddle_config["height"] / 2
-		pl1 = self.players["player1"]["y"] * boardW
-		pl2 = self.players["player2"]["y"] * boardW
+		pl1 = self.players["player1"]["y"] * boardH
+		pl2 = self.players["player2"]["y"] * boardH
 
 		if self.ball["x"] * boardW <= GameManager.paddle_config["width"]:
-			if ((self.ball["y"] * boardH - radius > pl1 - padH - 1) and
-				(self.ball["y"] * boardH + radius < pl1 + padH + 1)):
+			if ((self.ball["y"] * boardH > pl1 - padH - 0.05) and
+				(self.ball["y"] * boardH < pl1 + padH + 0.05)):
+				logger.info(f"player1 collision")
 				return True
 		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"]:
-			if ((self.ball["y"] * boardH - radius > pl2 - padH - 1) and
-				(self.ball["y"] * boardH + radius < pl2 + padH + 1)):
+			if ((self.ball["y"] * boardH > pl2 - padH - 0.05) and
+				(self.ball["y"] * boardH < pl2 + padH + 0.05)):
 				return True
 		return False
 
@@ -170,7 +175,7 @@ class GameManager:
 		pl1_x = padW
 		pl1_y = self.players["player1"]["y"] * boardW
 		pl2_x = boardW - padW
-		pl2_y = self.players["player1"]["y"] * boardW
+		pl2_y = self.players["player2"]["y"] * boardW
 
 		if self.ball["x"] * boardW - radius <= pl1_x:
 			if ((self.ball["y"] * boardH + radius >= pl1_y - padH) or
@@ -184,29 +189,33 @@ class GameManager:
 
 	async def update_ball(self):
 
-		self.ball["x"] *= GameManager.board_config["width"] + self.ball["xspeed"]
-		self.ball["y"] *= GameManager.board_config["height"] + self.ball["yspeed"]
+		self.ball["x"] += self.ball["xspeed"] / GameManager.board_config["width"]
+		self.ball["y"] += self.ball["yspeed"] / GameManager.board_config["height"]
+		is_col_s = self.is_pad_col_side()
+		is_col_t = self.is_pad_col_top()
+		# logger.info("IN UPDATE BALL")
+		# logger.info(f"ball x: {self.ball['x']}, ball y: {self.ball['y']}")
 
-		if self.is_pad_col_side():
+		if is_col_s:
 			self.ball["xspeed"] *= -1
-		elif self.is_pad_col_top():
+		elif is_col_t:
 			self.ball["yspeed"] *= -1
-		elif self.ball["y"] <= 0 or self.ball["y"] >= GameManager.board_config["height"]:
+		elif self.ball["y"] <= 0 or self.ball["y"] >= 1:
 			self.ball["yspeed"] *= -1
-		if self.ball["x"] - GameManager.ball_config["rad"] <= 0:
-			logger.info(f"{self.players['player1']} has scored")
+		if not is_col_s and (self.ball["x"] * GameManager.board_config["width"] - GameManager.ball_config["rad"] <= 0):
+			# logger.info(f"{self.players['player1']} has scored")
 			await self.has_scored("player1")
-		elif self.ball["x"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]:
-			logger.info(f"{self.players['player2']} has scored")
+		elif not is_col_s and (self.ball["x"] * GameManager.board_config["width"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]):
+			# logger.info(f"{self.players['player2']} has scored")
 			await self.has_scored("player2")
 
 
 ##################################################
 
 	async def ready_steady_go(self): #RSG
-		logger.info("RSA 3 2 1...")
+		# logger.info("RSA 3 2 1...")
 		try:
-			await asyncio.sleep(4)
+			await asyncio.sleep(2)
 			self.status = 0
 			await self.send_status(0)
 		except Exception as e:
@@ -215,6 +224,7 @@ class GameManager:
 #################################################
 
 	def reset_positions(self, role):
+		logger.info(f"RESET POS")
 		self.ball["x"] = 0.5
 		self.ball["y"] = 0.5
 		if role == "player1":
@@ -269,29 +279,29 @@ class GameManager:
 
 	async def declare_winner(self, winner_role):
 
-		logger.info(f"and the winner is... {winner_role}")
+		# logger.info(f"and the winner is... {winner_role}")
 		winner_id = self.players[winner_role]["id"]
 
 		#game = get_game_model()
 
-		logger.info(f"DW final scores: {self.scores}")
+		# logger.info(f"DW final scores: {self.scores}")
 		#save the game result
 
-		logger.info(f"pre-save_game_score")
+		# logger.info(f"pre-save_game_score")
 		logger.info(winner_id)
 		saved_game = await self.save_game_score(winner_id)
 		# saved_game = ""
-		logger.info(f"post-save_game_score")
+		# logger.info(f"post-save_game_score")
 
 
-		if saved_game:
-			logger.info(f"Game successfully saved: {saved_game}")
-		else:
-			logger.info("F*ck, couldn't save the game")
-		logger.info(f"Player {winner_id} wins in room {self.id}")
+		# if saved_game:
+		# 	logger.info(f"Game successfully saved: {saved_game}")
+		# else:
+		# 	logger.info("F*ck, couldn't save the game")
+		# logger.info(f"Player {winner_id} wins in room {self.id}")
 		loser = next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
-		if not loser:
-			logger.info("the f*ck no loser means?!")
+		# if not loser:
+		# 	logger.info("the f*ck no loser means?!")
 		await self.send_endgame(winner_id, loser)
 
 
@@ -307,8 +317,8 @@ class GameManager:
 
 				winner = User.objects.get(username=winner_id)
 				# player1 = winner
-				logger.info(winner_id)
-				logger.info(self.players["player1"]["id"])
+				# logger.info(winner_id)
+				# logger.info(self.players["player1"]["id"])
 				# if self.players["player1"]["id"] == winner_id:
 				player1 = User.objects.get(username=self.players["player1"]["id"])
 				# else:
@@ -318,7 +328,7 @@ class GameManager:
 				score1 = self.scores["player1"]
 				score2 = self.scores["player2"]
 
-				logger.info(f"SGS: winner: {winner.username}, player1: {player1.username}, player2: {player2.username}, score1: {score1}, score2: {score2}")
+				# logger.info(f"SGS: winner: {winner.username}, player1: {player1.username}, player2: {player2.username}, score1: {score1}, score2: {score2}")
 
 				# else:
 				# 	score1 = self.scores["player2"]
@@ -346,7 +356,7 @@ class GameManager:
 #########################################################
 
 	async def game_loop(self):
-		logger.info(f"Starting game loop with status: {self.status}")
+		# logger.info(f"Starting game loop with status: {self.status}")
 		try:
 			self.start = False
 			while True:
@@ -366,7 +376,7 @@ class GameManager:
 			logger.info(f"\033[1;33m{user} is Trying to start the game in room {self.id}\033[0m")
 			if self.game_loop_task is None:
 				self.status = 1
-				logger.info(f"{user} is starting the countdown")
+				# logger.info(f"{user} is starting the countdown")
 				await self.send_status(3)
 				self.rsg_task = asyncio.create_task(self.ready_steady_go())
 				logger.info(f"\033[1;33mThe game has started in room {self.id}\033[0m")
@@ -417,18 +427,18 @@ class GameManager:
 
 	async def send_status(self, countdown):
 		logger.info(f"sending status msg (GM) wait: {self.status} cd: {countdown}")
-		front_ball = self.ball
-		front_ball["x"] *= GameManager.board_config["width"]
-		front_ball["y"] *= GameManager.board_config["height"]
-		front_players = self.players
-		if front_players["player1"]:
-			front_players["player1"]["y"] *= GameManager.board_config["height"]
-		elif front_players["player2"]:
-			front_players["player2"]["y"] *= GameManager.board_config["height"]
+		# front_ball = self.ball
+		# front_ball["x"] *= GameManager.board_config["width"]
+		# front_ball["y"] *= GameManager.board_config["height"]
+		# front_players = self.players
+		# if front_players["player1"]:
+		# 	front_players["player1"]["y"] *= GameManager.board_config["height"]
+		# elif front_players["player2"]:
+		# 	front_players["player2"]["y"] *= GameManager.board_config["height"]
 		message = {
 			"type": "status",
-			"ball": front_ball,
-			"players": front_players,
+			"ball": self.ball,
+			"players": self.players,
 			"scores": self.scores,
 			"wait": self.status,
 			"countdown": countdown
@@ -443,18 +453,11 @@ class GameManager:
 		logger.info("\033[1;35mStatus Sent\033[0m")
 	
 	async def send_update(self):
-		front_ball = self.ball
-		front_ball["x"] *= GameManager.board_config["width"]
-		front_ball["y"] *= GameManager.board_config["height"]
-		front_players = self.players
-		if front_players["player1"]:
-			front_players["player1"]["y"] *= GameManager.board_config["height"]
-		elif front_players["player2"]:
-			front_players["player2"]["y"] *= GameManager.board_config["height"]
 		message = {
 			"type": "update",
-			"ball": front_ball,
-			"players": fornt_players,
+			"ball": self.ball,
+			"padS": GameManager.paddle_config["speed"] / GameManager.board_config["height"],
+			"players": self.players,
 			"scores": self.scores,
 			"start": self.start
 		}
@@ -475,7 +478,7 @@ class GameManager:
 			"canvasY": GameManager.board_config["height"],	# canvas height
 			"padW": GameManager.paddle_config["width"],	# paddle width
 			"padH": GameManager.paddle_config["height"],	# paddle height
-			"padS": GameManager.paddle_config["speed"],	# paddle speed
+			"padS": GameManager.paddle_config["speed"] / GameManager.board_config["height"],	# paddle speed
 			"ballRad": GameManager.ball_config["rad"],		# ball radius
 			"ballSx": GameManager.ball_config["xspeed"],	# ball xspeed
 			"ballSy": GameManager.ball_config["yspeed"]	# ball yspeed

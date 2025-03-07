@@ -389,7 +389,7 @@ export class OnlinePlayer extends BasicPlayer {
         this.textMesh.visible = false;
         this.textName.visible = false;
         this.textName.position.set(field.x + 3, 12, (this.limits.y - 7) * this.role);
-        console.log("GEOMETRY TEXT CREATED");
+        // console.log("GEOMETRY TEXT CREATED");
         this.scene.add(this.textMesh, this.textName);
     }
 
@@ -409,7 +409,7 @@ export class OnlinePlayer extends BasicPlayer {
 
     update(newY, newScore) {
 		this.mesh.position.x = this.convertXFromBack(newY);
-        // console.log(`Update position: ${this.mesh.position.x}`);
+        console.log(`Update position: ${this.mesh.position.x}, from back newY: ${newY}`);
         if (this.score != newScore) {
 		    this.score = newScore;
             this.updateGeo(this.setText());
@@ -429,7 +429,7 @@ export class OnlinePlayer extends BasicPlayer {
             this.mesh.position.x += this.speed;
         }
 		if (socket.readyState === WebSocket.OPEN && this.mesh.position.x != oldY) {
-			// console.log("sending");
+			console.log(`sending position after move: ${this.mesh.position.x}`);
             this.send(socket);
         }
 	}
@@ -440,7 +440,7 @@ export class OnlinePlayer extends BasicPlayer {
             
             //console.log("front y: " + this.y + " backFactor: " + this.backFactor);
 			// console.log(`${this.backendRole}'s paddle: ${this.mesh.position.x} converted: ${this.convertXToBack(this.mesh.position.x)}`);
-            // console.log(`sending: ${this.convertXToBack(this.mesh.position.x) }`);
+            console.log(`sending: ${this.backendRole}, ${this.name}, ${this.convertXToBack(this.mesh.position.x) }`);
 			const data = {
 				"type": "update",
 				"role": this.backendRole,

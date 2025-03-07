@@ -240,21 +240,23 @@ export class OnlineBall extends BasicBall {
         // ball.y += (targetBallY - ball.y) * ballCoef;
         this.mesh.position.z += (this.targetX - this.mesh.position.z) * ballCoef;
         this.mesh.position.x += (this.targetY - this.mesh.position.x) * ballCoef;
+        // console.log(`ball.x: ${this.mesh.position.z}, ball.y: ${this.mesh.position.x}`)
+
     }
 
-    send(socket) {
-		if (socket.readyState === WebSocket.OPEN)
-		{
-			const data = {
-				"type": "ballUpdate",
-				"x": this.convertXToBack(this.mesh.position.z),
-				"y": this.convertYToBack(this.mesh.position.x),
-				"xspeed": this.velocity.z,
-				"yspeed": this.velocity.x,
-			};
-			socket.send(JSON.stringify(data));
-		}
-	}
+    // send(socket) {
+	// 	if (socket.readyState === WebSocket.OPEN)
+	// 	{
+	// 		const data = {
+	// 			"type": "ballUpdate",
+	// 			"x": this.convertXToBack(this.mesh.position.z),
+	// 			"y": this.convertYToBack(this.mesh.position.x),
+	// 			"xspeed": this.velocity.z,
+	// 			"yspeed": this.velocity.x,
+	// 		};
+	// 		socket.send(JSON.stringify(data));
+	// 	}
+	// }
 
     convertYToBack(frontY) {
         return ((limits.x - frontY) / (limits.x * 2));

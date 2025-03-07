@@ -273,17 +273,17 @@ export function setupRemoteControls(player) {
         if (e.key === "ArrowDown") player.down = false;
     });
 
-    ball.addEventListener("remotefinish", (e) => {
-        if (socket && socket.readyState === WebSocket.OPEN) {
-            socket.close();
-            socket = null;
-        }
-        handleEndGame(e.message);
-        // if (!player1 || !player2) return;
-        // saveScore(player1.score, player2.score, mainUser);
+    // ball.addEventListener("remotefinish", (e) => {
+    //     if (socket && socket.readyState === WebSocket.OPEN) {
+    //         socket.close();
+    //         socket = null;
+    //     }
+    //     handleEndGame(e.message);
+    //     // if (!player1 || !player2) return;
+    //     // saveScore(player1.score, player2.score, mainUser);
 
-        console.log('remote finish!!! player name', e.message);
-    })
+    //     console.log('remote finish!!! player name', e.message);
+    // })
 }
 
 
@@ -319,7 +319,7 @@ async function initializeWebSocket(roomId = 123) {
     socket.onclose = async (event) => {
         console.log("WebSocket closed with code:", event.code);
 
-        console.warn("WebSocket connection closed. Retrying...");
+        console.log("WebSocket connection closed. ...");
         if (event.code === 4001) {
             // Token expired; refresh token logic
             try {
@@ -330,8 +330,7 @@ async function initializeWebSocket(roomId = 123) {
                 console.error("Failed to refresh token", err);
                 handleLogout();
             }
-        } else if (retries++ <= 5)
-            setTimeout(initializeWebSocket, 1000);
+        }
     };
 
     socket.onmessage = async (event) => {
@@ -347,10 +346,10 @@ async function initializeWebSocket(roomId = 123) {
                 // player1.name = data.p1;
                 // player2.name = data.p2;
                 text.waiting.visible = false;
-                // text.enemy.visible = true;
+                text.enemy.visible = true;
                 await player1.setupText();
                 await player2.setupText();
-                console.log(`player1: ${data.player1}, player2: ${data.player1}`)
+                // console.log(`player1: ${data.player1}, player2: ${data.player2}`)
                 player1.setName(data.player1);
                 player2.setName(data.player2);
 
@@ -360,10 +359,13 @@ async function initializeWebSocket(roomId = 123) {
                 if (data.wait)
                 {
                     if (data.countdown != 3)
-                        console.log("count = 0, waiting"); // displayCountdown();
+                        console.log(data) //console.log(`player1: ${data.players.player1.y}, player2: ${data.players.player2.y}`)//console.log("count = 0, waiting"); // displayCountdown();
                     else {
+                        console.log(data.countdown)
+                        gameStarted = false;
+                        ball.resetPos();
                         await firstCountdown(() => {
-                            console.log("Game resuming!");
+                            // console.log("Game resuming!");
                             
                             // ball.resetVelocity(); // Randomize direction
                             // console.log(`Velocity reset to x - ${ball.velocity.x}, z - ${ball.velocity.z}`);
@@ -372,12 +374,14 @@ async function initializeWebSocket(roomId = 123) {
                             // this.dispatchEvent({ type: 'airestart'});
                             // this.isPaused = false;
                         });    
-                        console.log("count = 3, Show Countdown"); //await readySteadyGo(data.countdown - 2);
+                        // console.log("count = 3, Show Countdown"); //await readySteadyGo(data.countdown - 2);
                     }
                 }
                 else
                 {
                     console.log("let's start the game!");
+                    waiting = false;
+                    gameStarted = true;
                     // setupControls(player, opponent)
                     // gameLoop();
                 }
@@ -409,12 +413,16 @@ async function initializeWebSocket(roomId = 123) {
                     // console.log("update data ball");
                     // targetBallX = data.ball.x * backFactor["x"];
                     // targetBallY = data.ball.y * backFactor["y"];
+                    // console.log(`ball.back x: ${data.ball.x}, ball.back y: ${data.ball.y}`)
                     ball.targetX = convertXToFront(data.ball.x);
                     ball.targetY = convertYToFront(data.ball.y);
+                    // console.log(`ball.targetX: ${ball.targetX}, ball.targetY: ${ball.targetY}`)
                 }
                 break ;
             case "endgame":
-                console.log("endgame!"); //handleEndgame(data);
+                console.log("endgame!"); 
+                handleOnlineEndgame();
+
                 break;
             default:
                 console.warn("Unhandled message type:", data.type);
@@ -440,8 +448,8 @@ async function scaleGame(data)
     player1 = new OnlinePlayer(data, dict, limits, scene, -1, "", new THREE.Vector3(0, 0, -field.y), -0.1, -0.5, 0);
     // console.log(`player1: ${field.y}`)
     // await player1.setupText();
-    console.log(`convert 0.5 to front: ${player1.convertXFromBack(0.5)}`);
-    console.log(`convert 0 to back: ${player1.convertXToBack(0)}`);
+    // console.log(`convert 0.5 to front: ${player1.convertXFromBack(0.5)}`);
+    // console.log(`convert 0 to back: ${player1.convertXToBack(0)}`);
     player2 = new OnlinePlayer(data, dict, limits, scene, 1, "", new THREE.Vector3(0, 0, field.y), -0.1, -0.5, 0);
     // await player1.setupText();
     ball = new OnlineBall(data, dict, scene, limits, [player1, player2], false);
@@ -474,6 +482,7 @@ async function animateRemote() {
     
     if (gameStarted && !waiting) {
 	    ball.interpolate();
+        // console.log(ball.mesh.position.x);
 	    // ball.draw();
         mainplayer.move(socket);
     } 
@@ -489,7 +498,7 @@ function animateCameraToField() {
     const startLookAt = new THREE.Vector3(0, 170, 52);
     const targetLookAt = new THREE.Vector3(0, 7, 0); // Field position (where camera should look)
     
-    const duration = 3000; // Duration of animation in milliseconds
+    const duration = 1000; // Duration of animation in milliseconds
     const startTime = performance.now();
 
     function easeInOutQuad(t) {
@@ -794,10 +803,11 @@ async function firstCountdown(callback) {
     // text.updateGeometry(text.countdownText, "3", textWinner);
     
     // text.countdownText.visible = true;
-    text.enemy.visible = true;
+    // text.enemy.visible = true;
     const interval = setInterval(() => {    
-        if (count == 2) {
+        if (count == 3) {
             text.enemy.visible = false;
+            text.updateGeometry(text.countdownText, `${count}`, textCount);
             player1.show();
             player2.show();
             text.countdownText.visible = true;
@@ -806,23 +816,35 @@ async function firstCountdown(callback) {
         } else if (count < 0) {
             clearInterval(interval);
             text.countdownText.visible = false; // Hide instead of remove
-            waiting = false;
+            
+            console.log("RESUME")
+            // handleOnlineEndgame();
             callback(); // Resume the game  
         } else {
             text.updateGeometry(text.countdownText, `${count}`, textCount);
         }
         count--;  
-    }, 1000);
+    }, 500);
 }
 
 async function handleEndGame(message) {
     gameEnded = true;
     gameStarted = false;
     // if (text.winnerMessage)
-    text.updateGeometry(text.winnerMessage, message, textWinner);
+    // text.updateGeometry(text.winnerMessage, message, textWinner); // PUT BACK
     text.button.visible = true;
     text.tryAgain.visible = true;
-    text.winnerMessage.visible = true;
+    // text.winnerMessage.visible = true;
+}
+
+async function    handleOnlineEndgame() {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+        socket = null;
+    }
+    
+    handleEndGame();
+    resetTeam();
 }
 
 async function createSky() {
@@ -867,11 +889,12 @@ async function restart() {
 
 
 
+
 function resetTeam() {
     console.log("Reset team");
     player1.resetAll();
     player2.resetAll();
-    ball.resetVelocity();
+    ball.resetPos();
 }
 
 window.addEventListener('resize', handleResize);

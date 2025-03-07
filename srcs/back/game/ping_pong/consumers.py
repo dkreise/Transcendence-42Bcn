@@ -174,7 +174,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				game = active_games[self.room_id]
 				if data["type"] == "update":
 					game.handle_message(self.role, data)
-					await game.update_game()
+					await game.send_update()
 				elif data["type"] == "ready":
 					async with active_games_lock:
 						game.ready += 1
