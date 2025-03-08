@@ -1,6 +1,6 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { displayUpdatingMessage } from "./profile.js";
-import { navigateTo } from "./main.js";
+import { navigateTo, drawHeader} from "./main.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -25,20 +25,23 @@ const display2FAMessage = (form, message, color) => {
 export const loadLogin2FAPage = () => {
     const contentArea = document.getElementById("content-area");
     fetch(baseUrl + ":8000/api/2fa-login/", {method: "GET", credentials: "include" })
-        .then(response => response.json())
-        .then(data => {
-            if (data.form_html) {
-                    console.log('2FA form html returned!');
-                    contentArea.innerHTML = data.form_html;
-            }
-        })
-        .catch(error => console.error('Error loading 2FA login form:', error));
+    .then(response => response.json())
+    .then(data => {
+        if (data.form_html) {
+            console.log('2FA form html returned!');
+            contentArea.innerHTML = data.form_html;
+        }
+    })
+    .catch(error => console.error('Error loading 2FA login form:', error));
 }
 
 export const enable2FA = () => {
-    makeAuthenticatedRequest(baseUrl + ":8000/api/2fa/enable/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+    console.log('Estamosss aquiiii');
+    drawHeader('main').then(() => {
+      return  makeAuthenticatedRequest(baseUrl + ":8000/api/2fa/enable/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+        })
     })
         .then((response) => response.json())
         .then((data) => {
