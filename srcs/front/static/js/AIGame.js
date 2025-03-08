@@ -233,7 +233,7 @@ function gameAILoop() {
 }
 
 // Event listeners for player controls
-function setupControlsAI() {
+export function setupControlsAI(player) {
     window.addEventListener("keydown", (e) => {
         if (e.key === "w") player.up = true;
         if (e.key === "s") player.down = true;
@@ -295,7 +295,7 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
 
     errorRange = (canvas.height / 10) * (2 / difficulty);  // Higher difficulty = smaller error
 
-    setupControlsAI();
+    setupControlsAI(player);
     window.addEventListener("beforeunload", beforeUnloadHandlerAI);
     intervalID = setInterval(doMovesAI, 1000);
     console.log(tournamentId);

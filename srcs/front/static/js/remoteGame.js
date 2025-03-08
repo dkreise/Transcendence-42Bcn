@@ -1,5 +1,6 @@
 import { Ball, Player } from "./remoteClasses.js";
 import { setupControls } from "./localGame.js";
+import { setupControlsAI } from "./AIGame.js"
 import { refreshAccessToken } from "./login.js";
 import { startTournamentGame, stopTournamentGame } from "./tournament.js";
 
@@ -21,7 +22,7 @@ let tourId = null;
 console.log("Hi! This is remoteGame.js :D");
 
 
-function handleRoleAssignment(data) {
+export function handleRoleAssignment(data) {
 	console.log("Hi! I'm " + data.role);
 	if (data.role === "player1") {
 		player = new Player(canvas, "player1");
@@ -151,24 +152,44 @@ export async function handleStatus(data, tourSocket)
 	if (tourSocket) {
 		socket = tourSocket;
 	}
-	player.update(data.players, data.scores);
-	opponent.update(data.players, data.scores);
 	if (data.wait) // data.wait [bool]
 	{
 		if (gameLoopId)
 			cancelAnimationFrame(gameLoopId);
-		if (data.countdown != 4)
+		if (data.countdown == 0)
 			displayCountdown();
 		else
-			await readySteadyGo(data.countdown - 2);
+		{
+			await readySteadyGo(data.countdown - 1);
+			player.update(data.players, data.scores);
+			opponent.update(data.players, data.scores);
+			ball.resetPosition();
+		}
 	}
 	else
 	{
-		console.log("let's start the game!");
 		window.addEventListener("beforeunload", beforeUnloadHandlerRemote);
-		setupControls(player, opponent)
+		setupControlsAI(player)
 		gameLoop();
 	}
+	// player.update(data.players, data.scores);
+	// opponent.update(data.players, data.scores);
+	// if (data.wait) // data.wait [bool]
+	// {
+	// 	if (gameLoopId)
+	// 		cancelAnimationFrame(gameLoopId);
+	// 	if (data.countdown != 4)
+	// 		displayCountdown();
+	// 	else
+	// 		await readySteadyGo(data.countdown - 2);
+	// }
+	// else
+	// {
+	// 	console.log("let's start the game!");
+	// 	window.addEventListener("beforeunload", beforeUnloadHandlerRemote);
+	// 	setupControls(player, opponent)
+	// 	gameLoop();
+	// }
 }
 
 export function handleUpdate(data)
@@ -179,13 +200,25 @@ export function handleUpdate(data)
 		opponent.update(data.players, data.scores);
 	}
 	if (data.ball) {
-		targetBallX = data.ball.x * backFactor["x"];
-		targetBallY = data.ball.y * backFactor["y"];
+		// targetBallX = data.ball.x * backFactor["x"];
+		// targetBallY = data.ball.y * backFactor["y"];
+		ball.x = data.ball.x * canvas.width;
+		ball.y = data.ball.y * canvas.height;
 	}
 	if (gameStop) {
 		stopTournamentGame();
 	}
 }
+
+// if (data.players)
+// 	{
+// 		player.update(data.players, data.scores);
+// 		opponent.update(data.players, data.scores);
+// 	}
+// 	if (data.ball) {
+// 		ball.x = data.ball.x * canvas.width;
+// 		ball.y = data.ball.y * canvas.height;
+// 	}
 
 //async function initializeWebSocket(roomId) {
 async function initializeWebSocket() {
@@ -257,7 +290,7 @@ async function initializeWebSocket() {
 				}
 				else
 				{
-					setupControls(player, opponent)
+					setupControlsAI(player)
 					gameLoop();
 				}
 				break;

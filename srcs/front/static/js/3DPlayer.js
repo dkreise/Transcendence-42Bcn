@@ -367,7 +367,7 @@ export class OnlinePlayer extends BasicPlayer {
         this.backY = (limits.x * 2) / data.canvasY / 10;
         this.width = limits.y * 2 * data.padW / data.canvasX;
         this.height = limits.x * 2 * data.padH / data.canvasY;
-        console.log(`Creating paddles ${name}, position x ${position.z}, position y ${position.x}`)
+        // console.log(`Creating paddles ${name}, position x ${position.z}, position y ${position.x}`)
         this.initial.z = position.z - (this.role * this.width / 2);
         this.speed = data.padS * limits.x * 2;
         this.backendRole = name;

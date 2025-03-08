@@ -59,7 +59,7 @@ speeds => relative
 class GameManager:
 
 
-	ball_config = {"rad": 9, "xspeed": 3, "yspeed": 1}
+	ball_config = {"rad": 9, "xspeed": 3, "yspeed": 0}
 	board_config = {"width": 600, "height": 400, "max_score": 3}
 
 	paddle_config = {"width": 10, "height": 50, "speed": 5}
@@ -98,13 +98,12 @@ class GameManager:
 			self.cancel_disconnect_task()
 			role = next((key for key, value in self.players.items() if value["id"] == user), None)
 			if role:
-
 				if user in self.users:
 					logger.info(f"{user} is already in the room. Rejecting new connection")
 					#await self.send_reject(channel, "You're already connected to this room!")
-          if tour_id:
-            return role
-					return "4000"
+				if self.tour_id:
+					return role
+				return "4000"
 
 				if len(self.players) == 2:
 					self.status = 0
@@ -325,8 +324,8 @@ class GameManager:
 
 			if saved_game:
 				logger.info(f"Game successfully saved: {saved_game}")
-      else:
-			  logger.info("F*ck, couldn't save the game")
+			else:
+				logger.info("F*ck, couldn't save the game")
 		# logger.info(f"Player {winner_id} wins in room {self.id}")
 		loser = next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
 		logger.info(f"Player {winner_id} wins in room {self.id}")

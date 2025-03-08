@@ -3,7 +3,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
 import { gameAI, playOnline } from "./game.js";
-import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, cleanRemote } from "./remoteGame.js"
+import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleTourEndgame, cleanRemote } from "./remoteGame.js"
 import { drawHeader } from "./main.js";
 import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 
@@ -409,7 +409,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
                 navigateTo('/tournament');
                 break;
 			case "role":
-				handleRoleAssignment(data.role);
+				handleRoleAssignment(data);
 				scaleGame(data);
 				break;
 			case "players":
@@ -423,7 +423,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 				handleUpdate(data);
 				break;
 			case "endgame":
-                handleEndgame(data);
+                handleTourEndgame(data);
                 saveTournamentGameResult(data["winnerID"], data["loserID"], 3, 5);
 				break;
 			case "reject":

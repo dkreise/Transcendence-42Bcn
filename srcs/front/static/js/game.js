@@ -191,10 +191,10 @@ export const gameAI = (args) => {
             return response.json();
         })
         .then(data => {
-            // if (data.game_html)
-            //     console.log("html here");
-            // if (Enable3D === "false")
-            //     console.log("3d false");
+            if (data.game_html)
+                console.log("html here");
+            if (Enable3D === "false")
+                console.log("3d false");
             if (data.game_html && Enable3D === "false") {
                 console.log('AI game returned!');
                 document.getElementById('content-area').innerHTML = data.game_html;
@@ -236,7 +236,7 @@ export async function playOnline () {
 
     Enable3D = localStorage.getItem("3D-option");
     console.log(`Enable 3D: ${Enable3D}`)
-	Enable3D = "false";
+	// Enable3D = "false";
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
     if (!checkPermission) {
