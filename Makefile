@@ -1,39 +1,47 @@
-
-#-f flag -> specify the name and path of one or more compose files
-#-d detach -> run containers in the background
-
 SHELL := /bin/bash
 
 D_PS = $(shell docker ps -aq)
 D_IMG = $(shell docker images -q)
 OF = game
-#D_VOL = $(shell docker volume ls -q --filter dangling=true)
-# Macros
-# DOCKER_COMPOSE = docker compose
+
 DOCKER_COMPOSE = docker-compose -f ./srcs/docker-compose.yml
 
 DC_RUN_GAME= run --rm game sh -c
 DC_RUN_USER= run --rm user-mgmt sh -c
 
-IP_ADDRESS=$(shell hostname -I | awk '{print $$1}')
+CERTS_DIR= ./srcs/certs/
+ENV_DIR= ./srcs/
+CONF_DIR= ./srcs/conf/
+SECURE ?= false
 
 all: build
 
-SHELL := /bin/bash
+build: env
+	@$(DOCKER_COMPOSE) build
 
-IP_ADDRESS=$(shell hostname -I | awk '{print $$1}')
-FRONT_PORT=8443
+secure: certs
+	@$(MAKE) --no-print-directory build SECURE=true
 
-build:
-	sed -i '/^IP=/d' srcs/.env && echo "IP=$(IP_ADDRESS)" >> srcs/.env
-	sed -i '/^REDIRECT_URI=/d' srcs/.env  # Remove any existing REDIRECT_URI entry
-	echo "REDIRECT_URI=http://${IP_ADDRESS}:${FRONT_PORT}/callback" >> srcs/.env  # Add the new REDIRECT_URI
-	@$(DOCKER_COMPOSE) build 
+env:
+	@if [ "$(SECURE)" = "true" ]; then \
+		cp $(CONF_DIR).env.secure $(ENV_DIR).env; \
+		cp $(CONF_DIR)nginx_secure.conf srcs/front/conf/nginx.conf; \
+		IP_ADDRESS=$$(hostname -I | awk '{print $$1}'); \
+	else \
+		cp $(CONF_DIR).env.dev $(ENV_DIR).env; \
+		cp $(CONF_DIR)nginx_dev.conf srcs/front/conf/nginx.conf; \
+		IP_ADDRESS=localhost; \
+	fi; \
+	sed -i '/^HOST=/d' $(ENV_DIR)/.env; \
+	echo "HOST=$$IP_ADDRESS" >> $(ENV_DIR).env; \
+	sed -i '/^REDIRECT_URI=/d' $(ENV_DIR).env; \
+	echo "REDIRECT_URI=$$( [ "$(SECURE)" = "true" ] && echo "https" || echo "http")://$$IP_ADDRESS:$$FRONT_PORT/callback" >> $(ENV_DIR).env;
 
-# @$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py wait_for_db"
-# # @$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py wait_for_db"
+certs:
+	@mkdir -p $(CERTS_DIR)
+	@openssl genrsa -out $(CERTS_DIR)/key.pem 4096 && \
+	openssl req -x509 -key $(CERTS_DIR)/key.pem -out $(CERTS_DIR)/crt.pem -subj "/C=ES/ST=Barcelona/O=BubblePong/CN=user-mgmt"
 
-#up -> pulls base image, builds image, starts services
 up:
 	docker-compose -f ./srcs/docker-compose.yml up --detach --remove-orphans
 
@@ -56,7 +64,6 @@ stop:
 down:
 	docker-compose -f ./srcs/docker-compose.yml down
 
-#rm -> removes stopped service containers
 clean: down
 	docker-compose -f ./srcs/docker-compose.yml rm 
 
@@ -71,7 +78,6 @@ back:
 
 mgmt:
 	docker restart user-mgmt
-
 
 fclean: down
 	@if [ -n "$(D_PS)" ]; then \
@@ -92,8 +98,7 @@ fclean: down
 	@if [ -d ./srcs/postgres ]; then \
 		rm -rf ./srcs/postgres/*; \
 	fi
-#docker system prune --all --force --volumes
 
 re: fclean all mi up
 
-.SILENT: all build up stop down ps clean fclean
+.SILENT: all build secure env certs up mi fill stop down ps logs back mgmt clean fclean 

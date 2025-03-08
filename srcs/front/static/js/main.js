@@ -1,4 +1,4 @@
-import { loadLoginPage, handleLogin, handleSignup } from "./login.js";
+import { loadLoginPage, handleLogin, loadSignupPage, handleSignup } from "./login.js";
 import { loadProfilePage, loadProfileSettingsPage, loadMatchHistoryPage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage, setUp3DListener } from "./home.js";
@@ -15,8 +15,10 @@ import { loadPageNotFound } from "./errorHandler.js";
 
 const historyTracker = [];
 
-var baseUrl = window.env.BASE_URL; 
-var userMgmtPort = window.env.USER_MGMT_PORT;
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
+const userMgmtPort = window.env.USER_MGMT_PORT;
 
 // The routes object maps URL paths to their respective handler functions:
 // Each key is a path (e.g., /, /profile).
@@ -26,7 +28,8 @@ const routes = {
     '/': homePage,
     '/login': loadLoginPage,
     '/handle-login': handleLogin,
-    '/signup': handleSignup,
+    '/signup': loadSignupPage,
+    '/handle-signup': handleSignup,
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,
     '/two-fa-login': loadLogin2FAPage,
@@ -85,7 +88,6 @@ export function drawHeader(headerType) {
                 resolve();  // IMPORTANTE: Se debe resolver la promesa en el caso por defecto
                 return;
         }
-
         fetch(baseUrl + url, {
             method: 'GET',
             credentials: "include"
@@ -142,7 +144,7 @@ function getRedirectionIfNeeded(path=null) {
     }
 
     //Check if the user has the required permissions, if not, redirect
-    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login'];
+    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/handle-login', '/handle-signup'];
     const openPaths = ['/page-not-found', '/callback']; //open for authenticated and not authenticated
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';

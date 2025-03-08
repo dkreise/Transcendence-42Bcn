@@ -1,5 +1,4 @@
 services:
-
   db:
     image: postgres
     container_name: db-postgres
@@ -13,7 +12,7 @@ services:
       - type: tmpfs
         target: /var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     networks:
        - trs_net
 
@@ -27,7 +26,7 @@ services:
     environment:
       - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
       - DJANGO_SETTINGS_MODULE=user_mgmt.settings
-      - REDIS_HOST=redis  # Connect to Redis container
+      - REDIS_HOST=redis
     env_file:
       - .env
     networks:
@@ -45,7 +44,7 @@ services:
     depends_on:
       - db
     environment:
-      - IP=${IP}
+      - DJANGO_SETTINGS_MODULE=game.settings
     env_file:
       - .env
     networks:
@@ -81,11 +80,10 @@ services:
     networks:
       - trs_net
     restart: always
-    environment:
-      - USER_MGMT_PORT=${USER_MGMT_PORT}
-      - GAME_PORT=${GAME_PORT}
+    env_file:
+      - .env
     volumes:
-      - ./front/static:/usr/share/nginx/html/static # Mapea archivos locales a dentro del contenedor
+      - ./front/static:/usr/share/nginx/html/static
 
 volumes:
   db_data:

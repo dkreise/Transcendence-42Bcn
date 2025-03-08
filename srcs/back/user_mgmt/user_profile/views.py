@@ -21,7 +21,7 @@ from .models import Profile
 import redis
 
 PROTOCOL = "http"
-HOST_IP = settings.HOST_IP
+HOST = settings.HOST
 GAME_PORT = settings.GAME_PORT
 GAME_SERVICE_URL = PROTOCOL + "://game:" + GAME_PORT
 
@@ -36,7 +36,7 @@ def get_photo_url(user):
         if user.profile.external_photo_url:
             photo_url = user.profile.external_photo_url
         elif user.profile.photo:
-            photo_url = PROTOCOL + "://" + HOST_IP + ":" + user.profile.photo.url
+            photo_url = PROTOCOL + "://" + HOST + ":" + user.profile.photo.url
     return photo_url
 
 @api_view(['GET'])

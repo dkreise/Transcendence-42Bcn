@@ -1,8 +1,10 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { drawHeader } from "./main.js";
 
-var baseUrl = window.env.BASE_URL;
-var userMgmtPort = window.env.USER_MGMT_PORT;
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
+const userMgmtPort = window.env.USER_MGMT_PORT;
 
 //Add to fetch:
 // const Enable3D = localStorage.getItem("3D-option") === "true";

@@ -36,14 +36,6 @@
         <!-- Simplex Noise CDN -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/simplex-noise/2.0.0/simplex-noise.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        <script>
-            window.env = {
-                BASE_URL: `${window.location.protocol}//${window.location.hostname}:`, //"http://localhost:"
-                HOST: window.location.hostname,
-                USER_MGMT_PORT: "8000",
-                GAME_PORT: "8001",
-            };
-        </script>
         <link rel="stylesheet" href="css/tournament.css">
         <link rel="stylesheet" href="css/bracket.css">
 
@@ -71,6 +63,7 @@
         <!-- JavaScript -->
         <script type="module" src="js/particle_background.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script type="module" src="js/env-config.js"></script>
         <script type="module" src="js/main.js"></script>
         <script type="module" src="js/logout.js"></script>
         <script type="module" src="js/login.js"></script>
@@ -83,7 +76,7 @@
         <script type="module" src="js/remoteGame.js"></script>
         <script type="module" src="js/localGame.js"></script>
         <script type="module" src="js/AIGame.js"></script>
-
+        <script type="module" src="js/AIGame.js"></script>
 
         <!-- Bootstrap js -->
 

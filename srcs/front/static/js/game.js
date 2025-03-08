@@ -7,7 +7,9 @@ import { startGame } from "./remoteGame.js";
 import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
 import { loadBracketTournamentPage } from "./tournament.js";
 
-var baseUrl = window.env.BASE_URL;
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
 var gamePort = window.env.GAME_PORT;
 
 let Enable3D = false;

@@ -1,7 +1,9 @@
 import { checkPermission } from "./main.js"
 import { drawHeader } from "./main.js";
 
-var baseUrl = window.env.BASE_URL;
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
 var userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const loadPageNotFound = async () => {

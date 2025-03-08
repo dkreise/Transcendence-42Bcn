@@ -2,7 +2,9 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { displayUpdatingMessage } from "./profile.js";
 import { navigateTo } from "./main.js";
 
-var baseUrl = window.env.BASE_URL;
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
 var userMgmtPort = window.env.USER_MGMT_PORT;
 
 const display2FAMessage = (form, message, color) => {

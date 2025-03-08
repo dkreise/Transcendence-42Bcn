@@ -1,7 +1,9 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { Ball, Player } from "./localClasses.js";
 
-var baseUrl = window.env.BASE_URL;
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
 var gamePort = window.env.GAME_PORT;
 
 // Game Initialization

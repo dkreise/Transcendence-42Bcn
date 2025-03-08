@@ -3,8 +3,9 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { drawHeader } from "./main.js";
 
-var baseUrl = window.env.BASE_URL;
-var host = window.env.HOST;
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
 var gamePort = window.env.GAME_PORT;
 
 let socket = null;

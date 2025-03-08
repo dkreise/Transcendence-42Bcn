@@ -32,7 +32,7 @@ from .views import generate_temp_token
 from datetime import datetime
 
 FRONT_PORT = settings.FRONT_PORT
-HOST_IP = settings.HOST_IP
+HOST = settings.HOST
 REDIRECT_URI = settings.REDIRECT_URI
 
 logger = logging.getLogger(__name__)

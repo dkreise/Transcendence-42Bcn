@@ -2,7 +2,9 @@ import { loadLoginPage } from "./login.js";
 import { navigateTo } from "./main.js";
 import { disconnectWS } from "./onlineStatus.js"
 
-var baseUrl = window.env.BASE_URL;
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
 var userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const handleLogout = () => {

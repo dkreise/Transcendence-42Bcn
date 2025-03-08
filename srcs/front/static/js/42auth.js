@@ -3,8 +3,10 @@ import { displayLoginError } from "./login.js";
 import { clearURL, navigateTo } from "./main.js";
 import { connectWS } from "./onlineStatus.js";
  
-var baseUrl = window.env.BASE_URL;
 var userMgmtPort = window.env.USER_MGMT_PORT;
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
 
 export const handleLoginIntra = () => {
     console.log(`login 42 clicked: ${window.location.pathname}`);

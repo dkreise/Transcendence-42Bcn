@@ -4,10 +4,11 @@ from rest_framework.exceptions import AuthenticationFailed
 import requests
 from django.contrib.auth.models import User
 import logging
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-HOST_IP = settings.HOST_IP
+HOST = settings.HOST
 USER_MGMT_PORT = settings.USER_MGMT_PORT
 
 class CustomAuthentication(BaseAuthentication):

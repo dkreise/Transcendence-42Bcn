@@ -1,7 +1,9 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { checkPermission, navigateTo } from "./main.js";
 
-var baseUrl = window.env.BASE_URL;
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
 var userMgmtPort = window.env.USER_MGMT_PORT;
 
 function getUserPreferenceLanguageFromDB() {
@@ -52,7 +54,7 @@ function updateLanguageButtonUI(lang) {
     const languageMenu = document.getElementById("language-menu");
 
     if (languageButton) {
-        languageButton.textContent = lang.toUpperCase();
+        languageButton.textContent = lang;
     }
 
     if (languageMenu) {
@@ -108,7 +110,5 @@ document.addEventListener("headerLoaded", () => {
                 }
             });
         }
-    
-        
     }
 });
