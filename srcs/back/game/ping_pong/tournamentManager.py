@@ -252,6 +252,7 @@ class TournamentManager:
 			if not self.countdown_task:
 				logger.info("STARTING COUNTDOWN")
 				self.countdown_task = asyncio.create_task(self.start_countdown_until_close())
+			self.finished = True
 			return 'finished'
 		# elif (cnt * 2 == round_player_cnt):
 		elif all(self.matches_finished):

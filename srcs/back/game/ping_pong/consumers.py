@@ -413,6 +413,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 				elif dtype == "stop_game":
 					logger.info("SOMEONE CHANGED PATH")
+					if not self.room_id:
+						return
 					game = active_games[self.room_id]
 					us = self.user.username
 					op = tournament.get_opponent(us)
