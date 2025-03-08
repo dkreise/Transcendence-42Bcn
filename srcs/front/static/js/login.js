@@ -119,6 +119,7 @@ export const handleLogin = async () => {
             } else {
                 localStorage.setItem('access_token', data.tokens.access);
                 localStorage.setItem('refresh_token', data.tokens.refresh);
+                localStorage.setItem('username', data.username);
                 await updateLanguage(); 
                 connectWS(data.tokens.access);
 

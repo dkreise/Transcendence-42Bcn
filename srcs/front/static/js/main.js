@@ -5,12 +5,13 @@ import { loadHomePage, setUp3DListener } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
-import { cleanupLocal } from "./localGame.js"
-import { cleanupAI } from "./AIGame.js"
+import { clearIntervalIDGame, cleanupAI } from "./AIGame.js"
 import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
+import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest } from "./tournament.js";
+import { cleanupLocal } from "./localGame.js"
 import { connectWS } from "./onlineStatus.js";
-import { manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage} from "./tournament.js";
+import { cleanRemote } from "./remoteGame.js";
 import { loadPageNotFound } from "./errorHandler.js";
 
 const historyTracker = [];
@@ -40,10 +41,9 @@ const routes = {
     '/play-ai': (args) => playAI(args),
     '/play-online': playOnline,
     '/game-local': gameLocal,
-    // '/tournament': playTournament,
-    // '/play-ai/set-difficulty/': setDifficulty,
     '/play-3d': play3D,
-    '/game-ai': (args) => gameAI(args),
+    '/play-ai-game': (args) => gameAI(args),
+    // '/game-ai': (args) => gameAI(args),
     '/tournament': manageTournamentHomeBtn,
     '/tournament-home': loadTournamentHomePage,
     '/waiting-room': loadWaitingRoomPage,
@@ -51,6 +51,9 @@ const routes = {
     '/create-tournament': createTournament,
     '/join-tournament': joinTournament,
     '/end-tournament': loadFinalTournamentPage,
+    '/quit-tournament': quitTournament,
+    '/tournament-game-ai': tournamentGameRequest,
+    '/tournament-game-remote': tournamentGameRequest,
     '/page-not-found': loadPageNotFound,
     
     // EXAMPLE how to announce a function that receives parameters:
@@ -110,7 +113,7 @@ export function drawHeader(headerType) {
 export function cleanupGames() {
     cleanup3D();
     cleanupLocal();
-    cleanupAI();
+    // cleanupAI();
 }
 
 // The router() function determines which handler function to call 
@@ -120,7 +123,9 @@ export function cleanupGames() {
 function router(args=null) {
     
     cleanupGames();
+    
     let path = window.location.pathname;
+    console.log(path);
 // const contentArea = document.getElementById('content-area');
 // contentArea.innerHTML = ''; // Clear previous content
 
@@ -230,8 +235,30 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('popstate', (event) => {
         console.log("Popstate triggered:", event);
         cleanup3D();       // Always clean up before routing
+        clearIntervalIDGame();
+        cleanRemote();
         router();          // Then handle the new route
     });
+
+    let shouldRoute = true;
+    const tourId = localStorage.getItem("currentTournamentId");
+    const tourReload = localStorage.getItem("tournamentReload");
+    if (tourId && tourReload) {
+        shouldRoute = false;
+        console.log("Reconnecting WebSocket after page reload...");
+        localStorage.removeItem("tournamentReload");
+        // tournamentConnect(tourId);
+        tournamentConnect(tourId).then(() => {
+            console.log("WebSocket connection established, now navigating to ...");
+            // navigateTo('/waiting-room');
+            router();
+        }).catch((error) => {
+            console.error("Error connecting WebSocket:", error);
+            // Handle error, possibly redirect to another page or show an alert
+        });
+    } else if (tourReload) {
+        localStorage.removeItem("tournamentReload");
+    }
 
     window.addEventListener("load", connectWS(localStorage.getItem('access_token')));
    
@@ -257,9 +284,10 @@ document.addEventListener('DOMContentLoaded', () => {
             navigateTo(route, shouldReplace, args);
         }
     });
-
-    console.log(history.state)
-    cleanup3D();
-    router();
-  
+    
+    if (shouldRoute) {
+        console.log(history.state)
+        cleanup3D();
+        router();        
+    }
 });

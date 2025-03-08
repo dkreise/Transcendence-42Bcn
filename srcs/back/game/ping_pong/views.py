@@ -12,9 +12,13 @@ from game.utils.translations import add_language_context
 from django.utils.translation import activate
 from django.template.loader import render_to_string
 from django.http import JsonResponse
+from .websocket_state import active_tournaments, active_tournaments_lock
+import asyncio
+from asgiref.sync import sync_to_async
 from django.contrib.auth.decorators import login_required
 # from django.db import transaction
 # from django.contrib.auth import get_user_model
+
 
 # User = get_user_model()
 
@@ -199,6 +203,36 @@ def play_game(request):
     # add_language_context(request.COOKIES, context)
     # game_html = render_to_string('remote_game.html', context)
     # return JsonResponse({'game_html': game_html}, content_type="application/json")
+
+
+@api_view(["GET"])
+def check_tournament_id(request, tour_id):
+    print(f"TOUR ID:: {tour_id}")
+    # with active_tournaments_lock:
+    is_active = tour_id in active_tournaments
+    print(f"IS ACTIVE? {is_active}")
+    return JsonResponse({"active": is_active})
+
+# # Create an async function that checks the tournament status (to be run async)
+# async def check_tournament_status(tour_id):
+#     async with active_tournaments_lock:
+#         is_active = tour_id in active_tournaments
+#     return is_active
+
+# # Wrap the async function with sync_to_async for use in synchronous DRF views
+# @sync_to_async
+# def get_tournament_status(tour_id):
+#     return check_tournament_status(tour_id)
+
+# # API view
+# @api_view(["GET"])
+# def check_tournament_id(request, tour_id):
+#     # Get the tournament status asynchronously
+#     try:
+#         is_active = get_tournament_status(tour_id)
+#         return JsonResponse({"active": is_active})
+#     except Exception as e:
+#         return JsonResponse({"error": str(e)}, status=500)
 
 @api_view(['GET'])
 @login_required

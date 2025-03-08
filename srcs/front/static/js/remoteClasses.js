@@ -43,9 +43,14 @@ export class Player {
 			this.send(socket);
 	}
 
-	update(newY, newScore) {
-		this.y = newY;
-		this.score = newScore;
+	update(players, newScore) {
+	//	console.log(`role: ${this.role} bF: ${this.backFactor} pl: ${players[this.role]["y"]}`);
+		if (!this.role)
+			return ;
+		if (players[this.role] && players[this.role]["y"])
+			this.y = players[this.role]["y"] * this.backFactor;
+		if (newScore[this.role])
+			this.score = newScore[this.role];
 	}
 
 	drawScore(ctx) {

@@ -1,11 +1,10 @@
 import { makeAuthenticatedRequest } from "./login.js";
-// import { addLogoutListener } from "./logout.js";
+import { startAIGame, clearIntervalIDGame } from "./AIGame.js";
 import { navigateTo, checkPermission, drawHeader } from "./main.js"
-import { startAIGame } from "./AIGame.js";
 import { startLocalGame } from "./localGame.js";
 import { startGame } from "./remoteGame.js"; 
 import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
-import { loadBracketTournamentPage } from "./tournament.js";
+import { loadBracketTournamentPage, quitTournament } from "./tournament.js";
 
 let Enable3D = false;
 var baseUrl = "http://localhost"; // change (parse) later
@@ -40,6 +39,13 @@ export const playLocal = () => {
 } 
 
 export const playAI = (args) => {
+    clearIntervalIDGame();
+    const savedState = localStorage.getItem("gameState");
+    if (savedState)
+        console.log("the state is here!! we need to remove it");
+    else
+        console.log("the state is not here!!");
+    localStorage.removeItem("gameState");
 
     Enable3D = localStorage.getItem("3D-option");
     console.log(`Play AI, Enable 3D: ${Enable3D}`)
@@ -153,21 +159,24 @@ export async function gameLocal () {
     }
 }
 
-export const gameAI = async (args) => {
+
+export const gameAI = (args) => {
     // const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
-    // Enable3D = localStorage.getItem("3D-option");
+    Enable3D = localStorage.getItem("3D-option");
 
     if (!checkPermission) {
         navigateTo('/login');
     } else {
         let tournament = null;
         console.log("Playing AI game. Tournament mode:", args?.tournament); 
-        if (args?.tournament === "true") {
+        if (args?.tournament == true) {
             console.log("This is a tournament game! in gameAI");
             console.log(args.tournamentId);
             tournament = {tournament: true, id: args.tournamentId};
             console.log(tournament.id);
+            // clearIntervalIDGame();
+            // const savedState = localStorage.getItem("gameState");
         }
         makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/play/", {
             method: "POST",
@@ -181,6 +190,10 @@ export const gameAI = async (args) => {
             return response.json();
         })
         .then(data => {
+            // if (data.game_html)
+            //     console.log("html here");
+            // if (Enable3D === "false")
+            //     console.log("3d false");
             if (data.game_html && Enable3D === "false") {
                 console.log('AI game returned!');
                 document.getElementById('content-area').innerHTML = data.game_html;
@@ -189,14 +202,18 @@ export const gameAI = async (args) => {
                     const button = document.getElementById('play-again');
                     if (button && !tournament) {
                         button.setAttribute("data-route", "/play-ai");
+                        button.setAttribute("replace-url", true);
                     } else if (button && tournament) {
-                        button.textContent = "Give Up";
-                        // button.setAttribute("data-route", "/");
-                        button.addEventListener('click', () => {
-                            // clearInterval(intervalId);
-                            //navigateTo('/tournament-bracket', true);
-                            loadBracketTournamentPage(tournament.id);
-                        });
+                        button.textContent = "Quit Tournament";
+                        button.setAttribute("data-route", "/quit-tournament");
+                        button.setAttribute("replace-url", true);
+                        // button.removeAttribute("data-route");
+                        // button.addEventListener('click', () => {
+                        //     // handle give up!! quit?
+                        //     clearIntervalIDGame();
+                        //     quitTournament();
+                        //     // loadBracketTournamentPage(tournament.id);
+                        // });
                     }
                     startAIGame(data['player1'], data['player2'], data['main_user'], tournament);
      
@@ -218,6 +235,7 @@ export async function playOnline () {
 
     Enable3D = localStorage.getItem("3D-option");
     console.log(`Enable 3D: ${Enable3D}`)
+	Enable3D = "false";
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
     if (!checkPermission) {

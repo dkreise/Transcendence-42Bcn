@@ -277,6 +277,7 @@ const updateProfileSettings = (form) => {
         .then((data) => {
             if (data.success) {
                 displayUpdatingMessage("Settings were updated!", 'green');
+                localStorage.setItem('username', data.username);
             } else {
                 displayUpdatingMessage(data.error + ' Please try again.', 'red');
             }

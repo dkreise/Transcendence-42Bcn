@@ -1,9 +1,13 @@
 from django.utils.translation import activate
+from django.http import HttpRequest
 
 def add_language_context(request, context):
     # if context is None:
     #     context = {} 
-    lang = request.COOKIES.get('language') or 'en'
+    # lang = request.COOKIES.get('language') or 'en'
+    if not isinstance(request, HttpRequest):  # Ensure it's a Django HttpRequest
+        request = None  # Set to None if not valid
+    lang = request.COOKIES.get('language') if request else 'en'
     lang_words = get_lang_words(lang)
     context.update(lang_words)
     # return context
