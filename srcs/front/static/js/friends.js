@@ -26,7 +26,7 @@ const performSearch = () => {
     console.log('query:', query);
 
     if (query) {
-        makeAuthenticatedRequest(baseUrl + userMgmtPort + "api/search-users/?q=" + encodeURIComponent(query), {method: "GET"})
+        makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/search-users/?q=" + encodeURIComponent(query), {method: "GET"})
             .then((response) => response.json())
             .then(data => {
                 if (data.search_users_html) {

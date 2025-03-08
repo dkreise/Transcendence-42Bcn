@@ -4,6 +4,7 @@ import { drawHeader } from "./main.js";
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
+const userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const displayUpdatingMessage = (message, color) => {
     const profileSettingsContainer = document.getElementById('profile-settings-form');

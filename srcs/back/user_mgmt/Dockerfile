@@ -1,28 +1,23 @@
 FROM python:3.11
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Set the working directory in the container
+# Set the working directory
 WORKDIR /usr/src/app
 
-# Copy the requirements file into the container
+# Copy requirements file
 COPY requirements.txt .
 
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the entire application code into the container
+# Copy the rest of your application code
 COPY . .
 
-#RUN chmod 777 entrypoint.sh
-
-# Expose the default port for Django
+# Expose the necessary ports
 EXPOSE 8000
 
-#ENTRYPOINT ["./entrypoint.sh"]
-
-# Run the Django application
+# Run Daphne 
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "user_mgmt.asgi:application"]
-# CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+#*SECURE*-># comment 2 both lines above and uncomment the lines below.
+# EXPOSE 8444
+# CMD ["daphne", "-e", "ssl:8444:privateKey=/usr/src/app/certs/key.pem:certKey=/usr/src/app/certs/crt.pem", "user_mgmt.asgi:application", "-b", "0.0.0.0", "-p", "80"]

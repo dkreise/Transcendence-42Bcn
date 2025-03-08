@@ -20,11 +20,11 @@ from rest_framework_simplejwt.tokens import AccessToken
 from .models import Profile
 import redis
 
-PROTOCOL = "http"
+PROTOCOL_WEB = settings.PROTOCOL_WEB
 HOST = settings.HOST
 GAME_PORT = settings.GAME_PORT
-GAME_SERVICE_URL = PROTOCOL + "://game:" + GAME_PORT
-
+USER_MGMT_PORT = settings.USER_MGMT_PORT
+GAME_SERVICE_URL = PROTOCOL_WEB + "://game:" + GAME_PORT
 
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
 redis_client.set("test", "Hello Redis!")
@@ -36,7 +36,8 @@ def get_photo_url(user):
         if user.profile.external_photo_url:
             photo_url = user.profile.external_photo_url
         elif user.profile.photo:
-            photo_url = PROTOCOL + "://" + HOST + ":" + user.profile.photo.url
+            photo_url = PROTOCOL_WEB + "://" + HOST + ":" + USER_MGMT_PORT + user.profile.photo.url
+            # "http://localhost:8000" + user.profile.photo.url
     return photo_url
 
 @api_view(['GET'])
