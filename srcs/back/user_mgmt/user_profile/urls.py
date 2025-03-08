@@ -18,6 +18,7 @@ urlpatterns = [
     path('api/home-page/', views.home_page, name='home'),
     path('api/get-main-header/', views.get_main_header, name='mainheader'),
     path('api/get-languages-header/', views.get_languages_header, name='languagesheader'),
+    path('api/get-3D-header/', views.get_3D_header, name='3Dheader'),
 ] 
 
 if settings.DEBUG:

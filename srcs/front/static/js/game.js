@@ -1,14 +1,12 @@
 import { makeAuthenticatedRequest } from "./login.js";
-// import { addLogoutListener } from "./logout.js";
-import { navigateTo, checkPermission } from "./main.js"
 import { startAIGame, clearIntervalIDGame } from "./AIGame.js";
+import { navigateTo, checkPermission, drawHeader } from "./main.js"
 import { startLocalGame } from "./localGame.js";
 import { startGame } from "./remoteGame.js"; 
 import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
 import { loadBracketTournamentPage, quitTournament } from "./tournament.js";
 
 let Enable3D = false;
-
 var baseUrl = "http://localhost"; // change (parse) later
 
 export const playLocal = () => {
@@ -17,23 +15,26 @@ export const playLocal = () => {
         navigateTo('/login');
     } else {
         console.log('Loading get second name page...')
-        makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/get-name/", {
-            method: "GET",
+        drawHeader('main').then(() => {
+          return  makeAuthenticatedRequest(baseUrl + ":8001/api/game/local/get-name/", {
+                method: "GET",
+                // credentials: "include"
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.get_name_html) {
+                    document.getElementById('content-area').innerHTML = data.get_name_html;
+                } else {
+                    console.log('Response: ', data);
+                    console.error('Failed to fetch second player:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Catch error fetching second player page: ', error);
+                if (error == "No access token.")
+                    navigateTo('/login');
+            });
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.get_name_html) {
-                document.getElementById('content-area').innerHTML = data.get_name_html;
-            } else {
-                console.log('Response: ', data);
-                console.error('Failed to fetch second player:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Catch error fetching second player page: ', error);
-            if (error == "No access token.")
-                navigateTo('/login');
-        });
     }
 } 
 
@@ -65,17 +66,19 @@ export const playAI = (args) => {
             gameAI(args);
         } else {
             console.log('Loading get difficulty page...')
-            makeAuthenticatedRequest(baseUrl + ":8001/api/game/ai/get-difficulty", {
-                method: "GET",
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.get_difficulty_html) {
-                    document.getElementById('content-area').innerHTML = data.get_difficulty_html;
-                } else {
-                    console.log('Response: ', data);
-                    console.error('Failed to fetch difficulty:', data.error);
-                }
+            drawHeader('main').then(() => {
+              return  makeAuthenticatedRequest(baseUrl + ":8001/api/game/ai/get-difficulty", {
+                    method: "GET",
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.get_difficulty_html) {
+                        document.getElementById('content-area').innerHTML = data.get_difficulty_html;
+                    } else {
+                        console.log('Response: ', data);
+                        console.error('Failed to fetch difficulty:', data.error);
+                    }
+                })
             })
             .catch(error => {
                 console.error('Catch error fetching difficulty page: ', error);
@@ -87,13 +90,17 @@ export const playAI = (args) => {
 } 
 
 export async function gameLocal () {
-
     Enable3D = localStorage.getItem("3D-option");
     console.log(`Enable 3D: ${Enable3D}`)
     // Enable3D = localStorage.getItem("3D-option") === "true";
     // "3d-option": Enable3D ? "True" : "False",
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
+    const username = await getUsername();
+    if (!username) {
+        navigateTo('/logout');
+        return;
+    }
     if (!checkPermission) {
         navigateTo('/login');
     } else {
@@ -104,7 +111,7 @@ export async function gameLocal () {
         const secondPlayerName = playerNameInput ? playerNameInput.value.trim() : null;
         console.log(`Stored second player name: ${secondPlayerName}`);
         console.log(`Username: ${localStorage.getItem('username')}`);
-        if (secondPlayerName === localStorage.getItem('username')) {
+        if (secondPlayerName === username) {
             alert("Both names cannot be equal. Set another name");
             navigateTo('/play-local', true);
             return ;
@@ -235,8 +242,10 @@ export async function playOnline () {
         navigateTo('/login');
     } else {
         console.log('Loading online game...')
-        makeAuthenticatedRequest(baseUrl + ":8001/api/game/remote/play/", {
-            method: "GET",
+        drawHeader('main').then(() => {
+          return  makeAuthenticatedRequest(baseUrl + ":8001/api/game/remote/play/", {
+                method: "GET",
+            })
         })
         .then(response => response.json())
         .then(data => {
@@ -250,6 +259,7 @@ export async function playOnline () {
             } else if (Enable3D === "true") {
                     //HERE SOMETHING WITH LANGUAGES
                 // start3DOnlineGame(localStorage.getItem('username'));
+                document.getElementById('content-area').innerHTML = ""; 
                 start3DAIGame(localStorage.getItem('username'), dictionary);
             } else {
                 console.log('Response: ', data);
@@ -274,7 +284,7 @@ export async function play3D() {
     }
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
     const contentArea = document.getElementById('content-area');
-    // contentArea.style.padding = 0;
+    contentArea.style.padding = 0;
     contentArea.innerHTML = ''; // Clear previous content
     
     console.log('3D game returned! Dictionary:');
@@ -296,4 +306,18 @@ async function getDictFor3DGame() {
 
     const data = await response.json();
     return data.dict;
+}
+
+async function getUsername() {
+    try {
+        const response = await makeAuthenticatedRequest("http://localhost:8001/api/get-username", {
+            method: "GET",
+            credentials: "include",
+        });
+        const data = await response.json();
+        return data.status === "success" ? data.username : null;
+    } catch (error) {
+        console.error("Error fetching username:", error); // Improved error logging
+        return null;
+    }
 }

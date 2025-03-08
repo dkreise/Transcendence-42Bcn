@@ -12,6 +12,7 @@ import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, cre
 import { cleanupLocal } from "./localGame.js"
 import { connectWS } from "./onlineStatus.js";
 import { cleanRemote } from "./remoteGame.js";
+import { loadPageNotFound } from "./errorHandler.js";
 
 const historyTracker = [];
 
@@ -53,6 +54,7 @@ const routes = {
     '/quit-tournament': quitTournament,
     '/tournament-game-ai': tournamentGameRequest,
     '/tournament-game-remote': tournamentGameRequest,
+    '/page-not-found': loadPageNotFound,
     
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
@@ -69,16 +71,19 @@ export function drawHeader(headerType) {
         let url;
 
         switch (headerType) {
-            case 1:
+            case 'main':
                 url = ":8000/api/get-main-header/";
                 break;
             
-            case 2:
+            case 'login':
                 url = ":8000/api/get-languages-header/";
                 break;
 
+            case '3d':
+                url = ":8000/api/get-3D-header/"; 
+                break;
             default:
-                // borrar header!!!!!!! para el roberto de tomorrow
+                document.getElementById('header-area').innerHTML = '';
                 resolve();  // IMPORTANTE: Se debe resolver la promesa en el caso por defecto
                 return;
         }
@@ -126,34 +131,30 @@ function router(args=null) {
 
     console.log(`Content cleared in router`);
 
-    //Check if the user has the required permissions, if not, redirect
-    const publicPaths = ['/login', '/signup', '/login-intra', '/callback', '/two-fa-login'];
-    if (checkPermission() && publicPaths.includes(path)) {
-        navigateTo('/home');
-        return;
-    } else if (!checkPermission() && !publicPaths.includes(path)) {
-        navigateTo('/login');
-        return;
+    const redirectPath = getRedirectionIfNeeded(path);
+    if (redirectPath) {
+        navigateTo(redirectPath)
+        return; 
     }
-    
-    if (routes[path]) {
-        routes[path](args); // Call the function associated with the path
-    } else {
-        alert("path doesn't exists");
-        console.log(`Route ${path} not handled`);
-        // showNotFound(); // Handle unknown routes
-    }
+    routes[path](args);
 }
 
-// function showNotFound() {
-//     console.log("Rendering 404 Page");
-//     contentArea.innerHTML = `
-//         <div>
-//             <h1>404 - Page Not Found</h1>
-//             <p>The requested page does not exist.</p>
-//         </div>
-//     `;
-// }
+function getRedirectionIfNeeded(path=null) {
+    
+    if (!routes[path]) {
+        return '/page-not-found';
+    }
+
+    //Check if the user has the required permissions, if not, redirect
+    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/callback'];
+    const openPaths = ['/page-not-found']; //open for authenticated and not authenticated
+    if (checkPermission() && publicPaths.includes(path)) {
+        return '/home';
+    } else if (!checkPermission() && !publicPaths.includes(path) && !openPaths.includes(path)) {
+        return '/login';
+    }
+    return null;
+}
 
 // The navigateTo() function is responsible for programmatically changing 
 // the browser's history and triggering the router.
@@ -200,8 +201,9 @@ export function clearURL() {
 export function checkPermission () {
     //console.log(`Permissions: checking permissions`);
     const accessToken = localStorage.getItem('access_token');
-
-    if (!accessToken) {
+    const refreshToken = localStorage.getItem('refresh_token');
+    
+    if (!accessToken || !refreshToken) {
         //console.log(`Permissions: No access token, permission denied`);
         return false;
     }

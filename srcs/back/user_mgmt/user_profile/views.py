@@ -343,12 +343,26 @@ def home_page(request):
 @permission_classes([AllowAny])
 def get_main_header(request):
     print('Main Header api called')
-    header_html = render_to_string('main_header.html')
+    context = {}
+    add_language_context(request, context)
+    header_html = render_to_string('main_header.html', context)
+    
     return JsonResponse({'header_html': header_html}, content_type="application/json")
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def get_languages_header(request):
     print('Languages header api called')
-    header_html = render_to_string('language_header.html')
+    context = {}
+    add_language_context(request, context)
+    header_html = render_to_string('language_header.html', context)
+    return JsonResponse({'header_html': header_html}, content_type="application/json")
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_3D_header(request):
+    print('3D header api called')
+    context = {}
+    add_language_context(request, context)
+    header_html = render_to_string('3d_header.html', context)
     return JsonResponse({'header_html': header_html}, content_type="application/json")

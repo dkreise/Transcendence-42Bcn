@@ -32,7 +32,7 @@ export const handle42Callback = () => {
         else if (code && state){
             const queryParams = new URLSearchParams({code , state}).toString();
             console.log(code, state);
-             
+              
             const url = `http://localhost:8000/api/login-intra/callback?${queryParams}`;
             console.log(`Sending GET request to: ${url}`);
             fetch(url, {
@@ -54,9 +54,6 @@ export const handle42Callback = () => {
                     
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('refresh_token', data.refresh_token);
-                    // localStorage.setItem('intra_token', data.intra_token);
-                    localStorage.setItem('username', data.username);
-                    localStorage.setItem('name', data.name);
                     clearURL();
                     connectWS(data.access_token);
                     console.log(history.state)
@@ -66,7 +63,6 @@ export const handle42Callback = () => {
                 } else if (data.two_fa_required) {
                     localStorage.setItem('temp_token', data.temp_token);
                     localStorage.setItem('intra_token', data.intra_token);
-                    localStorage.setItem('username', data.username);
                     navigateTo('/two-fa-login', true);
                 } else {
                     clearURL();
@@ -88,6 +84,12 @@ export const handle42Callback = () => {
                 navigateTo("/login");
                 // displayLoginError('Invalid credentials. Please try again.', 'login-form');
             });
+        } else {
+            console.log(`No relevant information provided in callback`);
+            // alert("Access denied. Try again later");
+            clearURL();
+            navigateTo("/login");
+            // displayLoginError('Invalid credentials. Please try again.', 'login-form');
         }
 };
 
@@ -99,5 +101,3 @@ export function showModalError(message) {
         backdrop: false,
     });
 }
-
-

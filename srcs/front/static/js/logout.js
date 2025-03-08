@@ -36,11 +36,11 @@ export const handleLogout = () => {
 
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    // localStorage.removeItem('intra_token');
     localStorage.removeItem('username');
     localStorage.removeItem('name');
     localStorage.removeItem('inTournament');
     localStorage.removeItem('currentTournamentId');
+    localStorage.removeItem('intra_token');
     localStorage.setItem("3D-option", "false")
 
     //contentArea.innerHTML = ''; // to clear user content

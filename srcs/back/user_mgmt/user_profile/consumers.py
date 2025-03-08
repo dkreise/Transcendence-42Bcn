@@ -30,26 +30,13 @@ class FriendsConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-
         """Store user connection in Redis"""
         self.user_id = self.scope["user"].id
+
         self.channel_name_key = f"user_channel_{self.user_id}"
 
         # Store WebSocket connection in Redis with a timeout (10 seconds)
         cache.set(self.channel_name_key, self.channel_name, timeout=10)
-
-        # Mark user as online in Redis with auto-expiration (optional)
-        # redis_client.setex(f"user:{self.user.id}:online", 120, "true")  # Expires after 1 hour
-        # logger.info("\033[1;32mRedis ready\033[0m")
-        # Notify friends that this user is online
-        # await self.notify_friends_status(update_online=True)
-        # logger.info("\033[1;32mFriends are notified\033[0m")
-        # Start background task to refresh TTL
-        # self.keep_alive_task = asyncio.create_task(self.keep_alive())
-        # logger.info("\033[1;32mTask created\033[0m")
-        # Get online friends
-        # online_friends = await self.get_online_friends()
-        # logger.info("\033[1;32mGot online friends\033[0m")
         
         await self.accept()
         await self.set_online()
@@ -60,7 +47,7 @@ class FriendsConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         """When a user disconnects, remove them from Redis and notify friends."""
         logger.info("\033[1;32mDISCONNECT METHOD CALLED\033[0m")
-        logger.info(self.user.username)
+        # logger.info(self.user.username)
         if self.user.is_authenticated:
             # Check if the user is just refreshing (temporary disconnect)
             logger.info(self.channel_name_key)

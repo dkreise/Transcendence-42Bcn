@@ -465,9 +465,9 @@ async function animateRemote() {
 //--------------------------------------------------------------------//
 
 export async function start3DAIGame(playerName2, dict) {
-
+    
     // ifAI = true;
-    drawHeader(1);
+    drawHeader('3d');
     const contentArea = document.getElementById('content-area');
     contentArea.style.padding = 0;
     dict = dict;
@@ -796,7 +796,7 @@ export async function cleanup3D() {
     
     // Stop animation loop
     cancelAnimationFrame(gameLoopId);
-    // contentArea.style.padding = "3rem"; //to restore the padding when exit the 3D
+    contentArea.style.padding = "3rem"; //to restore the padding when exit the 3D
     // Remove event listeners (if any)
     window.removeEventListener("resize", handleResize);
     window.removeEventListener("click", buttonsManager);

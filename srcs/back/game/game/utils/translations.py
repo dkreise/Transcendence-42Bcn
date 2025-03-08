@@ -81,7 +81,7 @@ def get_lang_words(lang):
             'tournament_finished': "El torneig ha acabat",
             'winner_wo': "El guanyador és",
             "start": "Començar!",
-            "try_again": "Torna-ho a provar",
+            "try_again": "Jugar de nou",
             "ready": "Preparat?",
             "go": "Som-hi!",
             "enemy": "Enemic",
@@ -92,7 +92,7 @@ def get_lang_words(lang):
         }
     elif lang == 'ru':
         return {
-            'my_profile': "Мой профиль",
+            'my_profile': "Профиль",
             'enter_name': "Введите имя второго игрока:",
             'start_game': "Начать игру",
             'tournament': "Турнир",
@@ -107,26 +107,33 @@ def get_lang_words(lang):
             'quit': "Выйти",
             'play': "Играть",
             'ranking': "Рейтинг",
-            'play_again': "Играть снова",
+            'play_again': "Начать заново",
             'back': "Назад",
-            'logout': "Выйти из системы",
+            'logout': "Выйти",
             'waiting_message': "Ожидание игрока...",
             'game_title': "CRRRRAAAZZZY PONG!",
-            'restart': "Перезапустить",
+            'restart': "Начать заново",
             'enter_id': "Введите ID турнира:",
             'players': "Игроки",
             'round': "Раунд",
             'tournament_finished': "Турнир завершен",
             'winner_wo': "Победитель:",
-            "start": "Старт!",
-            "try_again": "Попробуйте снова",
+            "start": "Начать",
+            "try_again": "Ещё раз!",
             "ready": "Готов?",
-            "go": "Поехали!",
+            "go": "Вперед!",
             "enemy": "Враг",
             "waiting_enemy": "Ожидание врага...",
-            "enemy_connected": "Враг подключен!",
-            "wins": "Побеждает",
+            "enemy_connected": "Враг прибыл!",
+            "wins": "Победил",
             "exit": "Выход",
+            ###### to be added
+            'you': "ты",
+            'difficulty': "Выбрать уровень:",
+            'very_easy': "Очень низкий",
+            'easy': "Низкий",
+            'medium': "Средний",
+            'hard': "Высокий"
         }
     elif lang == 'lv':
         return {
@@ -200,9 +207,14 @@ def get_lang_words(lang):
             "go": "GO !",
             "enemy": "Enemy",
             "waiting_enemy": "Waiting for the enemy...",
-            "enemy_connected": "Enemy connected !",
+            "enemy_connected": "Enemy arrived !",
             "wins": "wins",
             "exit": "EXIT",
             ###### to be added
-            "you": "you",
+            'you': "you",
+            'difficulty': "Choose Difficulty Level:",
+            'very_easy': "Very Easy",
+            'easy': "Easy",
+            'medium': "Medium",
+            'hard': "Hard"
         }
