@@ -4,7 +4,7 @@ import { navigateTo, checkPermission, drawHeader } from "./main.js"
 import { startAIGame } from "./AIGame.js";
 import { startLocalGame } from "./localGame.js";
 import { startGame } from "./remoteGame.js"; 
-import { start3DAIGame, start3DLocalGame } from "./3DLocalGame.js";
+import { start3DAIGame, start3DLocalGame, start3DRemoteGame } from "./3DLocalGame.js";
 import { loadBracketTournamentPage } from "./tournament.js";
 
 let Enable3D = false;
@@ -155,7 +155,7 @@ export async function gameLocal () {
 export const gameAI = async (args) => {
     // const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
-    // Enable3D = localStorage.getItem("3D-option");
+    Enable3D = localStorage.getItem("3D-option");
 
     if (!checkPermission) {
         navigateTo('/login');
@@ -240,8 +240,10 @@ export async function playOnline () {
             } else if (Enable3D === "true") {
                     //HERE SOMETHING WITH LANGUAGES
                 // start3DOnlineGame(localStorage.getItem('username'));
-                document.getElementById('content-area').innerHTML = ""; 
-                start3DAIGame(localStorage.getItem('username'), dictionary);
+
+                const contentArea = document.getElementById('content-area');
+                contentArea.innerHTML = ''; // Clear previous content
+                start3DRemoteGame(dictionary);
             } else {
                 console.log('Response: ', data);
                 console.error('Failed to load remote game:', data.error);
@@ -265,7 +267,7 @@ export async function play3D() {
     }
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
     const contentArea = document.getElementById('content-area');
-    contentArea.style.padding = 0;
+
     contentArea.innerHTML = ''; // Clear previous content
     
     console.log('3D game returned! Dictionary:');

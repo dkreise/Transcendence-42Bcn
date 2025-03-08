@@ -23,6 +23,7 @@ let gameLoopId = null;
 console.log("Hi! This is remoteGame.js :D");
 
 function interpolateBall() {
+	//console.log(`interpolate: ballX: ${ball.x} ball.Y: ${ball.y}`);
 	ball.x += (targetBallX - ball.x) * ballCoef;
 	ball.y += (targetBallY - ball.y) * ballCoef;
 }
@@ -36,39 +37,40 @@ function handleRoleAssignment(role) {
 		player = new Player(canvas, "player2");
 		opponent = new Player(canvas, "player1");
 	}
+	//player.setVars();
+	//opponent.setVars();
+	//ball.setVars();
 }
 
 function scaleGame(data)
 {
-	// handleRoleAssignment(data.role);
 	player.width = canvas.width * (data.padW / data.canvasX);
 	opponent.width = player.width;
 	player.height = canvas.height * (data.padH / data.canvasY);
 	opponent.height = player.height;
 	if (player.x != 0)
 		player.x = canvas.width - player.width;
-	//console.log("FRONT 2 width: " + player.width + " height: " + player.height);
-	backFactor["x"] = canvas.width / data.canvasX;
-	backFactor["y"] = canvas.height / data.canvasY;
-	player.backFactor = backFactor["y"];
-	opponent.backFactor = backFactor["y"];
+	else
+		opponent.x = canvas.width - opponent.width;
 }
 
 async function readySteadyGo(countdown)
 {
-	const msg = ["Go!", "Steady...", "Ready..."];
-	let fontSize = Math.floor(canvas.width * 0.05);
+	const msg = ["1", "2", "3"];
+	let div = document.getElementById("wait");
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "rgb(100 100 100 / 50%)";
+	div.textContent = msg[countdown];
+	div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
+
+	ctx.fillStyle = "rgb(0 0 0 / 25%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
-	ctx.font = `${fontSize}px Arial`;
-	ctx.textAlign = "center";
-	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
-	console.log(`[${getTimestamp()}] RSG: ${countdown}`);
-	if (countdown)
-		await setTimeout(async() => await readySteadyGo(--countdown), 1000);
+	div.style.display = "block";
+	//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
+	if (countdown >= 0)
+		await setTimeout(async() => await readySteadyGo(--countdown), 500);
+	else
+		div.style.display = "none";
 }
 
 function displayCountdown()
@@ -76,38 +78,40 @@ function displayCountdown()
 	if (!ctx)
 		return ;
 	let fontSize = Math.floor(canvas.width * 0.05);
-	let waitElement = document.getElementById("wait");
-	let waitMsg = waitElement ? waitElement.dataset.original : "Waiting for X"; 
+	let div = document.getElementById("wait");
+	let waitMsg = div ? div.dataset.original : "Waiting for X"; 
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "rgb(100 100 100 / 50%)"; //rectangle style
+	ctx.fillStyle = "rgb(0 0 0 / 25%)"; //rectangle style
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
-	ctx.font = `${fontSize}px Arial`;
-	ctx.textAlign = "center";
-	if (opponent.whoAmI)
+	if (opponent && opponent.whoAmI)
 		waitMsg = waitMsg.replace("X", opponent.whoAmI);
 	else if (player.role == "player1")
 		waitMsg = waitMsg.replace("X", "player2");
 	else
 		waitMsg = waitMsg.replace("X", "player1");
-	//ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 - fontSize);
-	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 + fontSize / 2);
+	div.textContent = waitMsg;
+	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
 }
 
 function handleEndgame(data) {
-	const { wait, winnerId, loserRole } = data;
+	const { winner, loser } = data;
 	
-	if (player.whoAmI == winnerId)
+	console.log(`winner ${winner} loser ${loser}`);
+	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
+	if (gameLoopId)
+		cancelAnimationFrame(gameLoopId);
+	if (player.whoAmI == winner)
+	{
 		player.scores++;
-	else
-		opponent.scores++;
-	if (loserRole == player.role)
-		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
-	else
 		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
-	cancelAnimationFrame(gameLoopId);
+	}
+	else
+	{
+		opponent.scores++;
+		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
+	}
 }
 
 function getTimestamp() {
@@ -139,9 +143,7 @@ async function initializeWebSocket() {
 		alert("Unable to connect to the server. Please check your connection.");
 	};
 	socket.onclose = async (event) => {
-		console.log("WebSocket closed with code:", event.code);
-
-		console.warn("WebSocket connection closed. Retrying...");
+		console.log("WebSocket connection closed. Retrying...");
 		if (event.code === 4001) {
 			// Token expired; refresh token logic
 			try {
@@ -159,32 +161,35 @@ async function initializeWebSocket() {
 	socket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 
+		console.log(`data type is: ${data.type}`);
 		switch (data.type) {
 			case "role":
 				handleRoleAssignment(data.role);
 				scaleGame(data);
 				break;
 			case "players":
-				if (player.role === "player1") {
-					player.whoAmI = data.p1;
-					opponent.whoAmI = data.p2;
-				} else {
-					player.whoAmI = data.p2;
-					opponent.whoAmI = data.p1;
-				}
+				player.whoAmI = data[player.role];
+				opponent.whoAmI = data[opponent.role];
 				socket.send(JSON.stringify({"type": "ready"}))
 				break;
 			case "status":
-				if (data.wait)
+				//console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
+				if (data.wait) // data.wait [bool]
 				{
-					if (data.countdown != 4)
+					if (gameLoopId)
+						cancelAnimationFrame(gameLoopId);
+					if (data.countdown == 0)
 						displayCountdown();
 					else
-						await readySteadyGo(data.countdown - 2);
+					{
+						await readySteadyGo(data.countdown - 1);
+						player.update(data.players, data.scores);
+						opponent.update(data.players, data.scores);
+						ball.resetPosition();
+					}
 				}
 				else
 				{
-					console.log("let's start the game!");
 					setupControls(player, opponent)
 					gameLoop();
 				}
@@ -192,29 +197,22 @@ async function initializeWebSocket() {
 			case "update":
 				if (data.players)
 				{
-					let pl1 = data["players"]["player1"]["y"] * backFactor["y"];
-					let pl2 = data["players"]["player2"]["y"] * backFactor["y"];
-					//console.log(`canvasH: ${canvas.height}\np1Y: ${pl1}\np2Y: ${pl2}`)
-					//console.log(`p1 Y: ${pl1} score: ${data['scores']['player1']}\n p2 Y: ${pl2} score: ${data['scores']['player2']}`);
-					if (player.role == "player1")
-					{
-						player.update(pl1, data["scores"]["player1"]);
-						opponent.update(pl2, data["scores"]["player2"]);
-					}
-					else if (player.role == "player2") 
-					{
-						player.update(pl2, data["scores"]["player2"]);
-						opponent.update(pl1, data["scores"]["player1"]);
-					}
+					player.update(data.players, data.scores);
+					opponent.update(data.players, data.scores);
 				}
 				if (data.ball) {
-					targetBallX = data.ball.x * backFactor["x"];
-					targetBallY = data.ball.y * backFactor["y"];
+					targetBallX = data.ball.x * canvas.width;
+					targetBallY = data.ball.y * canvas.height;
 				}
 				break ;
+			case "reject":
+				alert(`Connection rejected: ${data.reason}`);
+				socket.close();
+				break ;
 			case "endgame":
+				console.log("This game's over!");
 				handleEndgame(data);
-				break;
+				break ;
 			default:
 				console.warn("Unhandled message type:", data.type);
 		}
@@ -235,25 +233,61 @@ function gameLoop() {
 	ball.draw(ctx);
 
 	player.move(socket);
-	//ball.move(player, opponent, gameLoopId, socket);
 }
 
-window.addEventListener("resize", () => {
-	if (!player || !player.canvas) return ;
-	console.log("player canvas width: " + player.canvas.width);
-	console.log("actual canvas width: " + canvas.width);
-});
+function resizeCanvas() {
+    canvas = document.getElementById("newGameCanvas");
+    const container = document.getElementById("newGameBoard");
+	if (!canvas || !container)
+	{
+		alert("Unable to display the game. Please, try again later");
+		return ;
+	}
+
+    let maxWidth = container.clientWidth;
+    let maxHeight = container.clientHeight;
+
+    let newWidth = maxWidth;
+    let newHeight = (4 / 6) * newWidth;
+
+	//Apply aspect ratio
+    if (newHeight > maxHeight) {
+        newHeight = maxHeight;
+        newWidth = (6 / 4) * newHeight;
+	}
+
+    newWidth = Math.floor(newWidth);
+    newHeight = Math.floor(newHeight);
+
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+
+    canvas.style.width = `${newWidth}px`;
+    canvas.style.height = `${newHeight}px`;
+	ctx = canvas.getContext('2d');
+	if (player)
+		player.resize(canvas);
+	if (opponent)
+		opponent.resize(canvas);
+	if (ball)
+		ball.resize(canvas);
+
+    console.log(`Canvas resized: ${newWidth} x ${newHeight}`);
+}
+
+// Resize canvas when the window resizes
+window.addEventListener("resize", resizeCanvas);
 
 export function startGame()
 {
-	canvas = document.getElementById('newGameCanvas');
+    canvas = document.getElementById("newGameCanvas");
 	if (!canvas)
 	{
 		alert("Unable to display the game. Please, try again later");
 		return ;
 	}
-	ctx = canvas.getContext('2d');
 	ball = new Ball(canvas);
+	resizeCanvas();
 	targetBallX = ball.x;
 	targetBallY = ball.y;
 	initializeWebSocket();

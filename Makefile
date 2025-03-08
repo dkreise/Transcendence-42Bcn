@@ -17,6 +17,7 @@ DC_RUN_USER= run --rm user-mgmt sh -c
 
 all: build
 
+
 build:
 	@$(DOCKER_COMPOSE) build 
 # @$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py wait_for_db"
@@ -60,7 +61,6 @@ back:
 
 mgmt:
 	docker restart user-mgmt
-
 
 fclean: down
 	@if [ -n "$(D_PS)" ]; then \

@@ -196,9 +196,10 @@ def get_lang_words(lang):
             "go": "GO !",
             "enemy": "Enemy",
             "waiting_enemy": "Waiting for the enemy...",
-            "enemy_connected": "Enemy connected !",
+            
             "wins": "wins",
             "exit": "EXIT",
-            ###### to be added
+            ###### to be added 
             "you": "you",
+            "enemy_connected": "Found an enemy !",
         }
