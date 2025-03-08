@@ -206,11 +206,11 @@ export class OnlineBall extends BasicBall {
 
     constructor (data, dict, scene, limits, players, ifAI) {
         super(dict, scene, limits, players, ifAI);
-        // this.radius = data.ballRad / 10;
+        this.radius = limits.y * data.ballRad / data.canvasX;
         // this.inicial = new Vector3(data.ballSy / 10, 0, data.ballSx / 10)
-        this.radius = ballParams.radius;
-        this.inicial = ballParams.velocity;
-        this.velocity = this.inicial.clone();
+        // this.radius = ballParams.radius;
+        // this.inicial = ballParams.velocity;
+        // this.velocity = this.inicial.clone();
 
         this.geometry = new THREE.SphereGeometry(this.radius);
         this.material = new THREE.MeshPhongMaterial({ 
@@ -223,11 +223,12 @@ export class OnlineBall extends BasicBall {
         this.mesh.receiveShadow = true;
         this.resetPos();
         this.scene.add(this.mesh);
+        console.log(`Creating ball, position x ${this.mesh.position.z}, y ${this.mesh.position.x}`)
         // this.velocity.multiplyScalar(this.speed);
         
-        this.ray = new Raycaster();
-        this.ray.near = 0;
-        this.ray.far = limits.y * 2.5;
+        // this.ray = new Raycaster();
+        // this.ray.near = 0;
+        // this.ray.far = limits.y * 2.5;
         // this.isPaused = false;
         // this.createCountdownText();
         this.loadedFont = null;

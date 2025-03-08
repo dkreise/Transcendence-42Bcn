@@ -115,11 +115,13 @@ export class BasicPlayer {
     }
 
     hide() {
+        console.log("IN HIDE")
         this.textMesh.visible = false;
         this.textName.visible = false;
     }
 
     show() {
+        console.log("IN SHOW")
         this.textMesh.visible = true;
         this.textName.visible = true;
     }
@@ -150,7 +152,7 @@ export class BasicPlayer {
         this.score = 0;
         this.setText();
         this.updateGeo();
-        this.resetPos;
+        this.resetPos();
         this.show();
     }
 
@@ -365,14 +367,13 @@ export class OnlinePlayer extends BasicPlayer {
         this.backY = (limits.x * 2) / data.canvasY / 10;
         this.width = limits.y * 2 * data.padW / data.canvasX;
         this.height = limits.x * 2 * data.padH / data.canvasY;
-        // console.log(`Creating paddles, width ${this.width}, height ${this.height}`)
+        console.log(`Creating paddles, width ${this.width}, height ${this.height}`)
         this.initial.z = position.z - (this.role * this.width / 2);
         this.speed = data.padS;
-        this.backendRole = "player1";
-        if (role == 1)
-            this.backendRole = "player2";
+        this.backendRole = name;
         this.drawGeometry();
         this.drawPaddle();
+        console.log(`Creating paddles, position x ${this.mesh.position.z}, y ${this.mesh.position.x}`)
         
     }
 
@@ -409,7 +410,7 @@ export class OnlinePlayer extends BasicPlayer {
 
     update(newY, newScore) {
 		this.mesh.position.x = this.convertXFromBack(newY);
-        console.log(`Update position: ${this.mesh.position.x}, from back newY: ${newY}`);
+        // console.log(`Update position: ${this.mesh.position.x}, from back newY: ${newY}`);
         if (this.score != newScore) {
 		    this.score = newScore;
             this.updateGeo(this.setText());
@@ -417,14 +418,24 @@ export class OnlinePlayer extends BasicPlayer {
 
 	}
 
+    resetAll() {
+        this.score = 0;
+        this.name = "";
+        this.setText();
+        this.updateGeo();
+        this.updateName();
+        this.resetPos();
+        this.hide();
+    }
+
     move(socket) {
 		const oldY = this.mesh.position.x;
         // console.log(`The arrow left is ${this.down}, mesh pos is ${this.mesh.position.x - paddle.length / 2}, limits are ${this.limits.x * -1 + 0.5}`)
-        if (this.down && ((this.mesh.position.x - this.height / 2) > (this.limits.x * -1 + 0.75))) {
+        if (this.down && ((this.mesh.position.x - this.height / 2) > (this.limits.x * -1 + 0.25))) {
             // console.log(`Move 2 down, arrow left, position: ${this.mesh.position.x}`);
             this.mesh.position.x -= this.speed;
         }
-        if (this.up && (this.mesh.position.x + this.height / 2) < this.limits.x - 0.75) {
+        if (this.up && (this.mesh.position.x + this.height / 2) < this.limits.x - 0.25) {
             // console.log(`Move 2 up, arrow right, position: ${this.mesh.position.x}`);
             this.mesh.position.x += this.speed;
         }

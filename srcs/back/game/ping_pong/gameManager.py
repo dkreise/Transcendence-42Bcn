@@ -9,7 +9,6 @@ from django.db import transaction
 from channels.layers import get_channel_layer
 from channels.db import database_sync_to_async
 
-
 def get_game_model():
 	 from .models import Game  # Import inside function
 	 return Game
@@ -53,14 +52,15 @@ scores
 '''
 
 '''
-midas => absoluto
-posiciones en tanto por uno
+sizes => absolute
+positions => relative
+speeds => relative
 '''
 class GameManager:
 
-	ball_config = {"rad": 7, "xspeed": 3, "yspeed": 0}
+	ball_config = {"rad": 15, "xspeed": 3, "yspeed": 0}
 	board_config = {"width": 600, "height": 400, "max_score": 3}
-	paddle_config = {"width": 10, "height": 50, "speed": 150}
+	paddle_config = {"width": 10, "height": 50, "speed": 5}
 	countdown = 5
 
 	def __init__(self, game_id):
@@ -159,7 +159,6 @@ class GameManager:
 		if self.ball["x"] * boardW <= GameManager.paddle_config["width"]:
 			if ((self.ball["y"] * boardH > pl1 - padH - 0.05) and
 				(self.ball["y"] * boardH < pl1 + padH + 0.05)):
-				logger.info(f"player1 collision")
 				return True
 		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"]:
 			if ((self.ball["y"] * boardH > pl2 - padH - 0.05) and
@@ -473,8 +472,8 @@ class GameManager:
 			"padH": GameManager.paddle_config["height"],	# paddle height
 			"padS": GameManager.paddle_config["speed"] / GameManager.board_config["height"],	# paddle speed
 			"ballRad": GameManager.ball_config["rad"],		# ball radius
-			"ballSx": GameManager.ball_config["xspeed"],	# ball xspeed
-			"ballSy": GameManager.ball_config["yspeed"]	# ball yspeed
+			"ballSx": GameManager.ball_config["xspeed"] / GameManager.board_config["width"],	# ball xspeed
+			"ballSy": GameManager.ball_config["yspeed"]	/ GameManager.board_config["height"] # ball yspeed
 		}
 		await self.channel_layer.send(
 			channel_name,
