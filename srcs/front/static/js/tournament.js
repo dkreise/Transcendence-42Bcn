@@ -1,10 +1,11 @@
 import { loadHomePage } from "./home.js";
 import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
-import { clearIntervalIDGame } from "./AIGame.js"
+import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
 import { gameAI, playOnline } from "./game.js";
 import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, cleanRemote } from "./remoteGame.js"
 import { drawHeader } from "./main.js";
+import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 
 
 var baseUrl = "http://localhost"; // TODO: change (parse) later
@@ -146,6 +147,8 @@ export const loadFinalTournamentPage = () => {
 
 export const quitTournament = () => {
     clearIntervalIDGame();
+    removeBeforeUnloadListenerAI();
+    removeBeforeUnloadListenerRemote();
     console.log("QUIT button clicked")
     if (!socket) {
         navigateTo('/home', true);
@@ -167,7 +170,8 @@ export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) =>
         button.textContent = "Back to Tournament Page";
         button.setAttribute("data-route", "/tournament-bracket");
     }
-
+    removeBeforeUnloadListenerAI();
+    removeBeforeUnloadListenerRemote();
     console.log("Sending request to save the game result..");
 
     if (socket.readyState === WebSocket.OPEN)
@@ -335,6 +339,8 @@ export async function tournamentConnect(tourId, nPlayers=null) {
         localStorage.removeItem("user_quit");
         localStorage.removeItem("currentTournamentId");
         localStorage.removeItem("gameState");
+        removeBeforeUnloadListenerAI();
+        removeBeforeUnloadListenerRemote();
             navigateTo('/home', true);
         reject("WebSocket error");
 	};
@@ -342,6 +348,8 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 	socket.onclose = () => {
         socket = null;
         cleanRemote();
+        removeBeforeUnloadListenerAI();
+        removeBeforeUnloadListenerRemote();
         // alert(localStorage.getItem("user_quit"));
         if (localStorage.getItem("user_quit") == "true") {
             console.log("User quit. No reconnection.");
@@ -434,6 +442,7 @@ export function startTournamentGame() {
 }
 
 export function stopTournamentGame() {
+    removeBeforeUnloadListenerRemote();
     if (socket)
         socket.send(JSON.stringify({"type": "stop_game"}));
 }

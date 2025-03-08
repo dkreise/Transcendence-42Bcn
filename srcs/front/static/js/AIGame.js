@@ -296,16 +296,21 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
     errorRange = (canvas.height / 10) * (2 / difficulty);  // Higher difficulty = smaller error
 
     setupControlsAI();
-    window.addEventListener("beforeunload", () => {
-        if (tournamentId) {
-            // localStorage.setItem("beforeonload", "isworking");
-            saveTournamentGameResult("@AI", player.name, 0, AI.score);
-        }
-    });
+    window.addEventListener("beforeunload", beforeUnloadHandlerAI);
     intervalID = setInterval(doMovesAI, 1000);
     console.log(tournamentId);
     gameAILoop();
 }
+
+const beforeUnloadHandlerAI = () => {
+    if (tournamentId) {
+        saveTournamentGameResult("@AI", player.name, 0, AI.score);
+    }
+};
+
+export const removeBeforeUnloadListenerAI = () => {
+    window.removeEventListener("beforeunload", beforeUnloadHandlerAI);
+};
 
 document.addEventListener("click", function (event) {
     if (event.target.classList.contains("difficulty-btn")) {

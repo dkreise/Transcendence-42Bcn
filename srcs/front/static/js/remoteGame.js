@@ -157,12 +157,7 @@ export async function handleStatus(data, tourSocket)
 	else
 	{
 		console.log("let's start the game!");
-		window.addEventListener("beforeunload", () => {
-			if (tourId) {
-				// localStorage.setItem("Remote_beforeonload", "isworking");
-				stopTournamentGame();
-			}
-		});
+		window.addEventListener("beforeunload", beforeUnloadHandlerRemote);
 		setupControls(player, opponent)
 		gameLoop();
 	}
@@ -351,3 +346,13 @@ export function cleanRemote() {
 	gameLoopId = null;
 	gameStop = true;
 }
+
+const beforeUnloadHandlerRemote = () => {
+    if (tourId) {
+		stopTournamentGame();
+	}
+};
+
+export const removeBeforeUnloadListenerRemote = () => {
+    window.removeEventListener("beforeunload", beforeUnloadHandlerRemote);
+};
