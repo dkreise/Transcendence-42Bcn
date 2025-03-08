@@ -366,6 +366,7 @@ async function initializeWebSocket(roomId = 123) {
                     else {
                         console.log(data.countdown)
                         gameStarted = false;
+                        console.log(`after scored ball.x: ${data.ball.x}, after scored ball.y: ${data.ball.y}`)
                         ball.resetPos();
                         await firstCountdown(() => {
                         });    
@@ -403,12 +404,12 @@ async function initializeWebSocket(roomId = 123) {
                 }
                 if (data.ball) {
                     // console.log("update data ball");
-                    // console.log(`ball.back x: ${data.ball.x}, ball.back y: ${data.ball.y}`)
+                    console.log(`ball.back x: ${data.ball.x}, ball.back y: ${data.ball.y}`)
                     // ball.targetX = convertXToFront(data.ball.x);
                     // ball.targetY = convertYToFront(data.ball.y);
                     ball.mesh.position.z = convertXToFront(data.ball.x);
                     ball.mesh.position.x = convertYToFront(data.ball.y);
-                    // console.log(`ball.targetX: ${ball.targetX}, ball.targetY: ${ball.targetY}`)
+                    console.log(`ball.x: ${ball.mesh.position.z}, ball.Y: ${ball.mesh.position.x}`)
                 }
                 break ;
             case "endgame":
@@ -423,13 +424,13 @@ async function initializeWebSocket(roomId = 123) {
 }
 
 function convertYToFront(backY) {
-    return (limits.x  - backY * limits.x * 2);
+    return (limits.x - backY * limits.x * 2);
 }
 
 
 
 function convertXToFront(backX) {
-    return (limits.y  - backX * limits.y * 2);
+    return (backX * limits.y * 2 - limits.y);
 }
 
 
@@ -451,7 +452,7 @@ async function scaleGame(data)
 }
 
 function handleRoleAssignment(role) {
-	// console.log("Hi! I'm " + role);
+	console.log("Hi! I'm " + role + " Setting REmote controls");
 	if (role === "player1") {
         setupRemoteControls(player1);
         mainplayer = player1;
@@ -812,7 +813,7 @@ async function firstCountdown(callback) {
             clearInterval(interval);
             text.countdownText.visible = false; // Hide instead of remove
             
-            console.log("RESUME")
+            // console.log("RESUME")
             // handleOnlineEndgame();
             callback(); // Resume the game  
         } else {

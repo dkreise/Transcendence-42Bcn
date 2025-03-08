@@ -115,13 +115,13 @@ export class BasicPlayer {
     }
 
     hide() {
-        console.log("IN HIDE")
+        // console.log("IN HIDE")
         this.textMesh.visible = false;
         this.textName.visible = false;
     }
 
     show() {
-        console.log("IN SHOW")
+        // console.log("IN SHOW")
         this.textMesh.visible = true;
         this.textName.visible = true;
     }
@@ -367,9 +367,9 @@ export class OnlinePlayer extends BasicPlayer {
         this.backY = (limits.x * 2) / data.canvasY / 10;
         this.width = limits.y * 2 * data.padW / data.canvasX;
         this.height = limits.x * 2 * data.padH / data.canvasY;
-        console.log(`Creating paddles, width ${this.width}, height ${this.height}`)
+        console.log(`Creating paddles ${name}, position x ${position.z}, position y ${position.x}`)
         this.initial.z = position.z - (this.role * this.width / 2);
-        this.speed = data.padS;
+        this.speed = data.padS * limits.x * 2;
         this.backendRole = name;
         this.drawGeometry();
         this.drawPaddle();
@@ -430,17 +430,17 @@ export class OnlinePlayer extends BasicPlayer {
 
     move(socket) {
 		const oldY = this.mesh.position.x;
-        // console.log(`The arrow left is ${this.down}, mesh pos is ${this.mesh.position.x - paddle.length / 2}, limits are ${this.limits.x * -1 + 0.5}`)
+        // console.log(` ${this.down}, mesh pos is ${this.mesh.position.x - paddle.length / 2}, limits are ${this.limits.x * -1 + 0.5}`)
         if (this.down && ((this.mesh.position.x - this.height / 2) > (this.limits.x * -1 + 0.25))) {
-            // console.log(`Move 2 down, arrow left, position: ${this.mesh.position.x}`);
+            console.log(`${this.name} ${this.backendRole} ${this.mesh.position.z} Move down position: ${this.mesh.position.x}`);
             this.mesh.position.x -= this.speed;
         }
         if (this.up && (this.mesh.position.x + this.height / 2) < this.limits.x - 0.25) {
-            // console.log(`Move 2 up, arrow right, position: ${this.mesh.position.x}`);
+            console.log(`${this.name} ${this.backendRole} ${this.mesh.position.z} Move up position: ${this.mesh.position.x}`);
             this.mesh.position.x += this.speed;
         }
 		if (socket.readyState === WebSocket.OPEN && this.mesh.position.x != oldY) {
-			console.log(`sending position after move: ${this.mesh.position.x}`);
+			// console.log(`sending position after move: ${this.mesh.position.x}`);
             this.send(socket);
         }
 	}
