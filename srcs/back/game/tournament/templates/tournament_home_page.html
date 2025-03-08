@@ -1,39 +1,73 @@
-<div id="tournament-home-container">
-    <!-- Title at the top -->
-    <div class="d-flex justify-content-center">
-        <div class="col-12 col-md-6">
-            <button class="btn btn-grey-purple btn-large w-100" data-route="/home">{{ home }}</button>
+<div id="tournament-home-container" class="container-fluid">
+  
+    <div class="tournament-wrapper">
+      <!-- Sección para crear torneo -->
+      <div id="create-tournament-form" class="section section-create">
+        <div class="section-header">
+          <h2>{{create_tournament}}</h2>
         </div>
-    </div>
-    <div class="text-center mb-4">
-        <h1 class="tournament-title">{{ tournament }}</h1>
-    </div>
-
-    <div class="d-flex justify-content-center align-items-center gap-5 mb-4">
-        <!-- Create Button -->
-        <div class="col-12 col-md-5">
-            <div class="flex-grow-1 gap-3 mb-4">
-                <label for="tournament-id-input" class="form-label">{{ players }}</label>
-                <select id="tournament-count" class="form-select">
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="7">7</option>
-                    <option value="8">8</option>
-                    <!-- for testing: -->
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                </select>
+        <div class="d-flex flex-column gap-3 mb-4">
+          <label for="tournament-count" class="form-label text-center" style="color: #151515">{{ players }}</label>
+          <div class="wrapper">
+            <div class="option-trn">
+                <input class="input-trn" type="radio" name="btn" value="1">
+                <div class="btn-trn">
+                  <span class="span-trn">1</span>
+                </div>
             </div>
-            <button class="btn btn-grey-purple btn-large w-100" replace-url data-route="/create-tournament">{{ create }}</button>
+            <div class="option-trn">
+                <input class="input-trn" type="radio" name="btn" value="2">
+                <div class="btn-trn">
+                  <span class="span-trn">2</span>
+                </div>
+            </div>
+            <div class="option-trn">
+              <input class="input-trn" type="radio" name="btn" value="3" checked>
+              <div class="btn-trn">
+                <span class="span-trn">3</span>
+              </div>
+            </div>
+            <div class="option-trn">
+              <input class="input-trn" type="radio" name="btn" value="4">
+              <div class="btn-trn">
+                <span class="span-trn">4</span>
+              </div>
+            </div>
+            <div class="option-trn">
+              <input class="input-trn" type="radio" name="btn" value="7">
+              <div class="btn-trn">
+                <span class="span-trn">7</span>
+              </div>
+            </div>
+            <div class="option-trn">
+              <input class="input-trn" type="radio" name="btn" value="8">
+              <div class="btn-trn">
+                <span class="span-trn">8</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="col-12 col-md-2 d-flex justify-content-center align-items-center">
-            <div class="divider"></div>
+        <button class="button-trn" replace-url data-route="/create-tournament">
+          <span class="button-content-trn">{{ create }}</span>
+        </button>
+      </div>
+  
+      <!-- Separador vertical -->
+      <div class="separator-trn"></div>
+  
+      <!-- Sección para unirse a torneo -->
+      <div id="join-tournament-form" class="section section-join">
+        <div class="section-header">
+          <h2>{{join}}</h2>
         </div>
-        <!-- Join Button -->
-        <div class="col-12 col-md-5">
-            <label for="tournament-id-input" class="form-label">{{ enter_id }}</label>
-            <input type="text" id="tournament-id-input" class="form-control" placeholder="Enter ID">
-            <button class="btn btn-grey-purple btn-large w-100" replace-url data-route="/join-tournament">{{ join }}</button>
+        <div class="d-flex flex-column gap-3 mb-4">
+          <label for="tournament-id-input" class="form-label text-center" style="color: #151515">{{ enter_id }}</label>
+          <input type="text" id="tournament-id-input" class="form-control" placeholder="Enter ID">
         </div>
+        <button class="button-trn" replace-url data-route="/join-tournament">
+          <span class="button-content-trn">{{ join }}</span>
+        </button>
+      </div>
     </div>
-</div>
+  </div>
+  

@@ -219,22 +219,25 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
 }
 
 document.addEventListener("click", function (event) {
-    if (event.target.classList.contains("difficulty-btn")) {
-        const difficultyButtons = document.querySelectorAll(".difficulty-btn");
-        const difficultyInput = document.getElementById("difficulty-level");
+  // Detectamos si se clicó dentro de una opción
+  const option = event.target.closest(".option-trn");
+  if (option) {
+    // Marcamos el radio button dentro de la opción
+    const radio = option.querySelector(".input-trn");
+    if (radio) {
+      radio.checked = true;
+      // Removemos la clase "active" de todas las opciones
+      document.querySelectorAll(".option-trn").forEach(opt => opt.classList.remove("active"));
+      // Añadimos "active" a la opción clicada
+      option.classList.add("active");
 
-        // Remove active class from all buttons
-        difficultyButtons.forEach(btn => btn.classList.remove("active"));
-
-        // Add active class to selected button
-        event.target.classList.add("active");
-
-        // Set the hidden input value
-        difficultyInput.value = event.target.getAttribute("data-value");
-        console.log("LEVEL SELECTED:");
-        console.log(difficultyInput.value);
-        difficulty = difficultyInput.value;
+      // Obtenemos el valor de la dificultad
+      const difficulty_btn = radio.getAttribute("data-value");
+      console.log("LEVEL SELECTED:", difficulty_btn);
+      // Aquí asignas a la variable global si es necesario:
+      difficulty = difficulty_btn;
     }
+  }
 });
 
 export function cleanupAI() {
