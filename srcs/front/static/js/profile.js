@@ -25,7 +25,7 @@ export const displayUpdatingMessage = (message, color) => {
 };
 
 const fetchLastTenGames = () => {
-    return makeAuthenticatedRequest(`${baseUrl}${userMgmtPort}/api/last-ten-games/`, {
+    return makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/last-ten-games/", {
         method: "GET",
     }).then((response) => response.json());
 }

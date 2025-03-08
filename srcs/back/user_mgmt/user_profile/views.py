@@ -293,7 +293,7 @@ def remove_friend(request, friend_id):
 @api_view(['POST'])
 def save_user_pref_lang(request):
     data = json.loads(request.body)
-    lang = data.get('language', 'en')
+    lang = data.get('language', 'EN')
 
     user_profile = request.user.profile
     user_profile.language = lang

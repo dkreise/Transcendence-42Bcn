@@ -12,10 +12,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of your application code
 COPY . .
 
-# Expose the necessary ports
+# Expose ports and Run Daphne 
 EXPOSE 8001
-
-# Run Daphne 
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "game.asgi:application"]
 
 #*SECURE_MODE*-># comment 2 both lines above and uncomment the lines below.

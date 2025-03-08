@@ -4,7 +4,7 @@ import { drawHeader } from "./main.js";
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
-var userMgmtPort = window.env.USER_MGMT_PORT;
+const userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const loadPageNotFound = async () => {
     const headerType = checkPermission() ? 1 : 2;

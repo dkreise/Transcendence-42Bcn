@@ -3,7 +3,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
-var userMgmtPort = window.env.USER_MGMT_PORT;
+const userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const loadFriendsSearchPage = () => {
     makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/search-users", {method: "GET", credentials: "include"})

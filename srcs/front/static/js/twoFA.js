@@ -5,7 +5,7 @@ import { navigateTo } from "./main.js";
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
-var userMgmtPort = window.env.USER_MGMT_PORT;
+const userMgmtPort = window.env.USER_MGMT_PORT;
 
 const display2FAMessage = (form, message, color) => {
     const twoFAForm = document.getElementById(form);

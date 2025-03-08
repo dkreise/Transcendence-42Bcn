@@ -3,7 +3,7 @@ import { displayLoginError } from "./login.js";
 import { clearURL, navigateTo } from "./main.js";
 import { connectWS } from "./onlineStatus.js";
  
-var userMgmtPort = window.env.USER_MGMT_PORT;
+const userMgmtPort = window.env.USER_MGMT_PORT;
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  

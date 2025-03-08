@@ -42,7 +42,7 @@ PROTOCOL_SOCKET = os.environ.get('PROTOCOL_SOCKET')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'game']
+ALLOWED_HOSTS = ['*']
 if HOST:
     ALLOWED_HOSTS.append(HOST)
 
@@ -81,6 +81,7 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+ASGI_APPLICATION = 'game.asgi.application'
 
 CORS_ALLOWED_ORIGINS = [
     f"http://{HOST}:{FRONT_PORT}",  # Allow your frontend's origin
@@ -196,9 +197,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Allow cookies to be sent with each request
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to the session cookie
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Use database-backed sessions
+CSRF_COOKIE_HTTPONLY = False 
 SESSION_COOKIE_SECURE = False  # Set to True for HTTPS in production
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to access CSRF token
 CSRF_COOKIE_SECURE = False  # Set to True for HTTPS in production
+
+# SECURE_MODE->comment 2 both lines above and uncomment the 4 lines below.
+# SESSION_COOKIE_SECURE = True
+# CSRF_COOKIE_SECURE = True
+# SECURE_SSL_REDIRECT = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') 
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

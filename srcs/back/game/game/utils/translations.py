@@ -3,13 +3,13 @@ from django.utils.translation import activate
 def add_language_context(request, context):
     # if context is None:
     #     context = {} 
-    lang = request.COOKIES.get('language') or 'en'
+    lang = request.COOKIES.get('language') or 'EN'
     lang_words = get_lang_words(lang)
     context.update(lang_words)
     # return context
 	
 def get_lang_words(lang):
-    if lang == 'es':
+    if lang == 'ES':
         return {
             'my_profile': "Mi perfil",
             'enter_name': "Indica el nombre del segundo jugador:",
@@ -48,7 +48,7 @@ def get_lang_words(lang):
             "exit": "Salir",
             
         }
-    elif lang == 'ca':
+    elif lang == 'CA':
         return {
             'my_profile': "El meu perfil",
             'enter_name': "Indica el nom del segon jugador:",
@@ -86,7 +86,7 @@ def get_lang_words(lang):
             "wins": "Guanya",
             "exit": "Sortir",
         }
-    elif lang == 'ru':
+    elif lang == 'RU':
         return {
             'my_profile': "Мой профиль",
             'enter_name': "Введите имя второго игрока:",
@@ -124,7 +124,7 @@ def get_lang_words(lang):
             "wins": "Побеждает",
             "exit": "Выход",
         }
-    elif lang == 'lv':
+    elif lang == 'LV':
         return {
             'my_profile': "Mans profils",
             'enter_name': "Ievadiet otrā spēlētāja vārdu:",

@@ -5,7 +5,7 @@ import { disconnectWS } from "./onlineStatus.js"
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
-var userMgmtPort = window.env.USER_MGMT_PORT;
+const userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const handleLogout = () => {
     const contentArea = document.getElementById("content-area");

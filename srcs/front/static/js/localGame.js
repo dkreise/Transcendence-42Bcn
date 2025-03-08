@@ -4,7 +4,7 @@ import { Ball, Player } from "./localClasses.js";
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
-var gamePort = window.env.GAME_PORT;
+const gamePort = window.env.GAME_PORT;
 
 // Game Initialization
 let canvas = null;
