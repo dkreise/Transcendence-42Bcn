@@ -473,12 +473,14 @@ async function getTournamentId() {
 }
 
 function getNumberOfPlayers() {
-    if (! document.getElementById('tournament-count')) {
+    if (! document.getElementById('create-tournament-form')) {
         navigateTo('/tournament-home', true);
+        console.log("holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         return;
     }
 //     const nPlayers = document.getElementById('tournament-count').value;
     const nPlayers = document.querySelector('input[name="btn"]:checked').value;
+    console.log("aquiiiiiiiiiiii", nPlayers);
     const validPlayers = ["3", "4", "7", "8", "1", "2"];
     
     if (!validPlayers.includes(nPlayers)) {
