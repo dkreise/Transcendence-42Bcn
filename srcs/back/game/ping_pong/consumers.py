@@ -5,7 +5,7 @@ from .tournamentManager import TournamentManager
 from datetime import datetime
 from django.conf import settings
 import json
-import logging
+import logging 
 import uuid
 import asyncio
 
@@ -124,7 +124,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 		except Exception as e:
 			logger.error(f"\033[1;31mError during Websocket connect: {e}\033[0m")
 			await self.close()
-
+ 
 ###################################################
 
 	async def disconnect(self, close_code):

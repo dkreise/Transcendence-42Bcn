@@ -57,3 +57,26 @@
 .main-header{
     margin-bottom: 20px;
 }
+
+/* Cambia el fondo del dropdown */
+#language-menu {
+    background-color:rgba(226, 219, 248, 0.8); /* Color de fondo deseado */
+    border: none; /* Quita bordes si los hay */
+  }
+  
+  /* Cambia el estilo de cada item del dropdown */
+  #language-menu .dropdown-item {
+    color: #fff;
+    background-color: rgba(226, 219, 248, 0.8);
+  }
+  
+  /* Cambia el fondo al hacer hover sobre un item */
+  #language-menu .dropdown-item:hover {
+    background-color: #444;
+    color: #fff;
+  }
+
+  .dropdown-menu {
+    position: absolute; /* Asegura que se posicione relativo a su contenedor */
+    z-index: 9999;      /* Valor alto para que se muestre sobre otros elementos */
+  }

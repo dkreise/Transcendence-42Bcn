@@ -15,7 +15,8 @@ DOCKER_COMPOSE = docker-compose -f ./srcs/docker-compose.yml
 DC_RUN_GAME= run --rm game sh -c
 DC_RUN_USER= run --rm user-mgmt sh -c
 
-all: build mi fill up
+all: build
+
 
 build:
 	@$(DOCKER_COMPOSE) build 
@@ -34,7 +35,7 @@ mi:
 	@$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py migrate"
 
 fill:
-	@$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py shell < createUserList.py"
+	@$(DOCKER_COMPOSE) $(DC_RUN_USER) "python manage.py shell < createUserList.py"
 	@$(DOCKER_COMPOSE) $(DC_RUN_GAME) "python manage.py shell < createGameList.py"
 
 #stop -> stops services

@@ -9,6 +9,7 @@ from django.db import transaction
 from channels.layers import get_channel_layer
 from channels.db import database_sync_to_async
 
+
 def get_game_model():
 	 from .models import Game  # Import inside function
 	 return Game

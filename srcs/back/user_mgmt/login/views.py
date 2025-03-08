@@ -25,6 +25,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from user_mgmt.utils.translations import add_language_context
+from rest_framework.exceptions import AuthenticationFailed
 
 def generate_jwt_tokens(user):
     refresh = RefreshToken.for_user(user)
@@ -88,6 +89,8 @@ def login_view(request):
 def verify_login_2fa(request):
     data = json.loads(request.body)
     temp_token = data.get('temp_token')
+    if not temp_token:
+        return Response({'success': False, 'message': 'Invalid or expired temporary token.'}, status=401)
     code = data.get('code')
     user_id = decode_temp_token(temp_token)
 
@@ -327,3 +330,11 @@ def verify_token(request):
     username = request.user.username
     response = {"user": username}
     return JsonResponse(response)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def page_not_found(request):
+    context = {}
+    add_language_context(request, context)
+    page_not_found_html = render_to_string('page_not_found.html', context)
+    return JsonResponse({'page_not_found_html': page_not_found_html}, content_type="application/json")

@@ -1,0 +1,33 @@
+.twoFA-container {
+	max-width: 900px;
+	background: linear-gradient(#0d0d0d, #212121);
+	padding: 30px;
+	border-radius: 16px;
+	opacity: 0.9;
+  }
+  
+
+  .twoFA-box {
+	background-color: rgba(255, 255, 255, 0.05);
+	padding: 20px;
+	border-radius: 12px;
+	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  }
+  
+  .twoFA-box h1 {
+	font-size: 20px;
+	font-weight: bold;
+	color: #d5dcf9;
+  }
+  
+  .twoFA-box p {
+	font-size: 14px;
+	color: #bbb;
+  }
+  
+  #2fa-qr-code {
+	max-width: 200px;
+	height: auto;
+	border-radius: 8px;
+	box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+  }
