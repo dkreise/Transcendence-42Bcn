@@ -94,7 +94,12 @@ class TournamentManager:
 			self.timer_task.cancel()
 		self.timer_task = asyncio.create_task(self.check_unstarted_games())
 
-	def get_waiting_room_page(self):
+	def get_waiting_room_page(self, username):
+		status = self.get_status()
+		if status == 'playing':
+			return self.get_bracket_page(username)
+		elif status == 'finished':
+			return self.get_final_page(username)
 		total_players = self.get_players_cnt()
 		context = {
 			'tournament_id': self.id,
@@ -106,12 +111,20 @@ class TournamentManager:
 		page = {
 			'html': html,
 			'redirect': '/waiting-room',
+			'status': status,
+			'needs_to_play': False,
+			'opponent': None,
 		}
 		return page
 
 	def get_bracket_page(self, username):
+		status = self.get_status()
+		if status == 'waiting':
+			return self.get_waiting_room_page(username)
+		elif status == 'finished':
+			return self.get_final_page(username)
 		if self.get_players_cnt() == 1 or self.finished:
-			return self.get_final_page()
+			return self.get_final_page(username)
 		context = {
 			'pairs': self.pairs,
 			'bool_winners': self.get_bool_winners(),
@@ -122,10 +135,6 @@ class TournamentManager:
 		logger.info(f"round:: {self.round}")
 		add_language_context(self.scope.get('request', {}), context)
 		html = render_to_string('tournament_bracket4.html', context)
-		# if self.max_user_cnt <= 4:
-		# 	html = render_to_string('tournament_bracket4.html', context)
-		# else:
-		# 	html = render_to_string('tournament_bracket8.html')
 
 		needs_to_play = username in self.players
 		opponent = self.get_opponent(username)
@@ -142,7 +151,12 @@ class TournamentManager:
 		}
 		return page
 
-	def get_final_page(self):
+	def get_final_page(self, username):
+		status = self.get_status()
+		if status == 'waiting':
+			return self.get_waiting_room_page(username)
+		elif status == 'playing':
+			return self.get_bracket_page(username)
 		self.finished = True
 		# if self.timer_id != -1:
 		# 	AsyncResult(self.timer_id).revoke(terminate=True)  # Force cancel
@@ -490,6 +504,8 @@ class TournamentManager:
 		logger.info("Message sent to group successfully")
 
 	def get_match_idx(self, us1, us2):
+		if self.round == 0:
+			return -1
 		cur_pairs = self.pairs[self.round - 1]
 		for i in range(len(cur_pairs)):
 			pair = cur_pairs[i]

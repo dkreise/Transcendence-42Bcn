@@ -1,5 +1,5 @@
 import { Ball, Player } from "./localClasses.js";
-import { saveTournamentGameResult } from "./tournament.js";
+import { saveTournamentGameResult, stopTournamentGame } from "./tournament.js";
 
 // Game Initialization
 let canvas = null;
@@ -130,8 +130,8 @@ function doMovesAI() {
         return;
 
     // console.log("doing it each sec");
-    if (tournamentId)
-        saveGameState();
+    // if (tournamentId)
+    //     saveGameState();
     targetY = predictBallY();
     if (targetY === null)   
         return;
@@ -286,7 +286,7 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
             AI = new Player(canvas, 0, playerName1, 0);
         }
         ball = new Ball(canvas);
-        loadGameState();
+        // loadGameState();
     // } else {
     //     console.log("game was stopped");
     // }
@@ -296,19 +296,12 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
     errorRange = (canvas.height / 10) * (2 / difficulty);  // Higher difficulty = smaller error
 
     setupControlsAI();
-    // window.addEventListener("beforeunload", (event) => {
-    //     if (tournamentId) {
-    //         // alert("beforeunload in game.js");
-    //         console.log("socket: ", socket);
-    //         console.log("socket ready state == open: ", socket.readyState === WebSocket.OPEN);
-    //         event.preventDefault();
-    //         event.returnValue = "Are you sure you want to leave?";
-            
-    //         if (socket && socket.readyState === WebSocket.OPEN) {
-    //             saveGameState();
-    //         }            
-    //     }
-    // });
+    window.addEventListener("beforeunload", () => {
+        if (tournamentId) {
+            // localStorage.setItem("beforeonload", "isworking");
+            saveTournamentGameResult("@AI", player.name, 0, AI.score);
+        }
+    });
     intervalID = setInterval(doMovesAI, 1000);
     console.log(tournamentId);
     gameAILoop();

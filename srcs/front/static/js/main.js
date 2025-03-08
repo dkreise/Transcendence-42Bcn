@@ -8,7 +8,7 @@ import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { clearIntervalIDGame, cleanupAI } from "./AIGame.js"
 import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
-import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest, changePathFromGameCheck} from "./tournament.js";
+import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest } from "./tournament.js";
 import { cleanupLocal } from "./localGame.js"
 import { connectWS } from "./onlineStatus.js";
 import { cleanRemote } from "./remoteGame.js";
@@ -40,8 +40,6 @@ const routes = {
     '/play-ai': (args) => playAI(args),
     '/play-online': playOnline,
     '/game-local': gameLocal,
-    // '/tournament': playTournament,
-    // '/play-ai/set-difficulty/': setDifficulty,
     '/play-3d': play3D,
     '/play-ai-game': (args) => gameAI(args),
     // '/game-ai': (args) => gameAI(args),
@@ -169,10 +167,6 @@ function router(args=null) {
 
 export function navigateTo(path, replace = false, args = null) {
     console.log(`navigating to ${path} with args: `, args)
-    if (historyTracker.length > 0) {
-        const previousPath = historyTracker.at(-1)["path"] || 'Unknown';
-        changePathFromGameCheck(previousPath, path);        
-    }
 
     // // Extract query params
     // const [cleanPath, queryString] = path.split("?");
@@ -238,9 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('popstate', (event) => {
         console.log("Popstate triggered:", event);
-        const previousPath = historyTracker.at(-1)["path"] || 'Unknown'; // Peek at last entry
-        console.log('Previous Path (Back Navigation):', previousPath);
-        console.log('Current Path:', window.location.pathname);
         cleanup3D();       // Always clean up before routing
         clearIntervalIDGame();
         cleanRemote();
@@ -263,6 +254,8 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error("Error connecting WebSocket:", error);
             // Handle error, possibly redirect to another page or show an alert
         });
+    } else if (tourReload) {
+        localStorage.removeItem("tournamentReload");
     }
 
     window.addEventListener("load", connectWS(localStorage.getItem('access_token')));

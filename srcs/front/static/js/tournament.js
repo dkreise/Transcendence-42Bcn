@@ -64,6 +64,10 @@ export const createTournament = async () => {
 };
 
 export const joinTournament = () => {
+    if (! document.getElementById('tournament-id-input')) {
+        navigateTo('/tournament-home', true);
+        return;
+    }
     const tourId = document.getElementById('tournament-id-input').value.trim();
     if (!tourId) {
         alert("Please enter a tournament ID.");
@@ -312,7 +316,6 @@ export async function tournamentConnect(tourId, nPlayers=null) {
         if (!status)
             localStorage.setItem('inTournament', 'waiting');
         window.addEventListener("beforeunload", () => {
-            // alert("beforeunload in tournaments.js")
             if (socket && socket.readyState === WebSocket.OPEN) {
                 localStorage.setItem("currentTournamentId", tourId);
                 localStorage.setItem("tournamentReload", true);
@@ -333,10 +336,6 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 	};
 
 	socket.onclose = () => {
-		// //console.warn("WebSocket connection close. Retrying...");
-        // localStorage.removeItem('inTournament');
-		// //setTimeout(tournamentConnect, 1000) //waits 1s and tries to reconnect
-        // navigateTo('/home', true);
         socket = null;
         cleanRemote();
         // alert(localStorage.getItem("user_quit"));
@@ -355,20 +354,6 @@ export async function tournamentConnect(tourId, nPlayers=null) {
             localStorage.removeItem("currentTournamentId");
             localStorage.removeItem("gameState");
         }
-
-        // if (localStorage.getItem("user_quit") !== "true") {
-        //     // alert("ONCLOSE");
-        //     console.log("Closing websocket.");
-        //     //setTimeout(() => connectWebSocket(tourId), 3000);
-        // } else {
-        //     console.log("User quit. No reconnection.");
-        //     localStorage.removeItem('inTournament');
-        //     localStorage.removeItem("user_quit");
-        //     localStorage.removeItem("currentTournamentId");
-        //     localStorage.removeItem("gameState");
-        //     navigateTo('/home', true);
-        // }
-        // // navigateTo('/home', true);
 	};
 
 	socket.onmessage = async (event) => { //we're receiving messages from the backend via WB
@@ -445,7 +430,8 @@ export function startTournamentGame() {
 }
 
 export function stopTournamentGame() {
-    socket.send(JSON.stringify({"type": "stop_game"}));
+    if (socket)
+        socket.send(JSON.stringify({"type": "stop_game"}));
 }
 
 ////////////////// UTILS //////////////////////
@@ -474,6 +460,10 @@ async function getTournamentId() {
 }
 
 function getNumberOfPlayers() {
+    if (! document.getElementById('tournament-count')) {
+        navigateTo('/tournament-home', true);
+        return;
+    }
     const nPlayers = document.getElementById('tournament-count').value;
     const validPlayers = ["3", "4", "7", "8", "1", "2"];
     
@@ -503,20 +493,29 @@ export function disconnectTournamentWS() {
     }
 }
 
-export function changePathFromGameCheck(prevPath, curPath) {
-    // '/tournament-game-ai': tournamentGameRequest,
-    // '/tournament-game-remote': tournamentGameRequest,
-    const pathAi = '/tournament-game-ai';
-    const pathRemote = '/tournament-game-remote';
-    let pathChange = true;
-    if (prevPath == pathAi && curPath == pathAi) {
-        pathChange = false;
-    } else if (prevPath == pathRemote && curPath == pathRemote) {
-        pathChange = false;
-    }
-    if (pathChange && prevPath == pathAi) {
-        console.log("CHANGING PATH from ai game");
-    } else if (pathChange && prevPath == pathRemote) {
-        console.log("CHANGING PATH from remote game");
-    }
-}
+// export function changePathFromGameCheck(prevPath, curPath) {
+//     // '/tournament-game-ai': tournamentGameRequest,
+//     // '/tournament-game-remote': tournamentGameRequest,
+//     const pathAi = '/tournament-game-ai';
+//     const pathRemote = '/tournament-game-remote';
+//     let pathChange = true;
+//     if (prevPath == pathAi && curPath == pathAi) {
+//         pathChange = false;
+//     } else if (prevPath == pathRemote && curPath == pathRemote) {
+//         pathChange = false;
+//     }
+//     if (pathChange && prevPath == pathAi) {
+//         console.log("CHANGING PATH from ai game");
+//     } else if (pathChange && prevPath == pathRemote) {
+//         console.log("CHANGING PATH from remote game");
+//     }
+// }
+
+/*
+back/forward , path change , reload ---> you lose
+back/forward DONE (with popstate)
+but
+path change , reload ---> main.js from start, all vars in games are cleared
+path change is the same as reload
+event listener before onload -> game end
+*/

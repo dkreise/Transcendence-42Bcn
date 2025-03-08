@@ -79,7 +79,9 @@ class GameManager:
 			"yspeed": GameManager.ball_config["yspeed"]
 		}
 		self.tour_id = None
+		self.tour_op = None
 		self.rsg_task = None
+		self.player2_waiting_task = None
 
 ###############################################
 
@@ -94,7 +96,8 @@ class GameManager:
 				if user in self.users:
 					logger.info(f"{user} is already in the room. Rejecting new connection")
 					#await self.send_reject(channel, "You're already connected to this room!")
-					return "4000"
+					# return "4000"
+					return role
 				if len(self.players) == 2:
 					self.status = 0
 					self.users.append(user)
@@ -115,8 +118,14 @@ class GameManager:
 			if len(self.players) == 0:
 				logger.info(f"adding {user} as player1")
 				self.players["player1"] = {"id": user, "y": (GameManager.board_config["height"] - GameManager.paddle_config["height"]) // 2}
+				if self.player2_waiting_task:
+					self.player2_waiting_task.cancel()
+				if self.tour_id:
+					self.player2_waiting_task = asyncio.create_task(self.check_unstarted_game())
 				return "player1"
 			else:
+				if self.player2_waiting_task:
+					self.player2_waiting_task.cancel()
 				logger.info(f"adding {user} as player2")
 				self.players["player2"] = {"id": user, "y": (GameManager.board_config["height"] - GameManager.paddle_config["height"]) // 2}
 				self.status = 0
@@ -486,6 +495,9 @@ class GameManager:
 #################################################################
 
 	async def stop_tournament_game(self, winner, loser):
+		logger.info(f"STOPPING THE GAME, winner: {winner}, loser: {loser}")
+		# if self.player2_waiting_task:
+		# 	self.player2_waiting_task.cancel()
 		if self.rsg_task:
 			self.rsg_task.cancel()
 			del self.rsg_task
@@ -509,3 +521,12 @@ class GameManager:
 			if self.game_loop_task:
 				self.game_loop_task_cancel()
 				self.game_loop_task = None
+			if self.player2_waiting_task:
+				self.player2_waiting_task.cancel()
+				self.player2_waiting_task = None
+
+	async def check_unstarted_game(self):
+		await asyncio.sleep(10)
+		if len(self.players) != 2:
+			logger.info(f"SECOND PLAYER ({self.tour_op}) HAS NOT STARTED")
+			await self.stop_tournament_game(self.users[0], self.tour_op)

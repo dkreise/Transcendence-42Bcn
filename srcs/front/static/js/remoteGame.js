@@ -21,6 +21,7 @@ let backFactor = {
 let socket = null;
 let gameLoopId = null;
 let gameStop = false;
+let tourId = null;
  
 console.log("Hi! This is remoteGame.js :D");
 
@@ -156,6 +157,12 @@ export async function handleStatus(data, tourSocket)
 	else
 	{
 		console.log("let's start the game!");
+		window.addEventListener("beforeunload", () => {
+			if (tourId) {
+				// localStorage.setItem("Remote_beforeonload", "isworking");
+				stopTournamentGame();
+			}
+		});
 		setupControls(player, opponent)
 		gameLoop();
 	}
@@ -312,7 +319,7 @@ window.addEventListener("resize", () => {
 export function startGame()
 {
 	canvas = document.getElementById('newGameCanvas');
-	const tourId = localStorage.getItem('currentTournamentId');
+	tourId = localStorage.getItem('currentTournamentId');
 	if (!canvas)
 	{
 		alert("Unable to display the game. Please, try again later");

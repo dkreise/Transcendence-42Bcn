@@ -64,7 +64,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 							return
 
 						if tournament.get_players_cnt() < tournament.max_user_cnt:
-							page = tournament.get_waiting_room_page()
+							page = tournament.get_waiting_room_page(self.user.username)
 							await self.channel_layer.group_send(
 								self.tour_id,
 								{
@@ -221,20 +221,24 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"request": True,
 					}))
 				elif dtype == "waiting_room_page_request":
-					page = tournament.get_waiting_room_page()
+					page = tournament.get_waiting_room_page(self.user.username)
 					await self.send(text_data=json.dumps({
 						"type": "html",
 						"html": page['html'],
-						"status": "waiting",
+						"needs_to_play": page['needs_to_play'],
+						"opponent": page['opponent'],
+						"status": page['status'],
 						"request": True,
 					}))
 
 				elif dtype == "final_page_request":
-					page = tournament.get_final_page()
+					page = tournament.get_final_page(self.user.username)
 					await self.send(text_data=json.dumps({
 						"type": "html",
 						"html": page['html'],
-						"status": "finished",
+						"needs_to_play": page['needs_to_play'],
+						"opponent": page['opponent'],
+						"status": page['status'],
 						"request": True,
 					}))
 
@@ -291,6 +295,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 						game = active_games[self.room_id]
 						async with active_games_lock:
 							if game.ready == 0 and us in game.users:
+								if game.player2_waiting_task:
+									game.player2_waiting_task.cancel()
 								tournament.matches_started[tournament.get_match_idx(us, op)] = False
 					status = await tournament.handle_quit(self.user.username, False)
 					logger.info("we handled the quit. now disconnecting..:")
@@ -384,6 +390,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 						if (len(game.users) == 2):
 							await game.send_players_id()
 						else:
+							game.tour_op = tournament.get_opponent(self.user.username)
 							await game.send_status(0)
 					except Exception as e:
 						logger.error(f"Tgame error {e}")
@@ -464,7 +471,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def tournament_ends(self, event):
 		logger.info(f"TOURNAMENT_ENDS FOR {self.user.username}")
 		tournament = active_tournaments[self.tour_id]
-		page = tournament.get_final_page()
+		tournament.finished = True
+		page = tournament.get_final_page(self.user.username)
 		await self.send(text_data=json.dumps({
 			"type": "html",
 			"html": page['html'],
