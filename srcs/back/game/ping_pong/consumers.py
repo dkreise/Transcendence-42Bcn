@@ -244,6 +244,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 				elif dtype == "game_result":
 					logger.info("RECEIVED. we need to handle game result")
+					if not tournament.unfinished_game_exist(data["winner"], data["loser"]):
+						return
 					if data["winner"] != "@AI" and data["loser"] != "@AI":
 						if self.user.username == data["loser"]:
 							logger.info("for loser not handling the game res! return")

@@ -545,3 +545,12 @@ class TournamentManager:
 				"type": "tournament_delete",
 			}
 		)
+	
+	def unfinished_game_exist(self, pl1, pl2):
+		match_i = self.get_match_idx(pl1, pl2)
+		if match_i == -1:
+			return False
+		elif self.matches_finished[match_i]:
+			return False
+		else:
+			return True
