@@ -58,7 +58,7 @@ posiciones en tanto por uno
 class GameManager:
 
 	ball_config = {"rad": 7, "xspeed": 3, "yspeed": 0}
-	board_config = {"width": 400, "height": 300, "max_score": 3}
+	board_config = {"width": 600, "height": 400, "max_score": 3}
 	paddle_config = {"width": 10, "height": 50, "speed": 150}
 	countdown = 5
 
@@ -427,14 +427,6 @@ class GameManager:
 
 	async def send_status(self, countdown):
 		logger.info(f"sending status msg (GM) wait: {self.status} cd: {countdown}")
-		# front_ball = self.ball
-		# front_ball["x"] *= GameManager.board_config["width"]
-		# front_ball["y"] *= GameManager.board_config["height"]
-		# front_players = self.players
-		# if front_players["player1"]:
-		# 	front_players["player1"]["y"] *= GameManager.board_config["height"]
-		# elif front_players["player2"]:
-		# 	front_players["player2"]["y"] *= GameManager.board_config["height"]
 		message = {
 			"type": "status",
 			"ball": self.ball,
