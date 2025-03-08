@@ -24,15 +24,17 @@ const display2FAMessage = (form, message, color) => {
 
 export const loadLogin2FAPage = () => {
     const contentArea = document.getElementById("content-area");
-    fetch(baseUrl + ":8000/api/2fa-login/", {method: "GET", credentials: "include" })
-    .then(response => response.json())
-    .then(data => {
-        if (data.form_html) {
-            console.log('2FA form html returned!');
-            contentArea.innerHTML = data.form_html;
-        }
+    drawHeader('login').then(() => {
+      return  fetch(baseUrl + ":8000/api/2fa-login/", {method: "GET", credentials: "include" })
+        .then(response => response.json())
+        .then(data => {
+            if (data.form_html) {
+                console.log('2FA form html returned!');
+                contentArea.innerHTML = data.form_html;
+            }
+        })
+        .catch(error => console.error('Error loading 2FA login form:', error));
     })
-    .catch(error => console.error('Error loading 2FA login form:', error));
 }
 
 export const enable2FA = () => {

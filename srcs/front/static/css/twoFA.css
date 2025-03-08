@@ -1,33 +1,67 @@
 .twoFA-container {
-	max-width: 900px;
-	background: linear-gradient(#0d0d0d, #212121);
-	padding: 30px;
-	border-radius: 16px;
-	opacity: 0.9;
-  }
-  
+    max-width: 900px;
+    background: linear-gradient(#0d0d0d, #212121);
+    padding: 30px;
+    border-radius: 16px;
+    opacity: 0.9;
+    min-height: 80vh; /* Mantiene una altura mínima de 80vh */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centra el contenido verticalmente */
+    align-items: center; /* Centra el contenido horizontalmente */
+}
 
-  .twoFA-box {
-	background-color: rgba(255, 255, 255, 0.05);
-	padding: 20px;
-	border-radius: 12px;
-	box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-  }
-  
-  .twoFA-box h1 {
-	font-size: 20px;
-	font-weight: bold;
-	color: #d5dcf9;
-  }
-  
-  .twoFA-box p {
-	font-size: 14px;
-	color: #bbb;
-  }
-  
-  #2fa-qr-code {
-	max-width: 200px;
-	height: auto;
-	border-radius: 8px;
-	box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
-  }
+/* Ajustes en los boxes */
+.twoFA-box {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra el contenido en el interior de cada caja */
+    justify-content: center;
+}
+
+#two-fa-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra los elementos dentro del formulario */
+    width: 100%; /* Asegura que el formulario ocupe todo el ancho disponible */
+    max-width: 400px; /* Ajusta el tamaño máximo del formulario si lo deseas */
+}
+
+/* Estilo de títulos */
+.twoFA-box h1 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #d5dcf9;
+}
+
+/* Espaciado en los títulos */
+.row.text-center.mb-3 h1 {
+    margin-top: 0; /* Evita que tengan espacio innecesario */
+    padding-top: 10px; /* Ajusta ligeramente */
+    text-align: center;
+}
+
+/* Ajustes para las filas (row) que contienen el formulario y QR */
+.row.flex-grow-1 {
+    display: flex;
+    justify-content: center; /* Centra las columnas horizontalmente */
+    align-items: center; /* Centra las columnas verticalmente */
+}
+
+#2fa-qr-code {
+    max-width: 150px; /* Ajusta el tamaño máximo de la imagen */
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    display: inline-block; /* Asegura que la imagen no empuje el contenido hacia abajo */
+}
+
+/* Contenedor de la imagen QR */
+.twoFA-box p {
+    margin-bottom: 10px;
+    text-align: center;
+}
