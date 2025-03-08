@@ -1,35 +1,35 @@
 export class Player {
 	maxScore = 5;
-	wFactor = 0.02;
-	hFactor = 0.25;
-	sFactor = 0.02;
 
 	constructor(canvas, role) {
 		console.log(`Canvas size: ${canvas.width} x ${canvas.height}`)
-		this.width = canvas.width * this.wFactor;
-		this.height = canvas.height * this.hFactor;
 		this.color = "white";
 		this.up = false;
 		this.down = false;
 		this.score = 0;
 		this.canvas = canvas;
-		this.backFactor = 0;
 		this.whoAmI = null;
+		this.y = 0.5;
 		this.role = role; // "player1" or "player2"
 		if (this.role === "player1")
 			this.x = 0;
 		else
 			this.x = canvas.width - this.width;
-		this.y = (canvas.height / 2 - this.height / 2);
-		this.speed = canvas.height * this.sFactor; // Speed scales with canvas height
-		console.log("role: " + this.role + " y: " + this.y + " x: " + this.x);
 	}
  
+	setVars(data) {
+		this.width = this.canvas.width * data.padW / data.canvasX;
+		this.height = this.canvas.height * data.padH / data.canvasY;
+		this.speed = data.padS;
+		//console.log(`setVars pl: H ${this.height} cH: ${this.canvas.height}\n` +
+		//			`back H ${data.padH} cH: ${data.canvasY}\n` +
+		//			`Y position: ${this.y}`);
+	}
+
 	draw(ctx) {
+		const topY = this.y * this.canvas.height - this.height / 2;
 		ctx.fillStyle = this.color;
-		ctx.fillRect(this.x, this.y, this.width, this.height);
-		//if (this.role === "player1")
-		//	console.log("paddles: x " + this.x + "\ny: " + this.y + "\nwidth: " + this.width + "\nheight: " + this.height);
+		ctx.fillRect(this.x, topY, this.width, this.height);
 	}
 
 	move(socket) {
@@ -44,101 +44,91 @@ export class Player {
 	}
 
 	update(players, newScore) {
-	//	console.log(`role: ${this.role} bF: ${this.backFactor} pl: ${players[this.role]["y"]}`);
 		if (!this.role)
 			return ;
 		if (players[this.role] && players[this.role]["y"])
-			//this.y = players[this.role]["y"] * this.backFactor;
-			this.y = players[this.role]["y"] * this.canvas.height;
+			this.y = players[this.role]["y"];
 		if (newScore[this.role])
 			this.score = newScore[this.role];
 	}
 
 	drawScore(ctx) {
+		const text = this.whoAmI + ": " + this.score;
 		let x;
 		let fontSize = Math.floor(this.canvas.width * 0.05);
 		ctx.fillStyle = "rgb(100, 100, 100 / 50%)";
 		ctx.font = `${fontSize}px Arial`;
 		if (this.x == 0)
-			x = this.canvas.width / 4;
+			//x = this.canvas.width / 4;
+			x = this.canvas.width / 4 - ctx.measureText(text).width / 2;
 		else
-			x = this.canvas.width * 3 / 4;
-		ctx.fillText(`Score: ${this.score}`, x, this.canvas.height / 10);
+			//x = this.canvas.width * 3 / 4;
+			x = this.canvas.width * 0.75 - ctx.measureText(text).width / 2;
+		ctx.fillText(text, x, this.canvas.height / 10);
 	}
 
 	displayEndgameMessage(ctx, oppScore, msg) {
-		let finalScore;
-		if (this.role == "player1")
-			finalScore = `${this.score} - ${oppScore}`;
-		else
-			finalScore = `${oppScore} - ${this.score}`;
+		let div = document.getElementById("wait");
 		let fontSize = Math.floor(this.canvas.width * 0.05);
 
+		if (this.role == "player1")
+			div.innerHTML = msg + `<br>${this.score} - ${oppScore}`;
+		else
+			div.innerHTML = msg + `<br>${oppScore} - ${this.score}`;
+
+		div.style.display = "block";
 		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+		ctx.fillStyle = "rgba(0 0 0 / 25%)";
 		ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-		ctx.fillStyle = "white";
-		ctx.font = `${fontSize}px Arial`;
-		ctx.textAlign = "center";
-		ctx.fillText(msg, this.canvas.width / 2, this.canvas.height / 2 - 20);
-		ctx.font = `${fontSize - 5}px Arial`;
-		ctx.fillText(finalScore, this.canvas.width / 2, this.canvas.height / 2 + 30);
+
+		div.style.fontSize = Math.floor(this.canvas.width * 0.05) + "px";
+		console.log("endgameMsg: " + msg);
 	}
 
 	send(socket) {
 		if (socket.readyState === WebSocket.OPEN)
 		{
-			//console.log("front y: " + this.y + " backFactor: " + this.backFactor);
-			//console.log(`${this.role}'s paddle: ${this.y} sending: ${this.y / this.backFactor}`);
 			const data = {
 				"type": "update",
 				"role": this.role,
-				"y": this.y / this.canvas.height,
+				"y": this.y,
 				"score": this.score,
 			};
 			socket.send(JSON.stringify(data));
 		}
 	}
 
-	resize(canvas) {
-		const oldY = this.y / this.canvas.height;
-		this.canvas = canvas
-		this.width = canvas.width * 0.02;
-		this.height = canvas.height * 0.1;
+	resize(nW, nH) {
+		const factor = nH / this.canvas.height;
+
+		this.width = this.width * nW / this.canvas.width;
+		this.height = this.height * factor;
 		if (this.x != 0)
-			this.x = canvas.width - this.width;
-		this.y = oldY * this.canvas.height;
-			
-	}
-	setVars(width, height, speed) {
-		this.width = width;
-		this.height = height;
-		this.speed = speed;
+			this.x = nW - this.width;
+		this.y = this.y * factor;
 	}
 }
 
 
 export class Ball {
 	radFactor = 0.01;
-	sFactor = 0.02;
 
 	constructor(canvas) {
 		this.canvas = canvas;
-		//this.radius = canvas.width * this.radFactor; // Ball radius scales with canvas width
 		this.x = canvas.width / 2;
 		this.y = canvas.height / 2;
-		//this.xspeed = canvas.width * 0.01; // Speed scales with canvas width
-		//this.yspeed = canvas.height * 0.01; // Speed scales with canvas height
 		this.color = "white";
 	}
 
-	setVars(radius, xspeed, yspeed) {
-		this.radius = radius;
-		this.xspeed = xspeed;
-		this.yspeed = yspeed;
+	setVars(data) {
+		this.radius = this.canvas.width * data.ballRad / data.canvasX;
+		this.xspeed = this.canvas.width * data.ballSx / data.canvasX;
+		this.yspeed = this.canvas.height * data.ballSy / data.canvasY;
+		this.x = this.canvas.width / 2;
+		this.y = this.canvas.height / 2;
 	}
+
 	draw(ctx) {
-		//console.log("ball x: " + this.x + " y: " + this.y + " rad: " + this.radius);
 		ctx.fillStyle = this.color;
 		ctx.beginPath();
 		ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
@@ -170,12 +160,11 @@ export class Ball {
 			this.xspeed = -this.xspeed;
 	}
 
-	resize(canvas) {
-		const oldY = this.y / this.canvas.height;
-		const oldX = this.x / this.canvas.width;
-		this.canvas = canvas;
-		this.radius = canvas.width * this.radFactor; // Ball radius scales with canvas width
-		this.x = oldX * canvas.width;
-		this.y = oldY * canvas.height;
+	resize(nW, nH) {
+		const factor = nH / this.canvas.height;
+
+		this.radius = this.radius * factor;
+		this.x = this.x * nW / this.canvas.width;
+		this.y = this.y * factor;
 	}
 }

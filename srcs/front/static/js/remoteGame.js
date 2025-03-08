@@ -9,37 +9,24 @@ const endgameMsg = {
 
 let canvas, ctx = null;
 
-const ballCoef = 0.3;
 let ball, targetBallX, targetBallY = null;
 let player, opponent = null;
-let backFactor = {
-	"x": null,
-	"y": null
-};
 
 let socket = null;
 let gameLoopId = null;
  
 console.log("Hi! This is remoteGame.js :D");
 
-function interpolateBall() {
-	//console.log(`interpolate: ballX: ${ball.x} ball.Y: ${ball.y}`);
-	ball.x += (targetBallX - ball.x) * ballCoef;
-	ball.y += (targetBallY - ball.y) * ballCoef;
-}
-
-function handleRoleAssignment(role) {
-	console.log("Hi! I'm " + role);
-	if (role === "player1") {
+function handleRoleAssignment(data) {
+	console.log("Hi! I'm " + data.role);
+	if (data.role === "player1") {
 		player = new Player(canvas, "player1");
 		opponent = new Player(canvas, "player2");
-	} else if (role === "player2") {
+	}
+	else {
 		player = new Player(canvas, "player2");
 		opponent = new Player(canvas, "player1");
 	}
-	//player.setVars();
-	//opponent.setVars();
-	//ball.setVars();
 }
 
 function scaleGame(data)
@@ -52,6 +39,9 @@ function scaleGame(data)
 		player.x = canvas.width - player.width;
 	else
 		opponent.x = canvas.width - opponent.width;
+	player.setVars(data);
+	opponent.setVars(data);
+	ball.setVars(data);
 }
 
 async function readySteadyGo(countdown)
@@ -77,7 +67,7 @@ function displayCountdown()
 {
 	if (!ctx)
 		return ;
-	let fontSize = Math.floor(canvas.width * 0.05);
+	//let fontSize = Math.floor(canvas.width * 0.05);
 	let div = document.getElementById("wait");
 	let waitMsg = div ? div.dataset.original : "Waiting for X"; 
 
@@ -96,22 +86,26 @@ function displayCountdown()
 }
 
 function handleEndgame(data) {
-	const { winner, loser } = data;
+	const { winner, loser, scores} = data;
+	const msg = [
+		"Congratulations! You've won 😁",
+		"Better luck next time! 🥲"
+	]
 	
 	console.log(`winner ${winner} loser ${loser}`);
-	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
+	player.score = data["scores"][player.role];
+	opponent.score = data["scores"][opponent.role];
+	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
 	if (player.whoAmI == winner)
-	{
-		player.scores++;
-		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
-	}
+		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
 	else
-	{
-		opponent.scores++;
-		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
-	}
+		player.displayEndgameMessage(ctx, opponent.score, msg[1]);
+//	if (player.whoAmI == winner)
+//		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
+//	else
+//		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
 }
 
 function getTimestamp() {
@@ -164,7 +158,7 @@ async function initializeWebSocket() {
 		console.log(`data type is: ${data.type}`);
 		switch (data.type) {
 			case "role":
-				handleRoleAssignment(data.role);
+				handleRoleAssignment(data);
 				scaleGame(data);
 				break;
 			case "players":
@@ -201,8 +195,8 @@ async function initializeWebSocket() {
 					opponent.update(data.players, data.scores);
 				}
 				if (data.ball) {
-					targetBallX = data.ball.x * canvas.width;
-					targetBallY = data.ball.y * canvas.height;
+					ball.x = data.ball.x * canvas.width;
+					ball.y = data.ball.y * canvas.height;
 				}
 				break ;
 			case "reject":
@@ -229,20 +223,19 @@ function gameLoop() {
 	opponent.draw(ctx);
 	player.drawScore(ctx);
 	opponent.drawScore(ctx);
-	interpolateBall();
+	//interpolateBall();
 	ball.draw(ctx);
 
 	player.move(socket);
 }
 
 function resizeCanvas() {
+	if (!canvas)
+		return ;
     canvas = document.getElementById("newGameCanvas");
     const container = document.getElementById("newGameBoard");
 	if (!canvas || !container)
-	{
-		alert("Unable to display the game. Please, try again later");
 		return ;
-	}
 
     let maxWidth = container.clientWidth;
     let maxHeight = container.clientHeight;
@@ -259,20 +252,17 @@ function resizeCanvas() {
     newWidth = Math.floor(newWidth);
     newHeight = Math.floor(newHeight);
 
-    canvas.width = newWidth;
-    canvas.height = newHeight;
-
     canvas.style.width = `${newWidth}px`;
     canvas.style.height = `${newHeight}px`;
 	ctx = canvas.getContext('2d');
 	if (player)
-		player.resize(canvas);
+		player.resize(newWidth, newHeight);
 	if (opponent)
-		opponent.resize(canvas);
+		opponent.resize(newWidth, newHeight);
 	if (ball)
-		ball.resize(canvas);
-
-    console.log(`Canvas resized: ${newWidth} x ${newHeight}`);
+		ball.resize(newWidth, newHeight);
+    canvas.width = newWidth;
+    canvas.height = newHeight;
 }
 
 // Resize canvas when the window resizes

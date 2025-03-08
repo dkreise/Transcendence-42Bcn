@@ -52,14 +52,15 @@ scores
 '''
 
 '''
-midas => absoluto
-posiciones en tanto por uno
+sizes => absolute
+positions => relative
+speeds => relative
 '''
 class GameManager:
 
-	ball_config = {"rad": 7, "xspeed": 3, "yspeed": 0}
+	ball_config = {"rad": 7, "xspeed": 5, "yspeed": 0}
 	board_config = {"width": 600, "height": 400, "max_score": 3}
-	paddle_config = {"width": 10, "height": 50, "speed": 150}
+	paddle_config = {"width": 10, "height": 50, "speed": 5}
 	countdown = 5
 
 	def __init__(self, game_id):
@@ -126,12 +127,12 @@ class GameManager:
 #################################################
 
 	def handle_message(self, role, data):
-		logger.info(f"HM data: {data}")
-		logger.info(f"HM pre: {self.players}")
+		#logger.info(f"HM data: {data}")
+		#logger.info(f"HM pre: {self.players}")
 		if data["type"] == "update" and data["role"] in self.players and data["y"]:
 			self.players[data["role"]]["y"] = data["y"]
 			#logger.info(f"pl {self.players[data['role']]} role: {data['role']} paddle position {data['y']}")
-		logger.info(f"HM post: {self.players}")
+		#logger.info(f"HM post: {self.players}")
 
 ##################################################
 
@@ -140,7 +141,7 @@ class GameManager:
 		self.status = 1
 		self.reset_positions(role)
 		self.scores[role] += 1
-		# logger.info(f"current scores: {self.scores}\nMAX scores: {GameManager.board_config['max_score']}")
+		logger.info(f"current scores: {self.scores}\nMAX scores: {GameManager.board_config['max_score']}")
 		if self.scores[role] == GameManager.board_config["max_score"]:
 			await self.declare_winner(role)
 		else:
@@ -155,10 +156,9 @@ class GameManager:
 		pl1 = self.players["player1"]["y"] * boardH
 		pl2 = self.players["player2"]["y"] * boardH
 
-		if self.ball["x"] * boardW <= GameManager.paddle_config["width"]:
+		if self.ball["x"] * boardW - radius <= GameManager.paddle_config["width"]:
 			if ((self.ball["y"] * boardH > pl1 - padH - 0.05) and
 				(self.ball["y"] * boardH < pl1 + padH + 0.05)):
-				logger.info(f"player1 collision")
 				return True
 		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"]:
 			if ((self.ball["y"] * boardH > pl2 - padH - 0.05) and
@@ -472,8 +472,8 @@ class GameManager:
 			"padH": GameManager.paddle_config["height"],	# paddle height
 			"padS": GameManager.paddle_config["speed"] / GameManager.board_config["height"],	# paddle speed
 			"ballRad": GameManager.ball_config["rad"],		# ball radius
-			"ballSx": GameManager.ball_config["xspeed"],	# ball xspeed
-			"ballSy": GameManager.ball_config["yspeed"]	# ball yspeed
+			"ballSx": GameManager.ball_config["xspeed"] / GameManager.board_config["width"],	# ball xspeed
+			"ballSy": GameManager.ball_config["yspeed"]	/ GameManager.board_config["height"] # ball yspeed
 		}
 		await self.channel_layer.send(
 			channel_name,
@@ -488,7 +488,8 @@ class GameManager:
 		message = {
 			"type": "endgame",
 			"winner": winner_id,
-			"loser": loser_id
+			"loser": loser_id,
+			"scores": self.scores
 		}
 		try:
 			await self.channel_layer.group_send(
