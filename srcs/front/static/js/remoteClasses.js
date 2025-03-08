@@ -45,7 +45,6 @@ export class Player {
 			return ;
 		if (players[this.role] && players[this.role]["y"])
 			this.y = players[this.role]["y"];
-
 		if (newScore[this.role])
 			this.score = newScore[this.role];
 	}

@@ -1,6 +1,7 @@
 import { Ball, Player } from "./remoteClasses.js";
 import { setupControls } from "./localGame.js";
 import { refreshAccessToken } from "./login.js";
+import { startTournamentGame, stopTournamentGame } from "./tournament.js";
 
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
@@ -14,8 +15,11 @@ let player, opponent = null;
 
 let socket = null;
 let gameLoopId = null;
+let gameStop = false;
+let tourId = null;
  
 console.log("Hi! This is remoteGame.js :D");
+
 
 function handleRoleAssignment(data) {
 	console.log("Hi! I'm " + data.role);
@@ -29,7 +33,7 @@ function handleRoleAssignment(data) {
 	}
 }
 
-function scaleGame(data)
+export function scaleGame(data)
 {
 	player.width = canvas.width * (data.padW / data.canvasX);
 	opponent.width = player.width;
@@ -53,12 +57,14 @@ async function readySteadyGo(countdown)
 	div.textContent = msg[countdown];
 	div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
 
+
 	ctx.fillStyle = "rgb(0 0 0 / 25%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	div.style.display = "block";
 	//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
 	if (countdown >= 0)
 		await setTimeout(async() => await readySteadyGo(--countdown), 500);
+
 	else
 		div.style.display = "none";
 }
@@ -85,6 +91,7 @@ function displayCountdown()
 	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
 }
 
+
 function handleEndgame(data) {
 	const { winner, loser, scores} = data;
 	const msg = [
@@ -108,16 +115,82 @@ function handleEndgame(data) {
 //		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
 }
 
+export function handleTourEndgame(data) {
+	const { wait, winnerID, loserID } = data;
+	
+	console.log(player.whoAmI);
+	console.log(player.role);
+	console.log(loserID);
+	console.log(winnerID);
+	if (player.whoAmI == winnerID)
+		player.scores++;
+	else
+		opponent.scores++;
+	if (loserID == player.whoAmI)
+		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
+	else
+		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
+	cancelAnimationFrame(gameLoopId);
+	gameLoopId = null
+}
+
 function getTimestamp() {
 	const date = new Date();
 
 	return `${date.getDate()}-${date.getMonth() + 1} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 }
 
+export function setWhoAmI(data)
+{
+	player.whoAmI = data[player.role];
+	opponent.whoAmI = data[opponent.role];
+}
+
+export async function handleStatus(data, tourSocket)
+{
+	if (tourSocket) {
+		socket = tourSocket;
+	}
+	player.update(data.players, data.scores);
+	opponent.update(data.players, data.scores);
+	if (data.wait) // data.wait [bool]
+	{
+		if (gameLoopId)
+			cancelAnimationFrame(gameLoopId);
+		if (data.countdown != 4)
+			displayCountdown();
+		else
+			await readySteadyGo(data.countdown - 2);
+	}
+	else
+	{
+		console.log("let's start the game!");
+		window.addEventListener("beforeunload", beforeUnloadHandlerRemote);
+		setupControls(player, opponent)
+		gameLoop();
+	}
+}
+
+export function handleUpdate(data)
+{
+	if (data.players)
+	{
+		player.update(data.players, data.scores);
+		opponent.update(data.players, data.scores);
+	}
+	if (data.ball) {
+		targetBallX = data.ball.x * backFactor["x"];
+		targetBallY = data.ball.y * backFactor["y"];
+	}
+	if (gameStop) {
+		stopTournamentGame();
+	}
+}
+
 //async function initializeWebSocket(roomId) {
 async function initializeWebSocket() {
 	//const roomID = new URLSearchParams(window.location.search).get("room") || "default";
-	const roomId = 123;
+	const roomId = 1;
 	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
@@ -213,8 +286,11 @@ async function initializeWebSocket() {
 	};
 }
 
+
+
 function gameLoop() {
 	gameLoopId = requestAnimationFrame(gameLoop);
+	console.log("IN GAME LOOP");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(0 0 0 / 75%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -227,6 +303,11 @@ function gameLoop() {
 	ball.draw(ctx);
 
 	player.move(socket);
+	//ball.move(player, opponent, gameLoopId, socket);
+
+	if (gameStop) {
+		stopTournamentGame();
+	}
 }
 
 function resizeCanvas() {
@@ -272,15 +353,47 @@ window.addEventListener("resize", resizeCanvas);
 
 export function startGame()
 {
-    canvas = document.getElementById("newGameCanvas");
+	canvas = document.getElementById('newGameCanvas');
+	tourId = localStorage.getItem('currentTournamentId');
+
 	if (!canvas)
 	{
 		alert("Unable to display the game. Please, try again later");
 		return ;
+	} else {
+		console.log("CANVAS: ", canvas);
 	}
 	ball = new Ball(canvas);
 	resizeCanvas();
 	targetBallX = ball.x;
 	targetBallY = ball.y;
-	initializeWebSocket();
+	gameStop = false;
+	if (!tourId)
+		initializeWebSocket();
+	else {
+		startTournamentGame();
+		const button = document.getElementById('play-again');
+        if (button) {
+            button.textContent = "Quit Tournament";
+            button.setAttribute("data-route", "/quit-tournament");
+            button.setAttribute("replace-url", true);
+        }
+	}
 }
+
+export function cleanRemote() {
+	if (gameLoopId)
+		cancelAnimationFrame(gameLoopId);
+	gameLoopId = null;
+	gameStop = true;
+}
+
+const beforeUnloadHandlerRemote = () => {
+    if (tourId) {
+		stopTournamentGame();
+	}
+};
+
+export const removeBeforeUnloadListenerRemote = () => {
+    window.removeEventListener("beforeunload", beforeUnloadHandlerRemote);
+};

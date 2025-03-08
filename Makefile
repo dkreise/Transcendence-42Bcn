@@ -15,7 +15,7 @@ DOCKER_COMPOSE = docker-compose -f ./srcs/docker-compose.yml
 DC_RUN_GAME= run --rm game sh -c
 DC_RUN_USER= run --rm user-mgmt sh -c
 
-all: build
+all: build mi fill up
 
 
 build:
