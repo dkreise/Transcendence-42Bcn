@@ -4,7 +4,7 @@ import { drawHeader } from "./main.js";
 var baseUrl = "http://localhost"; 
 
 export const loadPageNotFound = async () => {
-    const headerType = checkPermission() ? 1 : 2;
+    const headerType = checkPermission() ? 'main' : 'login';
 
     try {
         await drawHeader(headerType);

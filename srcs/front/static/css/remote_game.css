@@ -1,13 +1,29 @@
+
+#game-container {
+	width: 90%;
+	height: 100%;
+}
+
+#gameStatus {
+	width: 90%;
+	height: 90%;
+}
+
 .gameStatus h1 {
     font-size: calc(2vw + 1rem);
 }
 
+
+#newGameBoard {
+	height: 50vh;
+	position: relative;
+}
+
 canvas {
 	display: block;
-	width: 100%;
 	height: 100%;
-	image-rendering: pixelated; /* Prevent blurry rendering on scale */
-
+	image-rendering: smooth;
+	object-fit: contain;
 }
 
 .form-column {
@@ -44,12 +60,6 @@ canvas {
 	transform: translate(-50%, -50%);
 	text-align: center;
 	display: "none";
-}
-
-#newGameBoard {
-	width: "70%";
-	height: "50%";
-	position: "relative";
 }
 
 .game-rooms {

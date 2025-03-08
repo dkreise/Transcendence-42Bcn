@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { TextGeometry } from '../three/examples/jsm/geometries/TextGeometry.js';
 import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
-import { params, field,  } from "./3DLocalGame.js";
+import { params, field, textCount } from "./3DLocalGame.js";
 import { RoundedBoxGeometry } from '../three/examples/jsm/geometries/RoundedBoxGeometry.js'
 
 
@@ -17,9 +17,17 @@ export const textParams = {
 }
 
 export const textWinner = {
-    size: 2,
+    size: 1.7,
     depth: 0.5,
     curveSegments: 30,
+}
+
+export const fontPaths = {
+    robotoThin: "../fonts/Roboto_Thin_Regular.json",
+    robotoLight: "../fonts/Roboto_Light_Regular.json",
+    roboto: "../fonts/Roboto_Regular.json",
+    helvetica: "../three/examples/fonts/helvetiker_regular.typeface.json",
+
 }
 
 export class SceneText {
@@ -30,6 +38,7 @@ export class SceneText {
         this.fontPathRegular = "../three/examples/fonts/helvetiker_regular.typeface.json";
         this.fontPathBold = "../three/examples/fonts/helvetiker_regular.typeface.json";
         this.loadedBoldFont = null;
+        this.fonts = null;
         this.dict = dict;
         this.rotationX = rotationX;
         this.rotationZ = rotationZ;
@@ -41,6 +50,8 @@ export class SceneText {
         this.tryAgain = null;
         this.winnerMessage = null;
         this.countdownText = null;
+        this.waiting = null;
+        this.enemy = null;
         this.group.add(this.button);
         this.group.setRotationFromEuler(new THREE.Euler(this.rotationX, this.rotationY, this.rotationZ, "ZYX"));
     }
@@ -60,20 +71,45 @@ export class SceneText {
     }
 
     async createText() {
-        this.loadedBoldFont = await this.loadFont(this.fontPathBold);
-        this.start = this.createButtonText(this.dict['start'], this.loadedBoldFont);
-        this.tryAgain = this.createButtonText(this.dict['try_again'], this.loadedBoldFont);
+        // this.loadedBoldFont = await this.loadFont(this.fontPathBold);
+        this.fonts = await this.loadFonts();
+        this.start = this.createButtonText(this.dict['start'], this.fonts['robotoLight']);
+        this.tryAgain = this.createButtonText(this.dict['try_again'], this.fonts['robotoLight']);
+        // this.start = this.createButtonText("Старт!", this.fonts['helvetica']);
+        // this.tryAgain = this.createButtonText("Mēģini vēlreiz", this.fonts['helvetica']);
+        // this.start = this.createButtonText("Començar!", this.fonts['robotoLight']);
+        // this.tryAgain = this.createButtonText("El guanyador és", this.fonts['robotoLight']);
         this.tryAgain.visible = false;
-        const textGeo = this.createTextGeometry("3", this.loadedBoldFont, textWinner);
+        const textGeo = this.createTextGeometry("3", this.fonts['roboto'], textWinner);
         this.countdownText = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
         this.countdownText.position.set(0, params.textY, 0);
         this.countdownText.visible = false;
-        this.winnerMessage = this.createWinnerMessage("winner", this.loadedBoldFont)
+        const waitingGeo = this.createTextGeometry(this.dict['waiting_enemy'], this.fonts['robotoLight'], textWinner);
+        this.waiting = new THREE.Mesh(waitingGeo, new THREE.MeshNormalMaterial());
+        this.waiting.position.set(0, params.textY, 1.5);
+        this.waiting.visible = false;
+        const enemyGeo = this.createTextGeometry(this.dict['enemy_connected'], this.fonts['robotoLight'], textWinner);
+        this.enemy = new THREE.Mesh(enemyGeo, new THREE.MeshNormalMaterial());
+        this.enemy.position.set(0, params.textY, 1.5);
+        this.enemy.visible = false;
+        this.winnerMessage = this.createWinnerMessage("winner", this.fonts['robotoLight'])
         this.winnerMessage.visible = false;
-        this.group.add(this.start, this.tryAgain, this.countdownText, this.winnerMessage);
+        this.group.add(this.start, this.tryAgain, this.enemy, this.waiting, this.countdownText, this.winnerMessage);
 
     }
 
+    async loadFonts() {
+        const fonts = {};
+        // Loop through each key/path and load the font
+        await Promise.all(
+          Object.entries(fontPaths).map(async ([fontName, path]) => {
+            const font = await this.loadFont(path);
+            fonts[fontName] = font;
+          })
+        );
+        return fonts;
+      }
+    
     loadFont(path) {
         return new Promise((resolve, reject) => {
             this.loader.load(path, (font) => {
@@ -107,36 +143,14 @@ export class SceneText {
         const textGeo = this.createTextGeometry(msg, font, textWinner);
         const textMat = new THREE.MeshNormalMaterial();
         const textMesh = new THREE.Mesh(textGeo, textMat);
+        // textMesh.position.set(0, 3, (field.y + 10) );
         textMesh.position.set(0, params.textY + 5, 1.5); // Center the text
         return textMesh;
 
     }
 
     updateGeometry(mesh, msg, params) {
-        mesh.geometry = this.createTextGeometry(msg, this.loadedBoldFont, params);
+        mesh.geometry = this.createTextGeometry(msg, this.fonts['roboto'], params);
         mesh.geometry.getAttribute('position').needsUpdate = true;
     }
-}
-
-export class RemoteSceneText extends SceneText {
-
-    constructor(scene, dict, rotationX = 0, rotationY = 0, rotationZ = 0) {
-        super(scene, scene, dict, rotationX, rotationY, rotationZ);
-        // this.button.geometry.rotateY(Math.PI * 0.25);
-        // this.button.geometry.getAttribute('position').needsUpdate = true;
-        button.position.set(0, params.textY, 0); // Adjust position in the scene
-    }
-
-
-
-    createWinnerMessage(msg) {
-        const textGeo = this.createTextGeometry(msg, this.loadedBoldFont, textWinner);
-        textGeo.rotateY(Math.PI * 0.5);
-        const textMat = new THREE.MeshNormalMaterial();
-        const textMesh = new THREE.Mesh(textGeo, textMat);
-        textMesh.position.set(0, params.textY + 5, 1.5); // Center the text
-        this.winnerMessage = textMesh;
-        this.scene.add(textMesh);  
-    }
-
 }

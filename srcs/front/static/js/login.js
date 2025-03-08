@@ -62,7 +62,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
             "Authorization": `Bearer ${accessToken}`, // adding authorization header with the access token
             // "Content-Type": "application/json",
         },
-        credentials: "include",
+        credentials: 'include',
     };
 
     return fetch(url, options).then((response) => {
@@ -126,7 +126,7 @@ export const handleLogin = async () => {
                 navigateTo('/home', true);
             }
         } else {
-            displayLoginError('login-form', `${data.error}`);
+            displayLoginError('login-form', 'Invalid Credentials');
         }
     })
     .catch(error => {
@@ -138,10 +138,12 @@ export const handleLogin = async () => {
 export const handleSignup = async () => {
     const loginForm = document.getElementById('login-form');
     if (loginForm) loginForm.remove();
-    
-    fetch(baseUrl + ":8000/api/signup-form/", {
-        method: 'GET',
-        credentials: "include"
+
+    drawHeader('login').then(() => {
+        return  fetch(baseUrl + ":8000/api/signup-form/", {
+            method: 'GET',
+            credentials: "include"
+        })
     })
     .then(response => response.json()) // Expecting JSON response
     .then(data => {
@@ -189,17 +191,6 @@ export const displayLoginError = (form, errorMessage) => {
     const login_error = document.getElementById('login-error');
     if (!login_error)
         return;
-
-    // const existingError = document.getElementById('login-error');
-    // if (existingError)
-    //     existingError.remove();
-
-    // const errorMessage = document.createElement('div');
-    // errorMessage.id = 'login-error';
-    // errorMessage.style.color = 'red';
-    // errorMessage.style.marginBottom = '15px';
-    // errorMessage.textContent = message;
-    // errorMessage.style.display = "flex";
 
     login_error.innerText = errorMessage;
 

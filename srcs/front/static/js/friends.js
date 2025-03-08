@@ -1,20 +1,23 @@
 import { makeAuthenticatedRequest } from "./login.js";
+import { drawHeader } from "./main.js";
 
 var baseUrl = "http://localhost"; // change (parse) later
 
 export const loadFriendsSearchPage = () => {
-    makeAuthenticatedRequest(baseUrl + ":8000/api/search-users", {method: "GET", credentials: "include"})
-        .then((response) => response.json())
-        .then(data => {
-            if (data.search_users_html) {
-                document.getElementById('content-area').innerHTML = data.search_users_html;
-            } else {
-                console.error('Error fetching friends search:', data.error);
-            }
+    drawHeader('main').then(() => {
+       return  makeAuthenticatedRequest(baseUrl + ":8000/api/search-users", {method: "GET", credentials: "include"})
+            .then((response) => response.json())
+            .then(data => {
+                if (data.search_users_html) {
+                    document.getElementById('content-area').innerHTML = data.search_users_html;
+                } else {
+                    console.error('Error fetching friends search:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching friends search:', error);
+            });
         })
-        .catch(error => {
-            console.error('Error fetching friends search:', error);
-        });
 };
 
 const performSearch = () => {

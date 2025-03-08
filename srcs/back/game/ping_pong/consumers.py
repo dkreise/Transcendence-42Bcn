@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 active_games = {}
 active_games_lock = asyncio.Lock()
+
 ws_codes = {
 	"4000": "You're already in the room",
 	"4001": "Error trying to reconnect. Please, try again later",
@@ -115,9 +116,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 							await self.close(int(self.role))
 							return
 						# Notify the client of their role
+						await self.channel_layer.group_add(self.room_id, self.channel_name)
 						logger.info(f"sending role msg to {self.role}")
 						await game.send_role(self.channel_name, self.role)
-						await self.channel_layer.group_add(self.room_id, self.channel_name)
 						logger.info(f"role sent. current users: {game.users} len: {len(game.users)}")
 						if len(game.users) == 2:
 							await game.send_players_id()
@@ -150,12 +151,16 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 				if self.role in game.players:
 					del game.players[self.role]
+					logger.info(f"Current users in the room: {game.users}")
+					logger.info(f"Current players in the room: {game.players}")
 				if len(game.players) < 2:
 					game.stop_game()
 
 				if not game.players:
 					async with active_games_lock:
-						del active_games[self.room_id]
+						if self.room_id in active_games:
+							del active_games[self.room_id]
+							logger.info(f"Room {self.room_id} has been deleted")
 		elif self.type == "T":
 			logger.info(f"\033[1;31mclose_code={close_code}\033[0m")
 			if close_code in [1001, 1006]:  # WebSocket transport error / browser close
@@ -192,7 +197,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				game = active_games[self.room_id]
 				if data["type"] == "update":
 					game.handle_message(self.role, data)
-					await game.update_game()
+					await game.send_update()
 				elif data["type"] == "ready":
 					async with active_games_lock:
 						game.ready += 1
@@ -432,6 +437,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 ###################################################
 
 	async def send_game_msg(self, event):
+
 		# logger.info(f"SGM: sending message {event['message']}")
 		await self.send(text_data=json.dumps(event["message"]))
 
@@ -454,6 +460,17 @@ class PongConsumer(AsyncWebsocketConsumer):
 		# if (self.user.username == winner):
 		logger.info(f"sending game msg tour for: {self.user.username}")
 		await self.send(text_data=json.dumps(event["message"]))
+	
+	async def send_endgame(self, event):
+		logger.info("\033[1;32mEndgame, kudos to the winner!\033[0m")
+		try:
+			await self.send(text_data=json.dumps(event["message"]))
+			async with active_games_lock:
+				if self.room_id in active_games:
+					del active_games[self.room_id]
+					await self.close()
+		except Exception as e:
+			logger.error(f"Error sending endgame: {e}")
 
 ###################################################
 

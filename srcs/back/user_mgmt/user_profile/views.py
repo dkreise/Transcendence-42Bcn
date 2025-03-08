@@ -135,6 +135,7 @@ def profile_page(request):
         user_id = user.id
         photo_url = None
 
+        print(user.username)
         print("!!!in profile page back")
         stats_games = player_game_statistics(request, user_id)
         print("!!! game stats: ", stats_games)

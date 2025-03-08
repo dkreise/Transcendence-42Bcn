@@ -75,3 +75,8 @@
     background-color: #444;
     color: #fff;
   }
+
+  .dropdown-menu {
+    position: absolute; /* Asegura que se posicione relativo a su contenedor */
+    z-index: 9999;      /* Valor alto para que se muestre sobre otros elementos */
+  }

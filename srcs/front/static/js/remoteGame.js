@@ -10,13 +10,8 @@ const endgameMsg = {
 
 let canvas, ctx = null;
 
-const ballCoef = 0.3;
 let ball, targetBallX, targetBallY = null;
 let player, opponent = null;
-let backFactor = {
-	"x": null,
-	"y": null
-};
 
 let socket = null;
 let gameLoopId = null;
@@ -25,18 +20,14 @@ let tourId = null;
  
 console.log("Hi! This is remoteGame.js :D");
 
-function interpolateBall() {
-	ball.x += (targetBallX - ball.x) * ballCoef;
-	ball.y += (targetBallY - ball.y) * ballCoef;
-}
 
-export function handleRoleAssignment(role) {
-	console.log("Hi! I'm " + role);
-	console.log("CANVAS: ", canvas);
-	if (role === "player1") {
+function handleRoleAssignment(data) {
+	console.log("Hi! I'm " + data.role);
+	if (data.role === "player1") {
 		player = new Player(canvas, "player1");
 		opponent = new Player(canvas, "player2");
-	} else if (role === "player2") {
+	}
+	else {
 		player = new Player(canvas, "player2");
 		opponent = new Player(canvas, "player1");
 	}
@@ -52,11 +43,9 @@ export function scaleGame(data)
 		player.x = canvas.width - player.width;
 	else
 		opponent.x = canvas.width - opponent.width;
-	//console.log("FRONT 2 width: " + player.width + " height: " + player.height);
-	backFactor["x"] = canvas.width / data.canvasX;
-	backFactor["y"] = canvas.height / data.canvasY;
-	player.backFactor = backFactor["y"];
-	opponent.backFactor = backFactor["y"];
+	player.setVars(data);
+	opponent.setVars(data);
+	ball.setVars(data);
 }
 
 async function readySteadyGo(countdown)
@@ -68,16 +57,14 @@ async function readySteadyGo(countdown)
 	div.textContent = msg[countdown];
 	div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
 
-	ctx.fillStyle = "rgb(100 100 100 / 50%)";
+
+	ctx.fillStyle = "rgb(0 0 0 / 25%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	div.style.display = "block";
-//	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
-//	ctx.font = `${fontSize}px Arial`;
-//	ctx.textAlign = "center";
-//	ctx.fillText(msg[countdown], canvas.width / 2, canvas.height / 2 + fontSize / 2);
-	console.log(`[${getTimestamp()}] RSG: ${countdown}`);
-	if (countdown)
-		await setTimeout(async() => await readySteadyGo(--countdown), 1000);
+	//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
+	if (countdown >= 0)
+		await setTimeout(async() => await readySteadyGo(--countdown), 500);
+
 	else
 		div.style.display = "none";
 }
@@ -86,28 +73,49 @@ function displayCountdown()
 {
 	if (!ctx)
 		return ;
-	let fontSize = Math.floor(canvas.width * 0.05);
-	let waitElement = document.getElementById("wait");
-	let waitMsg = waitElement ? waitElement.dataset.original : "Waiting for X"; 
+	//let fontSize = Math.floor(canvas.width * 0.05);
+	let div = document.getElementById("wait");
+	let waitMsg = div ? div.dataset.original : "Waiting for X"; 
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "rgb(100 100 100 / 50%)"; //rectangle style
+	ctx.fillStyle = "rgb(0 0 0 / 25%)"; //rectangle style
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	ctx.fillStyle = "rgb(255, 255, 255)"; //text style
-	ctx.font = `${fontSize}px Arial`;
-	ctx.textAlign = "center";
-	if (opponent.whoAmI)
+	if (opponent && opponent.whoAmI)
 		waitMsg = waitMsg.replace("X", opponent.whoAmI);
 	else if (player.role == "player1")
 		waitMsg = waitMsg.replace("X", "player2");
 	else
 		waitMsg = waitMsg.replace("X", "player1");
-	//ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 - fontSize);
-	ctx.fillText(waitMsg, canvas.width / 2, canvas.height / 2 + fontSize / 2);
+	div.textContent = waitMsg;
+	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
 }
 
-export function handleEndgame(data) {
+
+function handleEndgame(data) {
+	const { winner, loser, scores} = data;
+	const msg = [
+		"Congratulations! You've won 😁",
+		"Better luck next time! 🥲"
+	]
+	
+	console.log(`winner ${winner} loser ${loser}`);
+	if (gameLoopId)
+		cancelAnimationFrame(gameLoopId);
+	player.score = data["scores"][player.role];
+	opponent.score = data["scores"][opponent.role];
+	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
+	if (player.whoAmI == winner)
+		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
+	else
+		player.displayEndgameMessage(ctx, opponent.score, msg[1]);
+//	if (player.whoAmI == winner)
+//		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
+//	else
+//		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
+}
+
+export function handleTourEndgame(data) {
 	const { wait, winnerID, loserID } = data;
 	
 	console.log(player.whoAmI);
@@ -202,9 +210,7 @@ async function initializeWebSocket() {
 		alert("Unable to connect to the server. Please check your connection.");
 	};
 	socket.onclose = async (event) => {
-		console.log("WebSocket closed with code:", event.code);
-
-		console.warn("WebSocket connection closed. Retrying...");
+		console.log("WebSocket connection closed. Retrying...");
 		if (event.code === 4001) {
 			// Token expired; refresh token logic
 			try {
@@ -225,54 +231,53 @@ async function initializeWebSocket() {
 		console.log(`data type is: ${data.type}`);
 		switch (data.type) {
 			case "role":
-				handleRoleAssignment(data.role);
+				handleRoleAssignment(data);
 				scaleGame(data);
 				break;
 			case "players":
-				setWhoAmI(data);
-				socket.send(JSON.stringify({"type": "ready"}));
+				player.whoAmI = data[player.role];
+				opponent.whoAmI = data[opponent.role];
+				socket.send(JSON.stringify({"type": "ready"}))
 				break;
 			case "status":
-				handleStatus(data);
-			//	console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
-			//	player.update(data.players, data.scores);
-			//	opponent.update(data.players, data.scores);
-			//	if (data.wait) // data.wait [bool]
-			//	{
-			//		if (gameLoopId)
-			//			cancelAnimationFrame(gameLoopId);
-			//		if (data.countdown != 4)
-			//			displayCountdown();
-			//		else
-			//			await readySteadyGo(data.countdown - 2);
-			//	}
-			//	else
-			//	{
-			//		console.log("let's start the game!");
-			//		console.log(`canvas W: ${canvas. width} H: ${canvas.height}`);
-			//		console.log(`paddle me: ${player. width} you: ${opponent.width}`);
-			//		console.log(`x: ${player.x} y: ${player.y}\nx: ${opponent.x} y: ${opponent.y}`);
-			//		setupControls(player, opponent)
-			//		gameLoop();
-			//	}
+				//console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
+				if (data.wait) // data.wait [bool]
+				{
+					if (gameLoopId)
+						cancelAnimationFrame(gameLoopId);
+					if (data.countdown == 0)
+						displayCountdown();
+					else
+					{
+						await readySteadyGo(data.countdown - 1);
+						player.update(data.players, data.scores);
+						opponent.update(data.players, data.scores);
+						ball.resetPosition();
+					}
+				}
+				else
+				{
+					setupControls(player, opponent)
+					gameLoop();
+				}
 				break;
 			case "update":
-				handleUpdate(data);
-			//	if (data.players)
-			//	{
-			//		player.update(data.players, data.scores);
-			//		opponent.update(data.players, data.scores);
-			//	}
-			//	if (data.ball) {
-			//		targetBallX = data.ball.x * backFactor["x"];
-			//		targetBallY = data.ball.y * backFactor["y"];
-			//	}
+				if (data.players)
+				{
+					player.update(data.players, data.scores);
+					opponent.update(data.players, data.scores);
+				}
+				if (data.ball) {
+					ball.x = data.ball.x * canvas.width;
+					ball.y = data.ball.y * canvas.height;
+				}
 				break ;
 			case "reject":
 				alert(`Connection rejected: ${data.reason}`);
 				socket.close();
 				break ;
 			case "endgame":
+				console.log("This game's over!");
 				handleEndgame(data);
 				break ;
 			default:
@@ -294,7 +299,7 @@ function gameLoop() {
 	opponent.draw(ctx);
 	player.drawScore(ctx);
 	opponent.drawScore(ctx);
-	interpolateBall();
+	//interpolateBall();
 	ball.draw(ctx);
 
 	player.move(socket);
@@ -305,16 +310,52 @@ function gameLoop() {
 	}
 }
 
-window.addEventListener("resize", () => {
-	if (!player || !player.canvas) return ;
-	console.log("player canvas width: " + player.canvas.width);
-	console.log("actual canvas width: " + canvas.width);
-});
+function resizeCanvas() {
+	if (!canvas)
+		return ;
+
+    canvas = document.getElementById("newGameCanvas");
+    const container = document.getElementById("newGameBoard");
+	if (!canvas || !container)
+		return ;
+
+    let maxWidth = container.clientWidth;
+    let maxHeight = container.clientHeight;
+
+    let newWidth = maxWidth;
+    let newHeight = (4 / 6) * newWidth;
+
+	//Apply aspect ratio
+    if (newHeight > maxHeight) {
+        newHeight = maxHeight;
+        newWidth = (6 / 4) * newHeight;
+	}
+
+    newWidth = Math.floor(newWidth);
+    newHeight = Math.floor(newHeight);
+
+    canvas.style.width = `${newWidth}px`;
+    canvas.style.height = `${newHeight}px`;
+	//console.warn(`resize: newCanvas 2: W ${canvas.width} H ${canvas.height}`);
+	ctx = canvas.getContext('2d');
+	if (player)
+		player.resize(newWidth, newHeight);
+	if (opponent)
+		opponent.resize(newWidth, newHeight);
+	if (ball)
+		ball.resize(newWidth, newHeight);
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+}
+
+// Resize canvas when the window resizes
+window.addEventListener("resize", resizeCanvas);
 
 export function startGame()
 {
 	canvas = document.getElementById('newGameCanvas');
 	tourId = localStorage.getItem('currentTournamentId');
+
 	if (!canvas)
 	{
 		alert("Unable to display the game. Please, try again later");
@@ -322,8 +363,8 @@ export function startGame()
 	} else {
 		console.log("CANVAS: ", canvas);
 	}
-	ctx = canvas.getContext('2d');
 	ball = new Ball(canvas);
+	resizeCanvas();
 	targetBallX = ball.x;
 	targetBallY = ball.y;
 	gameStop = false;
