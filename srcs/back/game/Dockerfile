@@ -18,6 +18,6 @@ EXPOSE 8001
 # Run Daphne 
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "game.asgi:application"]
 
-#*SECURE*-># comment 2 both lines above and uncomment the lines below.
+#*SECURE_MODE*-># comment 2 both lines above and uncomment the lines below.
 # EXPOSE 8445
 # CMD ["daphne", "-e", "ssl:8445:privateKey=/usr/src/app/certs/key.pem:certKey=/usr/src/app/certs/crt.pem", "game.asgi:application", "-b", "0.0.0.0", "-p", "81"]

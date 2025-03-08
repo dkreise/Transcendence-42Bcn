@@ -6,7 +6,8 @@ import { drawHeader } from "./main.js";
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
-var gamePort = window.env.GAME_PORT;
+const protocolSocket = window.env.PROTOCOL_SOCKET;
+const gamePort = window.env.GAME_PORT;
 
 let socket = null;
 
@@ -188,9 +189,9 @@ function tournamentConnect(tourId, nPlayers=null) {
     console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
 
     if (nPlayers) {
-        socket = new WebSocket(`ws://${host}:${gamePort}/ws/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
+        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/ws/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
     } else {
-        socket = new WebSocket(`ws://${host}:${gamePort}/ws/T/${tourId}/?token=${token}`);
+        socket = new WebSocket(`${protocolSocket}s://${host}:${gamePort}/ws/T/${tourId}/?token=${token}`);
     }
     
     socket.onopen = () => {

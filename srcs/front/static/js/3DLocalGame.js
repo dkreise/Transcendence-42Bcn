@@ -14,9 +14,10 @@ import { drawHeader } from "./main.js";
 //-------------------- VARIABLES INITIALIZATION ------------------------------//
 //----------------------------------------------------------------------------//
 
-var gamePort = window.env.GAME_PORT;
-var host = window.env.HOST;
- 
+const gamePort = window.env.GAME_PORT;
+const host = window.env.HOST;
+const protocolSocket = window.env.PROTOCOL_SOCKET;
+
 let renderer, scene, camera, player, opponent, waiting = false;
 let limits, planeGeo, planeMat, plane, controls, ai, loader, countdownText;
 let player1, player2, ball, gameLoopId, targetBallX, targetBallY; // if the main user is player 1 or 2
@@ -302,7 +303,7 @@ async function initializeWebSocket(roomId = 123) {
     }
     if (!socket)
     {
-        socket = new WebSocket(`ws://${host}:${gamePort}/ws/G/${roomId}/?token=${token}`);
+        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/ws/G/${roomId}/?token=${token}`);
         console.log("Socket created!");
     }
     socket.onopen = () => console.log("WebSocket connection established.");

@@ -1,5 +1,6 @@
-var host = window.env.HOST;
-var userMgmtPort = window.env.USER_MGMT_PORT;
+const host = window.env.HOST;
+const userMgmtPort = window.env.USER_MGMT_PORT;
+const protocolSocket = window.env.PROTOCOL_SOCKET;
 
 export var socket = null;
 
@@ -7,7 +8,7 @@ export function connectWS(access_token)
 {
     if (!access_token)
         return ;
-    socket = new WebSocket(`ws://${host}:${userMgmtPort}/ws/online-status/?token=${access_token}`);
+    socket = new WebSocket(`${protocolSocket}://${host}:${userMgmtPort}/ws/online-status/?token=${access_token}`);
     // socket = new WebSocket(`ws://localhost:8000/ws/online-status/`);
     
     socket.onclose = function(event) {

@@ -8,8 +8,8 @@ from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
-HOST = settings.HOST
 USER_MGMT_PORT = settings.USER_MGMT_PORT
+PROTOCOL_WEB = settings.PROTOCOL_WEB
 
 class CustomAuthentication(BaseAuthentication):
     def authenticate(self, request):
@@ -19,7 +19,7 @@ class CustomAuthentication(BaseAuthentication):
             return None
         headers = {"Authorization": auth_header}
         print("@@@@@@@@@@@@@@@@@@@@@@ AUTH MIDDLEWARE @@@@@@@@")
-        req = requests.get('http://user-mgmt:' + USER_MGMT_PORT + '/api/user-mgmt/verify-token/', headers=headers)
+        req = requests.get(PROTOCOL_WEB + '://user-mgmt:' + USER_MGMT_PORT + '/api/user-mgmt/verify-token/', headers=headers)
         if req.status_code == 200:
             username = req.json()['user']
             if username:
