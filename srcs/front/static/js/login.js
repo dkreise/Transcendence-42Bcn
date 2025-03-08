@@ -155,7 +155,7 @@ export const loadSignupPage = () => {
 };
 
 export const handleSignup = async () => {
-    const loginForm = document.getElementById('signup-form');
+    const signupForm = document.getElementById('signup-form');
     const formData = new FormData(loginForm);
 
     fetch(baseUrl + userMgmtPort + "/api/register/", {
@@ -178,38 +178,6 @@ export const handleSignup = async () => {
     .catch(error => {
         console.error('Error submitting signup form:', error);
     });
-
-        //     const signupForm = document.getElementById('signup-form');
-        //     if (signupForm) {
-        //         signupForm.addEventListener('submit', async (event) => {
-        //             event.preventDefault();
-        //             console.log('Submit of signup clicked!');
-        //             const formData = new FormData(signupForm);
-        //             const formAction = signupForm.action || `${baseUrl}/api/signup/`;
-        //             fetch(formAction, {
-        //                 method: 'POST',
-        //                 body: JSON.stringify(Object.fromEntries(formData)),
-        //                 headers: { 'Content-Type': 'application/json' }
-        //             })
-        //             .then(response => response.json())
-        //             .then(async (signupData) => {
-        //                 if (signupData.success) {
-        //                     localStorage.setItem('access_token', signupData.tokens.access);
-        //                     localStorage.setItem('refresh_token', signupData.tokens.refresh);
-        //                     let lang = getCookie("language") || "en";
-        //                     await updateLanguage(lang);
-        //                     navigateTo('/home', true);
-        //                 } else {
-        //                     displayLoginError('signup-form', `${signupData.error}`);
-        //                 }
-        //             })
-        //             .catch(error => {
-        //                 console.error('Error submitting signup form:', error);
-        //             });
-        //         });
-        //     } 
-        // }
-
 };
 
 export const displayLoginError = (form, errorMessage) => {

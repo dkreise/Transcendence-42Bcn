@@ -175,9 +175,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to the session cookie
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Use database-backed sessions
 CSRF_COOKIE_HTTPONLY = False 
+
 SESSION_COOKIE_SECURE = False  # Set to True for HTTPS in production
 CSRF_COOKIE_SECURE = False  # Set to True for HTTPS in production
-
 # SECURE_MODE->comment 2 both lines above and uncomment the 4 lines below.
 # SESSION_COOKIE_SECURE = True
 # CSRF_COOKIE_SECURE = True
