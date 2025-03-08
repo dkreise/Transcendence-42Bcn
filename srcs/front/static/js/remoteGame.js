@@ -232,6 +232,7 @@ function gameLoop() {
 function resizeCanvas() {
 	if (!canvas)
 		return ;
+
     canvas = document.getElementById("newGameCanvas");
     const container = document.getElementById("newGameBoard");
 	if (!canvas || !container)
@@ -254,6 +255,7 @@ function resizeCanvas() {
 
     canvas.style.width = `${newWidth}px`;
     canvas.style.height = `${newHeight}px`;
+	//console.warn(`resize: newCanvas 2: W ${canvas.width} H ${canvas.height}`);
 	ctx = canvas.getContext('2d');
 	if (player)
 		player.resize(newWidth, newHeight);

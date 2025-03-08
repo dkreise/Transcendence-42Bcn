@@ -58,7 +58,7 @@ speeds => relative
 '''
 class GameManager:
 
-	ball_config = {"rad": 7, "xspeed": 5, "yspeed": 0}
+	ball_config = {"rad": 9, "xspeed": 3, "yspeed": 1}
 	board_config = {"width": 600, "height": 400, "max_score": 3}
 	paddle_config = {"width": 10, "height": 50, "speed": 5}
 	countdown = 5
@@ -134,6 +134,7 @@ class GameManager:
 			#logger.info(f"pl {self.players[data['role']]} role: {data['role']} paddle position {data['y']}")
 		#logger.info(f"HM post: {self.players}")
 
+
 ##################################################
 
 	async def has_scored(self, role):
@@ -152,6 +153,7 @@ class GameManager:
 		boardW = GameManager.board_config["width"]
 		boardH = GameManager.board_config["height"]
 		radius = GameManager.ball_config["rad"]
+		
 		padH = GameManager.paddle_config["height"] / 2
 		pl1 = self.players["player1"]["y"] * boardH
 		pl2 = self.players["player2"]["y"] * boardH
@@ -161,8 +163,10 @@ class GameManager:
 				(self.ball["y"] * boardH < pl1 + padH + 0.05)):
 				return True
 		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"]:
+			# logger.info(f"Right paddle????")
 			if ((self.ball["y"] * boardH > pl2 - padH - 0.05) and
 				(self.ball["y"] * boardH < pl2 + padH + 0.05)):
+				# logger.info(f"Collition!!")
 				return True
 		return False
 
@@ -294,10 +298,10 @@ class GameManager:
 		# logger.info(f"post-save_game_score")
 
 
-		# if saved_game:
-		# 	logger.info(f"Game successfully saved: {saved_game}")
-		# else:
-		# 	logger.info("F*ck, couldn't save the game")
+		if saved_game:
+			logger.info(f"Game successfully saved: {saved_game}")
+		else:
+			logger.info("F*ck, couldn't save the game")
 		# logger.info(f"Player {winner_id} wins in room {self.id}")
 		loser = next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
 		# if not loser:

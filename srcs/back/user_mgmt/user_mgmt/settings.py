@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
-	'login',
+	'channels',
+    'login',
     'user_profile',
 ]
 
@@ -65,7 +66,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    # 'user_mgmt.middleware.NoCacheMiddleware',
+    # 'user_mgmt.middleware.JwtAuthMiddleware',
 ]
 
 # # Allow the frontend origin
@@ -77,7 +78,7 @@ MIDDLEWARE = [
 # ]
 
 CORS_ALLOW_ALL_ORIGINS = True  # FOR TESTING ONLY; restrict in production
-
+ASGI_APPLICATION = 'user_mgmt.asgi.application'
 
 ROOT_URLCONF = 'user_mgmt.urls'
 CORS_ALLOW_CREDENTIALS = True  # This allows all origins, useful for dev.
@@ -101,7 +102,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'user_mgmt.wsgi.application'
+# WSGI_APPLICATION = 'user_mgmt.wsgi.application'
 
 
 # Database
@@ -151,6 +152,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+AUTH_USER_MODEL = 'auth.User'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -202,3 +204,54 @@ SIMPLE_JWT = {
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media' #os.path.join(BASE_DIR, 'media')
 
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],  # Redis service in docker-compose.yml
+            "capacity": 3000, # default 100 messages
+            "expiry": 10, # default 60 seconds
+        },
+    },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+    }
+}
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'formatters': {
+#         'verbose': {
+#             'format': '{levelname} {asctime} {module} {message}',
+#             'style': '{',
+#         },
+#         'simple': {
+#             'format': '{levelname} {message}',
+#             'style': '{',
+#         },
+#     },
+#     'handlers': {
+#         'console': {
+#             'level': 'INFO',  # Set this to 'ERROR' for only errors, 'INFO' for more general info
+#             'class': 'logging.StreamHandler',
+#             'formatter': 'simple',
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['console'],
+#             'level': 'INFO',  # Change to 'ERROR' if you want only errors
+#             'propagate': True,
+#         },
+#         'channels': {
+#             'handlers': ['console'],
+#             'level': 'INFO',  # This captures WebSocket connection logs (you can change to 'ERROR' for errors only)
+#             'propagate': False,
+#         },
+#     },
+# }

@@ -9,8 +9,9 @@ import { cleanupLocal } from "./localGame.js"
 import { cleanupAI } from "./AIGame.js"
 import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
+import { connectWS } from "./onlineStatus.js";
 import { manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage} from "./tournament.js";
-
+import { loadPageNotFound } from "./errorHandler.js";
 
 const historyTracker = [];
 
@@ -50,6 +51,7 @@ const routes = {
     '/create-tournament': createTournament,
     '/join-tournament': joinTournament,
     '/end-tournament': loadFinalTournamentPage,
+    '/page-not-found': loadPageNotFound,
     
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
@@ -66,16 +68,19 @@ export function drawHeader(headerType) {
         let url;
 
         switch (headerType) {
-            case 1:
+            case 'main':
                 url = ":8000/api/get-main-header/";
                 break;
             
-            case 2:
+            case 'login':
                 url = ":8000/api/get-languages-header/";
                 break;
 
+            case '3d':
+                url = ":8000/api/get-3D-header/"; 
+                break;
             default:
-                // borrar header!!!!!!! para el roberto de tomorrow
+                document.getElementById('header-area').innerHTML = '';
                 resolve();  // IMPORTANTE: Se debe resolver la promesa en el caso por defecto
                 return;
         }
@@ -121,14 +126,32 @@ function router(args=null) {
 
     console.log(`Content cleared in router`);
 
-    if (routes[path]) {
-        routes[path](args); // Call the function associated with the path
-    } else {
-        alert("path doesn't exists");
-        console.log(`Route ${path} not handled`);
-        // showNotFound(); // Handle unknown routes
+    const redirectPath = getRedirectionIfNeeded(path);
+    if (redirectPath) {
+        navigateTo(redirectPath)
+        return; 
     }
+    routes[path](args);
 }
+
+function getRedirectionIfNeeded(path=null) {
+    
+    if (!routes[path]) {
+        return '/page-not-found';
+    }
+
+    //Check if the user has the required permissions, if not, redirect
+    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login'];
+    const openPaths = ['/page-not-found', '/callback']; //open for authenticated and not authenticated
+    if (checkPermission() && publicPaths.includes(path)) {
+        return '/home';
+    } else if (!checkPermission() && !publicPaths.includes(path) && !openPaths.includes(path)) {
+        return '/login';
+    }
+    return null;
+}
+
+
 
 // function showNotFound() {
 //     console.log("Rendering 404 Page");
@@ -183,14 +206,15 @@ export function clearURL() {
 }
 
 export function checkPermission () {
-    console.log(`Permissions: checking permissions`);
+    //console.log(`Permissions: checking permissions`);
     const accessToken = localStorage.getItem('access_token');
-
-    if (!accessToken) {
-        console.log(`Permissions: No access token, permission denied`);
+    const refreshToken = localStorage.getItem('refresh_token');
+    
+    if (!accessToken || !refreshToken) {
+        //console.log(`Permissions: No access token, permission denied`);
         return false;
     }
-    console.log(`Permissions: We have access token, congrats!`);
+    //console.log(`Permissions: We have access token, congrats!`);
     return true;
 }
 
@@ -220,6 +244,8 @@ document.addEventListener('DOMContentLoaded', () => {
         cleanup3D();       // Always clean up before routing
         router();          // Then handle the new route
     });
+
+    window.addEventListener("load", connectWS(localStorage.getItem('access_token')));
    
     // Event delegation for data-route attributes
     document.body.addEventListener('click', (event) => {

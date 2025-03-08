@@ -21,9 +21,6 @@ export class Player {
 		this.width = this.canvas.width * data.padW / data.canvasX;
 		this.height = this.canvas.height * data.padH / data.canvasY;
 		this.speed = data.padS;
-		//console.log(`setVars pl: H ${this.height} cH: ${this.canvas.height}\n` +
-		//			`back H ${data.padH} cH: ${data.canvasY}\n` +
-		//			`Y position: ${this.y}`);
 	}
 
 	draw(ctx) {
@@ -48,6 +45,7 @@ export class Player {
 			return ;
 		if (players[this.role] && players[this.role]["y"])
 			this.y = players[this.role]["y"];
+
 		if (newScore[this.role])
 			this.score = newScore[this.role];
 	}
@@ -98,6 +96,7 @@ export class Player {
 		}
 	}
 
+
 	resize(nW, nH) {
 		const factor = nH / this.canvas.height;
 
@@ -106,7 +105,7 @@ export class Player {
 		if (this.x != 0)
 			this.x = nW - this.width;
 		this.y = this.y * factor;
-	}
+  }
 }
 
 
@@ -166,5 +165,6 @@ export class Ball {
 		this.radius = this.radius * factor;
 		this.x = this.x * nW / this.canvas.width;
 		this.y = this.y * factor;
+
 	}
 }

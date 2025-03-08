@@ -1,5 +1,6 @@
 import { loadLoginPage } from "./login.js";
 import { navigateTo } from "./main.js";
+import { disconnectWS } from "./onlineStatus.js"
 
 var baseUrl = "http://localhost"; // change (parse) later
 
@@ -27,11 +28,12 @@ export const handleLogout = () => {
         });
     }
 
+    disconnectWS()
+    console.log("WebSocket closed upon logout.");
+
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('intra_token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('name');
     localStorage.setItem("3D-option", "false")
 
     //contentArea.innerHTML = ''; // to clear user content
