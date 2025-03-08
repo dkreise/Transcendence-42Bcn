@@ -127,12 +127,13 @@ class GameManager:
 #################################################
 
 	def handle_message(self, role, data):
-		# logger.info(f"HM data: {data}")
-		# logger.info(f"HM pre: {self.players}")
+		#logger.info(f"HM data: {data}")
+		#logger.info(f"HM pre: {self.players}")
 		if data["type"] == "update" and data["role"] in self.players and data["y"]:
 			self.players[data["role"]]["y"] = data["y"]
 			#logger.info(f"pl {self.players[data['role']]} role: {data['role']} paddle position {data['y']}")
-		# logger.info(f"HM post: {self.players}")
+		#logger.info(f"HM post: {self.players}")
+
 
 ##################################################
 
@@ -141,7 +142,7 @@ class GameManager:
 		self.status = 1
 		self.reset_positions(role)
 		self.scores[role] += 1
-		# logger.info(f"current scores: {self.scores}\nMAX scores: {GameManager.board_config['max_score']}")
+		logger.info(f"current scores: {self.scores}\nMAX scores: {GameManager.board_config['max_score']}")
 		if self.scores[role] == GameManager.board_config["max_score"]:
 			await self.declare_winner(role)
 		else:
@@ -156,13 +157,10 @@ class GameManager:
 		padH = GameManager.paddle_config["height"] / 2
 		pl1 = self.players["player1"]["y"] * boardH
 		pl2 = self.players["player2"]["y"] * boardH
-		# logger.info(f"Paddle collition")
-		# Left paddle 
+
 		if self.ball["x"] * boardW - radius <= GameManager.paddle_config["width"]:
-			# logger.info(f"Left paddle????")
 			if ((self.ball["y"] * boardH > pl1 - padH - 0.05) and
 				(self.ball["y"] * boardH < pl1 + padH + 0.05)):
-				# logger.info(f"Collition!!")
 				return True
 		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"]:
 			# logger.info(f"Right paddle????")
@@ -494,7 +492,8 @@ class GameManager:
 		message = {
 			"type": "endgame",
 			"winner": winner_id,
-			"loser": loser_id
+			"loser": loser_id,
+			"scores": self.scores
 		}
 		try:
 			await self.channel_layer.group_send(

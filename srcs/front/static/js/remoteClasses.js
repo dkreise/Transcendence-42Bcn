@@ -9,6 +9,7 @@ export class Player {
 		this.score = 0;
 		this.canvas = canvas;
 		this.whoAmI = null;
+		this.y = 0.5;
 		this.role = role; // "player1" or "player2"
 		if (this.role === "player1")
 			this.x = 0;
@@ -19,15 +20,13 @@ export class Player {
 	setVars(data) {
 		this.width = this.canvas.width * data.padW / data.canvasX;
 		this.height = this.canvas.height * data.padH / data.canvasY;
-		this.speed = this.canvas.height * data.padS;
-		this.y = (this.canvas.height - this.width) / 2
+		this.speed = data.padS;
 	}
 
 	draw(ctx) {
+		const topY = this.y * this.canvas.height - this.height / 2;
 		ctx.fillStyle = this.color;
-		ctx.fillRect(this.x, this.y, this.width, this.height);
-		//if (this.role === "player1")
-		//	console.log("paddles: x " + this.x + "\ny: " + this.y + "\nwidth: " + this.width + "\nheight: " + this.height);
+		ctx.fillRect(this.x, topY, this.width, this.height);
 	}
 
 	move(socket) {
@@ -45,40 +44,43 @@ export class Player {
 		if (!this.role)
 			return ;
 		if (players[this.role] && players[this.role]["y"])
-			this.y = players[this.role]["y"] * this.canvas.height;
+			this.y = players[this.role]["y"];
+
 		if (newScore[this.role])
 			this.score = newScore[this.role];
 	}
 
 	drawScore(ctx) {
+		const text = this.whoAmI + ": " + this.score;
 		let x;
 		let fontSize = Math.floor(this.canvas.width * 0.05);
 		ctx.fillStyle = "rgb(100, 100, 100 / 50%)";
 		ctx.font = `${fontSize}px Arial`;
 		if (this.x == 0)
-			x = this.canvas.width / 4;
+			//x = this.canvas.width / 4;
+			x = this.canvas.width / 4 - ctx.measureText(text).width / 2;
 		else
-			x = this.canvas.width * 3 / 4;
-		ctx.fillText(`Score: ${this.score}`, x, this.canvas.height / 10);
+			//x = this.canvas.width * 3 / 4;
+			x = this.canvas.width * 0.75 - ctx.measureText(text).width / 2;
+		ctx.fillText(text, x, this.canvas.height / 10);
 	}
 
 	displayEndgameMessage(ctx, oppScore, msg) {
-		let finalScore;
-		if (this.role == "player1")
-			finalScore = `${this.score} - ${oppScore}`;
-		else
-			finalScore = `${oppScore} - ${this.score}`;
+		let div = document.getElementById("wait");
 		let fontSize = Math.floor(this.canvas.width * 0.05);
 
+		if (this.role == "player1")
+			div.innerHTML = msg + `<br>${this.score} - ${oppScore}`;
+		else
+			div.innerHTML = msg + `<br>${oppScore} - ${this.score}`;
+
+		div.style.display = "block";
 		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+		ctx.fillStyle = "rgba(0 0 0 / 25%)";
 		ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-		ctx.fillStyle = "white";
-		ctx.font = `${fontSize}px Arial`;
-		ctx.textAlign = "center";
-		ctx.fillText(msg, this.canvas.width / 2, this.canvas.height / 2 - 20);
-		ctx.font = `${fontSize - 5}px Arial`;
-		ctx.fillText(finalScore, this.canvas.width / 2, this.canvas.height / 2 + 30);
+
+		div.style.fontSize = Math.floor(this.canvas.width * 0.05) + "px";
+		console.log("endgameMsg: " + msg);
 	}
 
 	send(socket) {
@@ -87,27 +89,23 @@ export class Player {
 			const data = {
 				"type": "update",
 				"role": this.role,
-				"y": this.y / this.canvas.height,
+				"y": this.y,
 				"score": this.score,
 			};
 			socket.send(JSON.stringify(data));
 		}
 	}
 
-	resize(canvas) {
-		const factor = canvas.height / this.canvas.height;
 
-		console.warn(`resize player: old W: ${this.canvas.width} old H: ${this.canvas.height}\n` +
-						`resize player: new W: ${canvas.width} new H: ${canvas.height}`);
-		this.width = this.width * canvas.width / this.canvas.width;
-		//console.log(`resize: pre height ${this.height}`);
+	resize(nW, nH) {
+		const factor = nH / this.canvas.height;
+
+		this.width = this.width * nW / this.canvas.width;
 		this.height = this.height * factor;
-		//console.log(`resize: post height ${this.height}`);
 		if (this.x != 0)
-			this.x = canvas.width - this.width;
+			this.x = nW - this.width;
 		this.y = this.y * factor;
-		this.canvas = canvas
-	}
+  }
 }
 
 
@@ -161,12 +159,12 @@ export class Ball {
 			this.xspeed = -this.xspeed;
 	}
 
-	resize(canvas) {
-		const factor = canvas.height / this.canvas.height;
+	resize(nW, nH) {
+		const factor = nH / this.canvas.height;
 
 		this.radius = this.radius * factor;
-		this.x = this.x * canvas.width / this.canvas.width;
+		this.x = this.x * nW / this.canvas.width;
 		this.y = this.y * factor;
-		this.canvas = canvas;
+
 	}
 }

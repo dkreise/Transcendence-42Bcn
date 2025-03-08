@@ -67,7 +67,7 @@ function displayCountdown()
 {
 	if (!ctx)
 		return ;
-	let fontSize = Math.floor(canvas.width * 0.05);
+	//let fontSize = Math.floor(canvas.width * 0.05);
 	let div = document.getElementById("wait");
 	let waitMsg = div ? div.dataset.original : "Waiting for X"; 
 
@@ -86,22 +86,26 @@ function displayCountdown()
 }
 
 function handleEndgame(data) {
-	const { winner, loser } = data;
+	const { winner, loser, scores} = data;
+	const msg = [
+		"Congratulations! You've won 😁",
+		"Better luck next time! 🥲"
+	]
 	
 	console.log(`winner ${winner} loser ${loser}`);
-	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
+	player.score = data["scores"][player.role];
+	opponent.score = data["scores"][opponent.role];
+	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
 	if (player.whoAmI == winner)
-	{
-		player.scores++;
-		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
-	}
+		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
 	else
-	{
-		opponent.scores++;
-		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
-	}
+		player.displayEndgameMessage(ctx, opponent.score, msg[1]);
+//	if (player.whoAmI == winner)
+//		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
+//	else
+//		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
 }
 
 function getTimestamp() {
@@ -227,7 +231,8 @@ function gameLoop() {
 
 function resizeCanvas() {
 	if (!canvas)
-		console.warn(`resize: oldCanvas: W ${canvas.width} H ${canvas.height}`);
+		return ;
+
     canvas = document.getElementById("newGameCanvas");
     const container = document.getElementById("newGameBoard");
 	if (!canvas || !container)
@@ -248,22 +253,18 @@ function resizeCanvas() {
     newWidth = Math.floor(newWidth);
     newHeight = Math.floor(newHeight);
 
-    canvas.width = newWidth;
-    canvas.height = newHeight;
-	console.warn(`resize: newCanvas: W ${canvas.width} H ${canvas.height}`);
-
     canvas.style.width = `${newWidth}px`;
     canvas.style.height = `${newHeight}px`;
 	//console.warn(`resize: newCanvas 2: W ${canvas.width} H ${canvas.height}`);
 	ctx = canvas.getContext('2d');
 	if (player)
-		player.resize(canvas);
+		player.resize(newWidth, newHeight);
 	if (opponent)
-		opponent.resize(canvas);
+		opponent.resize(newWidth, newHeight);
 	if (ball)
-		ball.resize(canvas);
-
-    console.log(`Canvas resized: ${newWidth} x ${newHeight}`);
+		ball.resize(newWidth, newHeight);
+    canvas.width = newWidth;
+    canvas.height = newHeight;
 }
 
 // Resize canvas when the window resizes
