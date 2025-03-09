@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { TextGeometry } from '../three/examples/jsm/geometries/TextGeometry.js';
 import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
-import { params, field, textCount } from "./3DLocalGame.js";
+import { params, field, textCount } from "./3DGame.js";
 import { RoundedBoxGeometry } from '../three/examples/jsm/geometries/RoundedBoxGeometry.js'
 
 

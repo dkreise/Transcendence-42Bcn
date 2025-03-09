@@ -3,7 +3,7 @@ import { startAIGame, clearIntervalIDGame } from "./AIGame.js";
 import { navigateTo, checkPermission, drawHeader } from "./main.js"
 import { startLocalGame } from "./localGame.js";
 import { startGame } from "./remoteGame.js"; 
-import { start3DAIGame, start3DLocalGame, start3DRemoteGame } from "./3DLocalGame.js";
+import { start3DAIGame, start3DLocalGame, start3DRemoteGame } from "./3DGame.js";
 import { loadBracketTournamentPage, quitTournament } from "./tournament.js";
 
 

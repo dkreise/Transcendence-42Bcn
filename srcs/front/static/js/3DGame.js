@@ -39,8 +39,8 @@ const ambientLight = new AmbientLight(0xffffff, 1)
 const dirLight = new DirectionalLight(0xffffff, 1)
 
 export const field = {
-    x: 20,
-    y: 30,
+    x: 15,
+    y: 20,
     width: 0.5,
     height: 2,
     radius: 5,
@@ -69,11 +69,6 @@ const   size = {
     width: window.innerWidth,
     height: window.innerHeight,
 }
-
-let backFactor = {
-	"x": null,
-	"y": null
-};
 
 //---------------------------------------------------------------------------------//
 // ------------------ LOCAL GAME WITH ANOTHER PLAYER FUNCTIONS ------------------- //
@@ -700,6 +695,7 @@ async function setupField() {
     leftBound.receiveShadow = true;
     const rightBound = leftBound.clone();
     rightBound.position.x *= -1;
+    console.log(`left bound: ${leftBound.position.x}, right bound: ${rightBound.position.x}`)
     scene.add(leftBound, rightBound);
 
     await createSky();

@@ -7,7 +7,7 @@ import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { clearIntervalIDGame, cleanupAI } from "./AIGame.js"
 import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
-import { cleanup3D } from "./3DLocalGame.js";
+import { cleanup3D } from "./3DGame.js";
 import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest } from "./tournament.js";
 import { cleanupLocal } from "./localGame.js"
 import { connectWS } from "./onlineStatus.js";

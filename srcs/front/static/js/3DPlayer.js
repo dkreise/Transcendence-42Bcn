@@ -4,7 +4,7 @@ import { MathUtils} from 'three';
 import { TextGeometry } from '../three/examples/jsm/geometries/TextGeometry.js';
 import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
 import { ballParams } from "./3DBall.js";
-import { field, text } from "./3DLocalGame.js";
+import { field, text } from "./3DGame.js";
 import { EventDispatcher } from "../three/build/three.core.js";
 import { RoundedBoxGeometry } from '../three/examples/jsm/geometries/RoundedBoxGeometry.js'
 

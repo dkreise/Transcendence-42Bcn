@@ -227,7 +227,7 @@ export function handleUpdate(data)
 //async function initializeWebSocket(roomId) {
 async function initializeWebSocket() {
 	//const roomID = new URLSearchParams(window.location.search).get("room") || "default";
-	const roomId = 1;
+	const roomId = 123;
 	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
