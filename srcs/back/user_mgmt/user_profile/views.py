@@ -28,7 +28,7 @@ GAME_SERVICE_URL = PROTOCOL_WEB + "://game:" + GAME_PORT
 
 redis_client = redis.StrictRedis(host='redis', port=6379, db=0)
 redis_client.set("test", "Hello Redis!")
-print(redis_client.get("test"))  # Should print: b'Hello Redis!'
+print(redis_client.get("test"))
 
 def get_photo_url(user):
     photo_url = None
@@ -37,17 +37,15 @@ def get_photo_url(user):
             photo_url = user.profile.external_photo_url
         elif user.profile.photo:
             photo_url = PROTOCOL_WEB + "://" + HOST + ":" + USER_MGMT_PORT + user.profile.photo.url
-            # "http://localhost:8000" + user.profile.photo.url
     return photo_url
 
 @api_view(['GET'])
 def user_info_api(request):
     if request.user.is_authenticated:
-        print("USER AUthenticated")
         context = {
             'user': request.user,  # Pass the user object to the template
         }
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         # Render the HTML with the user's data
         user_html = render_to_string('user.html', context)
         return JsonResponse({'user_html': user_html}, content_type="application/json")
@@ -55,7 +53,6 @@ def user_info_api(request):
         return JsonResponse({'error': 'user not authenticated'}, status=401)
 
 def player_game_statistics(request, player_id):
-    # game_service_url = 'http://game:8001'
     endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/game_statistics/'
 
     auth_header = request.headers.get('Authorization')
@@ -69,7 +66,6 @@ def player_game_statistics(request, player_id):
         return {'games_played': 0, 'games_won': 0}
 
 def player_tournament_statistics(request, player_id):
-    # game_service_url = 'http://game:8001'
     endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/tournament_statistics/'
 
     auth_header = request.headers.get('Authorization')
@@ -87,13 +83,12 @@ def player_last_ten_games(request):
     if request.user.is_authenticated:
         player_id = request.user.id
         username = request.user.username
-        # game_service_url = 'http://game:8001'
         endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/last_ten_games'
 
         auth_header = request.headers.get('Authorization')
         headers = {"Authorization": auth_header}
         try:
-            response = requests.get(endpoint, headers=headers)
+            response = requests.get(endpoint, headers=headers, verify=False)
             response.raise_for_status()
             game_data = response.json()
             return JsonResponse({
@@ -106,13 +101,12 @@ def player_last_ten_games(request):
         return JsonResponse({'error': 'User not authenticated.'}, status=401)
 
 def player_all_games(request, player_id):
-    # game_service_url = 'http://game:8001'
     endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/all_games/'
 
     auth_header = request.headers.get('Authorization')
     headers = {"Authorization": auth_header}
     try:
-        response = requests.get(endpoint, headers=headers)
+        response = requests.get(endpoint, headers=headers, verify=False)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
@@ -128,7 +122,7 @@ def match_history_page(request):
         context = {
             'match_history_games': all_games,
         }
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         match_history_html = render_to_string('match_history.html', context)
         return JsonResponse({'match_history_html': match_history_html}, content_type="application/json")
     else:
@@ -160,7 +154,7 @@ def profile_page(request):
             'stats_tournaments': stats_tournaments,
             'MEDIA_URL': settings.MEDIA_URL,
         }
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         profile_html = render_to_string('profile.html', context)
         return JsonResponse({'profile_html': profile_html}, content_type="application/json")
     else:
@@ -175,7 +169,7 @@ def profile_settings_page(request):
             'user': request.user,
             'two_fa_enabled': two_fa_enabled
         }
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         profile_settings_html = render_to_string('settings_profile.html', context)
         return JsonResponse({'profile_settings_html': profile_settings_html}, content_type="application/json")
     else:
@@ -266,7 +260,7 @@ def search_users(request):
     }
     print(results)
     # print(friends[1].username)
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     search_users_html = render_to_string('search_users.html', context)
     return JsonResponse({'search_users_html': search_users_html}, content_type="application/json")
 
@@ -340,7 +334,7 @@ def home_page(request):
             'user': request.user,  # Pass the user object to the template
         }
         # Render the HTML with the user's data
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         home_html = render_to_string('home_page.html', context)
         return JsonResponse({'home_html': home_html}, content_type="application/json")
     else:
@@ -352,7 +346,7 @@ def home_page(request):
 def get_main_header(request):
     print('Main Header api called')
     context = {}
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     header_html = render_to_string('main_header.html', context)
     
     return JsonResponse({'header_html': header_html}, content_type="application/json")
@@ -362,7 +356,7 @@ def get_main_header(request):
 def get_languages_header(request):
     print('Languages header api called')
     context = {}
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     header_html = render_to_string('language_header.html', context)
     return JsonResponse({'header_html': header_html}, content_type="application/json")
 
@@ -371,6 +365,6 @@ def get_languages_header(request):
 def get_3D_header(request):
     print('3D header api called')
     context = {}
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     header_html = render_to_string('3d_header.html', context)
     return JsonResponse({'header_html': header_html}, content_type="application/json")

@@ -6,7 +6,7 @@
     <!-- Search User Section -->
      <div id="search-users-section">
         <form method="get" class="d-flex">
-            <input id="search-input" class="form-control me-2" type="search" name="q" placeholder="Search by username or email" value="{{ query }}">
+            <input id="search-input" class="form-control me-2" type="search" name="q" placeholder={{search_by_username_email_ph}} value="{{ query }}">
             <button class="btn btn-outline-success" type="submit" id="submit-search">{{search}}</button>
         </form>
         {% if results %}
