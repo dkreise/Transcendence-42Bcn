@@ -5,6 +5,7 @@ import { startLocalGame } from "./localGame.js";
 import { startGame, createRoomId } from "./remoteGame.js"; 
 import { start3DAIGame, start3DLocalGame, start3DRemoteGame } from "./3DLocalGame.js";
 import { loadBracketTournamentPage, quitTournament } from "./tournament.js";
+// import { getByteLength } from "three/src/extras/TextureUtils.js";
 
 
 const host = window.env.HOST;
@@ -235,6 +236,8 @@ export const gameAI = (args) => {
         });
     }
 } 
+let roomId;
+let isCreator;
 
 export async function playOnline () {
 
@@ -255,11 +258,24 @@ export async function playOnline () {
         .then(response => response.json())
         .then(async data => {
             if (data.game_html && Enable3D === "false") {
+
+
+                // document.getElementById("join-online")?.addEventListener("click", () => {
+                //     let IdInput = document.getElementById("game-id-input");
+                //     IdInput = IdInput ? IdInput.value.trim() : null;
+                //     console.warn(`Stored id inputed: ${IdInput}`);
+                // });
+                
+                // document.getElementById("create-online")?.addEventListener("click", async () => {
+                //     let roomId = await createRoomId();
+                //     console.log(`Room created with ID: ${roomId}`);
+                // });
+
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
-				const roomId = await createRoomId();
+				
                 if (canvas)
-                    startGame(roomId);
+                    startGame(roomId, isCreator);
                 else
                     console.log("Error: Canvas not found");
             } else if (Enable3D === "true") {
@@ -283,6 +299,7 @@ export async function playOnline () {
     // makeAuthenticatedRequest() // to POST the results
 } 
 
+
 export async function loadRemoteHome() {
 	if (!checkPermission)
 		navigateTo('/login');
@@ -299,6 +316,33 @@ export async function loadRemoteHome() {
                 document.getElementById('content-area').innerHTML = data.game_html;
             else
                 console.error('Failed to load home remote game:', data.error);
+            
+            console.log("Estamos aquiiiii!!!!!!!");
+            document.getElementById("join-online")?.addEventListener("click", () => {
+                const inputElement = document.getElementById("game-id-input");
+                const inputValue = inputElement ? inputElement.value.trim() : null;
+                console.warn(`Stored id inputed: ${inputValue}`);
+                
+                // Si se ha introducido un ID, navega a la ruta deseada usando navigateTo()
+                if (inputValue) {
+                    roomId = inputValue;
+                    isCreator = false;
+                    navigateTo("/play-online");
+                } else {
+                    alert("No se ha introducido un ID válido");
+                }
+            });
+            
+            document.getElementById("create-online")?.addEventListener("click", async () => {
+                let roomIdgen = await createRoomId();
+                console.warn(`Room created with ID: ${roomIdgen}`);
+                
+                // Navega a la ruta correspondiente usando el roomId generado
+                roomId = roomIdgen;
+                isCreator = true;
+                navigateTo("/play-online");
+            });
+
         })
         .catch(error => {
             console.error('Catch error loading home remote game: ', error);

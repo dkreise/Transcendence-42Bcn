@@ -212,7 +212,7 @@ export async function createRoomId()
 	}
 }
 
-async function initializeWebSocket(roomId) {
+async function initializeWebSocket(roomId, isCreator) {
 //async function initializeWebSocket() {
 //	const roomId = 123;
 	let retries = 0;
@@ -372,11 +372,12 @@ function resizeCanvas() {
 // Resize canvas when the window resizes
 window.addEventListener("resize", resizeCanvas);
 
-export function startGame(roomId)
+export function startGame(roomId, isCreator)
 {
 	canvas = document.getElementById('newGameCanvas');
 	tourId = localStorage.getItem('currentTournamentId');
 	console.log("tourId is: " + tourId);
+	console.warn("porfavooooooooor", roomId);
 
 	if (!canvas)
 		return ;
@@ -386,7 +387,7 @@ export function startGame(roomId)
 	targetBallY = ball.y;
 	gameStop = false;
 	if (!tourId)
-		initializeWebSocket(roomId);
+		initializeWebSocket(roomId, isCreator);
 	else {
 		startTournamentGame();
 		const button = document.getElementById('play-again');
