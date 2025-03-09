@@ -205,7 +205,7 @@ class GameManager:
 	
 
 	async def update_ball(self):
-
+		radius = GameManager.ball_config["rad"] / GameManager.board_config["height"]
 		self.ball["x"] += self.ball["xspeed"] / GameManager.board_config["width"]
 		self.ball["y"] += self.ball["yspeed"] / GameManager.board_config["height"]
 		is_col_s = self.is_pad_col_side()
@@ -217,7 +217,7 @@ class GameManager:
 			self.ball["xspeed"] *= -1
 		elif is_col_t:
 			self.ball["yspeed"] *= -1
-		elif self.ball["y"] <= 0 or self.ball["y"] >= 1:
+		elif self.ball["y"] - radius <= 0 or self.ball["y"] + radius >= 1:
 			self.ball["yspeed"] *= -1
 		if not is_col_s and (self.ball["x"] * GameManager.board_config["width"] - GameManager.ball_config["rad"] <= 0):
 			# logger.info(f"{self.players['player1']} has scored")

@@ -198,12 +198,22 @@ def play_game(request):
         'user': request.user,
     }
     add_language_context(request, context)
-    #game_html = render_to_string('remote_game.html', context)
-    game_html = render_to_string('remote_home.html', context)
+    game_html = render_to_string('remote_game.html', context)
+    #game_html = render_to_string('remote_home.html', context)
     return JsonResponse({'game_html': game_html}, content_type="application/json")
     # add_language_context(request.COOKIES, context)
     # game_html = render_to_string('remote_game.html', context)
     # return JsonResponse({'game_html': game_html}, content_type="application/json")
+
+@api_view(['GET'])
+@login_required
+def remote_home(request):
+    context = {
+        'user': request.user,
+    }
+    add_language_context(request, context)
+    game_html = render_to_string('remote_home.html', context)
+    return JsonResponse({'game_html': game_html}, content_type="application/json")
 
 @api_view(["GET"])
 def check_remote(request, room_id):

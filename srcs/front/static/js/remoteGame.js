@@ -376,6 +376,7 @@ export function startGame(roomId)
 {
 	canvas = document.getElementById('newGameCanvas');
 	tourId = localStorage.getItem('currentTournamentId');
+	console.log("tourId is: " + tourId);
 
 	if (!canvas)
 		return ;

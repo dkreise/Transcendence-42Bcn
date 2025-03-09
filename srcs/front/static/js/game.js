@@ -2,7 +2,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { startAIGame, clearIntervalIDGame } from "./AIGame.js";
 import { navigateTo, checkPermission, drawHeader } from "./main.js"
 import { startLocalGame } from "./localGame.js";
-import { startGame } from "./remoteGame.js"; 
+import { startGame, createRoomId } from "./remoteGame.js"; 
 import { start3DAIGame, start3DLocalGame, start3DRemoteGame } from "./3DLocalGame.js";
 import { loadBracketTournamentPage, quitTournament } from "./tournament.js";
 
@@ -253,12 +253,13 @@ export async function playOnline () {
             })
         })
         .then(response => response.json())
-        .then(data => {
+        .then(async data => {
             if (data.game_html && Enable3D === "false") {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
+				const roomId = await createRoomId();
                 if (canvas)
-                    startGame();
+                    startGame(roomId);
                 else
                     console.log("Error: Canvas not found");
             } else if (Enable3D === "true") {
@@ -281,6 +282,32 @@ export async function playOnline () {
     }
     // makeAuthenticatedRequest() // to POST the results
 } 
+
+export async function loadRemoteHome() {
+	if (!checkPermission)
+		navigateTo('/login');
+    else 
+	{
+        drawHeader('main').then(() => {
+          return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/remote/home/", {
+                method: "GET",
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.game_html)
+                document.getElementById('content-area').innerHTML = data.game_html;
+            else
+                console.error('Failed to load home remote game:', data.error);
+        })
+        .catch(error => {
+            console.error('Catch error loading home remote game: ', error);
+            if (error == "No access token.")
+                navigateTo('/login');
+        });
+    }
+
+}
 
 export async function play3D() {
 
