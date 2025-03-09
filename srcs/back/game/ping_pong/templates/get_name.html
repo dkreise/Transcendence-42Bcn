@@ -1,4 +1,4 @@
-<div>
+<!-- <div>
     <form id="play-local-form" class="form-column">
         <label for="player-name">
             {{ enter_name }}
@@ -6,8 +6,21 @@
         <input type="text" id="player-name" name="player-name" required>
         <button id="start-game-btn", data-route="/game-local">
             {{ start_game }} 
-<!--         <button type="submit" id="start-game-btn", data-route="/game-local">
-            {{ start_game }} -->
         </button>
     </form>
+</div> -->
+
+<div id="tournament-home-container" class="container-fluid">
+    <div class="tournament-wrapper">
+        <div id="create-tournament-form" class="section section-create" style="display: flex; flex-direction: column;">
+            <label for="player-name" class="section-header">
+                {{ enter_name }}
+            </label>
+            <div class="d-flex flex-column gap-3 mb-4">
+                <input class="form-control" type="text">
+            <button class="button-trn"id="start-game-btn", data-route="/game-local">
+                <span class="button-content-trn">Start</span>
+            </button>
+        </div>
+    </div>
 </div>
