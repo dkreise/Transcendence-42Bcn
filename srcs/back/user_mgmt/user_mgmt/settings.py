@@ -26,6 +26,7 @@ USER_MGMT_PORT = os.environ.get('USER_MGMT_PORT')
 GAME_PORT = os.environ.get('GAME_PORT')
 PROTOCOL_WEB = os.environ.get('PROTOCOL_WEB')
 PROTOCOL_SOCKET = os.environ.get('PROTOCOL_SOCKET')
+SECURE = os.environ.get('SECURE')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -174,16 +175,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Allow cookies to be sent with each request
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to the session cookie
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Use database-backed sessions
-CSRF_COOKIE_HTTPONLY = False 
+CSRF_COOKIE_HTTPONLY = False
 
-SESSION_COOKIE_SECURE = False  # Set to True for HTTPS in production
-CSRF_COOKIE_SECURE = False  # Set to True for HTTPS in production
-# SECURE_MODE->comment 2 both lines above and uncomment the 4 lines below.
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SECURE = True
-# SECURE_SSL_REDIRECT = True
-# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https') 
-
+# Manage http vs https
+if SECURE == "true":
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+else:
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -235,37 +237,3 @@ CACHES = {
         "LOCATION": "redis://redis:6379/1",
     }
 }
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'formatters': {
-#         'verbose': {
-#             'format': '{levelname} {asctime} {module} {message}',
-#             'style': '{',
-#         },
-#         'simple': {
-#             'format': '{levelname} {message}',
-#             'style': '{',
-#         },
-#     },
-#     'handlers': {
-#         'console': {
-#             'level': 'INFO',  # Set this to 'ERROR' for only errors, 'INFO' for more general info
-#             'class': 'logging.StreamHandler',
-#             'formatter': 'simple',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'INFO',  # Change to 'ERROR' if you want only errors
-#             'propagate': True,
-#         },
-#         'channels': {
-#             'handlers': ['console'],
-#             'level': 'INFO',  # This captures WebSocket connection logs (you can change to 'ERROR' for errors only)
-#             'propagate': False,
-#         },
-#     },
-# }

@@ -19,9 +19,7 @@ class CustomAuthentication(BaseAuthentication):
             return None
         headers = {"Authorization": auth_header}
         print("@@@@@@@@@@@@@@@@@@@@@@ AUTH MIDDLEWARE @@@@@@@@")
-        req = requests.get(PROTOCOL_WEB + '://user-mgmt:' + USER_MGMT_PORT + '/api/user-mgmt/verify-token/', headers=headers)
-        # SECURE_MODE->uncomment line and comment
-        # req = requests.get(PROTOCOL_WEB + '://user-mgmt:' + USER_MGMT_PORT + '/api/user-mgmt/verify-token/', headers=headers, verify=False)
+        req = requests.get(PROTOCOL_WEB + '://user-mgmt:' + USER_MGMT_PORT + '/api/user-mgmt/verify-token/', headers=headers, verify=False)
         if req.status_code == 200:
             username = req.json()['user']
             if username:

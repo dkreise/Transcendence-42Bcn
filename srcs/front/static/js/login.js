@@ -156,7 +156,7 @@ export const loadSignupPage = () => {
 
 export const handleSignup = async () => {
     const signupForm = document.getElementById('signup-form');
-    const formData = new FormData(loginForm);
+    const formData = new FormData(signupForm);
 
     fetch(baseUrl + userMgmtPort + "/api/register/", {
         method: 'POST',

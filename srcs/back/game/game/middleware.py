@@ -42,8 +42,6 @@ class JwtAuthMiddleware:
         headers = {"Authorization": f"Bearer {token}"}
         try:
             async with aiohttp.ClientSession() as session:
-                # async with session.get(PROTOCOL_WEB + "://user-mgmt:" + USER_MGMT_PORT + "/api/user-mgmt/verify-token/", headers=headers) as resp:
-                # SECURE_MODE->uncomment
                 async with session.get(PROTOCOL_WEB + "://user-mgmt:" + USER_MGMT_PORT + "/api/user-mgmt/verify-token/", headers=headers, ssl=False) as resp:
                     if resp.status == 200:
                         json_resp = await resp.json()
