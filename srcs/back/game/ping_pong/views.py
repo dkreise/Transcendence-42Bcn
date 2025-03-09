@@ -12,7 +12,7 @@ from game.utils.translations import add_language_context
 from django.utils.translation import activate
 from django.template.loader import render_to_string
 from django.http import JsonResponse
-from .websocket_state import active_tournaments, active_tournaments_lock
+from .websocket_state import active_tournaments, active_tournaments_lock, active_games, active_games_lock
 import asyncio
 from asgiref.sync import sync_to_async
 from django.contrib.auth.decorators import login_required
@@ -198,12 +198,18 @@ def play_game(request):
         'user': request.user,
     }
     add_language_context(request, context)
-    game_html = render_to_string('remote_game.html', context)
+    #game_html = render_to_string('remote_game.html', context)
+    game_html = render_to_string('remote_home.html', context)
     return JsonResponse({'game_html': game_html}, content_type="application/json")
     # add_language_context(request.COOKIES, context)
     # game_html = render_to_string('remote_game.html', context)
     # return JsonResponse({'game_html': game_html}, content_type="application/json")
 
+@api_view(["GET"])
+def check_remote(request, room_id):
+	is_active = room_id in active_games
+	print(f"game already exists? {is_active}")
+	return JsonResponse({"active": is_active})
 
 @api_view(["GET"])
 def check_tournament_id(request, tour_id):

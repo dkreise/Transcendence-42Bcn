@@ -11,7 +11,7 @@ import { cleanup3D } from "./3DLocalGame.js";
 import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest } from "./tournament.js";
 import { cleanupLocal } from "./localGame.js"
 import { connectWS } from "./onlineStatus.js";
-import { cleanRemote } from "./remoteGame.js";
+import { cleanRemote, createRoomId } from "./remoteGame.js";
 import { loadPageNotFound } from "./errorHandler.js";
 
 const historyTracker = [];
@@ -55,6 +55,7 @@ const routes = {
     '/tournament-game-ai': tournamentGameRequest,
     '/tournament-game-remote': tournamentGameRequest,
     '/page-not-found': loadPageNotFound,
+	'/create-game': createRoomId,
     
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
