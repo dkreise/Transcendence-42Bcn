@@ -1,0 +1,84 @@
+/* Title style */
+.game-home-container {
+    width: 200vw;
+    height: 100vh;
+}
+
+.game-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* Custom grey-purple button style */
+.btn-grey-purple {
+    background-color: #6c5e58; /* Consistent dark grey tone */
+    color: white !important;
+    border: none;
+    padding: 12px 24px;
+    font-size: 1.2rem;
+    border-radius: 8px 8px 8px 8px; /* Slightly more rounded corners */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Button hover effect */
+.btn-grey-purple:hover {
+    background-color: #a28f87; /* Darker grey tone for hover */
+    transform: scale(1.05); /* Hover zoom effect */
+}
+
+/* Add top spacing for sections */
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.game-subtitle {
+    font-size: 1.5rem; /* Slightly smaller */
+    font-weight: bold;
+    color: white; /* White text */
+}
+
+.divider {
+    width: 2px;
+    background-color: #6c5e58;
+    height: 10vh;
+    min-height: 60px;
+}
+
+/* Dark Grey Background for Dropdown */
+.form-select, .form-control {
+    background-color: #a28f87;
+    color: white;
+    border: none;
+}
+
+/* Custom Style for Form Elements on Focus */
+.form-select:focus, .form-control:focus {
+    background-color: #a28f87;
+    border-color: none;
+    outline: none;
+}
+
+.bracket {
+    color: #595e61;
+}
+
+.game-rectangle {
+  width: 300px;
+  height: 200px;
+  background-color: #595e61;
+  color: white;
+  text-align: center;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 0 auto;
+}
+
+#play-button {
+  margin-top: 20px;
+}
+
