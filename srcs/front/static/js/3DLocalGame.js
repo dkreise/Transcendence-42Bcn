@@ -774,6 +774,25 @@ async function buttonsManager(event) {
     }
 }
 
+//async function showCountdown(callback) {
+//    let count = 2;
+//    text.updateGeometry(text.countdownText, "3", textCount);
+//    text.countdownText.visible = true;
+//    const interval = setInterval((dict) => {
+//        // console.log(window.gameDict);
+//        if (count === 0) {
+//            text.updateGeometry(text.countdownText, window.gameDict['go'], textCount);
+//        } else if (count < 0) {
+//            clearInterval(interval);
+//            text.countdownText.visible = false; // Hide instead of remove
+//            callback(); // Resume the game  
+//        } else {
+//            text.updateGeometry(text.countdownText, `${count}`, textCount);
+//        }
+//        count--;  
+//    }, 1000);
+//}
+
 async function showCountdown(callback) {
     let count = 2;
     text.updateGeometry(text.countdownText, "3", textCount);
@@ -790,7 +809,7 @@ async function showCountdown(callback) {
             text.updateGeometry(text.countdownText, `${count}`, textCount);
         }
         count--;  
-    }, 1000);
+    }, 500);
 }
 
 async function firstCountdown(callback) {
