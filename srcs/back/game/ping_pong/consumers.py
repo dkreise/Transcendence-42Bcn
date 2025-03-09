@@ -186,10 +186,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 					logger.info("All players left. Deleting tournament..")
 					async with active_tournaments_lock:
 						if self.tour_id in active_tournaments:
-							if self.countdown_task:
-								self.countdown_task.cancel()
-							if self.timer_task:
-								self.timer_task.cancel()
+							tournament = active_tournaments[self.tour_id]
+							if tournament.countdown_task:
+								tournament.countdown_task.cancel()
+							if tournament.timer_task:
+								tournament.timer_task.cancel()
 							del active_tournaments[self.tour_id]
 		logger.info("closing...")
 		await self.close()
