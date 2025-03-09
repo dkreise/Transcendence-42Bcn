@@ -29,6 +29,7 @@ env:
 		cp $(CONF_DIR)nginx_secure.conf srcs/front/conf/nginx.conf; \
 		IP_ADDRESS=$$(hostname -I | awk '{print $$1}'); \
 	else \
+		mkdir -p $(CERTS_DIR); \
 		cp $(CONF_DIR).env.dev $(ENV); \
 		cp $(CONF_DIR)nginx_dev.conf srcs/front/conf/nginx.conf; \
 		IP_ADDRESS=localhost; \

@@ -21,9 +21,9 @@ export const playLocal = () => {
     } else {
         console.log('Loading get second name page...')
         drawHeader('main').then(() => {
-          return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/get-name/", {
+          return  makeAuthenticatedRequest(baseUrl + gamePort + "/api/game/local/get-name/", {
                 method: "GET",
-                // credentials: "include"
+                credentials: "include",
             })
             .then(response => response.json())
             .then(data => {

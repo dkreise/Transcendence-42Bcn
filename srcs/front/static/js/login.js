@@ -65,7 +65,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
             "Authorization": `Bearer ${accessToken}`, // adding authorization header with the access token
             // "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
     };
 
     return fetch(url, options).then((response) => {
@@ -171,6 +171,7 @@ export const handleSignup = async () => {
             localStorage.setItem('refresh_token', signupData.tokens.refresh);
             let lang = getCookie("language") || "en";
             await updateLanguage(lang);
+            connectWS(signupData.tokens.access);
             navigateTo('/home', true);
         } else {
             displayLoginError('signup-form', `${signupData.error}`);
