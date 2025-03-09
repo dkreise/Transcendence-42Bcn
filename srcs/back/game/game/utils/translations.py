@@ -50,6 +50,7 @@ def get_lang_words(lang):
             "enemy_connected": "¡Enemigo conectado!",
             "wins": "Gana",
             "exit": "Salir",
+			"create_room": "Crear sala",
             
         }
     elif lang == 'CA':
@@ -89,6 +90,7 @@ def get_lang_words(lang):
             "enemy_connected": "Enemic connectat!",
             "wins": "Guanya",
             "exit": "Sortir",
+			"create_room": "Crear sala",
         }
     elif lang == 'RU':
         return {
@@ -133,7 +135,8 @@ def get_lang_words(lang):
             'very_easy': "Очень низкий",
             'easy': "Низкий",
             'medium': "Средний",
-            'hard': "Высокий"
+            'hard': "Высокий",
+			'create_room': "Создать комнату", 
         }
     elif lang == 'LV':
         return {
@@ -172,6 +175,7 @@ def get_lang_words(lang):
             "enemy_connected": "Ienaidnieks pievienojās!",
             "wins": "Uzvar",
             "exit": "Iziet",
+			"create_room": "Sukurti kambarį",
         }
     else:  # Default to English if no match
         return {
@@ -216,5 +220,6 @@ def get_lang_words(lang):
             'very_easy': "Very Easy",
             'easy': "Easy",
             'medium': "Medium",
-            'hard': "Hard"
+            'hard': "Hard",
+			'create_room': "Create room"
         }
