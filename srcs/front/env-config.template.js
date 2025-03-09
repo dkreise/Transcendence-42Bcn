@@ -1,0 +1,8 @@
+window.env = {
+    HOST: "${HOST}",
+    USER_MGMT_PORT: "${USER_MGMT_PORT}",
+    GAME_PORT: "${GAME_PORT}",
+    PROTOCOL_WEB: "${PROTOCOL_WEB}",
+    PROTOCOL_SOCKET: "${PROTOCOL_SOCKET}",
+    REDIRECT_URI: "${REDIRECT_URI}"
+};

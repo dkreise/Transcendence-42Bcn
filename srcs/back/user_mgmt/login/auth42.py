@@ -29,8 +29,11 @@ from rest_framework import status
 from django.templatetags.static import static
 import re
 from .views import generate_temp_token
-
 from datetime import datetime
+
+FRONT_PORT = settings.FRONT_PORT
+HOST = settings.HOST
+REDIRECT_URI = settings.REDIRECT_URI
 
 logger = logging.getLogger(__name__)
 
@@ -38,12 +41,12 @@ logger = logging.getLogger(__name__)
 @permission_classes([AllowAny])
 def login_intra(request):
     state = gen_state()
-    logger.info("Redirect URI: %s", settings.REDIRECT_URI)
+    logger.info("Redirect URI: %s", REDIRECT_URI)
+
     go_to_api = (
         "https://api.intra.42.fr/oauth/authorize"
         f"?client_id={settings.UID}"
-        # f"&redirect_uri={settings.REDIRECT_URI}"
-        f"&redirect_uri=http://localhost:8443/callback"
+        f"&redirect_uri={REDIRECT_URI}"
         f"&response_type=code"
         f"&scope=public"
         f"&state={state}"
@@ -51,7 +54,6 @@ def login_intra(request):
     print("Environment variables:")
     print("UID:", os.environ.get('UID'))
     print("SECRET:", os.environ.get('SECRET'))
-    print("REDIRECT_URI:", os.environ.get('REDIRECT_URI'))
     logger.info(f"Redirect URL: {go_to_api}")
     return redirect(go_to_api)
 
@@ -161,8 +163,7 @@ def defaultParams(code, state):
         'client_id': os.environ['UID'],
         'client_secret': os.environ['SECRET'],
         'code': code,
-        # 'redirect_uri': os.environ['REDIRECT_URI'],
-        'redirect_uri': 'http://localhost:8443/callback',
+        'redirect_uri': REDIRECT_URI,
         'state': state
     }
     return params

@@ -7,6 +7,10 @@ from django.core.exceptions import ObjectDoesNotExist
 # from django.contrib.auth import get_user_model
 import aiohttp
 from rest_framework.exceptions import AuthenticationFailed
+from django.conf import settings
+
+USER_MGMT_PORT = settings.USER_MGMT_PORT
+PROTOCOL_WEB = settings.PROTOCOL_WEB
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +42,7 @@ class JwtAuthMiddleware:
         headers = {"Authorization": f"Bearer {token}"}
         try:
             async with aiohttp.ClientSession() as session:
-                async with session.get("http://user-mgmt:8000/api/user-mgmt/verify-token/", headers=headers) as resp:
+                async with session.get(PROTOCOL_WEB + "://user-mgmt:" + USER_MGMT_PORT + "/api/user-mgmt/verify-token/", headers=headers, ssl=False) as resp:
                     if resp.status == 200:
                         json_resp = await resp.json()
                         return json_resp.get('user')  # Returns username if valid

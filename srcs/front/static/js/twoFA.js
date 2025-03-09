@@ -2,7 +2,10 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { displayUpdatingMessage } from "./profile.js";
 import { navigateTo, drawHeader} from "./main.js";
 
-var baseUrl = "http://localhost"; // change (parse) later
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
+const userMgmtPort = window.env.USER_MGMT_PORT;
 
 const display2FAMessage = (form, message, color) => {
     const twoFAForm = document.getElementById(form);
@@ -25,7 +28,8 @@ const display2FAMessage = (form, message, color) => {
 export const loadLogin2FAPage = () => {
     const contentArea = document.getElementById("content-area");
     drawHeader('login').then(() => {
-      return  fetch(baseUrl + ":8000/api/2fa-login/", {method: "GET", credentials: "include" })
+      return  fetch(baseUrl + userMgmtPort + "/api/2fa-login/", {method: "GET", credentials: "include" })
+
         .then(response => response.json())
         .then(data => {
             if (data.form_html) {
@@ -38,9 +42,8 @@ export const loadLogin2FAPage = () => {
 }
 
 export const enable2FA = () => {
-    console.log('Estamosss aquiiii');
     drawHeader('main').then(() => {
-      return  makeAuthenticatedRequest(baseUrl + ":8000/api/2fa/enable/", {
+      return  makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/2fa/enable/", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
         })
@@ -58,7 +61,7 @@ export const enable2FA = () => {
 };
 
 export const disable2FA = () => {
-    makeAuthenticatedRequest(baseUrl + ":8000/api/2fa/disable/", {
+    makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/2fa/disable/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
     })
@@ -83,7 +86,7 @@ const  verify2FA = () => {
         return;
     }
 
-    makeAuthenticatedRequest(baseUrl + ":8000/api/2fa/verify/", {
+    makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/2fa/verify/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
@@ -107,7 +110,7 @@ const verify2FALogin = () => {
     const code = codeInput.value;
     const temp_token = localStorage.getItem("temp_token");
 
-    fetch(baseUrl + ":8000/api/2fa-login/verify/", {
+    fetch(baseUrl + userMgmtPort + "/api/2fa-login/verify/", {
         method: "POST",
         body: JSON.stringify({ code: code, temp_token: temp_token }),
     })

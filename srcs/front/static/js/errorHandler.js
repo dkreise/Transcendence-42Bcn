@@ -1,14 +1,17 @@
 import { checkPermission } from "./main.js"
 import { drawHeader } from "./main.js";
 
-var baseUrl = "http://localhost"; 
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
+const userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const loadPageNotFound = async () => {
     const headerType = checkPermission() ? 'main' : 'login';
 
     try {
         await drawHeader(headerType);
-        const response = await fetch(baseUrl + ":8000/api/page-not-found/", {
+        const response = await fetch(baseUrl + userMgmtPort + "/api/page-not-found/", {
             method: "GET",
             credentials: "include",
         });

@@ -2,18 +2,18 @@ from django.utils.translation import activate
 from django.http import HttpRequest
 
 def add_language_context(request, context):
-    # if context is None:
-    #     context = {} 
-    # lang = request.COOKIES.get('language') or 'en'
+    
+    # lang = request.COOKIES.get('language') or 'EN'
+
     if not isinstance(request, HttpRequest):  # Ensure it's a Django HttpRequest
         request = None  # Set to None if not valid
-    lang = request.COOKIES.get('language') if request else 'en'
+
+    lang = request.COOKIES.get('language') if request else 'EN'
     lang_words = get_lang_words(lang)
     context.update(lang_words)
-    # return context
 	
 def get_lang_words(lang):
-    if lang == 'es':
+    if lang == 'ES':
         return {
             'my_profile': "Mi perfil",
             'enter_name': "Indica el nombre del segundo jugador:",
@@ -52,7 +52,7 @@ def get_lang_words(lang):
             "exit": "Salir",
             
         }
-    elif lang == 'ca':
+    elif lang == 'CA':
         return {
             'my_profile': "El meu perfil",
             'enter_name': "Indica el nom del segon jugador:",
@@ -90,7 +90,7 @@ def get_lang_words(lang):
             "wins": "Guanya",
             "exit": "Sortir",
         }
-    elif lang == 'ru':
+    elif lang == 'RU':
         return {
             'my_profile': "Профиль",
             'enter_name': "Введите имя второго игрока:",
@@ -135,7 +135,7 @@ def get_lang_words(lang):
             'medium': "Средний",
             'hard': "Высокий"
         }
-    elif lang == 'lv':
+    elif lang == 'LV':
         return {
             'my_profile': "Mans profils",
             'enter_name': "Ievadiet otrā spēlētāja vārdu:",

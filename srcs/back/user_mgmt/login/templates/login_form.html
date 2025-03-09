@@ -1,8 +1,8 @@
 <div class="container d-flex justify-content-center align-items-center px-3">
 	<div id="login-container" class="form-container">
-	  <p id="login-error" class="error-login text-center">Invalid Credentials. Please Try again</p>
-	  <h1 class="text-center" style="margin-bottom: 17px;">{{log_in}}</h1>
-	  <form id="login-form" class="form" method="post" action="http://localhost:8000/api/login/">
+		<p id="login-error" class="error-login text-center">Invalid Credentials. Please Try again</p>
+		<h1 class="text-center" style="margin-bottom: 17px;">{{log_in}}</h1>
+		<form id="login-form" class="form" method="post">
 			<div class="form-group mb-3">
 				<label for="username">{{username}}</label>
 				<input type="text" id="username" name="username" style="padding: 12px 16px;" class="form-control">
@@ -11,11 +11,11 @@
 				<label for="password">{{password}}</label>
 				<input type="password" id="password" name="password" style="padding: 12px 16px;" class="form-control">
 			</div>
-			<button id="login-submit" class="form-submit-btn btn w-100" type="submit" value="submit">
-			{{submit}}
+			<button id="login-submit" data-route="/handle-login" class="form-submit-btn btn w-100" type="submit" value="submit">
+				{{submit}}
 			</button>
 			<p id="signin" class="mt-2 text-center">
-			{{dont_have_account}}
+				{{dont_have_account}}
 				<button data-route="/signup" id="signup-link" class="not-account-btn btn btn-link" type="button">
 					{{click_here}}
 				</button>
@@ -26,7 +26,7 @@
 				<div class="div2"></div>
 			</div>
 			<button id="login_intra_button" class="login-intra-button btn btn-secondary" data-route="/login-intra">
-			{{log_in}} 42
+				{{log_in}} 42
 			</button>
 		</form>
 	</div>
