@@ -58,7 +58,7 @@ def player_game_statistics(request, player_id):
     auth_header = request.headers.get('Authorization')
     headers = {"Authorization": auth_header}
     try:
-        response = requests.get(endpoint, headers=headers)
+        response = requests.get(endpoint, headers=headers, verify=False)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:
