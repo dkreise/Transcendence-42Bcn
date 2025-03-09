@@ -1,7 +1,7 @@
 import { loadLoginPage, handleLogin, loadSignupPage, handleSignup } from "./login.js";
 import { loadProfilePage, loadProfileSettingsPage, loadMatchHistoryPage } from "./profile.js";
-import { handleLoginIntra, handle42Callback } from "./42auth.js";
-import { loadHomePage, setUp3DListener } from "./home.js";
+import { handleLoginIntra, handle42Callback, showModalError } from "./42auth.js";
+import { loadHomePage } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
@@ -150,6 +150,7 @@ function getRedirectionIfNeeded(path=null) {
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';
     } else if (!checkPermission() && !publicPaths.includes(path) && !openPaths.includes(path)) {
+        showModalError("Unauthorized access. Please check your credentials.");
         return '/login';
     }
     return null;
