@@ -412,11 +412,11 @@ async function initializeWebSocket(roomId = 123) {
                 break ;
             case "endgame":
                 console.log("endgame!"); 
-                handleOnlineEndgame();
+                handleOnlineEndgame(data);
 
                 break;
             default:
-                console.warn("Unhandled message type:", data.type);
+                console.log("Unhandled message type:", data.type);
         }
     };
 }
@@ -825,20 +825,39 @@ async function firstCountdown(callback) {
 async function handleEndGame(message) {
     gameEnded = true;
     gameStarted = false;
-    // if (text.winnerMessage)
-    // text.updateGeometry(text.winnerMessage, message, textWinner); // PUT BACK
+    if (text.winnerMessage)
+        text.updateGeometry(text.winnerMessage, message, textWinner); // PUT BACK
     text.button.visible = true;
     text.tryAgain.visible = true;
-    // text.winnerMessage.visible = true;
+    text.winnerMessage.visible = true;
 }
 
-async function    handleOnlineEndgame() {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.close();
-        socket = null;
-    }
+async function    handleOnlineEndgame(data) {
     
-    handleEndGame();
+    const { winner, loser, scores} = data;
+
+
+    // const winner = this.players[0].score >= this.maxScore ? this.players[0] : this.players[1];
+    const msg = `${winner} ` + window.gameDict['wins'] + " !";
+        
+	
+	console.log(`winner ${winner} loser ${loser}`);
+	// if (gameLoopId)
+	// 	cancelAnimationFrame(gameLoopId);
+	// player1.score = data["scores"][player1.role];
+	// player2.score = data["scores"][player2.role];
+	// console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
+	// if (player.whoAmI == winner)
+	// 	player.displayEndgameMessage(ctx, opponent.score, msg[0]);
+	// else
+	// 	player.displayEndgameMessage(ctx, opponent.score, msg[1]);
+
+	if (socket && socket.readyState === WebSocket.OPEN) {
+		socket.close();
+		socket = null;
+	}
+    
+    handleEndGame(msg);
     resetOnlineTeam();
 }
 
@@ -927,6 +946,10 @@ export async function cleanup3D() {
     // Dispose of all geometries, materials, and textures
     if (!scene) return;
     
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+        socket = null;
+    }
     // Stop animation loop
     cancelAnimationFrame(gameLoopId);
 

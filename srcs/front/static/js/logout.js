@@ -1,5 +1,5 @@
 import { loadLoginPage } from "./login.js";
-import { navigateTo } from "./main.js";
+import { cleanupGames, navigateTo } from "./main.js";
 import { disconnectTournamentWS } from "./tournament.js";
 import { disconnectWS } from "./onlineStatus.js"
 
@@ -33,6 +33,7 @@ export const handleLogout = () => {
     }
 
     disconnectTournamentWS();
+    cleanupGames();
     disconnectWS()
     console.log("WebSocket closed upon logout.");
 

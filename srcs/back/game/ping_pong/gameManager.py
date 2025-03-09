@@ -327,7 +327,8 @@ class GameManager:
 			else:
 				logger.info("F*ck, couldn't save the game")
 		# logger.info(f"Player {winner_id} wins in room {self.id}")
-		loser = next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
+		loser = self.users[1] if winner_id == self.users[0] else self.users[0]
+		# loser = next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
 		logger.info(f"Player {winner_id} wins in room {self.id}")
 		logger.info(f"Player {loser} loses in room {self.id}")
 		
@@ -369,9 +370,9 @@ class GameManager:
 				# logger.info(winner_id)
 				# logger.info(self.players["player1"]["id"])
 				# if self.players["player1"]["id"] == winner_id:
-				player1 = User.objects.get(username=self.players["player1"]["id"])
+				player1 = User.objects.get(username=self.users[0])
 				# else:
-				player2 = User.objects.get(username=self.players["player2"]["id"])
+				player2 = User.objects.get(username=self.users[1])
 				
 				# if self.scores["player1"] > self.scores["player2"]:
 				score1 = self.scores["player1"]

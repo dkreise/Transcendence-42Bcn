@@ -55,6 +55,7 @@ export function scaleGame(data)
 
 async function readySteadyGo(countdown)
 {
+	// if (!div || ! div.textContent) return ;
 	const msg = ["1", "2", "3"];
 	let div = document.getElementById("wait");
 
@@ -114,6 +115,11 @@ function handleEndgame(data) {
 		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
 	else
 		player.displayEndgameMessage(ctx, opponent.score, msg[1]);
+
+	if (socket && socket.readyState === WebSocket.OPEN) {
+		socket.close();
+		socket = null;
+	}
 //	if (player.whoAmI == winner)
 //		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
 //	else
@@ -233,7 +239,7 @@ async function initializeWebSocket() {
 	const token = localStorage.getItem("access_token");
 	if (!token)
 	{
-		console.warn("No access token found");
+		console.log("No access token found");
 		return ;
 	}
 	if (!socket)
@@ -243,11 +249,11 @@ async function initializeWebSocket() {
 	}
 	socket.onopen = () => console.log("WebSocket connection established.");
 	socket.onerror = (error) => {
-		console.error("WebSocket encountered an error:", error);
+		console.log("WebSocket encountered an error:", error);
 		alert("Unable to connect to the server. Please check your connection.");
 	};
 	socket.onclose = async (event) => {
-		console.log("WebSocket connection closed. Retrying...");
+		console.log("WebSocket connection closed");
 		if (event.code === 4001) {
 			// Token expired; refresh token logic
 			try {
@@ -258,8 +264,9 @@ async function initializeWebSocket() {
 			  console.error("Failed to refresh token", err);
 			  handleLogout();
 			}
-		} else if (retries++ <= 5)
-			setTimeout(initializeWebSocket, 1000);
+		}
+		// } else if (retries++ <= 5)
+		// 	setTimeout(initializeWebSocket, 1000);
 	};
 
 	socket.onmessage = async (event) => {
@@ -318,7 +325,7 @@ async function initializeWebSocket() {
 				handleEndgame(data);
 				break ;
 			default:
-				console.warn("Unhandled message type:", data.type);
+				console.log("Unhandled message type:", data.type);
 		}
 	};
 }
@@ -421,6 +428,10 @@ export function startGame()
 export function cleanRemote() {
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
+	if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
+        socket = null;
+    }
 	gameLoopId = null;
 	gameStop = true;
 }

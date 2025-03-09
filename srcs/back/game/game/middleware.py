@@ -47,10 +47,10 @@ class JwtAuthMiddleware:
                         json_resp = await resp.json()
                         return json_resp.get('user')  # Returns username if valid
                     else:
-                        print(f"Token verification failed with status: {resp.status}")
+                        logger.info(f"Token verification failed with status: {resp.status}")
                         return None
         except aiohttp.ClientError as e:
-            print(f"HTTP error during token verification: {e}")
+            logger.info(f"HTTP error during token verification: {e}")
             return None
 
     
@@ -60,22 +60,23 @@ class JwtAuthMiddleware:
         #print("SCOPE: ", scope)
 
         try:
+            logger.info("@@@@@@@@@@@@@@@@@@@@@@@  0!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
             query_string = scope.get('query_string', b'').decode('utf-8')
             query_params = parse_qs(query_string)
             token = query_params.get('token', [None])[0]
-            #print("@@@@@@@@@@@@@@@@@@@@@@@  1!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
+            logger.info("@@@@@@@@@@@@@@@@@@@@@@@  1!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
             if token:
                 #print("@@@@@@@@@@@@@@@@@@@@@@@  2!!!!!!!!!!!!!!!!!!!!!!!!!! @@@@@@@@@@@@@@@@@")
                 username = await self.verify_token(token)
                 if username:
                     scope['user'] = await get_user_from_token(username)
-                    print("USER FOUND: ", scope['user'])
+                    logger.info(f"USER FOUND: {scope['user']}")
                 else:
-                    print("Invalid or expired token for WebSocket connection.")
+                    logger.info("Invalid or expired token for WebSocket connection.")
                     await send({'type': 'websocket.close', 'code': 4001})
                     return
             else:
-                print("No token provided for WebSocket connection.")
+                logger.info("No token provided for WebSocket connection.")
                 await send({'type': 'websocket.close', 'code': 4001})
                 return
 
@@ -89,7 +90,7 @@ class JwtAuthMiddleware:
             }
             await send(close_message)
         except Exception as e:
-            logger.error(f"Unexpected error: {e}")
+            logger.info(f"Unexpected error middleware: {e}")
             close_message = {
                 'type': 'websocket.close',
                 'code': 4000

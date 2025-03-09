@@ -103,11 +103,11 @@ export function drawHeader(headerType) {
                 document.dispatchEvent(new CustomEvent("headerLoaded"));
                 console.log('header event active');
             } else
-                console.error('Header not found in response:', data);
+                console.log('Header not found in response:', data);
             resolve();
         })
         .catch(error => {
-            console.error('Error loading Header =(', error);
+            console.log('Error loading Header =(', error);
             reject(error);
         });
     });
@@ -116,6 +116,8 @@ export function drawHeader(headerType) {
 export function cleanupGames() {
     cleanup3D();
     cleanupLocal();
+    cleanRemote();
+    clearIntervalIDGame();
     // cleanupAI();
 }
 
@@ -237,9 +239,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('popstate', (event) => {
         console.log("Popstate triggered:", event);
-        cleanup3D();       // Always clean up before routing
-        clearIntervalIDGame();
-        cleanRemote();
+        // cleanup3D();       // Always clean up before routing
+        // clearIntervalIDGame();
+        // cleanRemote();
+        cleanupGames();
         router();          // Then handle the new route
     });
 
@@ -256,7 +259,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // navigateTo('/waiting-room');
             router();
         }).catch((error) => {
-            console.error("Error connecting WebSocket:", error);
+            console.log("Error connecting WebSocket:", error);
             // Handle error, possibly redirect to another page or show an alert
         });
     } else if (tourReload) {
@@ -290,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (shouldRoute) {
         console.log(history.state)
-        cleanup3D();
+        cleanupGames();
         router();        
     }
 });
