@@ -200,7 +200,9 @@ export async function createRoomId()
 							{ method: "GET", credentials: "include" });
 			let data = await response.json();
 			if (!data.active)
+			{
 				return id;
+			}
 		}
 	}
 	catch (error)

@@ -4,11 +4,11 @@
       <!-- Sección para crear torneo -->
       <div id="create-game-form" class="section section-create">
         <div class="section-header">
-          <h2>{{create_game}}</h2>
+          <h2>{{ create_room }}</h2>
         </div>
         <div class="d-flex flex-column gap-3 mb-4">
         </div>
-        <button class="button-trn" replace-url data-route="/create-game">
+        <button class="button-trn" onclick="createRoomId()">
           <span class="button-content-trn">{{ create }}</span>
         </button>
       </div>
