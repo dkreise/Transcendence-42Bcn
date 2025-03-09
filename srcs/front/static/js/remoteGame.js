@@ -97,7 +97,7 @@ function displayCountdown()
 }
 
 
-function handleEndgame(data) {
+export function handleEndgame(data) {
 	const { winner, loser, scores} = data;
 	const msg = [
 		"Congratulations! You've won 😁",
@@ -105,15 +105,16 @@ function handleEndgame(data) {
 	]
 	
 	console.log(`winner ${winner} loser ${loser}`);
+	console.log(`I am: ${player.whoAmI}`);
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
 	player.score = data["scores"][player.role];
 	opponent.score = data["scores"][opponent.role];
 	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
-	if (player.whoAmI == winner)
-		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
-	else
+	if (player.whoAmI == loser)
 		player.displayEndgameMessage(ctx, opponent.score, msg[1]);
+	else
+		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
 //	if (player.whoAmI == winner)
 //		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
 //	else

@@ -163,6 +163,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 							logger.info(f"Room {self.room_id} has been deleted")
 		elif self.type == "T":
 			logger.info(f"\033[1;31mclose_code={close_code}\033[0m")
+			if self.room_id and self.room_id in active_games:
+				game = active_games[self.room_id]
+				if game.player2_waiting_task:
+					game.player2_waiting_task.cancel()
 			if close_code in [1001, 1006]:  # WebSocket transport error / browser close
 				logger.info("Unexpected disconnect. Keeping tournament active.")
 				return  # Do not remove the user!
@@ -311,7 +315,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					logger.info(f"quit status : {status}")
 					if status == "remote":
 						if not self.room_id:
-							self.room_id = "T_" + self.tour_id + "_" + str(tournament.round)
+							self.room_id = f"T_{self.tour_id}_{opp}_{usr}_{tournament.round}".replace("@", "-")
 							game = active_games[self.room_id]
 							# await self.channel_layer.group_add(self.room_id, self.channel_name)
 						await game.stop_tournament_game(op, us)
@@ -369,20 +373,24 @@ class PongConsumer(AsyncWebsocketConsumer):
 					}))
 				elif dtype == "start_game":
 					try:
+						usr = self.user.username
 						logger.info(f"{self.user.username} wants to start the game")
 						tournament.set_match_start(self.user.username)
 						opp = tournament.get_opponent(self.user.username)
 						if opp == "@AI":
 							return
-						self.room_id = "T_" + self.tour_id + "_" + str(tournament.round)
+						self.room_id = f"T_{self.tour_id}_{opp}_{usr}_{tournament.round}".replace("@", "-")
 						logger.info(f"T roomID: {self.room_id}")
 						async with active_games_lock:
 							if self.room_id not in active_games:
+								self.room_id = f"T_{self.tour_id}_{usr}_{opp}_{tournament.round}".replace("@", "-")
 								active_games[self.room_id] = GameManager(self.room_id)
 						game = active_games[self.room_id]
 						game.tour_id = self.tour_id
 						logger.info(f"START TGAME: users {game.users}")
 						self.role = await game.join_room(self.user.username, False)
+						logger.info(f"USERS NOW: {game.users}, LEN: {len(game.users)}")
+						logger.info(f"PLAYERS NOW: {len(game.players)}")
 						logger.info(f"START TGAME: self.role {self.role}")
 						if "player" not in self.role:
 							logger.info(f"\033[1;31mwe're going to reject the connection\033[0m")
@@ -416,7 +424,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 				elif dtype == "update":
 					game = active_games[self.room_id]
 					game.handle_message(self.role, data)
-					await game.update_game()
+					# await game.update_game()
+					await game.send_update()
 
 				elif dtype == "stop_game":
 					logger.info("SOMEONE CHANGED PATH")
@@ -453,8 +462,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 	async def send_game_msg_tour(self, event):
 		data = event["message"]
-		winner = data["winnerID"]
-		loser = data["loserID"]
+		winner = data["winner"]
+		loser = data["loser"]
 		logger.info(f"TRYING sending game msg tour for: {self.user.username}")
 		logger.info(f"winner: {winner}")
 		# if (self.user.username == winner):

@@ -3,7 +3,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
 import { gameAI, playOnline } from "./game.js";
-import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleTourEndgame, cleanRemote } from "./remoteGame.js"
+import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, handleTourEndgame, cleanRemote } from "./remoteGame.js"
 import { drawHeader } from "./main.js";
 import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 
@@ -428,8 +428,9 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 				handleUpdate(data);
 				break;
 			case "endgame":
-                handleTourEndgame(data);
-                saveTournamentGameResult(data["winnerID"], data["loserID"], 3, 5);
+                // handleTourEndgame(data);
+                handleEndgame(data);
+                saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);
 				break;
 			case "reject":
 				alert(`Connection rejected: ${data.reason}`);

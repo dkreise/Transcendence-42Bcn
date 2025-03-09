@@ -108,6 +108,8 @@ class GameManager:
 				if len(self.players) == 2:
 					self.status = 0
 					self.users.append(user)
+					if self.player2_waiting_task:
+						self.player2_waiting_task.cancel()
 				return role
 			logger.info(f"Reconnection error for user {user}. Please, try again later")
 			#await self.send_reject(channel, "Error trying to reconnect. Try again later")
@@ -134,7 +136,6 @@ class GameManager:
 			else:
 				if self.player2_waiting_task:
 					self.player2_waiting_task.cancel()
-				logger.info(f"adding {user} as player2")
 				self.players["player2"] = {"id": user, "y": 0.5}
 				self.status = 0
 				return "player2"
@@ -333,8 +334,11 @@ class GameManager:
 		
 		message = {
 			"type": "endgame",
-			"winnerID": winner_id,
-			"loserID": loser
+			# "winnerID": winner_id,
+			# "loserID": loser
+			"winner": winner_id,
+			"loser": loser,
+			"scores": self.scores
 			#"loserID": next((loser for loser in self.users if loser != winner_id), None)
 		}
 		# logger.info(f"Player {message["loserID"]} loses in room {self.id}")
@@ -569,8 +573,9 @@ class GameManager:
 			self.rsg_task = None
 		message = {
 			"type": "endgame",
-			"winnerID": winner,
-			"loserID": loser,
+			"winner": winner,
+			"loser": loser,
+			"scores": self.scores
 		}
 		channel_layer = get_channel_layer()
 		if "T_" in self.id:
@@ -592,7 +597,10 @@ class GameManager:
 
 	async def check_unstarted_game(self):
 		await asyncio.sleep(10)
-		if len(self.players) != 2:
+		logger.info(f"CHECK UNSTARTED GAME {self.id}")
+		logger.info(f"task: {self.player2_waiting_task}")
+		logger.info(f"LEN users: {len(self.users)}")
+		if len(self.users) != 2:
 			logger.info(f"SECOND PLAYER ({self.tour_op}) HAS NOT STARTED")
 			await self.stop_tournament_game(self.users[0], self.tour_op)
 
