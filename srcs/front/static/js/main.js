@@ -49,7 +49,6 @@ const routes = {
     '/game-local': gameLocal,
     '/play-3d': play3D,
     '/play-ai-game': (args) => gameAI(args),
-    // '/game-ai': (args) => gameAI(args),
     '/tournament': manageTournamentHomeBtn,
     '/tournament-home': loadTournamentHomePage,
     '/waiting-room': loadWaitingRoomPage,
@@ -61,9 +60,6 @@ const routes = {
     '/tournament-game-ai': tournamentGameRequest,
     '/tournament-game-remote': tournamentGameRequest,
     '/page-not-found': loadPageNotFound,
-    
-    // EXAMPLE how to announce a function that receives parameters:
-    // '/login': (args) => loadLoginPage(args),
 };
 
 // --- headerType = 1 --> draw mainHeader
