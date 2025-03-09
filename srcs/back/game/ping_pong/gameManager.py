@@ -59,8 +59,8 @@ speeds => relative
 class GameManager:
 
 
-	ball_config = {"rad": 9, "xspeed": 3, "yspeed": 0}
-	board_config = {"width": 600, "height": 400, "max_score": 3}
+	ball_config = {"rad": 9, "xspeed": 4, "yspeed": 5}
+	board_config = {"width": 600, "height": 400, "max_score": 5}
 
 	paddle_config = {"width": 10, "height": 50, "speed": 5}
 	countdown = 5
@@ -143,18 +143,13 @@ class GameManager:
 #################################################
 
 	def handle_message(self, role, data):
-		#logger.info(f"HM data: {data}")
-		#logger.info(f"HM pre: {self.players}")
 		if data["type"] == "update" and data["role"] in self.players and data["y"]:
 			self.players[data["role"]]["y"] = data["y"]
-			#logger.info(f"pl {self.players[data['role']]} role: {data['role']} paddle position {data['y']}")
-		#logger.info(f"HM post: {self.players}")
 
 
 ##################################################
 
 	async def has_scored(self, role):
-		# logger.info(f"{role} has scored in room {self.id}")
 		self.status = 1
 		self.reset_positions(role)
 		self.scores[role] += 1
@@ -226,10 +221,10 @@ class GameManager:
 			self.ball["yspeed"] *= -1
 		if not is_col_s and (self.ball["x"] * GameManager.board_config["width"] - GameManager.ball_config["rad"] <= 0):
 			# logger.info(f"{self.players['player1']} has scored")
-			await self.has_scored("player1")
+			await self.has_scored("player2")
 		elif not is_col_s and (self.ball["x"] * GameManager.board_config["width"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]):
 			# logger.info(f"{self.players['player2']} has scored")
-			await self.has_scored("player2")
+			await self.has_scored("player1")
 
 
 

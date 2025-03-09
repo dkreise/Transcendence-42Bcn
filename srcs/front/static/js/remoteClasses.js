@@ -56,10 +56,8 @@ export class Player {
 		ctx.fillStyle = "rgb(100, 100, 100 / 50%)";
 		ctx.font = `${fontSize}px Arial`;
 		if (this.x == 0)
-			//x = this.canvas.width / 4;
 			x = this.canvas.width / 4 - ctx.measureText(text).width / 2;
 		else
-			//x = this.canvas.width * 3 / 4;
 			x = this.canvas.width * 0.75 - ctx.measureText(text).width / 2;
 		ctx.fillText(text, x, this.canvas.height / 10);
 	}

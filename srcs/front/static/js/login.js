@@ -5,7 +5,10 @@ import { loadHomePage } from "./home.js";
 import { updateLanguage } from "./langs.js";
 import { connectWS } from "./onlineStatus.js";
 
-var baseUrl = "http://localhost"; // change (parse) later
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
+const userMgmtPort = window.env.USER_MGMT_PORT;
 
 export async function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refresh_token");
@@ -15,7 +18,7 @@ export async function refreshAccessToken() {
         return Promise.reject("No refresh token available");
     }
 
-    return fetch(baseUrl + ":8000/api/token/refresh/", {
+    return fetch(baseUrl + userMgmtPort + "/api/token/refresh/", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({refresh: refreshToken}),
@@ -81,7 +84,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
 
 export const loadLoginPage = () => {
     drawHeader('login').then(() => {
-        return fetch(baseUrl + ":8000/api/login-form/", {
+        return fetch(baseUrl + userMgmtPort + "/api/login-form/", {
             method: 'GET',
             credentials: "include"
         });
@@ -101,17 +104,16 @@ export const loadLoginPage = () => {
 };
 
 export const handleLogin = async () => {
-
     const loginForm = document.getElementById('login-form');
     const formData = new FormData(loginForm);
-
-    fetch(baseUrl + ":8000/api/login/", {
-        method: 'POST',
-        body: JSON.stringify(Object.fromEntries(formData)),
-        headers: { 'Content-Type': 'application/json' }
-    })
-    .then(response => response.json()) 
-    .then(async (data) => { 
+    const dataToSend = JSON.stringify(Object.fromEntries(formData));
+    try {
+        const response = await fetch(baseUrl + userMgmtPort + "/api/login/", {
+            method: 'POST',
+            body: dataToSend,
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await response.json();
         if (data.success) {
             if (data.two_fa_required) {
                 localStorage.setItem('temp_token', data.temp_token);
@@ -122,68 +124,60 @@ export const handleLogin = async () => {
                 localStorage.setItem('username', data.username);
                 await updateLanguage(); 
                 connectWS(data.tokens.access);
-
                 navigateTo('/home', true);
             }
         } else {
             displayLoginError('login-form', 'Invalid Credentials');
         }
+    } catch (error) {
+        console.error('Error logging in:', error);
+    }
+};
+
+export const loadSignupPage = () => {
+    drawHeader('login').then(() => {
+        return fetch(baseUrl + userMgmtPort + "/api/signup-form/", {
+            method: 'GET',
+            credentials: "include"
+        });
+    })
+    .then((response) => response.json())
+    .then(data => {
+        if (data.form_html) {
+            console.log('Form html returned!');
+            document.getElementById('content-area').innerHTML = data.form_html;
+        } else {
+            console.error('Form HTML not found in response:', data);
+        }
     })
     .catch(error => {
-        console.error('Error logging in:', error);
-        alert('An error occurred during login.');
+        console.error('Error loading page', error);
     });
 };
 
 export const handleSignup = async () => {
-    const loginForm = document.getElementById('login-form');
-    if (loginForm) loginForm.remove();
+    const signupForm = document.getElementById('signup-form');
+    const formData = new FormData(signupForm);
 
-    drawHeader('login').then(() => {
-        return  fetch(baseUrl + ":8000/api/signup-form/", {
-            method: 'GET',
-            credentials: "include"
-        })
+    fetch(baseUrl + userMgmtPort + "/api/register/", {
+        method: 'POST',
+        body: JSON.stringify(Object.fromEntries(formData)),
+        headers: { 'Content-Type': 'application/json'}
     })
-    .then(response => response.json()) // Expecting JSON response
-    .then(data => {
-        if (data && data.form_html) {
-            console.log('Form HTML returned!');
-            document.getElementById('content-area').innerHTML = data.form_html;
-
-            const signupForm = document.getElementById('signup-form');
-            if (signupForm) {
-                signupForm.addEventListener('submit', async (event) => {
-                    event.preventDefault();
-                    console.log('Submit of signup clicked!');
-                    const formData = new FormData(signupForm);
-                    const formAction = signupForm.action || `${baseUrl}/api/signup/`;
-                    fetch(formAction, {
-                        method: 'POST',
-                        body: JSON.stringify(Object.fromEntries(formData)),
-                        headers: { 'Content-Type': 'application/json' }
-                    })
-                    .then(response => response.json())
-                    .then(async (signupData) => {
-                        if (signupData.success) {
-                            localStorage.setItem('access_token', signupData.tokens.access);
-                            localStorage.setItem('refresh_token', signupData.tokens.refresh);
-                            let lang = getCookie("language") || "en";
-                            await updateLanguage(lang);
-                            navigateTo('/home', true);
-                        } else {
-                            displayLoginError('signup-form', `${signupData.error}`);
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error submitting signup form:', error);
-                    });
-                });
-            } 
+    .then(response => response.json())
+    .then(async (signupData) => {
+        if (signupData.success) {
+            localStorage.setItem('access_token', signupData.tokens.access);
+            localStorage.setItem('refresh_token', signupData.tokens.refresh);
+            let lang = getCookie("language") || "en";
+            await updateLanguage(lang);
+            navigateTo('/home', true);
+        } else {
+            displayLoginError('signup-form', `${signupData.error}`);
         }
     })
     .catch(error => {
-        console.error('Error loading Sign In form:', error);
+        console.error('Error submitting signup form:', error);
     });
 };
 
@@ -205,21 +199,6 @@ export const displayLoginError = (form, errorMessage) => {
         loginForm.reset();  // to clear the form
     }
 };
-
-document.addEventListener("DOMContentLoaded", () => {
-    const contentArea = document.getElementById("content-area");
-
-    contentArea.addEventListener('submit', (event) => {
-        if (event.target && event.target.id === "login-form") {
-            event.preventDefault();
-            console.log('Submit button clicked!');
-
-            handleLogin(); 
-            //navigateTo('/handle-login', false); // Error when invalid login and refresh
-        }
-    });
-
-});
 
 function getCookie(name) {
     const cookies = document.cookie.split(";");

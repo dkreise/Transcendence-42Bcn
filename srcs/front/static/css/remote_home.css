@@ -1,69 +1,5 @@
-
-#game-container {
-	width: 90%;
-	height: 100%;
-}
-
-#gameStatus {
-	width: 90%;
-	height: 90%;
-}
-
-.gameStatus h1 {
-    font-size: calc(2vw + 1rem);
-}
-
-
-#newGameBoard {
-	height: 50vh;
-	position: relative;
-}
-
-canvas {
-	display: block;
-	height: 100%;
-	image-rendering: smooth;
-	object-fit: contain;
-}
-
-.form-column {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin: 20px auto;
-    /* width: 100%; */
-}
-
-.form-column label {
-    font-size: 1.2rem;
-    margin-bottom: 10px;
-    color: white;
-    width: 100%; /* Make the label take up the full width */
-    text-align: center; /* Center the label text */
-}
-
-.form-column input[type="text"] {
-    padding: 10px;
-    font-size: 1rem;
-    width: 100%;
-    max-width: 300px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-}
-
-#wait {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	text-align: center;
-	display: "none";
-	white-space: normal;
-}
-
-.game-rooms {
+/* Title style */
+.game-home-container {
     width: 200vw;
     height: 100vh;
 }
@@ -97,6 +33,12 @@ canvas {
     margin-bottom: 1.5rem;
 }
 
+.game-subtitle {
+    font-size: 1.5rem; /* Slightly smaller */
+    font-weight: bold;
+    color: white; /* White text */
+}
+
 .divider {
     width: 2px;
     background-color: #6c5e58;
@@ -116,5 +58,27 @@ canvas {
     background-color: #a28f87;
     border-color: none;
     outline: none;
+}
+
+.bracket {
+    color: #595e61;
+}
+
+.game-rectangle {
+  width: 300px;
+  height: 200px;
+  background-color: #595e61;
+  color: white;
+  text-align: center;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 0 auto;
+}
+
+#play-button {
+  margin-top: 20px;
 }
 

@@ -2,18 +2,18 @@ from django.utils.translation import activate
 from django.http import HttpRequest
 
 def add_language_context(request, context):
-    # if context is None:
-    #     context = {} 
-    # lang = request.COOKIES.get('language') or 'en'
+    
+    # lang = request.COOKIES.get('language') or 'EN'
+
     if not isinstance(request, HttpRequest):  # Ensure it's a Django HttpRequest
         request = None  # Set to None if not valid
-    lang = request.COOKIES.get('language') if request else 'en'
+
+    lang = request.COOKIES.get('language') if request else 'EN'
     lang_words = get_lang_words(lang)
     context.update(lang_words)
-    # return context
 	
 def get_lang_words(lang):
-    if lang == 'es':
+    if lang == 'ES':
         return {
             'my_profile': "Mi perfil",
             'enter_name': "Indica el nombre del segundo jugador:",
@@ -50,9 +50,10 @@ def get_lang_words(lang):
             "enemy_connected": "¡Enemigo conectado!",
             "wins": "Gana",
             "exit": "Salir",
+			"create_room": "Crear sala",
             
         }
-    elif lang == 'ca':
+    elif lang == 'CA':
         return {
             'my_profile': "El meu perfil",
             'enter_name': "Indica el nom del segon jugador:",
@@ -89,8 +90,9 @@ def get_lang_words(lang):
             "enemy_connected": "Enemic connectat!",
             "wins": "Guanya",
             "exit": "Sortir",
+			"create_room": "Crear sala",
         }
-    elif lang == 'ru':
+    elif lang == 'RU':
         return {
             'my_profile': "Профиль",
             'enter_name': "Введите имя второго игрока:",
@@ -133,9 +135,10 @@ def get_lang_words(lang):
             'very_easy': "Очень низкий",
             'easy': "Низкий",
             'medium': "Средний",
-            'hard': "Высокий"
+            'hard': "Высокий",
+			'create_room': "Создать комнату", 
         }
-    elif lang == 'lv':
+    elif lang == 'LV':
         return {
             'my_profile': "Mans profils",
             'enter_name': "Ievadiet otrā spēlētāja vārdu:",
@@ -172,6 +175,7 @@ def get_lang_words(lang):
             "enemy_connected": "Ienaidnieks pievienojās!",
             "wins": "Uzvar",
             "exit": "Iziet",
+			"create_room": "Sukurti kambarį",
         }
     else:  # Default to English if no match
         return {
@@ -216,5 +220,6 @@ def get_lang_words(lang):
             'very_easy': "Very Easy",
             'easy': "Easy",
             'medium': "Medium",
-            'hard': "Hard"
+            'hard': "Hard",
+			'create_room': "Create room"
         }

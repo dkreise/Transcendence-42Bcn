@@ -14,9 +14,13 @@ import { drawHeader } from "./main.js";
 //-------------------- VARIABLES INITIALIZATION ------------------------------//
 //----------------------------------------------------------------------------//
 
-var baseUrl = "http://localhost"; // change (parse) later
- 
+
+const gamePort = window.env.GAME_PORT;
+const host = window.env.HOST;
+const protocolSocket = window.env.PROTOCOL_SOCKET;
+
 let renderer, scene, camera, player, opponent, waiting = false, mainplayer, headerHeight;
+
 let limits, planeGeo, planeMat, plane, controls, ai, loader, countdownText;
 let player1, player2, ball, gameLoopId, targetBallX, targetBallY; // if the main user is player 1 or 2
 let mainUser, lights, dict, socket = null, moveCamera = false, cameraId, remote = false;
@@ -308,8 +312,7 @@ async function initializeWebSocket(roomId = 123) {
     if (!socket)
     {
         text.waiting.visible = true;
-        socket = new WebSocket(`ws://localhost:8001/ws/G/${roomId}/?token=${token}`);
-        // console.log("Socket created!");
+        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
     }
     socket.onopen = () => console.log("WebSocket connection established.");
     socket.onerror = (error) => {
@@ -774,6 +777,25 @@ async function buttonsManager(event) {
     }
 }
 
+//async function showCountdown(callback) {
+//    let count = 2;
+//    text.updateGeometry(text.countdownText, "3", textCount);
+//    text.countdownText.visible = true;
+//    const interval = setInterval((dict) => {
+//        // console.log(window.gameDict);
+//        if (count === 0) {
+//            text.updateGeometry(text.countdownText, window.gameDict['go'], textCount);
+//        } else if (count < 0) {
+//            clearInterval(interval);
+//            text.countdownText.visible = false; // Hide instead of remove
+//            callback(); // Resume the game  
+//        } else {
+//            text.updateGeometry(text.countdownText, `${count}`, textCount);
+//        }
+//        count--;  
+//    }, 1000);
+//}
+
 async function showCountdown(callback) {
     let count = 2;
     text.updateGeometry(text.countdownText, "3", textCount);
@@ -790,7 +812,7 @@ async function showCountdown(callback) {
             text.updateGeometry(text.countdownText, `${count}`, textCount);
         }
         count--;  
-    }, 1000);
+    }, 500);
 }
 
 async function firstCountdown(callback) {

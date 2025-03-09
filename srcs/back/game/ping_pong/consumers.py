@@ -8,12 +8,9 @@ import json
 import logging 
 import uuid
 import asyncio
-from .websocket_state import active_tournaments, active_tournaments_lock
+from .websocket_state import active_tournaments, active_tournaments_lock, active_games, active_games_lock
 
 logger = logging.getLogger(__name__)
-
-active_games = {}
-active_games_lock = asyncio.Lock()
 
 ws_codes = {
 	"4000": "You're already in the room",

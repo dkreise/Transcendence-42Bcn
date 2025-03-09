@@ -1,12 +1,15 @@
+const host = window.env.HOST;
+const userMgmtPort = window.env.USER_MGMT_PORT;
+const protocolSocket = window.env.PROTOCOL_SOCKET;
+
 export var socket = null;
 
 export function connectWS(access_token)
 {
     if (!access_token)
         return ;
-    socket = new WebSocket(`ws://localhost:8000/ws/online-status/?token=${access_token}`);
-    // socket = new WebSocket(`ws://localhost:8000/ws/online-status/`);
-    
+    socket = new WebSocket(`${protocolSocket}://${host}:${userMgmtPort}/${protocolSocket}/online-status/?token=${access_token}`);
+
     socket.onclose = function(event) {
 
         console.log('WebSocket Disconnected. ');

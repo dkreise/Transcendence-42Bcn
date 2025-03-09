@@ -1,4 +1,4 @@
-import { loadLoginPage, handleLogin, handleSignup } from "./login.js";
+import { loadLoginPage, handleLogin, loadSignupPage, handleSignup } from "./login.js";
 import { loadProfilePage, loadProfileSettingsPage, loadMatchHistoryPage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage, setUp3DListener } from "./home.js";
@@ -11,10 +11,15 @@ import { cleanup3D } from "./3DLocalGame.js";
 import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest } from "./tournament.js";
 import { cleanupLocal } from "./localGame.js"
 import { connectWS } from "./onlineStatus.js";
-import { cleanRemote } from "./remoteGame.js";
+import { cleanRemote, createRoomId } from "./remoteGame.js";
 import { loadPageNotFound } from "./errorHandler.js";
 
 const historyTracker = [];
+
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
+const userMgmtPort = window.env.USER_MGMT_PORT;
 
 // The routes object maps URL paths to their respective handler functions:
 // Each key is a path (e.g., /, /profile).
@@ -24,7 +29,8 @@ const routes = {
     '/': homePage,
     '/login': loadLoginPage,
     '/handle-login': handleLogin,
-    '/signup': handleSignup,
+    '/signup': loadSignupPage,
+    '/handle-signup': handleSignup,
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,
     '/two-fa-login': loadLogin2FAPage,
@@ -55,12 +61,11 @@ const routes = {
     '/tournament-game-ai': tournamentGameRequest,
     '/tournament-game-remote': tournamentGameRequest,
     '/page-not-found': loadPageNotFound,
+	'/create-game': createRoomId,
     
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
 };
-
-var baseUrl = "http://localhost"; // change (parse) later
 
 // --- headerType = 1 --> draw mainHeader
 // --- headerType = 2 --> only lenguaje button
@@ -72,22 +77,21 @@ export function drawHeader(headerType) {
 
         switch (headerType) {
             case 'main':
-                url = ":8000/api/get-main-header/";
+                url = userMgmtPort + "/api/get-main-header/";
                 break;
             
             case 'login':
-                url = ":8000/api/get-languages-header/";
+                url = userMgmtPort + "/api/get-languages-header/";
                 break;
 
             case '3d':
-                url = ":8000/api/get-3D-header/"; 
+                url = userMgmtPort + "/api/get-3D-header/"; 
                 break;
             default:
                 document.getElementById('header-area').innerHTML = '';
                 resolve();  // IMPORTANTE: Se debe resolver la promesa en el caso por defecto
                 return;
         }
-
         fetch(baseUrl + url, {
             method: 'GET',
             credentials: "include"
@@ -146,7 +150,7 @@ function getRedirectionIfNeeded(path=null) {
     }
 
     //Check if the user has the required permissions, if not, redirect
-    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/callback'];
+    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/handle-login', '/handle-signup', '/callback'];
     const openPaths = ['/page-not-found']; //open for authenticated and not authenticated
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';

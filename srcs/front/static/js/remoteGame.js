@@ -3,6 +3,13 @@ import { setupControls } from "./localGame.js";
 import { setupControlsAI } from "./AIGame.js"
 import { refreshAccessToken } from "./login.js";
 import { startTournamentGame, stopTournamentGame } from "./tournament.js";
+import { makeAuthenticatedRequest } from "./login.js"
+
+const baseUrl = "http://localhost"; //TODO: change (pase later)
+
+const gamePort = window.env.GAME_PORT;
+const host = window.env.HOST;
+const protocolSocket = window.env.PROTOCOL_SOCKET;
 
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
@@ -20,7 +27,6 @@ let gameStop = false;
 let tourId = null;
  
 console.log("Hi! This is remoteGame.js :D");
-
 
 export function handleRoleAssignment(data) {
 	console.log("Hi! I'm " + data.role);
@@ -51,17 +57,16 @@ export function scaleGame(data)
 
 async function readySteadyGo(countdown)
 {
-	const msg = ["1", "2", "3"];
+	const msg = ["1", "2", "3", "Rival found!"];
 	let div = document.getElementById("wait");
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	div.textContent = msg[countdown];
-	div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
-
+	div.innerHTML = msg[countdown];
+	div.style.fontSize = Math.floor(canvas.width * 0.15) + "px";
+	div.style.display = "block";
 
 	ctx.fillStyle = "rgb(0 0 0 / 25%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	div.style.display = "block";
 	//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
 	if (countdown >= 0)
 		await setTimeout(async() => await readySteadyGo(--countdown), 500);
@@ -74,7 +79,6 @@ function displayCountdown()
 {
 	if (!ctx)
 		return ;
-	//let fontSize = Math.floor(canvas.width * 0.05);
 	let div = document.getElementById("wait");
 	let waitMsg = div ? div.dataset.original : "Waiting for X"; 
 
@@ -110,10 +114,6 @@ function handleEndgame(data) {
 		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
 	else
 		player.displayEndgameMessage(ctx, opponent.score, msg[1]);
-//	if (player.whoAmI == winner)
-//		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
-//	else
-//		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["loser"]);
 }
 
 export function handleTourEndgame(data) {
@@ -172,24 +172,6 @@ export async function handleStatus(data, tourSocket)
 		setupControlsAI(player)
 		gameLoop();
 	}
-	// player.update(data.players, data.scores);
-	// opponent.update(data.players, data.scores);
-	// if (data.wait) // data.wait [bool]
-	// {
-	// 	if (gameLoopId)
-	// 		cancelAnimationFrame(gameLoopId);
-	// 	if (data.countdown != 4)
-	// 		displayCountdown();
-	// 	else
-	// 		await readySteadyGo(data.countdown - 2);
-	// }
-	// else
-	// {
-	// 	console.log("let's start the game!");
-	// 	window.addEventListener("beforeunload", beforeUnloadHandlerRemote);
-	// 	setupControls(player, opponent)
-	// 	gameLoop();
-	// }
 }
 
 export function handleUpdate(data)
@@ -200,8 +182,6 @@ export function handleUpdate(data)
 		opponent.update(data.players, data.scores);
 	}
 	if (data.ball) {
-		// targetBallX = data.ball.x * backFactor["x"];
-		// targetBallY = data.ball.y * backFactor["y"];
 		ball.x = data.ball.x * canvas.width;
 		ball.y = data.ball.y * canvas.height;
 	}
@@ -210,20 +190,31 @@ export function handleUpdate(data)
 	}
 }
 
-// if (data.players)
-// 	{
-// 		player.update(data.players, data.scores);
-// 		opponent.update(data.players, data.scores);
-// 	}
-// 	if (data.ball) {
-// 		ball.x = data.ball.x * canvas.width;
-// 		ball.y = data.ball.y * canvas.height;
-// 	}
+export async function createRoomId()
+{
+	let id = Math.floor(1000000 + Math.random() * 9000000) // Ensures a 7-digit number
+	try {
+		while (1)
+		{
+			let response = await makeAuthenticatedRequest(baseUrl + `:8001/api/check-remote/${id}`,
+							{ method: "GET", credentials: "include" });
+			let data = await response.json();
+			if (!data.active)
+			{
+				return id;
+			}
+		}
+	}
+	catch (error)
+	{
+		console.error("Failed to fetch game status: ", error);
+		return -1;
+	}
+}
 
-//async function initializeWebSocket(roomId) {
-async function initializeWebSocket() {
-	//const roomID = new URLSearchParams(window.location.search).get("room") || "default";
-	const roomId = 1;
+async function initializeWebSocket(roomId) {
+//async function initializeWebSocket() {
+//	const roomId = 123;
 	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
@@ -234,7 +225,7 @@ async function initializeWebSocket() {
 	}
 	if (!socket)
 	{
-		socket = new WebSocket(`ws://localhost:8001/ws/G/${roomId}/?token=${token}`);
+		socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
 		console.log("Socket created!");
 	}
 	socket.onopen = () => console.log("WebSocket connection established.");
@@ -282,7 +273,8 @@ async function initializeWebSocket() {
 						displayCountdown();
 					else
 					{
-						await readySteadyGo(data.countdown - 1);
+						//await readySteadyGo(data.countdown - 1);
+						await readySteadyGo(data.countdown);
 						player.update(data.players, data.scores);
 						opponent.update(data.players, data.scores);
 						ball.resetPosition();
@@ -332,12 +324,9 @@ function gameLoop() {
 	opponent.draw(ctx);
 	player.drawScore(ctx);
 	opponent.drawScore(ctx);
-	//interpolateBall();
 	ball.draw(ctx);
 
 	player.move(socket);
-	//ball.move(player, opponent, gameLoopId, socket);
-
 	if (gameStop) {
 		stopTournamentGame();
 	}
@@ -369,7 +358,6 @@ function resizeCanvas() {
 
     canvas.style.width = `${newWidth}px`;
     canvas.style.height = `${newHeight}px`;
-	//console.warn(`resize: newCanvas 2: W ${canvas.width} H ${canvas.height}`);
 	ctx = canvas.getContext('2d');
 	if (player)
 		player.resize(newWidth, newHeight);
@@ -384,25 +372,20 @@ function resizeCanvas() {
 // Resize canvas when the window resizes
 window.addEventListener("resize", resizeCanvas);
 
-export function startGame()
+export function startGame(roomId)
 {
 	canvas = document.getElementById('newGameCanvas');
 	tourId = localStorage.getItem('currentTournamentId');
 
 	if (!canvas)
-	{
-		alert("Unable to display the game. Please, try again later");
 		return ;
-	} else {
-		console.log("CANVAS: ", canvas);
-	}
 	ball = new Ball(canvas);
 	resizeCanvas();
 	targetBallX = ball.x;
 	targetBallY = ball.y;
 	gameStop = false;
 	if (!tourId)
-		initializeWebSocket();
+		initializeWebSocket(roomId);
 	else {
 		startTournamentGame();
 		const button = document.getElementById('play-again');

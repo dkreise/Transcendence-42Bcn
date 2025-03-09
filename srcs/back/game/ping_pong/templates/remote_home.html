@@ -1,0 +1,33 @@
+<div id="game-home-container" class="container-fluid">
+  
+    <div class="game-wrapper">
+      <!-- Sección para crear torneo -->
+      <div id="create-game-form" class="section section-create">
+        <div class="section-header">
+          <h2>{{ create_room }}</h2>
+        </div>
+        <div class="d-flex flex-column gap-3 mb-4">
+        </div>
+        <button class="button-trn" onclick="createRoomId()">
+          <span class="button-content-trn">{{ create }}</span>
+        </button>
+      </div>
+  
+      <!-- Separador vertical -->
+      <div class="separator-trn"></div>
+  
+      <!-- Sección para unirse a torneo -->
+      <div id="join-game-form" class="section section-join">
+        <div class="section-header">
+          <h2>{{join}}</h2>
+        </div>
+        <div class="d-flex flex-column gap-3 mb-4">
+          <label for="game-id-input" class="form-label text-center" style="color: #151515">{{ enter_id }}</label>
+          <input type="text" id="game-id-input" class="form-control" placeholder="Enter ID">
+        </div>
+        <button class="button-trn" replace-url data-route="/join-game">
+          <span class="button-content-trn">{{ join }}</span>
+        </button>
+      </div>
+    </div>
+  </div>

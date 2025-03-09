@@ -31,11 +31,20 @@ SECRET_KEY = 'django-insecure-d0#pa6x9j=zb@!d&8#pe@x97)2o3qv#op6b((0r53-f^4k4&i@
 UID = os.environ.get('UID')
 SECRET = os.environ.get('SECRET')
 REDIRECT_URI = os.environ.get('REDIRECT_URI')
+FRONT_PORT = os.environ.get('FRONT_PORT')
+HOST = os.getenv('HOST')
+USER_MGMT_PORT = os.environ.get('USER_MGMT_PORT')
+GAME_PORT = os.environ.get('GAME_PORT')
+PROTOCOL_WEB = os.environ.get('PROTOCOL_WEB')
+PROTOCOL_SOCKET = os.environ.get('PROTOCOL_SOCKET')
+SECURE = os.environ.get('SECURE')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'game']
+ALLOWED_HOSTS = ['*']
+if HOST:
+    ALLOWED_HOSTS.append(HOST)
 
 # Application definition
 
@@ -72,9 +81,10 @@ MIDDLEWARE = [
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
+ASGI_APPLICATION = 'game.asgi.application'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8443",  # Allow your frontend's origin
+    f"http://{HOST}:{FRONT_PORT}",  # Allow your frontend's origin
 ]
 
 CORS_ALLOW_CREDENTIALS = True  # This allows all origins, useful for dev.
@@ -187,9 +197,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Allow cookies to be sent with each request
 SESSION_COOKIE_HTTPONLY = True  # Prevent JavaScript access to the session cookie
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Use database-backed sessions
-SESSION_COOKIE_SECURE = False  # Set to True for HTTPS in production
-CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript to access CSRF token
-CSRF_COOKIE_SECURE = False  # Set to True for HTTPS in production
+CSRF_COOKIE_HTTPONLY = False
+
+# Manage http vs https
+if SECURE == "true":
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+else:
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
