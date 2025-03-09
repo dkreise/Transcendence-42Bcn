@@ -100,6 +100,7 @@ export async function gameLocal () {
     // Enable3D = localStorage.getItem("3D-option") === "true";
     // "3d-option": Enable3D ? "True" : "False",
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
+	console.log("gaem.js: " + dictionary);
 
     const username = await getUsername();
     if (!username) {
@@ -137,13 +138,13 @@ export async function gameLocal () {
             console.log('Raw response:', response);  // Add this line to inspect the raw response
             return response.json();
         })
-        .then(data => {
+        .then(async data => {
             if (data.game_html && Enable3D === "false") {
                 console.log('Local game returned!');
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
                 if (canvas)
-                    startLocalGame(data['player1'], data['player2'], data['main_user']);
+                    await startLocalGame(data['player1'], data['player2'], data['main_user'], dictionary);
                 else
                 console.log("Error: Canvas not found");
 
@@ -166,7 +167,7 @@ export async function gameLocal () {
 
 
 export const gameAI = (args) => {
-    // const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
+    //const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
     Enable3D = localStorage.getItem("3D-option");
 
@@ -220,7 +221,7 @@ export const gameAI = (args) => {
                         //     // loadBracketTournamentPage(tournament.id);
                         // });
                     }
-                    startAIGame(data['player1'], data['player2'], data['main_user'], tournament);
+                    startAIGame(data['player1'], data['player2'], data['main_user'], tournament, dictionary);
      
                 } else {
                     console.log("Error: Canvas not found");

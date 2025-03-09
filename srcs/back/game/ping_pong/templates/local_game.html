@@ -2,8 +2,9 @@
     <div class="gameStatus">
         <h1>{{ game_title }}</h1> <!-- Game title dynamically rendered from the context -->
 
-        <div id="newGameBoard">
-            <canvas id="newGameCanvas" width="1200" height="600" style="display: flex;"></canvas> <!-- Game playfield --> 
+		<div id="newGameBoard" class="d-flex justify-content-center align-items-center position-relative">
+    		<canvas id="newGameCanvas" class="d-block"></canvas> <!-- Game playfield -->
+    		<div id="wait" class="position-absolute text-center w-100">
         </div>
         <button id="play-again" data-route="/play-local">{{ restart }}</button>
     </div>

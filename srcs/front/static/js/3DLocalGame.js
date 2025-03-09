@@ -817,13 +817,19 @@ async function showCountdown(callback) {
 
 async function firstCountdown(callback) {
     let count = 3;
+    if (text.enemy.visible === true) {
+        count = 2;
+    } else {
+        text.updateGeometry(text.countdownText, `${count}`, textCount);
+        text.countdownText.visible = true;
+    }
     // if (count = 2)
     // text.updateGeometry(text.countdownText, "3", textWinner);
     
     // text.countdownText.visible = true;
     // text.enemy.visible = true;
     const interval = setInterval(() => {    
-        if (count == 3) {
+        if (count == 2 && text.enemy.visible === true) {
             text.enemy.visible = false;
             text.updateGeometry(text.countdownText, `${count}`, textCount);
             player1.show();

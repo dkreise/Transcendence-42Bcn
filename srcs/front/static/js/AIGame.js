@@ -16,6 +16,7 @@ let difficulty = 3; // 0.5-1 => easy, 3 => already low chance for ai to lose, 5 
 let errorRange = null;
 let tournamentId = null;
 let gameStop = false;
+let dict = null;
 
 export function clearIntervalIDGame() {
     if (intervalID) {
@@ -250,7 +251,8 @@ export function setupControlsAI(player) {
 }
 
 // Start game function
-export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
+export function startAIGame(playerName1, playerName2, mainUserNmb, tournament, dictionary) {
+	dict = dictionary;
     if (intervalID) {
         clearInterval(intervalID);
         intervalID = null;

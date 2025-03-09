@@ -144,7 +144,12 @@ class GameManager:
 
 	def handle_message(self, role, data):
 		if data["type"] == "update" and data["role"] in self.players and data["y"]:
-			self.players[data["role"]]["y"] = data["y"]
+			if data["y"] < 0:
+				self.players[data["role"]]["y"] = 0
+			elif data["y"] > 1:
+				self.players[data["role"]]["y"] = 1
+			else:
+				self.players[data["role"]]["y"] = data["y"]
 
 
 ##################################################
@@ -171,14 +176,18 @@ class GameManager:
 		pl2 = self.players["player2"]["y"] * boardH
 
 		if self.ball["x"] * boardW - radius <= GameManager.paddle_config["width"]:
-			if ((self.ball["y"] * boardH > pl1 - padH - 0.05) and
-				(self.ball["y"] * boardH < pl1 + padH + 0.05)):
+			logger.info(f"col Side pl1 x area")
+			logger.info(f"ball Y {self.ball['y'] * boardH} pl1 Y {pl1}")
+			if ((self.ball["y"] * boardH >= pl1 + padH + 1) and
+				(self.ball["y"] * boardH <= pl1 - padH - 1)):
+				logger.info(f"col Side pl1")
 				return True
-		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"]:
-			# logger.info(f"Right paddle????")
-			if ((self.ball["y"] * boardH > pl2 - padH - 0.05) and
-				(self.ball["y"] * boardH < pl2 + padH + 0.05)):
-				# logger.info(f"Collition!!")
+		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"] - 10:
+			logger.info(f"col Side pl2 x area")
+			logger.info(f"ball Y {self.ball['y'] * boardH} pl2 Y {pl2}")
+			if ((self.ball["y"] * boardH >= pl2 + padH + 1) and
+				(self.ball["y"] * boardH <= pl2 - padH - 1)):
+				logger.info(f"col Side pl2")
 				return True
 		return False
 
@@ -189,17 +198,23 @@ class GameManager:
 		boardH = GameManager.board_config["height"]
 		boardW = GameManager.board_config["width"]
 		pl1_x = padW
-		pl1_y = self.players["player1"]["y"] * boardW
+		pl1_y = self.players["player1"]["y"] * boardH
 		pl2_x = boardW - padW
-		pl2_y = self.players["player2"]["y"] * boardW
+		pl2_y = self.players["player2"]["y"] * boardH
 
+		# Left paddle
 		if self.ball["x"] * boardW - radius <= pl1_x:
-			if ((self.ball["y"] * boardH + radius >= pl1_y - padH) or
-				(self.ball["y"] * boardH - radius <= pl1_y + padH)):
+			logger.info(f"col Top pl1 x area")
+			if ((self.ball["y"] * boardH - radius >= pl1_y - padH) or
+				(self.ball["y"] * boardH + radius <= pl1_y + padH)):
+				logger.info(f"col Top pl1")
 				return True
-		elif self.ball["x"] * boardW - radius >= pl2_x:
-			if ((self.ball["y"] * boardH + radius >= pl2_y - padH) or
-				(self.ball["y"] * boardH - radius <= pl2_y + padH)):
+		# Right paddle
+		elif self.ball["x"] * boardW + radius >= pl2_x:
+			logger.info(f"col Top pl2 x area")
+			if ((self.ball["y"] * boardH - radius >= pl2_y - padH) or
+				(self.ball["y"] * boardH + radius <= pl2_y + padH)):
+				logger.info(f"col Top pl2")
 				return True
 		return False
 	
@@ -222,7 +237,7 @@ class GameManager:
 		if not is_col_s and (self.ball["x"] * GameManager.board_config["width"] - GameManager.ball_config["rad"] <= 0):
 			# logger.info(f"{self.players['player1']} has scored")
 			await self.has_scored("player2")
-		elif not is_col_s and (self.ball["x"] * GameManager.board_config["width"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]):
+		elif not (is_col_s and is_col_top) and (self.ball["x"] * GameManager.board_config["width"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]):
 			# logger.info(f"{self.players['player2']} has scored")
 			await self.has_scored("player1")
 
@@ -235,7 +250,6 @@ class GameManager:
 		try:
 			await asyncio.sleep(2)
 			self.status = 0
-			logger.info("sending status in ready_steady")
 			await self.send_status(0)
 		except Exception as e:
 			logger.error(f"Error in Ready Steady Go: {e}")
@@ -435,7 +449,6 @@ class GameManager:
 		if self.game_loop_task:
 			self.game_loop_task_cancel()
 			self.game_loop_task = None
-		logger.info("sending status in stop_game")
 		await self.send_status(GameManager.countdown)
 
 #################################################################
@@ -458,7 +471,6 @@ class GameManager:
 ####################################################################3
 
 	async def send_players_id(self):
-		logger.info("sending players' id (gameMan)")
 		message = {
 			"type": "players",
 			"player1": self.players["player1"]["id"],
@@ -472,7 +484,6 @@ class GameManager:
 			})
 
 	async def send_status(self, countdown):
-		logger.info(f"sending status msg (GM) wait: {self.status} cd: {countdown}")
 		message = {
 			"type": "status",
 			"ball": self.ball,

@@ -60,12 +60,16 @@ export class Player {
         ctx.font = "40px Arial";
         ctx.fillText(finalScore, this.canvas.width / 2, this.canvas.height / 2 + 30);
     }
+	resetPosition() {
+		this.y = this.canvas.height / 2;
+	}
 }
 
 export class Ball {
     // radius = 10;
+	div = document.getElementById("wait");
 
-    constructor(canvas) {
+    constructor(canvas, ctx, dict = null) {
         this.x = canvas.width / 2;
         this.y = canvas.height / 2;
         this.xspeed = 5;
@@ -73,13 +77,15 @@ export class Ball {
         this.color = "white";
         this.canvas = canvas;
         this.radius = canvas.width * 0.015;
+		this.dict = dict;
+		this.ctx = ctx;
     }
 
-    draw(ctx) {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-        ctx.fill();
+    draw() {
+       this.ctx.fillStyle = this.color;
+       this.ctx.beginPath();
+       this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+       this.ctx.fill();
     }
 
     resetPosition() {
@@ -118,10 +124,17 @@ export class Ball {
         // Scoring conditions
         if (this.x - this.radius <= 0) {
             player2.scored();
+			player2.resetPosition();
+			player1.resetPosition();
             this.resetPosition();
+			return (1);
         } else if (this.x + this.radius >= this.canvas.width) {
             player1.scored();
+			player1.resetPosition();
+			player2.resetPosition();
             this.resetPosition();
+			return (1);
         }
+		return (0);
     }
 }
