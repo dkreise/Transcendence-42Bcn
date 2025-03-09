@@ -1,8 +1,13 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { checkPermission, navigateTo } from "./main.js";
 
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
+const userMgmtPort = window.env.USER_MGMT_PORT;
+
 function getUserPreferenceLanguageFromDB() {
-    return makeAuthenticatedRequest("http://localhost:8000/api/get-user-pref-lang", {
+    return makeAuthenticatedRequest(baseUrl + userMgmtPort + "api/get-user-pref-lang", {
         method: "GET",
         credentials: "include"  // This ensures cookies are sent along with the request 
     })
@@ -28,7 +33,7 @@ function setCookie(name, value) {
 }
 
 function saveUserPreferenceLanguageToDB(lang) {
-    makeAuthenticatedRequest("http://localhost:8000/api/save-user-pref-lang", {
+    makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/save-user-pref-lang", {
         method: "POST",
         credentials: "include",
         headers: {
@@ -49,7 +54,7 @@ function updateLanguageButtonUI(lang) {
     const languageMenu = document.getElementById("language-menu");
 
     if (languageButton) {
-        languageButton.textContent = lang.toUpperCase();
+        languageButton.textContent = lang;
     }
 
     if (languageMenu) {
@@ -105,7 +110,5 @@ document.addEventListener("headerLoaded", () => {
                 }
             });
         }
-    
-        
     }
 });

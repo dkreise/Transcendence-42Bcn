@@ -1,4 +1,4 @@
-import { loadLoginPage, handleLogin, handleSignup } from "./login.js";
+import { loadLoginPage, handleLogin, loadSignupPage, handleSignup } from "./login.js";
 import { loadProfilePage, loadProfileSettingsPage, loadMatchHistoryPage } from "./profile.js";
 import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage, setUp3DListener } from "./home.js";
@@ -16,6 +16,11 @@ import { loadPageNotFound } from "./errorHandler.js";
 
 const historyTracker = [];
 
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
+const userMgmtPort = window.env.USER_MGMT_PORT;
+
 // The routes object maps URL paths to their respective handler functions:
 // Each key is a path (e.g., /, /profile).
 // Each value is a function that handles what should happen when the app navigates to that path.
@@ -24,7 +29,8 @@ const routes = {
     '/': homePage,
     '/login': loadLoginPage,
     '/handle-login': handleLogin,
-    '/signup': handleSignup,
+    '/signup': loadSignupPage,
+    '/handle-signup': handleSignup,
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,
     '/two-fa-login': loadLogin2FAPage,
@@ -61,8 +67,6 @@ const routes = {
     // '/login': (args) => loadLoginPage(args),
 };
 
-var baseUrl = "http://localhost"; // change (parse) later
-
 // --- headerType = 1 --> draw mainHeader
 // --- headerType = 2 --> only lenguaje button
 // --- headerType = 3 --> clear Header
@@ -73,22 +77,21 @@ export function drawHeader(headerType) {
 
         switch (headerType) {
             case 'main':
-                url = ":8000/api/get-main-header/";
+                url = userMgmtPort + "/api/get-main-header/";
                 break;
             
             case 'login':
-                url = ":8000/api/get-languages-header/";
+                url = userMgmtPort + "/api/get-languages-header/";
                 break;
 
             case '3d':
-                url = ":8000/api/get-3D-header/"; 
+                url = userMgmtPort + "/api/get-3D-header/"; 
                 break;
             default:
                 document.getElementById('header-area').innerHTML = '';
                 resolve();  // IMPORTANTE: Se debe resolver la promesa en el caso por defecto
                 return;
         }
-
         fetch(baseUrl + url, {
             method: 'GET',
             credentials: "include"
@@ -147,7 +150,7 @@ function getRedirectionIfNeeded(path=null) {
     }
 
     //Check if the user has the required permissions, if not, redirect
-    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/callback'];
+    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/handle-login', '/handle-signup', '/callback'];
     const openPaths = ['/page-not-found']; //open for authenticated and not authenticated
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';

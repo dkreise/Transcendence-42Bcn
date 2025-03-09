@@ -7,6 +7,10 @@ import { makeAuthenticatedRequest } from "./login.js"
 
 const baseUrl = "http://localhost"; //TODO: change (pase later)
 
+const gamePort = window.env.GAME_PORT;
+const host = window.env.HOST;
+const protocolSocket = window.env.PROTOCOL_SOCKET;
+
 const endgameMsg = {
 	"winner": "Congratuations! You've won!\n",
 	"loser": "Better luck next time :')\n"
@@ -219,7 +223,7 @@ async function initializeWebSocket(roomId) {
 	}
 	if (!socket)
 	{
-		socket = new WebSocket(`ws://localhost:8001/ws/G/${roomId}/?token=${token}`);
+		socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
 		console.log("Socket created!");
 	}
 	socket.onopen = () => console.log("WebSocket connection established.");

@@ -1,8 +1,14 @@
 from django.urls import re_path
 from ping_pong.consumers import PongConsumer
+from django.conf import settings
+
+PROTOCOL_SOCKET = settings.PROTOCOL_SOCKET
 
 websocket_urlpatterns = [
-    re_path(r"ws/(?P<type>[TG])/(?P<tgID>\d+)(?:/(?P<gID>\d+))?/$", PongConsumer.as_asgi()),
+    re_path(
+        rf"{PROTOCOL_SOCKET}/(?P<type>[TG])/(?P<tgID>\d+)(?:/(?P<gID>\d+))?/$",
+        PongConsumer.as_asgi(),
+    ),
 ]
 
 '''

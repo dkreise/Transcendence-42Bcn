@@ -8,7 +8,12 @@ import { drawHeader } from "./main.js";
 import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 
 
-var baseUrl = "http://localhost"; // TODO: change (parse) later
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
+const protocolSocket = window.env.PROTOCOL_SOCKET;
+const gamePort = window.env.GAME_PORT;
+
 let socket = null;
 
 export const manageTournamentHomeBtn = () => { 
@@ -44,7 +49,7 @@ export const loadTournamentHomePage = () => {
         return;
     }
     drawHeader('main').then(() => {
-      return  makeAuthenticatedRequest(baseUrl + ":8001/api/tournament-home-page/", 
+      return  makeAuthenticatedRequest(baseUrl + gamePort + "/api/tournament-home-page/", 
             {method: "GET", credentials: "include"})
         .then((response) => response.json())
         .then(data => {
@@ -313,9 +318,9 @@ export async function tournamentConnect(tourId, nPlayers=null) {
     console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
 
     if (nPlayers) {
-        socket = new WebSocket(`ws://localhost:8001/ws/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
+        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
     } else {
-        socket = new WebSocket(`ws://localhost:8001/ws/T/${tourId}/?token=${token}`);
+        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/T/${tourId}/?token=${token}`);
     }
     
     socket.onopen = () => {
@@ -453,7 +458,7 @@ async function getTournamentId() {
     let id = Math.floor(1000000 + Math.random() * 9000000); // Ensures a 7-digit number
     // let id = 1234567
     try {
-        const response = await makeAuthenticatedRequest(baseUrl + `:8001/api/check-tournament/${id}/`, 
+        const response = await makeAuthenticatedRequest(baseUrl + gamePort + `/api/check-tournament/${id}/`, 
             { method: "GET", credentials: "include" });
         const data = await response.json();
         
@@ -473,11 +478,14 @@ async function getTournamentId() {
 }
 
 function getNumberOfPlayers() {
-    if (! document.getElementById('tournament-count')) {
+    if (! document.getElementById('create-tournament-form')) {
         navigateTo('/tournament-home', true);
+        console.log("holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         return;
     }
-    const nPlayers = document.getElementById('tournament-count').value;
+//     const nPlayers = document.getElementById('tournament-count').value;
+    const nPlayers = document.querySelector('input[name="btn"]:checked').value;
+    console.log("aquiiiiiiiiiiii", nPlayers);
     const validPlayers = ["3", "4", "7", "8", "1", "2"];
     
     if (!validPlayers.includes(nPlayers)) {

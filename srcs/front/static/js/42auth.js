@@ -1,17 +1,17 @@
-import { loadProfilePage } from "./profile.js";
-import { displayLoginError } from "./login.js";
 import { clearURL, navigateTo } from "./main.js";
 import { connectWS } from "./onlineStatus.js";
  
-
-var baseUrl = "http://localhost";
+const userMgmtPort = window.env.USER_MGMT_PORT;
+const host = window.env.HOST;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";  
 
 export const handleLoginIntra = () => {
     console.log(`login 42 clicked: ${window.location.pathname}`);
     const currentPath = '/';
     window.history.replaceState({ fromOAuth: true, previousPath: currentPath  }, null, '/');
     console.log(history.state)
-    window.location.href = "http://localhost:8000/api/login-intra";
+    window.location.href = baseUrl + userMgmtPort + "/api/login-intra";
 }
 
 export const handle42Callback = () => {
@@ -32,8 +32,7 @@ export const handle42Callback = () => {
         else if (code && state){
             const queryParams = new URLSearchParams({code , state}).toString();
             console.log(code, state);
-              
-            const url = `http://localhost:8000/api/login-intra/callback?${queryParams}`;
+            const url = baseUrl + userMgmtPort + `/api/login-intra/callback?${queryParams}`;
             console.log(`Sending GET request to: ${url}`);
             fetch(url, {
                 method: 'POST',
