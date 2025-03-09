@@ -1,5 +1,6 @@
 import { loadLoginPage } from "./login.js";
 import { navigateTo } from "./main.js";
+import { disconnectTournamentWS } from "./tournament.js";
 import { disconnectWS } from "./onlineStatus.js"
 
 const host = window.env.HOST;
@@ -31,11 +32,16 @@ export const handleLogout = () => {
         });
     }
 
+    disconnectTournamentWS();
     disconnectWS()
     console.log("WebSocket closed upon logout.");
 
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
+    localStorage.removeItem('username');
+    localStorage.removeItem('name');
+    localStorage.removeItem('inTournament');
+    localStorage.removeItem('currentTournamentId');
     localStorage.removeItem('intra_token');
     localStorage.setItem("3D-option", "false")
 

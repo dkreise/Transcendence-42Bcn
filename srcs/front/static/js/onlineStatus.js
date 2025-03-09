@@ -30,7 +30,7 @@ export function connectWS(access_token)
     };
     
     socket.onerror = function(error) {
-        console.error('WebSocket Error:', error);
+        console.log('WebSocket Error:', error);
     };
     
     socket.onclose = function(event) {

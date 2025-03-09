@@ -1,39 +1,35 @@
 <div class="container main-container">
-  <div class="row py-2">
-    <div>
-      <button type="button" class="btn btn-standar" data-route="/profile-settings" id="profile-settings-button">
-        {{settings}}
-      </button>
-    </div>
-  </div>
 
   <!-- Contenido del perfil -->
   <div class="row">
     <div class="col-12">
-      <div class="card profile-card p-4 shadow">
+      <div class="card profile-card p-4 mx-auto" id="card-profile">
         <div class="row">
           <!-- Foto de perfil -->
-          <div class="col-4 text-center" style="display: flex;">
+          <div class="col-4 text-center mx-auto" style="align-content: center;">
             {% if photo_url %}
-              <img src="{{ photo_url }}" alt="Profile Photo" class="img-fluid d-block mx-auto">
+              <img src="{{ photo_url }}" style="max-width: 60%; border-radius: 15%;" alt="Profile Photo" class="img-fluid d-block mx-auto">
             {% else %}
               <div class="photo-placeholder mb-3 mx-auto"></div>
             {% endif %}
           </div>
           <!-- Información -->
           <div class="col-8">
-            <h3>{{username}}: {{ user.username }}</h3>
-            <h4>{{name_wo}}: {{ user.first_name }}</h4>
+            <p style="display: inline; padding: 1%;">{{username}}: {{ user.username }}</p>
+            <p style="display: inline; padding: 1%;">{{name_wo}}: {{ user.first_name }}</p>
             <hr>
             <div class="row">
-              <div class="col-6 text-center"><h6>{{played}}</h6><p id="games-played" style="padding:  8%;">{{ stats_games.games_played }}</p></div>
-              <div class="col-6 text-center"><h6>{{games_won}}</h6><p id="games-won" style="padding:  8%;">{{ stats_games.games_won }}</p></div>
-              <div class="col-6 text-center"><h6>{{tournaments_played}}</h6><p id="tournaments-played" style="padding:  8%;">{{ stats_tournaments.tournaments_played }}</p></div>
-              <div class="col-6 text-center"><h6>{{tournament_average_score}}</h6><p id="tournaments-won" style="padding:  8%;">{{ stats_tournaments.tournament_score }}</p></div>
+              <div class="col-6 text-center"><h6>{{played}}</h6><p id="games-played" style="padding:  1%;">{{ stats_games.games_played }}</p></div>
+              <div class="col-6 text-center"><h6>{{games_won}}</h6><p id="games-won" style="padding:  1%;">{{ stats_games.games_won }}</p></div>
+              <div class="col-6 text-center"><h6>{{tournaments_played}}</h6><p id="tournaments-played" style="padding:  1%;">{{ stats_tournaments.tournaments_played }}</p></div>
+              <div class="col-6 text-center"><h6>{{tournament_average_score}}</h6><p id="tournaments-won" style="padding:  1%;">{{ stats_tournaments.tournament_score }}</p></div>
             </div>
             <div class="mt-3 text-center">
-              <button data-route="/match-history" id="match-history-button" class="btn btn-standar">
+              <button data-route="/match-history" id="match-history-button" class="btn btn-standar mx-2">
                 {{match_history}}
+              </button>
+              <button type="button" class="btn btn-standar mx-2" data-route="/profile-settings" id="profile-settings-button">
+                {{settings}}
               </button>
             </div>
           </div>
@@ -45,8 +41,8 @@
   <!-- Gráfico -->
   <div class="row mt-4">
     <div class="col-12">
-      <div class="card chart-card p-3 shadow">
-        <h5 class="text-center">Evolución de Partidas</h5>
+      <div class="card chart-card p-3 mx-auto" id="chart-card">
+        <!-- <h5 class="text-center" style="margin-top: 10px; margin-bottom: 0px;">Evolución de Partidas</h5> -->
         <canvas id="last-ten-games-chart"></canvas>
       </div>
     </div>

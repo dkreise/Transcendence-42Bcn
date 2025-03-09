@@ -142,6 +142,7 @@ def profile_page(request):
         user_id = user.id
         photo_url = None
 
+        print(user.username)
         print("!!!in profile page back")
         stats_games = player_game_statistics(request, user_id)
         print("!!! game stats: ", stats_games)
@@ -194,6 +195,15 @@ def update_profile_settings(request):
         if User.objects.filter(username=username).exclude(id=request.user.id).exists():
             return JsonResponse({'success': False, "error": "Username already exists."}, status=status.HTTP_400_BAD_REQUEST)
 
+        if len(username) < 2 or len(username) > 10:
+            return JsonResponse({'success': False, "error": "Username should be 2-10 (included) chars length."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(first_name) < 2 or len(first_name) > 10:
+            return JsonResponse({'success': False, "error": "First Name should be 2-10 (included) chars length."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        if len(last_name) > 15:
+            return JsonResponse({'success': False, "error": "Last Name should be max 15 chars length."}, status=status.HTTP_400_BAD_REQUEST)
+
         user.username = username
         user.first_name = first_name
         user.last_name = last_name
@@ -208,7 +218,7 @@ def update_profile_settings(request):
 
         user.save()
 
-        return JsonResponse({'success': True, 'message': 'Settings updated successfully!'})
+        return JsonResponse({'success': True, 'message': 'Settings updated successfully!', 'username': username})
     else:
         return JsonResponse({'success': False, 'error': 'User not authenticated.'}, status=401)
 

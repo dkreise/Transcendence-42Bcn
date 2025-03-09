@@ -1,9 +1,19 @@
+.main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+}
+  
+  /* ============================
+     Tarjeta de Perfil
+  =============================== */
   .profile-card {
     /* max-width: 400px;
     max-height: 700px; */
     background: linear-gradient(#0d0d0d, #212121) padding-box,
                 linear-gradient(145deg, transparent 15%,#d5dcf9, #a7b0ca) border-box;
-    /* border: 2px solid transparent; */
+    border: 2px solid transparent;
     padding: 32px 24px;
     padding-top: 10px;
     font-size: 14px;
@@ -17,7 +27,7 @@
     opacity: 0.85;
     
     margin: 5px;
-  } 
+  }
   
   .profile-card .card-body {
     padding: 0;
@@ -39,14 +49,17 @@
     /* width: 100px;
     height: 100px; */
     background: #ccc;
-    border-radius: 30%;
+    border-radius: 50%;
     margin: 0 auto;
   }
   
-
+  /* ============================
+     Tarjeta de Gráfico
+  =============================== */
   .chart-card {
     background: linear-gradient(#0d0d0d, #212121) padding-box,
         linear-gradient(145deg, transparent 15%,#d5dcf9, #a7b0ca) border-box;
+    border: 2px solid transparent;
     padding: 32px 24px;
     padding-top: 10px;
     font-size: 14px;
@@ -80,6 +93,9 @@
     --bs-gradient: none;
   }
   
+  /* ============================
+     Responsividad
+  =============================== */
   @media (max-width: 576px) {
     .profile-card {
       padding: 1rem;
@@ -91,99 +107,31 @@
     }
   }
   
-  .profile-card:hover, .chart-card:hover{
+  .row {
+    padding-right: 0%;
+  }
+  
+  #card-profile:hover, #chart-card{
     transform: none;
   }
 
   #card-profile {
-    height: 330px;
+    height: 350px;
   }
   
-  #chart-card {
-    height: 420px;
-  }
-
   /* Para pantallas con ancho menor a 768px, se usa altura automática */
   @media (max-width: 768px) {
     #card-profile {
       height: auto;
     }
   }
-  
 
-  
-  #save-settings-button {
-    width: 200px;
-}
-
-/* Ejemplo de hover para los botones */
-.btn-primary:hover, .btn-secondary:hover, .btn-success:hover, .btn-danger:hover {
-  opacity: 0.9;
-}
-
-/* Espaciado extra en el formulario */
-#profile-settings-form .form-label {
-  font-weight: 500;
-}
-
-
-#match-history-container {
-    padding: 20px;
+  #chart-card{
+    height: 530px;
   }
-  
-  #match-history-container table {
-    width: 100%;
-    border-collapse: collapse;
-}
 
-#match-history-container th, #match-history-container td {
-    border: 1px solid #ddd;
-    padding: 8px;
+  @media (max-width: 768px) {
+    #chart-card {
+      height: auto;
+    }
   }
-  
-  #match-history-container th {
-    background-color: #634b75;
-    text-align: left;
-  }
-  
-  #match-history-container button {
-    /* flex-grow: 1;   Ensures the input takes the remaining space */
-    max-width: 150px;
-  }
-  
-#twoFA-container img {
-  width: 150px;
-  height: 150px;
-  border-radius: 10%;
-}
-
-.form-control {
-  background-color: rgba(128, 128, 128, 0.3); /* Fondo gris transparente */
-  color: #ffffff; /* Color del texto */
-  border: 1px solid #414141; /* Borde por defecto */
-  border-color: #0d0d0d;
-  transition: border-color 0.3s, background-color 0.3s;
-  /* width: 80%;
-  max-width: 350px;
-  margin: 0 auto; */
-}
-
-/* .form-label {
-  display: block;
-  width: 50%;
-  max-width: 300px;
-  margin: 0 auto 5px auto;
-  text-align: center;
-} */
-
-.form-control::placeholder {
-  color: #cccccc; /* Color para el placeholder */
-}
-
-.form-control:focus {
-  border-color: #5f45bf; /* Color del borde al enfocarse */
-  background-color: rgba(128, 128, 128, 0.5); /* Opcional: cambia el fondo al enfocarse */
-  box-shadow: none; /* Elimina el box-shadow por defecto */
-  color: #ffffff;
-}
-

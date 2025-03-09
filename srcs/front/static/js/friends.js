@@ -1,4 +1,5 @@
 import { makeAuthenticatedRequest } from "./login.js";
+import { drawHeader } from "./main.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -6,18 +7,21 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const loadFriendsSearchPage = () => {
-    makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/search-users", {method: "GET", credentials: "include"})
-        .then((response) => response.json())
-        .then(data => {
-            if (data.search_users_html) {
-                document.getElementById('content-area').innerHTML = data.search_users_html;
-            } else {
-                console.error('Error fetching friends search:', data.error);
-            }
+    drawHeader('main').then(() => {
+       return  makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/search-users", {method: "GET", credentials: "include"})
+            .then((response) => response.json())
+            .then(data => {
+                if (data.search_users_html) {
+                    document.getElementById('content-area').innerHTML = data.search_users_html;
+                } else {
+                    console.error('Error fetching friends search:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching friends search:', error);
+            });
+
         })
-        .catch(error => {
-            console.error('Error fetching friends search:', error);
-        });
 };
 
 const performSearch = () => {

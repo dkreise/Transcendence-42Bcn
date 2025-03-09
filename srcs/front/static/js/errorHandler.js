@@ -7,7 +7,7 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const userMgmtPort = window.env.USER_MGMT_PORT;
 
 export const loadPageNotFound = async () => {
-    const headerType = checkPermission() ? 1 : 2;
+    const headerType = checkPermission() ? 'main' : 'login';
 
     try {
         await drawHeader(headerType);

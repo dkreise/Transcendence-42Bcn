@@ -65,7 +65,7 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
             "Authorization": `Bearer ${accessToken}`, // adding authorization header with the access token
             // "Content-Type": "application/json",
         },
-        credencials: 'include',
+        credentials: 'include',
     };
 
     return fetch(url, options).then((response) => {
@@ -121,12 +121,13 @@ export const handleLogin = async () => {
             } else {
                 localStorage.setItem('access_token', data.tokens.access);
                 localStorage.setItem('refresh_token', data.tokens.refresh);
+                localStorage.setItem('username', data.username);
                 await updateLanguage(); 
                 connectWS(data.tokens.access);
                 navigateTo('/home', true);
             }
         } else {
-            displayLoginError('login-form', `${data.error}`);
+            displayLoginError('login-form', 'Invalid Credentials');
         }
     } catch (error) {
         console.error('Error logging in:', error);
@@ -185,17 +186,6 @@ export const displayLoginError = (form, errorMessage) => {
     if (!login_error)
         return;
 
-    // const existingError = document.getElementById('login-error');
-    // if (existingError)
-    //     existingError.remove();
-
-    // const errorMessage = document.createElement('div');
-    // errorMessage.id = 'login-error';
-    // errorMessage.style.color = 'red';
-    // errorMessage.style.marginBottom = '15px';
-    // errorMessage.textContent = message;
-    // errorMessage.style.display = "flex";
-
     login_error.innerText = errorMessage;
 
     login_error.classList.add('show');
@@ -209,21 +199,6 @@ export const displayLoginError = (form, errorMessage) => {
         loginForm.reset();  // to clear the form
     }
 };
-
-// document.addEventListener("DOMContentLoaded", () => {
-//     const contentArea = document.getElementById("content-area");
-
-//     contentArea.addEventListener('submit', (event) => {
-//         if (event.target && event.target.id === "login-form") {
-//             event.preventDefault();
-//             console.log('Submit button clicked!');
-
-//             handleLogin();
-//             //navigateTo('/handle-login', false); // Error when invalid login and refresh
-//         }
-//     });
-
-// });
 
 function getCookie(name) {
     const cookies = document.cookie.split(";");

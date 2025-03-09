@@ -1,16 +1,38 @@
-<div id="twoFA-container">
-    <div id="2fa-setup-container"> 
-        <h1>{{setup_two_factor_authentication}}</h1>
-        <p>{{scan_qr_code}}</p>
-        <img id="2fa-qr-code" src="{{ qr_code }}" alt="QR Code">
+<div class="container my-4 p-4 rounded twoFA-container d-flex flex-column">
+    <!-- Primera fila: Títulos arriba -->
+    <div class="row text-center mb-3" style="justify-content: center;">
+        <div class="col-md-5">
+            <h1 class="mb-2">{{setup_two_factor_authentication}}</h1>
+        </div>
+        <div class="col-md-5">
+            <h1 class="mb-2">{{verify_two_factor_authentication}}</h1>
+        </div>
     </div>
-    <div id="2fa-verify-container"> 
-        <h1>{{verify_two_factor_authentication}}</h1>
-        <form id="two-fa-form" method="post">
-            <label for="code">{{enter_6_digit_code}}:</label>
-            <input type="text" id="2fa-code" name="code" required placeholder="Verification Code">
-            <button id="verify-2fa-button" type="submit" >{{verify}}</button>
-        </form>
+
+    <!-- Segunda fila: QR y Form en el centro -->
+    <div class="row flex-grow-1 justify-content-center align-items-center text-center">
+        <div class="col-md-5">
+            <div class="twoFA-box">
+                <p>{{scan_qr_code}}</p>
+                <img id="2fa-qr-code" style="width: 300px;" class="img-fluid rounded shadow" src="{{ qr_code }}" alt="QR Code">
+            </div>
+        </div>
+        <div class="col-md-5" style="display: flex; justify-content: center;">
+            <div class="twoFA-box">
+                <form id="two-fa-form" method="post" class="form-container">
+                    <div class="form-group">
+                        <label for="2fa-code">{{enter_6_digit_code}}</label>
+                        <input type="text" id="2fa-code" name="code" required placeholder="Verification Code" class="form-control text-center">
+                    </div>
+                    <button id="verify-2fa-button" type="submit" class="btn form-submit-btn w-100 mt-3">{{verify}}</button>
+                </form>
+            </div>
+        </div>
     </div>
-    <button data-route="/profile-settings">{{back_to_settings}}</button>
+
+    <!-- Botón de regreso abajo -->
+    <div class="text-center mt-4">
+        <button data-route="/profile-settings" style="margin-top: 70px;" class="btn btn-secondary">{{back_to_settings}}</button>
+    </div>
 </div>
+

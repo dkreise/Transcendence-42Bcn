@@ -1,6 +1,6 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { displayUpdatingMessage } from "./profile.js";
-import { navigateTo } from "./main.js";
+import { navigateTo, drawHeader} from "./main.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -27,21 +27,26 @@ const display2FAMessage = (form, message, color) => {
 
 export const loadLogin2FAPage = () => {
     const contentArea = document.getElementById("content-area");
-    fetch(baseUrl + userMgmtPort + "/api/2fa-login/", {method: "GET", credentials: "include" })
+    drawHeader('login').then(() => {
+      return  fetch(baseUrl + userMgmtPort + "/api/2fa-login/", {method: "GET", credentials: "include" })
+
         .then(response => response.json())
         .then(data => {
             if (data.form_html) {
-                    console.log('2FA form html returned!');
-                    contentArea.innerHTML = data.form_html;
+                console.log('2FA form html returned!');
+                contentArea.innerHTML = data.form_html;
             }
         })
         .catch(error => console.error('Error loading 2FA login form:', error));
+    })
 }
 
 export const enable2FA = () => {
-    makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/2fa/enable/", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+    drawHeader('main').then(() => {
+      return  makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/2fa/enable/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+        })
     })
         .then((response) => response.json())
         .then((data) => {
@@ -115,6 +120,7 @@ const verify2FALogin = () => {
             console.log("2fa code CORRECT !!");
             localStorage.setItem('access_token', data.tokens.access);
             localStorage.setItem('refresh_token', data.tokens.refresh);
+            localStorage.setItem('username', data.username);
             localStorage.removeItem('temp_token');
             // updateLanguage();
             navigateTo('/home', true);

@@ -9,13 +9,13 @@ DOCKER_COMPOSE = docker-compose -f ./srcs/docker-compose.yml
 DC_RUN_GAME= run --rm game sh -c
 DC_RUN_USER= run --rm user-mgmt sh -c
 
+
 CERTS_DIR= ./srcs/certs/
 ENV= ./srcs/.env
 CONF_DIR= ./srcs/conf/
 SECURE ?= false
-FRONT_PORT=8443
 
-all: build
+all: build mi fill up
 
 build: env
 	@$(DOCKER_COMPOSE) build
