@@ -67,9 +67,9 @@ const routes = {
     // '/login': (args) => loadLoginPage(args),
 };
 
-// --- headerType = 1 --> draw mainHeader
-// --- headerType = 2 --> only lenguaje button
-// --- headerType = 3 --> clear Header
+// --- headerType = 'main' --> draw mainHeader
+// --- headerType = 'login' --> only lenguaje button
+// --- headerType = '3d' --> clear Header
 
 export function drawHeader(headerType) {
     return new Promise((resolve, reject) => {
@@ -89,7 +89,7 @@ export function drawHeader(headerType) {
                 break;
             default:
                 document.getElementById('header-area').innerHTML = '';
-                resolve();  // IMPORTANTE: Se debe resolver la promesa en el caso por defecto
+                resolve();
                 return;
         }
         fetch(baseUrl + url, {

@@ -183,7 +183,7 @@ async function animateLocal() {
 //---------------------------------------------------------------------------------//
 
 // Start game function
-export async function start3DRemoteGame(dict) {
+export async function start3DRemoteGame(dict, roomID) {
     window.gameDict = dict;
     init();
     remote = true;

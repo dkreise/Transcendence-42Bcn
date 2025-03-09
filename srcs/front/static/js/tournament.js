@@ -246,6 +246,7 @@ function addGameButton(data) {
 }
 
 function changePage(data) {
+    // drawHeader('main');
     document.getElementById('content-area').innerHTML = data.html;
     if (data.redirect) {
         let path = data.redirect;

@@ -259,18 +259,6 @@ export async function playOnline () {
         .then(async data => {
             if (data.game_html && Enable3D === "false") {
 
-
-                // document.getElementById("join-online")?.addEventListener("click", () => {
-                //     let IdInput = document.getElementById("game-id-input");
-                //     IdInput = IdInput ? IdInput.value.trim() : null;
-                //     console.warn(`Stored id inputed: ${IdInput}`);
-                // });
-                
-                // document.getElementById("create-online")?.addEventListener("click", async () => {
-                //     let roomId = await createRoomId();
-                //     console.log(`Room created with ID: ${roomId}`);
-                // });
-
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
 				
@@ -284,7 +272,7 @@ export async function playOnline () {
 
                 const contentArea = document.getElementById('content-area');
                 contentArea.innerHTML = ''; // Clear previous content
-                start3DRemoteGame(dictionary);
+                start3DRemoteGame(dictionary, roomId, isCreator);
             } else {
                 console.log('Response: ', data);
                 console.error('Failed to load remote game:', data.error);
