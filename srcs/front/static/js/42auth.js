@@ -1,5 +1,3 @@
-import { loadProfilePage } from "./profile.js";
-import { displayLoginError } from "./login.js";
 import { clearURL, navigateTo } from "./main.js";
 import { connectWS } from "./onlineStatus.js";
  

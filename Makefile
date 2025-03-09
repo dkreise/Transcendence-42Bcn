@@ -10,9 +10,10 @@ DC_RUN_GAME= run --rm game sh -c
 DC_RUN_USER= run --rm user-mgmt sh -c
 
 CERTS_DIR= ./srcs/certs/
-ENV_DIR= ./srcs/
+ENV= ./srcs/.env
 CONF_DIR= ./srcs/conf/
 SECURE ?= false
+FRONT_PORT=8443
 
 all: build
 
@@ -24,18 +25,18 @@ secure: certs
 
 env:
 	@if [ "$(SECURE)" = "true" ]; then \
-		cp $(CONF_DIR).env.secure $(ENV_DIR).env; \
+		cp $(CONF_DIR).env.secure $(ENV); \
 		cp $(CONF_DIR)nginx_secure.conf srcs/front/conf/nginx.conf; \
 		IP_ADDRESS=$$(hostname -I | awk '{print $$1}'); \
 	else \
-		cp $(CONF_DIR).env.dev $(ENV_DIR).env; \
+		cp $(CONF_DIR).env.dev $(ENV); \
 		cp $(CONF_DIR)nginx_dev.conf srcs/front/conf/nginx.conf; \
 		IP_ADDRESS=localhost; \
 	fi; \
-	sed -i '/^HOST=/d' $(ENV_DIR)/.env; \
-	echo "HOST=$$IP_ADDRESS" >> $(ENV_DIR).env; \
-	sed -i '/^REDIRECT_URI=/d' $(ENV_DIR).env; \
-	echo "REDIRECT_URI=$$( [ "$(SECURE)" = "true" ] && echo "https" || echo "http")://$$IP_ADDRESS:$$FRONT_PORT/callback" >> $(ENV_DIR).env;
+	sed -i '/^HOST=/d' $(ENV); \
+	echo "HOST=$$IP_ADDRESS" >> $(ENV); \
+	sed -i '/^REDIRECT_URI=/d' $(ENV); \
+	echo "REDIRECT_URI=$$( [ "$(SECURE)" = "true" ] && echo "https" || echo "http")://$$IP_ADDRESS:8443/callback" >> $(ENV);
 
 certs:
 	@mkdir -p $(CERTS_DIR)
@@ -101,4 +102,4 @@ fclean: down
 
 re: fclean all mi up
 
-.SILENT: all build secure env certs up mi fill stop down ps logs back mgmt clean fclean 
+.SILENT: all build secure up mi fill clean fclean

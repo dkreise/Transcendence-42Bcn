@@ -144,8 +144,8 @@ function getRedirectionIfNeeded(path=null) {
     }
 
     //Check if the user has the required permissions, if not, redirect
-    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/handle-login', '/handle-signup'];
-    const openPaths = ['/page-not-found', '/callback']; //open for authenticated and not authenticated
+    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/handle-login', '/handle-signup', '/callback'];
+    const openPaths = ['/page-not-found']; //open for authenticated and not authenticated
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';
     } else if (!checkPermission() && !publicPaths.includes(path) && !openPaths.includes(path)) {
