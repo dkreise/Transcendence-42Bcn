@@ -186,6 +186,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 					logger.info("All players left. Deleting tournament..")
 					async with active_tournaments_lock:
 						if self.tour_id in active_tournaments:
+							if self.countdown_task:
+								self.countdown_task.cancel()
+							if self.timer_task:
+								self.timer_task.cancel()
 							del active_tournaments[self.tour_id]
 		logger.info("closing...")
 		await self.close()
@@ -384,7 +388,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 						async with active_games_lock:
 							if self.room_id not in active_games:
 								self.room_id = f"T_{self.tour_id}_{usr}_{opp}_{tournament.round}".replace("@", "-")
-								active_games[self.room_id] = GameManager(self.room_id)
+								if self.room_id not in active_games:
+									logger.info("CREATING NEW ROOM")
+									active_games[self.room_id] = GameManager(self.room_id)
 						game = active_games[self.room_id]
 						game.tour_id = self.tour_id
 						logger.info(f"START TGAME: users {game.users}")

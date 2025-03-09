@@ -22,6 +22,7 @@ let socket = null;
 let gameLoopId = null;
 let gameStop = false;
 let tourId = null;
+let countdownTimeout = null;
  
 console.log("Hi! This is remoteGame.js :D");
 
@@ -68,7 +69,8 @@ async function readySteadyGo(countdown)
 	div.style.display = "block";
 	//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
 	if (countdown >= 0)
-		await setTimeout(async() => await readySteadyGo(--countdown), 500);
+		// await setTimeout(async() => await readySteadyGo(--countdown), 500);
+		countdownTimeout = setTimeout(() => readySteadyGo(--countdown), 500);
 
 	else
 		div.style.display = "none";
@@ -108,6 +110,9 @@ export function handleEndgame(data) {
 	console.log(`I am: ${player.whoAmI}`);
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
+	clearTimeout(countdownTimeout); // Clear the timeout
+    let div = document.getElementById("wait");
+    if (div) div.style.display = "none";
 	player.score = data["scores"][player.role];
 	opponent.score = data["scores"][opponent.role];
 	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
