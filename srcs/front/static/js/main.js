@@ -6,12 +6,12 @@ import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { clearIntervalIDGame, cleanupAI } from "./AIGame.js"
-import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
+import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal, loadRemoteHome } from "./game.js"
 import { cleanup3D } from "./3DLocalGame.js";
 import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest } from "./tournament.js";
 import { cleanupLocal } from "./localGame.js"
 import { connectWS } from "./onlineStatus.js";
-import { cleanRemote, createRoomId } from "./remoteGame.js";
+import { cleanRemote } from "./remoteGame.js";
 import { loadPageNotFound } from "./errorHandler.js";
 
 const historyTracker = [];
@@ -61,7 +61,7 @@ const routes = {
     '/tournament-game-ai': tournamentGameRequest,
     '/tournament-game-remote': tournamentGameRequest,
     '/page-not-found': loadPageNotFound,
-	'/create-game': createRoomId,
+	'/remote-home': loadRemoteHome,
     
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),

@@ -36,7 +36,7 @@ export const loadHomePage = () => {
         });
     })
     .then((response) => {
-            console.log('Response received:', response); // Log para confirmar la respuesta
+            //console.log('Response received:', response); // Log para confirmar la respuesta
             if (response.ok) {
                 console.log('Response is OK');
                 return response.json();
@@ -46,7 +46,7 @@ export const loadHomePage = () => {
             }
         })
         .then((data) => {
-            console.log('Data received:', data); // Log para depurar el JSON recibido
+            //console.log('Data received:', data); // Log para depurar el JSON recibido
             if (data && data.home_html) {
                 console.log('2');
                 document.getElementById('content-area').innerHTML = data.home_html;
