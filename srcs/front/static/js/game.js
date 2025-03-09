@@ -2,7 +2,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { startAIGame, clearIntervalIDGame } from "./AIGame.js";
 import { navigateTo, checkPermission, drawHeader } from "./main.js"
 import { startLocalGame } from "./localGame.js";
-import { startGame } from "./remoteGame.js"; 
+import { startGame, cleanRemote } from "./remoteGame.js"; 
 import { start3DAIGame, start3DLocalGame, start3DRemoteGame } from "./3DGame.js";
 import { loadBracketTournamentPage, quitTournament } from "./tournament.js";
 
@@ -52,17 +52,17 @@ export const playAI = (args) => {
         console.log("the state is not here!!");
     localStorage.removeItem("gameState");
 
-    Enable3D = localStorage.getItem("3D-option");
-    console.log(`Play AI, Enable 3D: ${Enable3D}`)
+    // Enable3D = localStorage.getItem("3D-option");
+    // console.log(`Play AI, Enable 3D: ${Enable3D}`)
 
     if (!checkPermission) {
         navigateTo('/login');
-    } else if (Enable3D === "true") {
-        //HERE SOMETHING WITH LANGUAGES
-        // const contentArea = document.getElementById('content-area');
-        // contentArea.innerHTML = ''; // Clear previous content
-        // start3DAIGame(localStorage.getItem('username'));
-        play3D();
+    // } else if (Enable3D === "true") {
+    //     //HERE SOMETHING WITH LANGUAGES
+    //     // const contentArea = document.getElementById('content-area');
+    //     // contentArea.innerHTML = ''; // Clear previous content
+    //     // start3DAIGame(localStorage.getItem('username'));
+    //     play3D();
     
     } else {
         console.log("Playing AI game. Tournament mode:", args?.tournament); 
@@ -183,56 +183,60 @@ export const gameAI = (args) => {
             // clearIntervalIDGame();
             // const savedState = localStorage.getItem("gameState");
         }
-        makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
-            method: "POST",
-            body: JSON.stringify({
-                'second-player': "AI",  // Stringify the body data
-            }),
-            headers: {"Content-Type": "application/json"},
-        })
-        .then(response => {
-            console.log('Raw response:', response);  // Add this line to inspect the raw response
-            return response.json();
-        })
-        .then(data => {
-            if (data.game_html)
-                console.log("html here");
-            if (Enable3D === "false")
-                console.log("3d false");
-            if (data.game_html && Enable3D === "false") {
-                console.log('AI game returned!');
-                document.getElementById('content-area').innerHTML = data.game_html;
-                const canvas = document.getElementById("newGameCanvas");
-                if (canvas) {
-                    const button = document.getElementById('play-again');
-                    if (button && !tournament) {
-                        button.setAttribute("data-route", "/play-ai");
-                        button.setAttribute("replace-url", true);
-                    } else if (button && tournament) {
-                        button.textContent = "Quit Tournament";
-                        button.setAttribute("data-route", "/quit-tournament");
-                        button.setAttribute("replace-url", true);
-                        // button.removeAttribute("data-route");
-                        // button.addEventListener('click', () => {
-                        //     // handle give up!! quit?
-                        //     clearIntervalIDGame();
-                        //     quitTournament();
-                        //     // loadBracketTournamentPage(tournament.id);
-                        // });
+        if (Enable3D === "true")
+            play3D(tournament);
+        else {
+            makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
+                method: "POST",
+                body: JSON.stringify({
+                    'second-player': "AI",  // Stringify the body data
+                }),
+                headers: {"Content-Type": "application/json"},
+            })
+            .then(response => {
+                console.log('Raw response:', response);  // Add this line to inspect the raw response
+                return response.json();
+            })
+            .then(data => {
+                if (data.game_html)
+                    console.log("html here");
+                if (Enable3D === "false")
+                    console.log("3d false");
+                if (data.game_html && Enable3D === "false") {
+                    console.log('AI game returned!');
+                    document.getElementById('content-area').innerHTML = data.game_html;
+                    const canvas = document.getElementById("newGameCanvas");
+                    if (canvas) {
+                        const button = document.getElementById('play-again');
+                        if (button && !tournament) {
+                            button.setAttribute("data-route", "/play-ai");
+                            button.setAttribute("replace-url", true);
+                        } else if (button && tournament) {
+                            button.textContent = "Quit Tournament";
+                            button.setAttribute("data-route", "/quit-tournament");
+                            button.setAttribute("replace-url", true);
+                            // button.removeAttribute("data-route");
+                            // button.addEventListener('click', () => {
+                            //     // handle give up!! quit?
+                            //     clearIntervalIDGame();
+                            //     quitTournament();
+                            //     // loadBracketTournamentPage(tournament.id);
+                            // });
+                        }
+                        startAIGame(data['player1'], data['player2'], data['main_user'], tournament);
+        
+                    } else {
+                        console.log("Error: Canvas not found");
                     }
-                    startAIGame(data['player1'], data['player2'], data['main_user'], tournament);
-     
                 } else {
-                    console.log("Error: Canvas not found");
+                    console.log('Response: ', data);
+                    console.error('Failed to fetch the local game:', data.error);
                 }
-            } else {
-                console.log('Response: ', data);
-                console.error('Failed to fetch the local game:', data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Catch error loading local game: ', error);
-        });
+            })
+            .catch(error => {
+                console.error('Catch error loading local game: ', error);
+            });
+        };
     }
 } 
 
@@ -246,7 +250,7 @@ export async function playOnline () {
     if (!checkPermission) {
         navigateTo('/login');
     } else {
-        console.log('Loading online game...')
+        // console.log('Loading online game...')
         drawHeader('main').then(() => {
           return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/remote/play/", {
                 method: "GET",
@@ -282,7 +286,7 @@ export async function playOnline () {
     // makeAuthenticatedRequest() // to POST the results
 } 
 
-export async function play3D() {
+export async function play3D(tour) {
 
     if (!checkPermission) {
         navigateTo('/login');
@@ -294,11 +298,11 @@ export async function play3D() {
 
     contentArea.innerHTML = ''; // Clear previous content
     
-    console.log('3D game returned! Dictionary:');
-    console.log(dictionary);
+    // console.log('3D game returned! Dictionary:');
+    // console.log(dictionary);
     // start3DLocalGame(data['player1'], data['player2'], data['main_user']);
     // start3DLocalGame('player1', '@42nzhuzhle', 2);
-    start3DAIGame(localStorage.getItem('username'), dictionary);
+    start3DAIGame(localStorage.getItem('username'), dictionary, tour);
 
 }
 
@@ -327,4 +331,10 @@ async function getUsername() {
         console.error("Error fetching username:", error); // Improved error logging
         return null;
     }
+}
+
+
+export async function restartOnline() {
+    cleanRemote();
+    playOnline();
 }

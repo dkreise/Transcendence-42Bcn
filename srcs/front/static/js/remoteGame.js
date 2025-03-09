@@ -23,7 +23,7 @@ let gameLoopId = null;
 let gameStop = false;
 let tourId = null;
  
-console.log("Hi! This is remoteGame.js :D");
+// console.log("Hi! This is remoteGame.js :D");
 
 
 export function handleRoleAssignment(data) {
@@ -51,6 +51,36 @@ export function scaleGame(data)
 	player.setVars(data);
 	opponent.setVars(data);
 	ball.setVars(data);
+}
+
+async function firstCountdown(callback) {
+    let countdown = 2;
+
+	const msg = ["1", "2", "3"];
+	let div = document.getElementById("wait");
+
+    const interval = setInterval(() => {    
+
+        if (countdown < 0) {
+            clearInterval(interval);
+			div.textContent = "";
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			
+            console.log("RESUME")
+            // handleOnlineEndgame();
+            callback(); // Resume the game  
+        } else {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			div.textContent = msg[countdown];
+			div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
+	
+	
+			ctx.fillStyle = "rgb(0 0 0 / 25%)";
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			div.style.display = "block";
+        }
+        countdown--;
+    }, 500);
 }
 
 async function readySteadyGo(countdown)
@@ -100,11 +130,12 @@ function displayCountdown()
 
 function handleEndgame(data) {
 	const { winner, loser, scores} = data;
+	let div = document.getElementById("wait");
 	const msg = [
 		"Congratulations! You've won 😁",
 		"Better luck next time! 🥲"
 	]
-	
+	div.style.display = 'none';
 	console.log(`winner ${winner} loser ${loser}`);
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
@@ -293,7 +324,9 @@ async function initializeWebSocket() {
 						displayCountdown();
 					else
 					{
-						await readySteadyGo(data.countdown - 1);
+						// await readySteadyGo(data.countdown);
+						await firstCountdown(() => {
+                        });
 						player.update(data.players, data.scores);
 						opponent.update(data.players, data.scores);
 						ball.resetPosition();
@@ -393,7 +426,7 @@ function resizeCanvas() {
 }
 
 // Resize canvas when the window resizes
-window.addEventListener("resize", resizeCanvas);
+window.addEventListener("resize", resizeCanvas); 
 
 export function startGame()
 {

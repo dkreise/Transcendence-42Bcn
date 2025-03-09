@@ -372,4 +372,5 @@ def get_lang_words(lang):
             "msg_page_not_found": "Oops! The page you are looking for doesn’t exist.",
             "rights_reserved": "All rights reserved.",
             'logout': "Logout",
+            
         }

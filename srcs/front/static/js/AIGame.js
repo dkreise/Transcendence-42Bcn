@@ -22,7 +22,7 @@ export function clearIntervalIDGame() {
         clearInterval(intervalID);
         intervalID = null;
     }
-    console.log("stopping the game");
+    // console.log("stopping the game");
     gameStop = true;
 }
 
@@ -182,22 +182,6 @@ function gameAILoop() {
         ball.move(AI, player);
     }
     
-    // Endgame check
-    // if (gameStop) {
-    //     cancelAnimationFrame(gameLoopId);
-    //     if (intervalID) {
-    //         clearInterval(intervalID);
-    //         intervalID = null;
-    //     }
-    //     if (tournamentId) {
-    //         console.log('TOURNAMENT GAME FINISHED');
-    //         // console.log(tournamentId);
-    //         saveTournamentGameResult(winner, looser, player.score, AI.score);
-    //     } else {
-    //         console.log("SIMPLE GAME FINISHED");
-    //     }
-    //     return;
-    // }
     if (gameStop || player.score >= maxScore || AI.score >= maxScore) {
         localStorage.removeItem("gameState");
         let winner = player.score > AI.score ? player.name : "@AI";

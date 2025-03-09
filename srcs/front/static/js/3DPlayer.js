@@ -246,7 +246,7 @@ export class AIPlayer extends BasicPlayer {
         if (this.role === 1) {
             this.text = this.dict['you'] + ` - ${this.score}`
         }
-        console.log(`In AI, text: ${this.text}`)
+        // console.log(`In AI, text: ${this.text}`)
         return (this.text);
     }
 

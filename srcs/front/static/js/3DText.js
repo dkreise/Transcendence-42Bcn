@@ -113,7 +113,7 @@ export class SceneText {
     loadFont(path) {
         return new Promise((resolve, reject) => {
             this.loader.load(path, (font) => {
-                console.log("Font loaded");
+                // console.log("Font loaded");
                 resolve(font);  // Resolve with the loaded font
             }, undefined, (error) => {
                 console.error("Font loading failed", error);

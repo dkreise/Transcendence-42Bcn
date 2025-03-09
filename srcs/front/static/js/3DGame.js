@@ -7,7 +7,8 @@ import { Player, AIPlayer, AIController, OnlinePlayer } from './3DPlayer.js';
 import { Ball, OnlineBall } from './3DBall.js';
 import { SceneText, textParams, textWinner } from './3DText.js';
 import { AmbientLight, DirectionalLight , Vector3} from 'three'
-import { drawHeader } from "./main.js";
+import { drawHeader, navigateTo } from "./main.js";
+import { quitTournament, saveTournamentGameResult } from "./tournament.js"
 
 
 //----------------------------------------------------------------------------//
@@ -21,10 +22,10 @@ const protocolSocket = window.env.PROTOCOL_SOCKET;
 
 let renderer, scene, camera, player, opponent, waiting = false, mainplayer, headerHeight;
 
-let limits, planeGeo, planeMat, plane, controls, ai, loader, countdownText;
+let limits, planeGeo, planeMat, plane, addplane, controls, ai, loader, countdownText;
 let player1, player2, ball, gameLoopId, targetBallX, targetBallY; // if the main user is player 1 or 2
 let mainUser, lights, dict, socket = null, moveCamera = false, cameraId, remote = false;
-let ifAI = false;
+let ifAI = false, tournamentId;
 let gameStarted = false;
 let gameEnded = false;
 let pause = false;
@@ -48,9 +49,9 @@ export const field = {
 }
 
 export const params = {
-	planeColor: 0xDDDDFF, //0x9999DD, // 0x555577, //0xb994ff, //0x9b71ea, //0x6966ff,
+	planeColor: 0x9999DD, //0xDDDDFF, //0x9999DD, // 0x555577, //0xb994ff, //0x9b71ea, //0x6966ff,
 	fogColor: 0x000033,//0x000022, //0x9e7aff,
-	fogNear: 25,
+	fogNear: 50,
 	fogFar: 150,
     textY:  20,
     buttonColor: 0x9400FF,
@@ -522,28 +523,20 @@ async function animateCameraToField() {
 // -------------------- GAME WITH AI FUNCTIONS ---------------------- //
 //--------------------------------------------------------------------//
 
-export async function start3DAIGame(playerName2, dict) {
-    
-    // ifAI = true;
+export async function start3DAIGame(playerName2, dict, tournament) {
 
-    // drawHeader('3d');
-    // const contentArea = document.getElementById('content-area');
-    // contentArea.style.padding = 0;
-
-    dict = dict;
+    // dict = dict;
     window.gameDict = dict;
-    // console.log(dict);
-    // contentArea.style.padding = 0;
     init();
-    // gameStarted = false;
+    if (tournament)
+        tournamentId = tournament.id;
+    console.log(tournament.id);
     await setupScene();
     text = new SceneText(scene, dict);
     await text.createText();
     camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 1000);
     camera.position.set(0, 20, 63);
     camera.lookAt(new THREE.Vector3(0, 0, 0))
-
-    console.log(`Inicially ${playerName2}`);
     await createLights(20);
     await setupField();
     player2 = new AIPlayer(dict, limits, scene, 1, playerName2, new THREE.Vector3(0, 0, field.y - 2), -0.1);
@@ -554,28 +547,20 @@ export async function start3DAIGame(playerName2, dict) {
     setupAIControls();
 
     animateAI();
-
 }
 
 function setupAIControls() {
     window.addEventListener("keydown", (e) => {
         if (e.key === "ArrowLeft") player2.down = true;
         if (e.key === "ArrowRight") player2.up = true;
-        if (e.code === "Space" && !gameStarted && !gameEnded) {
+        if (e.code === "Space" && !gameStarted && !gameEnded && text.start.visible == true) {
             // console.log("Spacebar pressed! Starting game...");
-            // if (gameStarted) return; // Prevent multiple starts
             gameStarted = true;
             text.start.visible = false; // Hide the button
             text.button.visible = false;
         }
-        if (e.code === "Space" && !gameStarted && gameEnded) {
+        if (e.code === "Space" && !gameStarted && gameEnded && text.tryAgain.visible == true) {
             // console.log("Spacebar pressed! Try again...");
-            // if (gameStarted) return; // Prevent multiple starts
-            // resetTeam(); // resets the ball and players;
-            // gameEnded = false;
-            // text.tryAgain.visible = false;
-            // text.winnerMessage.visible = false;
-            // text.start.visible = true; // Hide the button
             restart();
         }
     });
@@ -618,11 +603,12 @@ async function animateAI() {
 //--------------------------------------------------------------------//
 
 async function setupScene() {
-    drawHeader(1)
+    // drawHeader('3d');
     const contentArea = document.getElementById('content-area');
     contentArea.style.padding = 0;
     
     scene = new THREE.Scene();
+    drawHeader('3d');
     scene.background = new THREE.Color(params.fogColor);
     scene.fog = new THREE.Fog(params.fogColor, params.fogNear, params.fogFar);
     // const header = document.getElementById('header-container');
@@ -650,12 +636,7 @@ async function createLights(posX) {
 
 async function setupField() {
     renderer = new THREE.WebGLRenderer();
-    // rect = renderer.domElement.getBoundingClientRect(); //rect.top
-    // const header = document.getElementById('header-container');
-    // headerHeight = header.offsetHeight;
-    // console.log(`Header hight: ${headerHeight}, window hight: ${window.innerHeight},`)
     renderer.setSize(size.width, size.height);
-    // renderer.setSize(width, height);
     renderer.shadowMap.enabled = true;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.5;
@@ -663,15 +644,15 @@ async function setupField() {
     document.getElementById('content-area').appendChild(renderer.domElement);
     handleResize();
     controls = new OrbitControls(camera, renderer.domElement);
-    // controls.enableDamping = true
+    controls.enableDamping = true
     scene.add(...lights);
     
     limits = new THREE.Vector2(field.x, field.y);
     planeGeo = new THREE.PlaneGeometry(
-        limits.x * 20,
-        limits.y * 20,
-        limits.x * 20,
-        limits.y * 20,
+        limits.x * 3,
+        limits.y * 3,
+        limits.x * 3,
+        limits.y * 3,
     );
 
     planeGeo.rotateX(-Math.PI * 0.5);
@@ -679,8 +660,21 @@ async function setupField() {
         color: params.planeColor,
     });
     plane = new THREE.Mesh(planeGeo, planeMat);
+    plane.position.y = 0.01
+    let addplaneGeo = new THREE.PlaneGeometry(
+        limits.x * 20,
+        limits.y * 20,
+        limits.x * 20,
+        limits.y * 20,
+    );
+
+    addplaneGeo.rotateX(-Math.PI * 0.5);
+    let addplaneMat = new THREE.MeshStandardMaterial({ 
+        color: params.planeColor,
+    });
+    addplane = new THREE.Mesh(addplaneGeo, addplaneMat);
     plane.receiveShadow = true;
-    scene.add(plane)
+    scene.add(plane, addplane)
 
     const boundGeo = new RoundedBoxGeometry(field.width, field.height, limits.y * 2, field.radius, field.seg);
     const boundMat = new THREE.MeshPhongMaterial({
@@ -695,7 +689,7 @@ async function setupField() {
     leftBound.receiveShadow = true;
     const rightBound = leftBound.clone();
     rightBound.position.x *= -1;
-    console.log(`left bound: ${leftBound.position.x}, right bound: ${rightBound.position.x}`)
+    // console.log(`left bound: ${leftBound.position.x}, right bound: ${rightBound.position.x}`)
     scene.add(leftBound, rightBound);
 
     await createSky();
@@ -704,6 +698,13 @@ async function setupField() {
 async function setupEvents() {
     ball.addEventListener("aifinish", (e) => {
         handleEndGame(e.message);
+        if (tournamentId) {
+            console
+            if (e.player.name == window.gameDict['enemy'])
+                saveTournamentGameResult("@AI", player2.name, player1.score, player2.score);
+            else
+                saveTournamentGameResult(e.player.name, player2.name, player1.score, player2.score);
+        }
     })
 
     ball.addEventListener("localfinish", (e) => {
@@ -726,9 +727,17 @@ async function setupEvents() {
     ball.addEventListener("airestart", (e) => {
         pause = false;
     })
+
+    window.addEventListener("beforeunload", beforeUnloadHandlerAI);
     
     window.addEventListener("click", (event) => { buttonsManager(event) });
 }
+
+const beforeUnloadHandlerAI = () => {
+    if (tournamentId && gameStarted && !gameEnded) {
+        saveTournamentGameResult("@AI", player2.name, 0, player1.score);
+    }
+};
 
 async function buttonsManager(event) {
     if (gameStarted) return; // Ignore clicks after the game starts
@@ -749,7 +758,7 @@ async function buttonsManager(event) {
     const intersectsStart = ray.intersectObject(text.start);
     const intersectsTryAgain = ray.intersectObject(text.tryAgain);
 
-    if ((intersects.length > 0 || intersectsStart.length > 0) && !gameEnded ) {
+    if ((intersects.length > 0 || intersectsStart.length > 0) && !gameEnded && text.start.visible == true ) {
         console.log("3D Start Button Clicked!");
         text.start.visible = false; // Hide the button
         text.button.visible = false;
@@ -763,7 +772,7 @@ async function buttonsManager(event) {
         } else {
             gameStarted = true;
         }
-    } else if ((intersects.length > 0 || intersectsTryAgain.length > 0) && gameEnded ) {
+    } else if ((intersects.length > 0 || intersectsTryAgain.length > 0) && gameEnded && text.tryAgain.visible == true) {
         console.log("3D TryAgain Button Clicked!");
         // if (remote) {
         //     initializeWebSocket();
@@ -789,18 +798,24 @@ async function showCountdown(callback) {
             text.updateGeometry(text.countdownText, `${count}`, textCount);
         }
         count--;  
-    }, 1000);
+    }, 500);
 }
 
 async function firstCountdown(callback) {
     let count = 3;
+    if (text.enemy.visible === true) {
+        count = 2;
+    } else {
+        text.updateGeometry(text.countdownText, `${count}`, textCount);
+        text.countdownText.visible = true;
+    }
     // if (count = 2)
     // text.updateGeometry(text.countdownText, "3", textWinner);
     
     // text.countdownText.visible = true;
     // text.enemy.visible = true;
     const interval = setInterval(() => {    
-        if (count == 3) {
+        if (count == 2 && text.enemy.visible == true) {
             text.enemy.visible = false;
             text.updateGeometry(text.countdownText, `${count}`, textCount);
             player1.show();
@@ -827,8 +842,10 @@ async function handleEndGame(message) {
     gameStarted = false;
     if (text.winnerMessage)
         text.updateGeometry(text.winnerMessage, message, textWinner); // PUT BACK
-    text.button.visible = true;
-    text.tryAgain.visible = true;
+    if (!tournamentId) {
+        text.button.visible = true;
+        text.tryAgain.visible = true;
+    }
     text.winnerMessage.visible = true;
 }
 
@@ -942,9 +959,20 @@ async function handleResize() {
 
 // ------------ MAYBE WILL BE USED ------------------- //
 
+export async function exit3D() {
+    tournamentId = localStorage.getItem('currentTournamentId')
+    if (tournamentId)
+        quitTournament();
+    console.log(`EXITING tournament, the ID is ${tournamentId}`)
+    cleanup3D();
+    navigateTo('/home');
+}
+
 export async function cleanup3D() {
     // Dispose of all geometries, materials, and textures
     if (!scene) return;
+
+    drawHeader('main')
     
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.close();
@@ -966,7 +994,7 @@ export async function cleanup3D() {
 
     scene.traverse((object) => {
         if (object.isMesh) {
-            console.log("cleaning objects")
+            // console.log("cleaning objects")
             if (object.geometry) object.geometry.dispose();
             if (object.material) {
                 if (Array.isArray(object.material)) {
@@ -982,7 +1010,7 @@ export async function cleanup3D() {
 
     // Remove all objects from the scene
     while (scene.children.length > 0) {
-        console.log("removing objects")
+        // console.log("removing objects")
         scene.remove(scene.children[0]);
     }
     ball = null;
@@ -1019,9 +1047,10 @@ function init() {
     gameStarted = false;
     pause = false;
     waiting = false;
-    drawHeader('3d');
+    // drawHeader('3d');
     const contentArea = document.getElementById('content-area');
     contentArea.style.padding = 0;
+    tournamentId = null;
     
 }
 

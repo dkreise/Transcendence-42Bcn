@@ -6,8 +6,8 @@ import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { clearIntervalIDGame, cleanupAI } from "./AIGame.js"
-import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
-import { cleanup3D } from "./3DGame.js";
+import { playLocal, restartOnline, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
+import { cleanup3D, exit3D } from "./3DGame.js";
 import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest } from "./tournament.js";
 import { cleanupLocal } from "./localGame.js"
 import { connectWS } from "./onlineStatus.js";
@@ -46,6 +46,7 @@ const routes = {
     '/play-local': playLocal,
     '/play-ai': (args) => playAI(args),
     '/play-online': playOnline,
+    '/restart-online': restartOnline,
     '/game-local': gameLocal,
     '/play-3d': play3D,
     '/play-ai-game': (args) => gameAI(args),
@@ -61,6 +62,7 @@ const routes = {
     '/tournament-game-ai': tournamentGameRequest,
     '/tournament-game-remote': tournamentGameRequest,
     '/page-not-found': loadPageNotFound,
+    '/exit-3D': exit3D,
     
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
@@ -98,10 +100,10 @@ export function drawHeader(headerType) {
         .then((response) => response.json())
         .then(data => {
             if (data.header_html) {
-                console.log('Header! returned!');
+                // console.log('Header! returned!');
                 document.getElementById('header-area').innerHTML = data.header_html;
                 document.dispatchEvent(new CustomEvent("headerLoaded"));
-                console.log('header event active');
+                // console.log('header event active');
             } else
                 console.log('Header not found in response:', data);
             resolve();
@@ -134,7 +136,7 @@ function router(args=null) {
 // const contentArea = document.getElementById('content-area');
 // contentArea.innerHTML = ''; // Clear previous content
 
-    console.log(`Content cleared in router`);
+    // console.log(`Content cleared in router`);
 
     const redirectPath = getRedirectionIfNeeded(path);
     if (redirectPath) {
@@ -181,13 +183,13 @@ export function navigateTo(path, replace = false, args = null) {
     if (replace) { //DONT ADD TO HISTORY
         history.replaceState({ path, args }, null, path);
         historyTracker.push({ action: 'replaceState', path });
-        console.log(`${path} is replaced in history`)
+        // console.log(`${path} is replaced in history`)
     }
     else { //ADD TO HISTORY
 
         history.pushState({ path, args }, null, path);
         historyTracker.push({ action: 'pushState', path });
-        console.log(`${path} is pushed to history`)
+        // console.log(`${path} is pushed to history`)
     }
     //console.log('History Tracker:', JSON.stringify(historyTracker, null, 2)); // Log the history
     router(args);
@@ -233,9 +235,9 @@ function homePage() {
 // data-route Click Handling: Intercepts clicks on elements with the 
 // data-route attribute and calls navigateTo() with the target route.
 
-console.log('main.js is loaded');
+// console.log('main.js is loaded');
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOMContentLoaded event triggered");
+    // console.log("DOMContentLoaded event triggered");
 
     window.addEventListener('popstate', (event) => {
         console.log("Popstate triggered:", event);
@@ -251,11 +253,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const tourReload = localStorage.getItem("tournamentReload");
     if (tourId && tourReload) {
         shouldRoute = false;
-        console.log("Reconnecting WebSocket after page reload...");
+        // console.log("Reconnecting WebSocket after page reload...");
         localStorage.removeItem("tournamentReload");
         // tournamentConnect(tourId);
         tournamentConnect(tourId).then(() => {
-            console.log("WebSocket connection established, now navigating to ...");
+            // console.log("WebSocket connection established, now navigating to ...");
             // navigateTo('/waiting-room');
             router();
         }).catch((error) => {
@@ -275,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (target) {
             const route = target.getAttribute('data-route');
-            console.log(`Data-route clicked: ${route}`);
+            // console.log(`Data-route clicked: ${route}`);
 
             event.preventDefault();
 
@@ -285,7 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const args = target.hasAttribute("data-args")
                 ? JSON.parse(target.getAttribute("data-args"))
                 : null;
-            console.log("Extracted args:", args);
+            // console.log("Extracted args:", args);
 
             navigateTo(route, shouldReplace, args);
         }
