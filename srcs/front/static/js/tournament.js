@@ -318,9 +318,9 @@ export async function tournamentConnect(tourId, nPlayers=null) {
     console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
 
     if (nPlayers) {
-        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/ws/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
+        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
     } else {
-        socket = new WebSocket(`${protocolSocket}s://${host}:${gamePort}/ws/T/${tourId}/?token=${token}`);
+        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/T/${tourId}/?token=${token}`);
     }
     
     socket.onopen = () => {
@@ -458,7 +458,7 @@ async function getTournamentId() {
     let id = Math.floor(1000000 + Math.random() * 9000000); // Ensures a 7-digit number
     // let id = 1234567
     try {
-        const response = await makeAuthenticatedRequest(baseUrl + `:8001/api/check-tournament/${id}/`, 
+        const response = await makeAuthenticatedRequest(baseUrl + gamePort + `/api/check-tournament/${id}/`, 
             { method: "GET", credentials: "include" });
         const data = await response.json();
         

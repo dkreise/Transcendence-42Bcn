@@ -8,9 +8,8 @@ export function connectWS(access_token)
 {
     if (!access_token)
         return ;
-    socket = new WebSocket(`${protocolSocket}://${host}:${userMgmtPort}/ws/online-status/?token=${access_token}`);
-    // socket = new WebSocket(`ws://localhost:8000/ws/online-status/`);
-    
+    socket = new WebSocket(`${protocolSocket}://${host}:${userMgmtPort}/${protocolSocket}/online-status/?token=${access_token}`);
+
     socket.onclose = function(event) {
 
         console.log('WebSocket Disconnected. ');

@@ -238,7 +238,7 @@ async function initializeWebSocket() {
 	}
 	if (!socket)
 	{
-		socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/ws/G/${roomId}/?token=${token}`);
+		socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
 		console.log("Socket created!");
 	}
 	socket.onopen = () => console.log("WebSocket connection established.");

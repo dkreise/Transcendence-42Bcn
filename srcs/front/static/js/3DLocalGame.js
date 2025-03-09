@@ -312,7 +312,7 @@ async function initializeWebSocket(roomId = 123) {
     if (!socket)
     {
         text.waiting.visible = true;
-        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/ws/G/${roomId}/?token=${token}`);
+        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
     }
     socket.onopen = () => console.log("WebSocket connection established.");
     socket.onerror = (error) => {
