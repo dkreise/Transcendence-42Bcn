@@ -88,7 +88,7 @@ def player_last_ten_games(request):
         auth_header = request.headers.get('Authorization')
         headers = {"Authorization": auth_header}
         try:
-            response = requests.get(endpoint, headers=headers)
+            response = requests.get(endpoint, headers=headers, verify=False)
             response.raise_for_status()
             game_data = response.json()
             return JsonResponse({
@@ -106,7 +106,7 @@ def player_all_games(request, player_id):
     auth_header = request.headers.get('Authorization')
     headers = {"Authorization": auth_header}
     try:
-        response = requests.get(endpoint, headers=headers)
+        response = requests.get(endpoint, headers=headers, verify=False)
         response.raise_for_status()
         return response.json()
     except requests.RequestException as e:

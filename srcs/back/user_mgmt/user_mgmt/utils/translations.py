@@ -64,8 +64,8 @@ def get_lang_words(lang):
             'yes': "Sí",
             'no': "No",
             'apply_filters': "Aplicar filtros",
-            'player': "Jugador",
-            'score': "Puntuación",
+            'player_wo': "Jugador",
+            'score_wo': "Puntuación",
             'no_match_history': "No hay historial de partidos",
             'home': "Inicio",
             'disable_2FA': "Desactivar 2FA",
@@ -78,7 +78,8 @@ def get_lang_words(lang):
             'error_text': "Texto de error",  
             'exit': "Salir",  
             'back': "Volver atrás",  
-            'enter_winner_username_placeholder': "Ingrese usuario del ganador",  
+            'enter_winner_username_placeholder': "Ingrese usuario del ganador",
+            'search_by_username_email_ph': "Buscar por nombre de usuario o correo electrónico",
         } 
 
     elif lang == 'CA':
@@ -137,8 +138,8 @@ def get_lang_words(lang):
             'yes': "Sí",
             'no': "No",
             'apply_filters': "Aplicar filtres",
-            'player': "Jugador",
-            'score': "Puntuació",
+            'player_wo': "Jugador",
+            'score_wo': "Puntuació",
             'no_match_history': "No hi ha historial de partits",
             'home': "Inici",
             'disable_2FA': "Desactivar 2FA",
@@ -152,6 +153,7 @@ def get_lang_words(lang):
             'exit': "Sortir",  
             'back': "Tornar enrrere",  
             'enter_winner_username_placeholder': "Introdueix usuari del guanyador",  
+            'search_by_username_email_ph': "Cercar per nom d'usuari o correu electrònic",
         }
 
     elif lang == 'RU':
@@ -210,8 +212,8 @@ def get_lang_words(lang):
             'yes': "Да",
             'no': "Нет",
             'apply_filters': "Применить фильтры",
-            'player': "Игрок",
-            'score': "Счет",
+            'player_wo': "Игрок",
+            'score_wo': "Счет",
             'no_match_history': "Нет истории матчей",
             'home': "Главная",
             'disable_2FA': "Отключить 2FA",
@@ -225,6 +227,7 @@ def get_lang_words(lang):
             'exit': "Выход",  
             'back': "Назад",  
             'enter_winner_username_placeholder': "Введите имя пользователя победителя",  
+            'search_by_username_email_ph': "Поиск по имени пользователя или электронной почте",
         }
 
     elif lang == 'LV':
@@ -283,8 +286,8 @@ def get_lang_words(lang):
             'yes': "Jā",
             'no': "Nē",
             'apply_filters': "Pielietot filtrus",
-            'player': "Spēlētājs",
-            'score': "Rezultāts",
+            'player_wo': "Spēlētājs",
+            'score_wo': "Rezultāts",
             'no_match_history': "Nav spēļu vēstures",
             'home': "Mājas",
             'disable_2FA': "Atspējot 2FA",
@@ -298,6 +301,7 @@ def get_lang_words(lang):
             'exit': "Iziet",  
             'back': "Atpakaļ",  
             'enter_winner_username_placeholder': "Ievadiet uzvarētāja lietotājvārdu",  
+            'search_by_username_email_ph': "Meklēt pēc lietotājvārda vai e-pasta",
         }
         
     else:
@@ -356,8 +360,8 @@ def get_lang_words(lang):
             'yes': "Yes",
             'no': "No",
             'apply_filters': "Apply Filters",
-            'player': "Player",
-            'score': "Score",
+            'player_wo': "Player",
+            'score_wo': "Score",
             'no_match_history': "No match history",
             'home': "Home",
             'disable_2FA': "Disable 2FA",
@@ -371,4 +375,5 @@ def get_lang_words(lang):
             'exit': "Exit",  
             'back': "Go back",  
             'enter_winner_username_placeholder': "Enter winner's username",
+            'search_by_username_email_ph': "Search by username or email",
         }
