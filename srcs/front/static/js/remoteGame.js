@@ -100,6 +100,7 @@ function displayCountdown()
 
 
 export function handleEndgame(data) {
+	tourId = null;
 	const { winner, loser, scores} = data;
 	const msg = [
 		"Congratulations! You've won 😁",
@@ -394,10 +395,10 @@ function resizeCanvas() {
 // Resize canvas when the window resizes
 window.addEventListener("resize", resizeCanvas);
 
-export function startGame()
+export function startGame(tourId)
 {
 	canvas = document.getElementById('newGameCanvas');
-	tourId = localStorage.getItem('currentTournamentId');
+	// tourId = localStorage.getItem('currentTournamentId');
 
 	if (!canvas)
 	{
@@ -414,6 +415,7 @@ export function startGame()
 	if (!tourId)
 		initializeWebSocket();
 	else {
+		console.log("it is a tour game");
 		startTournamentGame();
 		const button = document.getElementById('play-again');
         if (button) {

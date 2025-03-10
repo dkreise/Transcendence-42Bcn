@@ -406,7 +406,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
                 else if (data.opponent == "@AI") {
                     tournamentGameAIstart(data, tourId);
                 } else {
-                    playOnline();
+                    playOnline(tourId);
                 }
                 break;
             case "tournament_status":

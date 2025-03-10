@@ -238,7 +238,7 @@ export const gameAI = (args) => {
     }
 } 
 
-export async function playOnline () {
+export async function playOnline (args) {
 
     Enable3D = localStorage.getItem("3D-option");
     console.log(`Enable 3D: ${Enable3D}`)
@@ -260,7 +260,7 @@ export async function playOnline () {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
                 if (canvas)
-                    startGame();
+                    startGame(args);
                 else
                     console.log("Error: Canvas not found");
             } else if (Enable3D === "true") {
