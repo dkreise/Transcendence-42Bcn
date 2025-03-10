@@ -82,10 +82,8 @@ export class Ball {
     constructor(canvas, ctx) {
         this.x = canvas.width / 2;
         this.y = canvas.height / 2;
-        this.xspeed = canvas.width * 0.005;
-        this.yspeed = canvas.height * 0.007;
-        //this.xspeed = canvas.width * 0.01;
-        //this.yspeed = canvas.height * 0.02;
+        this.xspeed = canvas.width * 0.01;
+        this.yspeed = canvas.height * 0.02;
         this.color = "white";
         this.canvas = canvas;
         this.radius = canvas.width * 0.015;
@@ -105,51 +103,53 @@ export class Ball {
         this.xspeed = -this.xspeed; // Alternate serve direction
     }
 
-    move(player1, player2) {
-        this.x += this.xspeed;
-        this.y += this.yspeed;
+	move(player1, player2) {
+   		this.x += this.xspeed;
+   		this.y += this.yspeed;
 
         // Top and bottom wall collision
-        if (this.y - this.radius <= 0 || this.y + this.radius >= this.canvas.height) {
+        if (this.y - this.radius <= 0 || this.y + this.radius >= this.canvas.height)
             this.yspeed = -this.yspeed;
-        }
+   		// Player 1 paddle collision
+   		if (
+   		    this.x - this.radius <= player1.x + player1.width &&
+   		    this.x - this.radius >= player1.x &&
+   		    this.y >= player1.y &&
+   		    this.y <= player1.y + player1.height
+   		) {
+   		    this.xspeed = Math.abs(this.xspeed);
+   		    this.x = player1.x + player1.width + this.radius;
+   		}
 
-        // Left paddle (Player 1) collision
-        if (
-            this.x - this.radius  + 0.05 <= player1.x + player1.width &&
-            this.y >= player1.y &&
-            this.y <= player1.y + player1.height
-        ) {
-            this.xspeed = -this.xspeed;
-        }
+   		// Player 2 paddle collision
+   		if (
+   		    this.x + this.radius >= player2.x &&
+   		    this.x + this.radius <= player2.x + player2.width &&
+   		    this.y >= player2.y &&
+   		    this.y <= player2.y + player2.height
+   		) {
+   		    this.xspeed = -this.xspeed;
+   		    this.x = player2.x - this.radius;
+   		}
 
-        // Right paddle (Player 2) collision
-        if (
-            this.x + this.radius - 0.05 >= player2.x - player2.width &&
-            this.y >= player2.y &&
-            this.y <= player2.y + player2.height
-        ) {
-            this.xspeed = -this.xspeed;
-        }
 
-        // Scoring conditions
-        if (this.x - this.radius <= 0) {
-            player2.scored();
-			player2.resetPosition();
-			player1.resetPosition();
-            this.resetPosition();
-			return (1);
-        } else if (this.x + this.radius >= this.canvas.width) {
-            player1.scored();
-			player1.resetPosition();
-			player2.resetPosition();
-            this.resetPosition();
-			return (1);
-        }
-		if (this.y - this.radius < 0)
-			this.y = this.radius;
-		else if (this.y + this.radius > this.canvas.width)
-			this.y = this.canvas.width - this.radius;
-		return (0);
-    }
+   		// Scoring conditions
+   		if (this.x - this.radius <= 0) {
+   		    player2.scored();
+   		    player2.resetPosition();
+   		    player1.resetPosition();
+   		    this.resetPosition();
+   		    return 1;
+   		} else if (this.x + this.radius >= this.canvasWidth) {
+   		    player1.scored();
+   		    player1.resetPosition();
+   		    player2.resetPosition();
+   		    this.resetPosition();
+   		    return 1;
+   		}
+
+   		return 0;
+	}
+
+
 }

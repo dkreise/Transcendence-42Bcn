@@ -277,7 +277,6 @@ export function setupControlsAI(player) {
 // Start game function
 export async function startAIGame(playerName1, playerName2, mainUserNmb, tournament, dictionary) {
 	dict = dictionary;
-	console.log("dictionary is: " + JSON.stringify(dict));
     if (intervalID) {
         clearInterval(intervalID);
         intervalID = null;
