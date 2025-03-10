@@ -189,20 +189,20 @@ def update_profile_settings(request):
         first_name = request.POST.get('first_name', '')
         last_name = request.POST.get('last_name', '')
 
-        if not re.match(r'^[a-zA-Z0-9.]+$', username) and not (user.username.startswith('@42') and user.username == username):
-            return JsonResponse({'success': False, "error": "Username should consist only of letters, digits and dots(.)."}, status=status.HTTP_400_BAD_REQUEST)
+        if not re.match(r'^[a-zA-Z0-9.]+$', username) and not (user.username.startswith('@') and user.username == username):
+            return JsonResponse({'success': False, "error": "Username should consist only of letters, digits and dots(.)."})
 
         if User.objects.filter(username=username).exclude(id=request.user.id).exists():
-            return JsonResponse({'success': False, "error": "Username already exists."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": "Username already exists."})
 
         if len(username) < 2 or len(username) > 10:
-            return JsonResponse({'success': False, "error": "Username should be 2-10 (included) chars length."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": "Username should be 2-10 (included) chars length."})
 
         if len(first_name) < 2 or len(first_name) > 10:
-            return JsonResponse({'success': False, "error": "First Name should be 2-10 (included) chars length."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": "First Name should be 2-10 (included) chars length."})
         
         if len(last_name) > 15:
-            return JsonResponse({'success': False, "error": "Last Name should be max 15 chars length."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": "Last Name should be max 15 chars length."})
 
         user.username = username
         user.first_name = first_name

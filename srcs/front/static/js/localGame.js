@@ -31,6 +31,7 @@ export function saveScore(score1, score2, mainUser) {
         headers: {"Content-Type": "application/json"},
     })
     .then((response) => {
+        if (!response) return null;
         if (response.ok) {
             console.log('Score saved successfully');
         }

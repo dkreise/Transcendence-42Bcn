@@ -51,9 +51,9 @@ export const loadTournamentHomePage = () => {
     drawHeader('main').then(() => {
       return  makeAuthenticatedRequest(baseUrl + gamePort + "/api/tournament-home-page/", 
             {method: "GET", credentials: "include"})
-        .then((response) => response.json())
+        .then(response => response ? response.json() : null)
         .then(data => {
-            if (data.tournament_home_page_html) {
+            if (data && data.tournament_home_page_html) {
                 document.getElementById('content-area').innerHTML = data.tournament_home_page_html;
             } else {
                 console.error('Tournament home page HTML not found in response:', data);
@@ -461,6 +461,7 @@ async function getTournamentId() {
     try {
         const response = await makeAuthenticatedRequest(baseUrl + gamePort + `/api/check-tournament/${id}/`, 
             { method: "GET", credentials: "include" });
+        if (!response) return -1;
         const data = await response.json();
         
         console.log("ACTIVE?");

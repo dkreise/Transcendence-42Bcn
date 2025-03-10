@@ -37,6 +37,7 @@ export const loadHomePage = () => {
     })
     .then((response) => {
             console.log('Response received:', response); // Log para confirmar la respuesta
+            if (!response) return null;
             if (response.ok) {
                 console.log('Response is OK');
                 return response.json();

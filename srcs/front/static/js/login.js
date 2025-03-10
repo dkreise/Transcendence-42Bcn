@@ -50,12 +50,13 @@ export async function refreshAccessToken() {
     });
 };
 
-export const makeAuthenticatedRequest = (url, options = {}) => {
+export const makeAuthenticatedRequest = async (url, options = {}) => {
     const accessToken = localStorage.getItem("access_token");
     if (!accessToken) {
         console.error("No access token available.");
-        // return Promise.reject("No access token.");
-        navigateTo('/login', true); // + maybe remove everything from local storage? or just handleLogout?
+        localStorage.clear();
+        navigateTo('/login', true);
+        return null;
     }
     console.log(url);
     options = {
@@ -63,23 +64,47 @@ export const makeAuthenticatedRequest = (url, options = {}) => {
         headers: {
             ...options.headers,
             "Authorization": `Bearer ${accessToken}`, // adding authorization header with the access token
-            // "Content-Type": "application/json",
         },
         credentials: "include",
     };
 
-    return fetch(url, options).then((response) => {
+    // return fetch(url, options).then((response) => {
+    //     if (response.status === 401) {
+    //         console.log("Access token expired, attempting refresh..");
+    //         return refreshAccessToken().then((newAccessToken) => {
+    //             options.headers["Authorization"] = `Bearer ${newAccessToken}`;
+    //             return fetch(url, options); //retry the original request
+    //         });
+    //     } else {
+    //         console.log(url);
+    //         return response; // means that response is valid
+    //     }
+    // });
+
+    try {
+        let response = await fetch(url, options);
+
+        if (!response)
+            return null;
         if (response.status === 401) {
             console.log("Access token expired, attempting refresh..");
-            return refreshAccessToken().then((newAccessToken) => {
-                options.headers["Authorization"] = `Bearer ${newAccessToken}`;
-                return fetch(url, options); //retry the original request
-            });
-        } else {
-            console.log(url);
-            return response; // means that response is valid
+            const newAccessToken = await refreshAccessToken();
+            if (!newAccessToken) {
+                console.error("Failed to refresh access token.");
+                localStorage.clear();
+                navigateTo('/login', true);
+                return null;
+            }
+            options.headers["Authorization"] = `Bearer ${newAccessToken}`;
+            return fetch(url, options); // Retry original request once
         }
-    });
+
+        return response; // Valid response
+
+    } catch (error) {
+        console.error("Fetch error:", error);
+        return null;
+    }
 };
 
 export const loadLoginPage = () => {

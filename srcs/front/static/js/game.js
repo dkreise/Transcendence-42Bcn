@@ -25,9 +25,9 @@ export const playLocal = () => {
                 method: "GET",
                 credentials: "include",
             })
-            .then(response => response.json())
+            .then(response => response ? response.json() : null)
             .then(data => {
-                if (data.get_name_html) {
+                if (data && data.get_name_html) {
                     document.getElementById('content-area').innerHTML = data.get_name_html;
                 } else {
                     console.log('Response: ', data);
@@ -75,9 +75,9 @@ export const playAI = (args) => {
               return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/ai/get-difficulty", {
                     method: "GET",
                 })
-                .then(response => response.json())
+                .then(response => response ? response.json() : null)
                 .then(data => {
-                    if (data.get_difficulty_html) {
+                    if (data && data.get_difficulty_html) {
                         document.getElementById('content-area').innerHTML = data.get_difficulty_html;
                     } else {
                         console.log('Response: ', data);
@@ -135,10 +135,11 @@ export async function gameLocal () {
         })
         .then(response => {
             console.log('Raw response:', response);  // Add this line to inspect the raw response
+            if (!response) return null;
             return response.json();
         })
         .then(data => {
-            if (data.game_html && Enable3D === "false") {
+            if (data && data.game_html && Enable3D === "false") {
                 console.log('Local game returned!');
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
@@ -192,14 +193,15 @@ export const gameAI = (args) => {
         })
         .then(response => {
             console.log('Raw response:', response);  // Add this line to inspect the raw response
+            if (!response) return null;
             return response.json();
         })
         .then(data => {
-            if (data.game_html)
+            if (data && data.game_html)
                 console.log("html here");
             if (Enable3D === "false")
                 console.log("3d false");
-            if (data.game_html && Enable3D === "false") {
+            if (data && data.game_html && Enable3D === "false") {
                 console.log('AI game returned!');
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
@@ -252,9 +254,9 @@ export async function playOnline () {
                 method: "GET",
             })
         })
-        .then(response => response.json())
+        .then(response => response ? response.json() : null)
         .then(data => {
-            if (data.game_html && Enable3D === "false") {
+            if (data && data.game_html && Enable3D === "false") {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
                 if (canvas)
