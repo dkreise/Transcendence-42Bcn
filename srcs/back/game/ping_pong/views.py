@@ -185,7 +185,7 @@ def get_difficulty_level(request):
         context = {
             'user': request.user,
         }
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         get_difficulty_html = render_to_string('get_difficulty.html', context)
         return JsonResponse({'get_difficulty_html': get_difficulty_html}, content_type="application/json")
     else:
@@ -197,7 +197,7 @@ def play_game(request):
     context = {
         'user': request.user,
     }
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     game_html = render_to_string('remote_game.html', context)
     #game_html = render_to_string('remote_home.html', context)
     return JsonResponse({'game_html': game_html}, content_type="application/json")
@@ -258,9 +258,8 @@ def get_username(request):
 @api_view(['GET'])
 def get_game_dict(request):
     context = {}
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     return JsonResponse({'dict': context}, status=200)
-
 
 # def save_remote_score(room_id, winner_id, scores, players):
 #     """

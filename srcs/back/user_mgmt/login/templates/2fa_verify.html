@@ -9,7 +9,7 @@
         <div class="col-12 col-md-6 col-lg-4">
             <form id="two-fa-login-form" method="post" class="p-4 bg-dark text-light rounded shadow">
                 <label for="code" class="form-label d-block">{{enter_6_digit_code}}</label>
-                <input type="text" id="2fa-code" name="code" required placeholder="Verification Code"
+                <input type="text" id="2fa-code" name="code" required placeholder={{verification_code_placeholder}}
                     class="form-control text-center mb-3">
                 <button id="verify-2fa-login-button" type="submit" class="btn form-submit-btn w-100">
                     {{verify}}

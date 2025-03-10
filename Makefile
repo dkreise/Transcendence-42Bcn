@@ -27,10 +27,15 @@ env:
 	@if [ "$(SECURE)" = "true" ]; then \
 		cp $(CONF_DIR).env.secure $(ENV); \
 		cp $(CONF_DIR)nginx_secure.conf srcs/front/conf/nginx.conf; \
+		cp $(CONF_DIR)Dockerfile_game.secure srcs/back/game/Dockerfile; \
+		cp $(CONF_DIR)Dockerfile_usermgmt.secure srcs/back/user_mgmt/Dockerfile; \
 		IP_ADDRESS=$$(hostname -I | awk '{print $$1}'); \
 	else \
+		mkdir -p $(CERTS_DIR); \
 		cp $(CONF_DIR).env.dev $(ENV); \
 		cp $(CONF_DIR)nginx_dev.conf srcs/front/conf/nginx.conf; \
+		cp $(CONF_DIR)Dockerfile_game.dev srcs/back/game/Dockerfile; \
+		cp $(CONF_DIR)Dockerfile_usermgmt.dev srcs/back/user_mgmt/Dockerfile; \
 		IP_ADDRESS=localhost; \
 	fi; \
 	sed -i '/^HOST=/d' $(ENV); \

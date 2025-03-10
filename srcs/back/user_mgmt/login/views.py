@@ -126,7 +126,7 @@ def login_form(request):
     if request.method == "GET":
         print("Login form API called")
         context = {}
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         form_html = render_to_string('login_form.html', context)
         return JsonResponse({'form_html': form_html}, content_type="application/json")
     else:
@@ -139,7 +139,7 @@ def signup_form(request):
     if request.method == "GET":
         print("Signup form API called")
         context = {}
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         form_html = render_to_string('signup_form.html', context)
         return JsonResponse({'form_html': form_html}, content_type="application/json")
     else:
@@ -151,7 +151,7 @@ def signup_form(request):
 @permission_classes([AllowAny])
 def verify_2fa_login_form(request):
     context = {}
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     form_html = render_to_string('2fa_verify.html', context)
     return JsonResponse({'form_html': form_html}, content_type="application/json")
 
@@ -258,7 +258,7 @@ def enable_2fa(request):
         # print("QR Base64:", qr_base64)
 
         context = {"qr_code": qr_base64}
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
         setup_html = render_to_string("2fa_setup.html", context)
 
         # context = add_language_context(request.COOKIES)
@@ -339,6 +339,6 @@ def verify_token(request):
 @permission_classes([AllowAny])
 def page_not_found(request):
     context = {}
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     page_not_found_html = render_to_string('page_not_found.html', context)
     return JsonResponse({'page_not_found_html': page_not_found_html}, content_type="application/json")

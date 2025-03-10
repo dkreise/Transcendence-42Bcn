@@ -2,12 +2,11 @@ from urllib.parse import parse_qs
 import logging
 from asgiref.sync import sync_to_async
 from channels.auth import AuthMiddlewareStack
-# from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
-# from django.contrib.auth import get_user_model
 import aiohttp
 from rest_framework.exceptions import AuthenticationFailed
 from django.conf import settings
+from django.contrib.auth import get_user_model
 
 USER_MGMT_PORT = settings.USER_MGMT_PORT
 PROTOCOL_WEB = settings.PROTOCOL_WEB
@@ -16,7 +15,6 @@ logger = logging.getLogger(__name__)
 
 # Fetch user from database using sync-to-async
 async def get_user_from_token(username):
-    from django.contrib.auth import get_user_model
     User = get_user_model()
     try:
         return await sync_to_async(User.objects.get)(username=username)
