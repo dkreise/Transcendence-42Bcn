@@ -36,10 +36,13 @@ export function handleRoleAssignment(data) {
 		player = new Player(canvas, "player2");
 		opponent = new Player(canvas, "player1");
 	}
+
 }
 
-export function scaleGame(data)
+export async function scaleGame(data)
 {
+	handleRoleAssignment(data)
+	
 	player.width = canvas.width * (data.padW / data.canvasX);
 	opponent.width = player.width;
 	player.height = canvas.height * (data.padH / data.canvasY);
@@ -182,7 +185,7 @@ function getTimestamp() {
 	return `${date.getDate()}-${date.getMonth() + 1} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 }
 
-export function setWhoAmI(data)
+export async function setWhoAmI(data)
 {
 	player.whoAmI = data[player.role];
 	opponent.whoAmI = data[opponent.role];
@@ -213,24 +216,6 @@ export async function handleStatus(data, tourSocket)
 		setupControlsAI(player)
 		gameLoop();
 	}
-	// player.update(data.players, data.scores);
-	// opponent.update(data.players, data.scores);
-	// if (data.wait) // data.wait [bool]
-	// {
-	// 	if (gameLoopId)
-	// 		cancelAnimationFrame(gameLoopId);
-	// 	if (data.countdown != 4)
-	// 		displayCountdown();
-	// 	else
-	// 		await readySteadyGo(data.countdown - 2);
-	// }
-	// else
-	// {
-	// 	console.log("let's start the game!");
-	// 	window.addEventListener("beforeunload", beforeUnloadHandlerRemote);
-	// 	setupControls(player, opponent)
-	// 	gameLoop();
-	// }
 }
 
 export function handleUpdate(data)
@@ -306,12 +291,13 @@ async function initializeWebSocket() {
 		console.log(`data type is: ${data.type}`);
 		switch (data.type) {
 			case "role":
-				handleRoleAssignment(data);
+				// handleRoleAssignment(data);
 				scaleGame(data);
 				break;
 			case "players":
-				player.whoAmI = data[player.role];
-				opponent.whoAmI = data[opponent.role];
+				setWhoAmI(data);
+				// player.whoAmI = data[player.role];
+				// opponent.whoAmI = data[opponent.role];
 				socket.send(JSON.stringify({"type": "ready"}))
 				break;
 			case "status":
@@ -435,7 +421,7 @@ export function startGame()
 
 	if (!canvas)
 	{
-		alert("Unable to display the game. Please, try again later");
+		// alert("Unable to display the game. Please, try again later");
 		return ;
 	} else {
 		console.log("CANVAS: ", canvas);

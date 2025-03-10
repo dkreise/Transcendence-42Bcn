@@ -406,7 +406,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
                 else if (data.opponent == "@AI") {
                     tournamentGameAIstart(data, tourId);
                 } else {
-                    playOnline();
+                    playOnline(tourId);
                 }
                 break;
             case "tournament_status":
@@ -414,11 +414,11 @@ export async function tournamentConnect(tourId, nPlayers=null) {
                 navigateTo('/tournament');
                 break;
 			case "role":
-				handleRoleAssignment(data);
-				scaleGame(data);
+				// handleRoleAssignment(data);
+				await scaleGame(data);
 				break;
 			case "players":
-				setWhoAmI(data);
+				await setWhoAmI(data);
 				socket.send(JSON.stringify({"type": "ready"}));
 				break;
 			case "status":

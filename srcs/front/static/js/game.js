@@ -234,18 +234,22 @@ export const gameAI = (args) => {
                 }
             })
             .catch(error => {
-                console.error('Catch error loading local game: ', error);
+                console.log('Catch error loading local game: ', error);
             });
         };
     }
 } 
 
-export async function playOnline () {
+export async function playOnline (tourId) {
 
     Enable3D = localStorage.getItem("3D-option");
     console.log(`Enable 3D: ${Enable3D}`)
 	// Enable3D = "false";
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
+
+    if (!checkPermission) {
+        navigateTo('/login');
+    }Enable3D = localStorage.getItem("3D-option");
 
     if (!checkPermission) {
         navigateTo('/login');
@@ -271,7 +275,7 @@ export async function playOnline () {
 
                 const contentArea = document.getElementById('content-area');
                 contentArea.innerHTML = ''; // Clear previous content
-                start3DRemoteGame(dictionary);
+                start3DRemoteGame(dictionary, tourId);
             } else {
                 console.log('Response: ', data);
                 console.error('Failed to load remote game:', data.error);
@@ -302,7 +306,12 @@ export async function play3D(tour) {
     // console.log(dictionary);
     // start3DLocalGame(data['player1'], data['player2'], data['main_user']);
     // start3DLocalGame('player1', '@42nzhuzhle', 2);
-    start3DAIGame(localStorage.getItem('username'), dictionary, tour);
+    let name = await getUsername();
+    if (!name) {
+        navigateTo('/logout');
+        return;
+    }
+    start3DAIGame(name, dictionary, tour);
 
 }
 

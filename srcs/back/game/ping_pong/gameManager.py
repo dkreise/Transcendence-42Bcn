@@ -59,7 +59,7 @@ speeds => relative
 class GameManager:
 
 
-	ball_config = {"rad": 9, "xspeed": 4, "yspeed": 5}
+	ball_config = {"rad": 9, "xspeed": 4, "yspeed": 0}
 	board_config = {"width": 600, "height": 400, "max_score": 3}
 
 	paddle_config = {"width": 10, "height": 50, "speed": 5}
@@ -175,19 +175,19 @@ class GameManager:
 		padH = GameManager.paddle_config["height"] / 2
 		pl1 = self.players["player1"]["y"] * boardH
 		pl2 = self.players["player2"]["y"] * boardH
-
+		
 		if self.ball["x"] * boardW - radius <= GameManager.paddle_config["width"]:
 			logger.info(f"col Side pl1 x area")
 			logger.info(f"ball Y {self.ball['y'] * boardH} pl1 Y {pl1}")
-			if ((self.ball["y"] * boardH >= pl1 + padH + 0.1) and
-				(self.ball["y"] * boardH <= pl1 - padH - 0.1)):
+			if ((self.ball["y"] * boardH + radius <= pl1 + padH + radius / 1.5) and
+				(self.ball["y"] * boardH - radius >= pl1 - padH - radius / 1.5)):
 				logger.info(f"col Side pl1")
 				return True
 		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"]:
 			logger.info(f"col Side pl2 x area")
 			logger.info(f"ball Y {self.ball['y'] * boardH} pl2 Y {pl2}")
-			if ((self.ball["y"] * boardH >= pl2 + padH + 0.1) and
-				(self.ball["y"] * boardH <= pl2 - padH - 0.1)):
+			if ((self.ball["y"] * boardH + radius <= pl2 + padH + radius / 1.5) and
+				(self.ball["y"] * boardH - radius >= pl2 - padH - radius / 1.5)):
 				logger.info(f"col Side pl2")
 				return True
 		return False
@@ -203,16 +203,17 @@ class GameManager:
 		pl2_x = boardW - padW
 		pl2_y = self.players["player2"]["y"] * boardH
 
-		if self.ball["x"] * boardW - radius <= pl1_x:
+		logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}")
+		if self.ball["x"] * boardW - radius <= pl1_x :
 			logger.info(f"col Top pl1 x area")
-			if ((self.ball["y"] * boardH - radius >= pl1_y + padH) or
-				(self.ball["y"] * boardH + radius <= pl1_y - padH)):
+			if ((self.ball["y"] * boardH - radius >= pl1_y - padH - radius / 1.5) or
+				(self.ball["y"] * boardH + radius <= pl1_y + padH + radius / 1.5)):
 				logger.info(f"col Top pl1")
 				return True
-		elif self.ball["x"] * boardW + radius >= pl2_x:
+		elif self.ball["x"] * boardW + radius >= pl2_x :
 			logger.info(f"col Top pl2 x area")
-			if ((self.ball["y"] * boardH - radius >= pl2_y + padH) or
-				(self.ball["y"] * boardH + radius <= pl2_y - padH)):
+			if ((self.ball["y"] * boardH - radius >= pl2_y - padH - radius / 1.5) or
+				(self.ball["y"] * boardH + radius <= pl2_y + padH + radius / 1.5)):
 				logger.info(f"col Top pl2")
 				return True
 		return False

@@ -66,7 +66,7 @@ export class BasicPlayer {
         this.score = 0;
         this.role = role; // 1 - right or -1 - left (AI)
         this.name = name;
-        // console.log(`My name is ${this.name}`)
+        console.log(`My name is ${this.name}`)
         // console.log(`Originally ${name}`)
         this.scene = scene;
         this.text = `${this.score}`;
