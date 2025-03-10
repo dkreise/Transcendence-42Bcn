@@ -59,7 +59,7 @@ speeds => relative
 class GameManager:
 
 
-	ball_config = {"rad": 9, "xspeed": 2, "yspeed": 3}
+	ball_config = {"rad": 9, "xspeed": 4, "yspeed": 5}
 	board_config = {"width": 600, "height": 400, "max_score": 3}
 
 	paddle_config = {"width": 10, "height": 50, "speed": 5}
@@ -189,15 +189,15 @@ class GameManager:
 		if self.ball["x"] * boardW - radius <= GameManager.paddle_config["width"]:
 			logger.info(f"col Side pl1 x area")
 			logger.info(f"ball Y {self.ball['y'] * boardH} pl1 Y {pl1}")
-			if ((self.ball["y"] * boardH + radius <= pl1 + padH + 1) and
-				(self.ball["y"] * boardH - radius >= pl1 - padH - 1)):
+			if ((self.ball["y"] * boardH <= pl1 + padH + 1) and
+				(self.ball["y"] * boardH >= pl1 - padH - 1)):
 				logger.info(f"col Side pl1")
 				return True
 		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"] - 1:
 			logger.info(f"col Side pl2 x area")
 			logger.info(f"ball Y {self.ball['y'] * boardH} pl2 Y {pl2}")
-			if ((self.ball["y"] * boardH + radius <= pl2 + padH + 1) and
-				(self.ball["y"] * boardH - radius >= pl2 - padH - 1)):
+			if ((self.ball["y"] * boardH <= pl2 + padH + 1) and
+				(self.ball["y"] * boardH >= pl2 - padH - 1)):
 				logger.info(f"col Side pl2")
 				return True
 		return False
