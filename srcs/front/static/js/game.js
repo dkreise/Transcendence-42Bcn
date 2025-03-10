@@ -43,7 +43,7 @@ export const playLocal = () => {
     }
 } 
 
-export const playAI = (args) => {
+export const playAI = async (args) => {
     clearIntervalIDGame();
     const savedState = localStorage.getItem("gameState");
     if (savedState)
@@ -68,7 +68,7 @@ export const playAI = (args) => {
         console.log("Playing AI game. Tournament mode:", args?.tournament); 
         if (args?.tournament === "true") {
             console.log("This is a tournament game! in playAI");
-            gameAI(args);
+            await gameAI(args);
         } else {
             console.log('Loading get difficulty page...')
             drawHeader('main').then(() => {
@@ -166,8 +166,8 @@ export async function gameLocal () {
 }
 
 
-export const gameAI = (args) => {
-    //const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
+export const gameAI = async (args) => {
+    const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
     Enable3D = localStorage.getItem("3D-option");
 
@@ -195,7 +195,7 @@ export const gameAI = (args) => {
             console.log('Raw response:', response);  // Add this line to inspect the raw response
             return response.json();
         })
-        .then(data => {
+        .then(async data => {
             if (data.game_html)
                 console.log("html here");
             if (Enable3D === "false")
@@ -221,7 +221,7 @@ export const gameAI = (args) => {
                         //     // loadBracketTournamentPage(tournament.id);
                         // });
                     }
-                    startAIGame(data['player1'], data['player2'], data['main_user'], tournament, dictionary);
+                    await startAIGame(data['player1'], data['player2'], data['main_user'], tournament, dictionary);
      
                 } else {
                     console.log("Error: Canvas not found");

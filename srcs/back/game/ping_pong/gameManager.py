@@ -59,7 +59,7 @@ speeds => relative
 class GameManager:
 
 
-	ball_config = {"rad": 9, "xspeed": 4, "yspeed": 5}
+	ball_config = {"rad": 9, "xspeed": 4, "yspeed": 0}
 	board_config = {"width": 600, "height": 400, "max_score": 5}
 
 	paddle_config = {"width": 10, "height": 50, "speed": 5}
@@ -145,9 +145,9 @@ class GameManager:
 	def handle_message(self, role, data):
 		if data["type"] == "update" and data["role"] in self.players and data["y"]:
 			if data["y"] < 0:
-				self.players[data["role"]]["y"] = 0
+				self.players[data["role"]]["y"] = 0 + GameManager.paddle_config["height"] / GameManager.board_config["height"]
 			elif data["y"] > 1:
-				self.players[data["role"]]["y"] = 1
+				self.players[data["role"]]["y"] = 1 - GameManager.paddle_config["height"] / GameManager.board_config["height"]
 			else:
 				self.players[data["role"]]["y"] = data["y"]
 
@@ -176,18 +176,12 @@ class GameManager:
 		pl2 = self.players["player2"]["y"] * boardH
 
 		if self.ball["x"] * boardW - radius <= GameManager.paddle_config["width"]:
-			logger.info(f"col Side pl1 x area")
-			logger.info(f"ball Y {self.ball['y'] * boardH} pl1 Y {pl1}")
-			if ((self.ball["y"] * boardH >= pl1 + padH + 1) and
-				(self.ball["y"] * boardH <= pl1 - padH - 1)):
-				logger.info(f"col Side pl1")
+			if ((self.ball["y"] * boardH + radius <= pl1 + padH) and
+				(self.ball["y"] * boardH - radius >= pl1 - padH)):
 				return True
-		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"] - 10:
-			logger.info(f"col Side pl2 x area")
-			logger.info(f"ball Y {self.ball['y'] * boardH} pl2 Y {pl2}")
-			if ((self.ball["y"] * boardH >= pl2 + padH + 1) and
-				(self.ball["y"] * boardH <= pl2 - padH - 1)):
-				logger.info(f"col Side pl2")
+		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"]:
+			if ((self.ball["y"] * boardH + radius <= pl2 + padH) and
+				(self.ball["y"] * boardH - radius >= pl2 - padH)):
 				return True
 		return False
 
@@ -234,10 +228,10 @@ class GameManager:
 			self.ball["yspeed"] *= -1
 		elif self.ball["y"] - radius <= 0 or self.ball["y"] + radius >= 1:
 			self.ball["yspeed"] *= -1
-		if not is_col_s and (self.ball["x"] * GameManager.board_config["width"] - GameManager.ball_config["rad"] <= 0):
+		if not (is_col_s and is_col_t) and (self.ball["x"] * GameManager.board_config["width"] - GameManager.ball_config["rad"] <= 0):
 			# logger.info(f"{self.players['player1']} has scored")
 			await self.has_scored("player2")
-		elif not (is_col_s and is_col_top) and (self.ball["x"] * GameManager.board_config["width"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]):
+		elif not (is_col_s and is_col_t) and (self.ball["x"] * GameManager.board_config["width"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]):
 			# logger.info(f"{self.players['player2']} has scored")
 			await self.has_scored("player1")
 
