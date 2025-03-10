@@ -29,30 +29,32 @@ let tourId = null;
 export function handleRoleAssignment(data) {
 	console.log("Hi! I'm " + data.role);
 	if (data.role === "player1") {
-		player = new Player(canvas, "player1");
-		opponent = new Player(canvas, "player2");
+		console.log("Hi! I'm " + data.role + " and I'm a player");
+		player = new Player(data, canvas, "player1");
+		opponent = new Player(data, canvas, "player2");
 	}
 	else {
-		player = new Player(canvas, "player2");
-		opponent = new Player(canvas, "player1");
+		console.log("Hi! I'm " + data.role + " and I'm a player");
+		player = new Player(data, canvas, "player2");
+		opponent = new Player(data, canvas, "player1");
 	}
 
 }
 
-export async function scaleGame(data)
+export function scaleGame(data)
 {
 	handleRoleAssignment(data)
 	
-	player.width = canvas.width * (data.padW / data.canvasX);
-	opponent.width = player.width;
-	player.height = canvas.height * (data.padH / data.canvasY);
-	opponent.height = player.height;
-	if (player.x != 0)
-		player.x = canvas.width - player.width;
-	else
-		opponent.x = canvas.width - opponent.width;
-	player.setVars(data);
-	opponent.setVars(data);
+	// player.width = canvas.width * (data.padW / data.canvasX);
+	// opponent.width = player.width;
+	// player.height = canvas.height * (data.padH / data.canvasY);
+	// opponent.height = player.height;
+	// if (player.x != 0)
+	// 	player.x = canvas.width - player.width;
+	// else
+	// 	opponent.x = canvas.width - opponent.width;
+	// player.setVars(data);
+	// opponent.setVars(data);
 	ball.setVars(data);
 }
 
@@ -61,7 +63,8 @@ async function firstCountdown(callback) {
 
 	const msg = ["1", "2", "3"];
 	let div = document.getElementById("wait");
-
+	player.y = 0.5;
+	opponent.y = 0.5;
     const interval = setInterval(() => {    
 
         if (countdown < 0) {
@@ -139,12 +142,12 @@ function handleEndgame(data) {
 		"Better luck next time! 🥲"
 	]
 	div.style.display = 'none';
-	console.log(`winner ${winner} loser ${loser}`);
+	// console.log(`winner ${winner} loser ${loser}`);
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
 	player.score = data["scores"][player.role];
 	opponent.score = data["scores"][opponent.role];
-	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
+	// console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
 	if (player.whoAmI == winner)
 		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
 	else
@@ -261,12 +264,12 @@ async function initializeWebSocket() {
 	if (!socket)
 	{
 		socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
-		console.log("Socket created!");
+		// console.log("Socket created!");
 	}
 	socket.onopen = () => console.log("WebSocket connection established.");
 	socket.onerror = (error) => {
 		console.log("WebSocket encountered an error:", error);
-		alert("Unable to connect to the server. Please check your connection.");
+		// alert("Unable to connect to the server. Please check your connection.");
 	};
 	socket.onclose = async (event) => {
 		console.log("WebSocket connection closed");
@@ -288,13 +291,15 @@ async function initializeWebSocket() {
 	socket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 
-		console.log(`data type is: ${data.type}`);
+		// console.log(`data type is: ${data.type}`);
 		switch (data.type) {
 			case "role":
 				// handleRoleAssignment(data);
+				console.log(`data type is: ${data.type}`);
 				scaleGame(data);
 				break;
 			case "players":
+				console.log(`data type is: ${data.type}`);
 				setWhoAmI(data);
 				// player.whoAmI = data[player.role];
 				// opponent.whoAmI = data[opponent.role];
@@ -302,6 +307,7 @@ async function initializeWebSocket() {
 				break;
 			case "status":
 				//console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
+				// handleStatus(data);
 				if (data.wait) // data.wait [bool]
 				{
 					if (gameLoopId)
@@ -312,8 +318,9 @@ async function initializeWebSocket() {
 					{
 						// await readySteadyGo(data.countdown);
 						await firstCountdown(() => {
+							
                         });
-						player.update(data.players, data.scores);
+						player.update(null, data.scores);
 						opponent.update(data.players, data.scores);
 						ball.resetPosition();
 					}
@@ -321,13 +328,14 @@ async function initializeWebSocket() {
 				else
 				{
 					setupControlsAI(player)
+					// console.log(`Setup controls, ${player.role},  ${player.whoAmI}`)
 					gameLoop();
 				}
 				break;
 			case "update":
 				if (data.players)
 				{
-					player.update(data.players, data.scores);
+					player.update(null, data.scores);
 					opponent.update(data.players, data.scores);
 				}
 				if (data.ball) {
@@ -336,7 +344,7 @@ async function initializeWebSocket() {
 				}
 				break ;
 			case "reject":
-				alert(`Connection rejected: ${data.reason}`);
+				// alert(`Connection rejected: ${data.reason}`);
 				socket.close();
 				break ;
 			case "endgame":
@@ -353,11 +361,12 @@ async function initializeWebSocket() {
 
 function gameLoop() {
 	gameLoopId = requestAnimationFrame(gameLoop);
-	console.log("IN GAME LOOP");
+	// console.log("IN GAME LOOP");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(0 0 0 / 75%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+	player.move(socket);
 	player.draw(ctx);
 	opponent.draw(ctx);
 	player.drawScore(ctx);
@@ -365,7 +374,7 @@ function gameLoop() {
 	//interpolateBall();
 	ball.draw(ctx);
 
-	player.move(socket);
+	
 	//ball.move(player, opponent, gameLoopId, socket);
 
 	if (gameStop) {

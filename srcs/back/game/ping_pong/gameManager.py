@@ -59,7 +59,7 @@ speeds => relative
 class GameManager:
 
 
-	ball_config = {"rad": 9, "xspeed": 4, "yspeed": 0}
+	ball_config = {"rad": 9, "xspeed": 2, "yspeed": 3}
 	board_config = {"width": 600, "height": 400, "max_score": 3}
 
 	paddle_config = {"width": 10, "height": 50, "speed": 5}
@@ -144,10 +144,18 @@ class GameManager:
 
 	def handle_message(self, role, data):
 		#logger.info(f"HM data: {data}")
-		#logger.info(f"HM pre: {self.players}")
+		# logger.info(f"HM pre: {self.players}")
+		# boardH = GameManager.board_config["height"]
+		# padH = (GameManager.paddle_config["height"] / 2) / boardH
 		if data["type"] == "update" and data["role"] in self.players and data["y"]:
 			self.players[data["role"]]["y"] = data["y"]
-			#logger.info(f"pl {self.players[data['role']]} role: {data['role']} paddle position {data['y']}")
+			# logger.info(f"RECEIIIIIVED!!!!! {self.players[data['role']]} role: {self.players[data['role']]['y']}")
+			# if data["y"] <= 0.06:
+			# 	self.players[data["role"]]["y"] = 0.06
+			# elif data["y"] >= 0.93:
+			# 	self.players[data["role"]]["y"] = 0.93
+			# logger.info(f"RECEIIIIIVED!!!!! {self.players[data['role']]} role: {self.players[data['role']]['y']}")
+			# logger.info(f"RECEIIIIIVED!!!!! {self.players[data['role']]} role: {self.players[data['role']]['y']}")
 		#logger.info(f"HM post: {self.players}")
 
 
@@ -175,26 +183,28 @@ class GameManager:
 		padH = GameManager.paddle_config["height"] / 2
 		pl1 = self.players["player1"]["y"] * boardH
 		pl2 = self.players["player2"]["y"] * boardH
-		
+		# logger.info(f"SIDE COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW} radius {radius}")
+		# logger.info(f"SIDE COL paddle1 Y {pl1}   1/2hight {padH} ")
+		# logger.info(f"SIDE COL paddle2 Y {pl2}   1/2hight {padH} ")
 		if self.ball["x"] * boardW - radius <= GameManager.paddle_config["width"]:
 			logger.info(f"col Side pl1 x area")
 			logger.info(f"ball Y {self.ball['y'] * boardH} pl1 Y {pl1}")
-			if ((self.ball["y"] * boardH + radius <= pl1 + padH + radius / 1.5) and
-				(self.ball["y"] * boardH - radius >= pl1 - padH - radius / 1.5)):
+			if ((self.ball["y"] * boardH + radius <= pl1 + padH + 1) and
+				(self.ball["y"] * boardH - radius >= pl1 - padH - 1)):
 				logger.info(f"col Side pl1")
 				return True
-		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"]:
+		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"] - 1:
 			logger.info(f"col Side pl2 x area")
 			logger.info(f"ball Y {self.ball['y'] * boardH} pl2 Y {pl2}")
-			if ((self.ball["y"] * boardH + radius <= pl2 + padH + radius / 1.5) and
-				(self.ball["y"] * boardH - radius >= pl2 - padH - radius / 1.5)):
+			if ((self.ball["y"] * boardH + radius <= pl2 + padH + 1) and
+				(self.ball["y"] * boardH - radius >= pl2 - padH - 1)):
 				logger.info(f"col Side pl2")
 				return True
 		return False
 
 	def is_pad_col_top(self):
 		radius = GameManager.ball_config["rad"]
-		padH = GameManager.paddle_config["height"]
+		padH = GameManager.paddle_config["height"] / 2
 		padW = GameManager.paddle_config["width"]
 		boardH = GameManager.board_config["height"]
 		boardW = GameManager.board_config["width"]
@@ -203,17 +213,27 @@ class GameManager:
 		pl2_x = boardW - padW
 		pl2_y = self.players["player2"]["y"] * boardH
 
-		logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}")
-		if self.ball["x"] * boardW - radius <= pl1_x :
+		# logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}, radius {radius}")
+		# # logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH} ")
+		# logger.info(f"TOP COL paddle2 Y {pl2_y}   1/2hight {padH} ")
+		# Left paddle((self.ball["y"] * boardH + radius <= pl1_y + padH) and (GameManager.ball_config["yspeed"] <= 0.5))):
+		if self.ball["x"] * boardW - radius <= pl1_x:
 			logger.info(f"col Top pl1 x area")
-			if ((self.ball["y"] * boardH - radius >= pl1_y - padH - radius / 1.5) or
-				(self.ball["y"] * boardH + radius <= pl1_y + padH + radius / 1.5)):
+			# logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}, radius {radius}")
+			# logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH}, Yspeed {self.ball['yspeed']} ")
+			if (((self.ball["y"] * boardH + radius >= pl1_y - padH) and (self.ball["yspeed"] >= 0) and
+				(self.ball["y"] * boardH + radius <= pl1_y + padH)) or 
+				((self.ball["y"] * boardH - radius >= pl1_y - padH) and (self.ball["yspeed"] <= 0) and
+				(self.ball["y"] * boardH - radius <= pl1_y + padH))):
+				# logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}, radius {radius}")
+				# logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH}, Yspeed {self.ball['yspeed']} ")
 				logger.info(f"col Top pl1")
 				return True
-		elif self.ball["x"] * boardW + radius >= pl2_x :
+		# Right paddle
+		elif self.ball["x"] * boardW + radius >= pl2_x:
 			logger.info(f"col Top pl2 x area")
-			if ((self.ball["y"] * boardH - radius >= pl2_y - padH - radius / 1.5) or
-				(self.ball["y"] * boardH + radius <= pl2_y + padH + radius / 1.5)):
+			if ((self.ball["y"] * boardH + radius >= pl2_y - padH) and
+				(self.ball["y"] * boardH - radius <= pl2_y + padH)):
 				logger.info(f"col Top pl2")
 				return True
 		return False
@@ -226,21 +246,22 @@ class GameManager:
 		is_col_s = self.is_pad_col_side()
 		is_col_t = self.is_pad_col_top()
 		# logger.info("IN UPDATE BALL")
-		# logger.info(f"ball x: {self.ball['x']}, ball y: {self.ball['y']}")
+		# logger.info(f"side col: {is_col_s} top col: {is_col_t}")
 
 		if is_col_s:
 			self.ball["xspeed"] *= -1
+
 		elif is_col_t:
 			self.ball["yspeed"] *= -1
+			self.ball["xspeed"] *= -1
 		elif self.ball["y"] - radius <= 0 or self.ball["y"] + radius >= 1:
 			self.ball["yspeed"] *= -1
-		if not is_col_s and (self.ball["x"] * GameManager.board_config["width"] - GameManager.ball_config["rad"] <= 0):
+		if not (is_col_s and is_col_t) and (self.ball["x"] * GameManager.board_config["width"] - GameManager.ball_config["rad"] <= 0):
 			# logger.info(f"{self.players['player1']} has scored")
 			await self.has_scored("player2")
-		elif not is_col_s and (self.ball["x"] * GameManager.board_config["width"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]):
+		elif not (is_col_s and is_col_t) and (self.ball["x"] * GameManager.board_config["width"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]):
 			# logger.info(f"{self.players['player2']} has scored")
 			await self.has_scored("player1")
-
 
 
 ##################################################
@@ -425,7 +446,7 @@ class GameManager:
 					async with self.ball_lock:
 						await self.update_ball()
 					await self.send_update()
-				await asyncio.sleep(0.016)
+				await asyncio.sleep(0.008)
 		except Exception as e:
 			logger.error(f"Error in game loop: {e}")
 

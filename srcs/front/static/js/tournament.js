@@ -415,7 +415,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
                 break;
 			case "role":
 				// handleRoleAssignment(data);
-				await scaleGame(data);
+				scaleGame(data);
 				break;
 			case "players":
 				await setWhoAmI(data);

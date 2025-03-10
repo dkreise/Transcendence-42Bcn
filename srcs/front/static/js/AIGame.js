@@ -219,6 +219,7 @@ function gameAILoop() {
 // Event listeners for player controls
 export function setupControlsAI(player) {
     window.addEventListener("keydown", (e) => {
+        // console.log("REMOTE CONTROLS ACTING")
         if (e.key === "w") player.up = true;
         if (e.key === "s") player.down = true;
         if (e.key === "ArrowUp") player.up = true;
