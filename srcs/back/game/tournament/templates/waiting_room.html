@@ -1,11 +1,5 @@
 <!-- <div id="waiting-room-container">
 
-    <div class="d-flex justify-content-center">
-        <div class="col-12 col-md-6">
-            <button class="btn btn-grey-purple btn-large w-100" data-route="/home">{{ home }}</button>
-        </div>
-    </div>
-
     <div class="text-center mb-4">
         <h1 class="tournament-title">...waiting room...</h1>
     </div>
@@ -32,41 +26,38 @@
 </div> -->
 
 <div id="waiting-room-container" class="container py-4">
-  
-    <!-- Título de la Waiting Room -->
-    <div class="row mb-4">
-      <div class="col-12 text-center">
-        <h1 class="tournament-title">...waiting room...</h1>
-      </div>
+  <!-- Título de la Waiting Room -->
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h1 class="tournament-title">Waiting for players...</h1>
     </div>
-  
-    <!-- Detalles del Torneo: ID -->
-    <div class="row mb-4">
-      <div class="col-12 col-md-6 offset-md-3">
-        <div class="tournament-info-box p-3 text-center">
-          <h3 class="tournament-subtitle d-inline">{{ tournament }} ID: </h3>
-          <p class="tournament-value d-inline">{{ tournament_id }}</p>
+  </div>
+
+  <!-- Contenedor con recuadro -->
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+      <div class="card profile-card p-4 mx-auto">
+        <div class="card-body text-center">
+          <!-- Detalles del Torneo: ID -->
+          <div class="tournament-info-box mb-3">
+            <h3 class="tournament-subtitle d-inline">{{ tournament }} ID: </h3>
+            <h3 class="tournament-value d-inline">{{ tournament_id }}</h3>
+          </div>
+
+          <!-- Detalles del Torneo: Número de Jugadores -->
+          <div class="tournament-info-box mb-3">
+            <h3 class="tournament-subtitle d-inline">{{ number_players }}: </h3>
+            <h3 id="cur-player-cnt" class="tournament-value d-inline">{{ player_count }}</h3>
+          </div>
+
+          <!-- Botón para salir del torneo -->
+          <button class="button-trn" replace-url data-route="/quit-tournament" style="margin-top: 10%;">
+            <span class="button-content-trn">Quit Tournament</span>
+          </button>
         </div>
-      </div>
-    </div>
-  
-    <!-- Detalles del Torneo: Número de Jugadores -->
-    <div class="row mb-4">
-      <div class="col-12 col-md-6 offset-md-3">
-        <div class="tournament-info-box p-3 text-center">
-          <h3 class="tournament-subtitle d-inline">{{ number_players }}: </h3>
-          <p id="cur-player-cnt" class="tournament-value d-inline">{{ player_count }}</p>
-        </div>
-      </div>
-    </div>
-  
-    <!-- Botón para salir del torneo -->
-    <div class="row">
-      <div class="col-12 col-md-6 offset-md-3">
-        <button class="btn btn-grey-purple btn-large w-100" replace-url data-route="/quit-tournament">
-          Quit Tournament
-        </button>
       </div>
     </div>
   </div>
+</div>
+
   

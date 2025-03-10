@@ -1,11 +1,4 @@
-<div class="container-bracket">
-
-    <!-- <div class="d-flex justify-content-center">
-        <div class="col-12 col-md-6">
-            <button class="btn btn-grey-purple btn-large w-100" data-route="/home">{{ home }}</button>
-        </div>
-    </div> -->
-
+<!-- <div class="container-bracket">
     <section id="bracket" class="bracket">
         {% for round_pairs in pairs_and_winners %}
         {% if forloop.counter0 < cur_round %}  {# Show rounds only up to cur_round #}
@@ -31,6 +24,44 @@
     <div class="d-flex justify-content-center">
         <div class="col-12 col-md-6">
             <button class="btn btn-grey-purple btn-large w-100" replace-url data-route="/quit-tournament">Quit Tournament</button>
+        </div>
+    </div>
+</div> -->
+
+
+<div class="container py-4">
+    <section id="bracket" class="bracket">
+        {% for round_pairs in pairs_and_winners %}
+        {% if forloop.counter0 < cur_round %}  {# Show rounds only up to cur_round #}
+        <div class="round-block mb-5">
+            <h3 class="text-center mb-3">Round {{ forloop.counter }}</h3>
+            <div class="container">
+                {% for pair, bool_winner in round_pairs %}
+                <div class="row justify-content-center mb-2">
+                    <div class="col-12 col-sm-5 text-center p-2">
+                        <span class="px-3 py-2 d-inline-block rounded {% if bool_winner.0 %}winner{% endif %}">
+                            {{ pair.0 }}
+                        </span>
+                    </div>
+                    <div class="col-12 col-sm-5 text-center p-2">
+                        <span class="px-3 py-2 d-inline-block rounded {% if bool_winner.1 %}winner{% endif %}">
+                            {{ pair.1 }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        {% endfor %}
+    </section>
+
+    <!-- Botón de salida del torneo -->
+    <div class="row justify-content-center mt-4">
+        <div class="col-12 col-md-6">
+            <button class="button-trn" replace-url data-route="/quit-tournament" style="margin-top: 10%;">
+                <span class="button-content-trn">Quit Tournament</span>
+            </button>
         </div>
     </div>
 </div>
