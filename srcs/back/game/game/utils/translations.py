@@ -17,6 +17,7 @@ def get_lang_words(lang):
 			'tournament': "Torneo",
 			'home': "Inicio",
 			'create': "Crear",
+			'create_room': "Crear Sala",
 			'join': "Unirse",
 			'create_tournament': "Crear Torneo",
 			'number_players': "Número de jugadores",
@@ -50,16 +51,13 @@ def get_lang_words(lang):
 			'easy': "Fácil",  
 			'medium': "Medio",  
 			'hard': "Difícil",
-<<<<<<< HEAD
 			'play_my_game': "Jugar mi partida",
-=======
 			'last_10_games_performance': "Rendimiento de los últimos 10 juegos",
             'game_evolution': "Evolución de las Partidas",
 			'score_wo': "Puntuación",
 			'game_wo': "Juego",
 			'opponent': "Oponente",
 			'winner_wo': "Ganador",
->>>>>>> origin/main
 		}
 	elif lang == 'CA':
 		return {
@@ -100,10 +98,8 @@ def get_lang_words(lang):
 			'baby': "Bebè",  
 			'easy': "Fàcil",  
 			'medium': "Mitjà",  
-<<<<<<< HEAD
 			'hard': "Difícil",
 			'play_my_game': "Jugar la meua partida",
-=======
 			'hard': "Difícil",  
 			'last_10_games_performance': "Rendiment dels últims 10 jocs",
             'game_evolution': "Evolució del joc",
@@ -111,7 +107,6 @@ def get_lang_words(lang):
 			'game_wo': "Joc",
 			'opponent': "Oponent",
 			'winner_wo': "Guanyador",
->>>>>>> origin/main
 		}
 	elif lang == 'RU':
 		return {
@@ -153,16 +148,13 @@ def get_lang_words(lang):
 			'easy': "Низкий",
 			'medium': "Средний",
 			'hard': "Высокий",
-<<<<<<< HEAD
 			'play_my_game': "Играй в мою игру",
-=======
 			'last_10_games_performance': "Производительность последних 10 игр",
             'game_evolution': "Эволюция игры",
 			'score_wo': "Очки",
 			'game_wo': "Игра",
 			'opponent': "Противник",
 			'winner_wo': "Победитель",
->>>>>>> origin/main
 		}
 	elif lang == 'LV':
 		return {
@@ -204,16 +196,13 @@ def get_lang_words(lang):
 			'easy': "Viegli",  
 			'medium': "Vidēji",  
 			'hard': "Grūti",
-<<<<<<< HEAD
 			'play_my_game': "Spēlēt manu spēli",
-=======
 			'last_10_games_performance': "Pēdējo 10 spēļu veiktspēja",
             'game_evolution': "Spēles Attīstība",
 			'score_wo': "Punkti",
 			'game_wo': "Spēle",
 			'opponent': "Pretinieks",
 			'winner_wo': "Uzvarētājs",
->>>>>>> origin/main
 		}
 	else:
 		return {
@@ -255,14 +244,11 @@ def get_lang_words(lang):
 			'easy': "Easy",
 			'medium': "Medium",
 			'hard': "Hard",
-<<<<<<< HEAD
 			'play_my_game': "Play my game",
-=======
 			'last_10_games_performance': "Last 10 games performance",
             'game_evolution': "Game evolution",
 			'score_wo': "Score",
 			'game_wo': "Game",
 			'opponent': "Opponent",
 			'winner_wo': "Winner",
->>>>>>> origin/main
 		}

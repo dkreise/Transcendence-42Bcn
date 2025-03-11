@@ -211,7 +211,7 @@ def remote_home(request):
     context = {
         'user': request.user,
     }
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     game_html = render_to_string('remote_home.html', context)
     return JsonResponse({'game_html': game_html}, content_type="application/json")
 
