@@ -15,7 +15,8 @@ logger = logging.getLogger(__name__)
 ws_codes = {
 	"4000": "You're already in the room",
 	"4001": "Error trying to reconnect. Please, try again later",
-	"4002": "Access denied. The room is already full"
+	"4002": "Access denied: The room is already full"
+	"4003": "Acces denied: Invalid id"
 }
 
 
@@ -50,8 +51,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 								"type": "full",
 								"message": "Tournament is full or has already started.",
 							}))
-							# await asyncio.sleep(0.5)  # Small delay to let the message reach the frontend
-							# await self.close()
 							return
 						status = tournament.add_player(self.user.username)
 						await self.channel_layer.group_add(self.tour_id, self.channel_name)
@@ -97,13 +96,22 @@ class PongConsumer(AsyncWebsocketConsumer):
 			elif self.type == "G":
 				try:
 					self.room_id = self.scope['url_route']['kwargs']['tgID']
+					await self.accept()
 					async with active_games_lock:
-						if self.room_id not in active_games:
+						if (self.room_id not in active_games) and self.room_id == 1:
 							active_games[self.room_id] = GameManager(self.room_id)
+						elif (self.room_id not in active_games) and self.room_id == 0:
+							await self.send(json.dumps({
+								"type": "reject",
+								"reason": ws_codes["4003"],
+								"code": "4003"
+							}))
+							await self.close(int(self.role))
+							return
+							
 						# TODO: False should be dynamic (player = T / viewer = F)
 						game = active_games[self.room_id]
 						self.role = await game.join_room(self.user.username, False)
-						await self.accept()
 						if "player" not in self.role:
 							await self.send(json.dumps({
 								"type": "reject",
