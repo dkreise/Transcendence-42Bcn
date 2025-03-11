@@ -103,6 +103,7 @@ async function readySteadyGo(countdown)
 
 function displayCountdown()
 {
+	console.log("entering displayCountdown");
 	if (!ctx)
 		return ;
 	let div = document.getElementById("wait");
@@ -118,8 +119,10 @@ function displayCountdown()
 		waitMsg = waitMsg.replace("X", "player2");
 	else
 		waitMsg = waitMsg.replace("X", "player1");
-	div.textContent = waitMsg;
+	div.innerHTML = waitMsg;
+	console.log("dC: waitMsg: " + waitMsg);
 	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
+	div.style.display = 'block';
 }
 
 
@@ -295,6 +298,7 @@ async function initializeWebSocket(roomId, isCreator) {
 				//console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
 				if (data.wait) // data.wait [bool]
 				{
+					console.log("status: countdown is: " + data.countdown)
 					if (gameLoopId)
 						cancelAnimationFrame(gameLoopId);
 					if (data.countdown == 0)
@@ -408,6 +412,12 @@ export function startGame(roomId, isCreator, dictionary)
 	tourId = localStorage.getItem('currentTournamentId');
 	dict = dictionary;
 	console.log("tourId is: " + tourId);
+	if (!roomId)
+	{
+		alert(`${dict['bad_id']}`);
+		navigateTo("/remote-home");
+		return ;
+	}
 
 	if (!canvas)
 		return ;

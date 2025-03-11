@@ -97,9 +97,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 				try:
 					self.room_id = self.scope['url_route']['kwargs']['tgID']
 					await self.accept()
+					logger.info("Connection accepted!")
 					async with active_games_lock:
-						if (self.room_id not in active_games) and self.room_id == 1:
+						if (self.room_id not in active_games) and self.room_id.startswith('1'):
 							active_games[self.room_id] = GameManager(self.room_id)
+							logger.info("Room created!")
 						elif (self.room_id not in active_games) and self.room_id.startswith('0'):
 							await self.send(json.dumps({
 								"type": "reject",
@@ -112,6 +114,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 						# TODO: False should be dynamic (player = T / viewer = F)
 						game = active_games[self.room_id]
 						self.role = await game.join_room(self.user.username, False)
+						logger.info("self role: {self.role}")
 						if "player" not in self.role:
 							await self.send(json.dumps({
 								"type": "reject",
