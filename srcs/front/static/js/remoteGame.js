@@ -22,6 +22,7 @@ let socket = null;
 let gameLoopId = null;
 let gameStop = false;
 let tourId = null;
+let countdownTimeout = null;
  
 // console.log("Hi! This is remoteGame.js :D");
 
@@ -95,20 +96,23 @@ async function readySteadyGo(countdown)
 	const msg = ["1", "2", "3"];
 	let div = document.getElementById("wait");
 
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	div.textContent = msg[countdown];
-	div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
+	if (div) {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		div.textContent = msg[countdown];
+		div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
 
 
-	ctx.fillStyle = "rgb(0 0 0 / 25%)";
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	div.style.display = "block";
-	//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
-	if (countdown >= 0)
-		await setTimeout(async() => await readySteadyGo(--countdown), 500);
+		ctx.fillStyle = "rgb(0 0 0 / 25%)";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		div.style.display = "block";
+		//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
+		if (countdown >= 0)
+			// await setTimeout(async() => await readySteadyGo(--countdown), 500);
+			countdownTimeout = setTimeout(() => readySteadyGo(--countdown), 500);
 
-	else
-		div.style.display = "none";
+		else
+			div.style.display = "none";
+	}
 }
 
 function displayCountdown()
@@ -134,29 +138,37 @@ function displayCountdown()
 }
 
 
-function handleEndgame(data) {
+export function handleEndgame(data) { 
+  if (socket && socket.readyState === WebSocket.OPEN && !tourId) {
+      socket.close();
+    }
+  tourId = null;
+	socket = null;
 	const { winner, loser, scores} = data;
-	let div = document.getElementById("wait");
+//	let div = document.getElementById("wait");
 	const msg = [
 		"Congratulations! You've won 😁",
 		"Better luck next time! 🥲"
 	]
-	div.style.display = 'none';
+	console.log(`winner ${winner} loser ${loser}`);
+	console.log(`I am: ${player.whoAmI}`);
+
+	//div.style.display = 'none';
 	// console.log(`winner ${winner} loser ${loser}`);
+
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
+	clearTimeout(countdownTimeout); // Clear the timeout
+    let div = document.getElementById("wait");
+    if (div) div.style.display = "none";
 	player.score = data["scores"][player.role];
 	opponent.score = data["scores"][opponent.role];
-	// console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
-	if (player.whoAmI == winner)
-		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
-	else
+	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
+	if (player.whoAmI == loser)
 		player.displayEndgameMessage(ctx, opponent.score, msg[1]);
+	else
+		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
 
-	if (socket && socket.readyState === WebSocket.OPEN) {
-		socket.close();
-		socket = null;
-	}
 //	if (player.whoAmI == winner)
 //		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
 //	else
@@ -252,7 +264,9 @@ export function handleUpdate(data)
 //async function initializeWebSocket(roomId) {
 async function initializeWebSocket() {
 	//const roomID = new URLSearchParams(window.location.search).get("room") || "default";
-	const roomId = 123;
+
+	const roomId = 12;
+
 	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
@@ -428,6 +442,8 @@ export function startGame(tour = null)
 {
 	canvas = document.getElementById('newGameCanvas');
 	tourId = tour;
+	console.log("tour is : ", tour);
+
 
 	if (!canvas)
 	{
@@ -444,6 +460,7 @@ export function startGame(tour = null)
 	if (!tourId)
 		initializeWebSocket();
 	else {
+		console.log("it is a tour game");
 		startTournamentGame();
 		const button = document.getElementById('play-again');
         if (button) {
@@ -457,11 +474,14 @@ export function startGame(tour = null)
 export function cleanRemote() {
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
-	if (socket && socket.readyState === WebSocket.OPEN) {
+	if (socket && socket.readyState === WebSocket.OPEN && !tourId) {
         socket.close();
-        socket = null;
+//         socket = null;
     }
 	gameLoopId = null;
+
+	socket = null;
+
 	if (tourId) {
 		gameStop = true;
 		tourId = null;

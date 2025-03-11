@@ -45,8 +45,10 @@ const routes = {
     '/settings': loadProfileSettingsPage,
     '/play-local': playLocal,
     '/play-ai': (args) => playAI(args),
-    '/play-online': playOnline,
+    // '/play-online': playOnline,
+    '/play-online': (args) => playOnline(args),
     '/restart-online': restartOnline,
+
     '/game-local': gameLocal,
     '/play-3d': play3D,
     '/play-ai-game': (args) => gameAI(args),

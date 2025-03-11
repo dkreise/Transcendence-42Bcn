@@ -9,9 +9,9 @@ const userMgmtPort = window.env.USER_MGMT_PORT;
 export const loadFriendsSearchPage = () => {
     drawHeader('main').then(() => {
        return  makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/search-users", {method: "GET", credentials: "include"})
-            .then((response) => response.json())
+            .then(response => response ? response.json() : null)
             .then(data => {
-                if (data.search_users_html) {
+                if (data && data.search_users_html) {
                     document.getElementById('content-area').innerHTML = data.search_users_html;
                 } else {
                     console.error('Error fetching friends search:', data.error);
@@ -31,9 +31,9 @@ const performSearch = () => {
 
     if (query) {
         makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/search-users/?q=" + encodeURIComponent(query), {method: "GET"})
-            .then((response) => response.json())
+            .then(response => response ? response.json() : null)
             .then(data => {
-                if (data.search_users_html) {
+                if (data && data.search_users_html) {
                     document.getElementById('content-area').innerHTML = data.search_users_html;
                 } else {
                     console.error('Error fetching friends search:', data.error);
@@ -47,9 +47,9 @@ const performSearch = () => {
 
 const addFriend = (friendId) => {
     makeAuthenticatedRequest(baseUrl + userMgmtPort + `/api/add-friend/${friendId}/`, {method: "POST"})
-        .then((response) => response.json())
+        .then(response => response ? response.json() : null)
         .then(data => {
-            if (data.status == "success") {
+            if (data && data.status == "success") {
                 console.log('friend added!!');
 
                 const button = document.querySelector(`#add-friend-button[data-id="${friendId}"]`);
@@ -98,9 +98,9 @@ const addFriend = (friendId) => {
 
 const removeFriend = (friendId) => {
     makeAuthenticatedRequest(baseUrl + userMgmtPort + `/api/remove-friend/${friendId}/`, {method: "POST"})
-        .then((response) => response.json())
+        .then(response => response ? response.json() : null)
         .then(data => {
-            if (data.status == "success") {
+            if (data && data.status == "success") {
                 console.log('friend removed!!');
 
                 const button = document.querySelector(`#remove-friend-button[data-id="${friendId}"]`);

@@ -48,9 +48,9 @@ export const enable2FA = () => {
             headers: { "Content-Type": "application/json" },
         })
     })
-        .then((response) => response.json())
+        .then(response => response ? response.json() : null)
         .then((data) => {
-            if (data.success && data.setup_html) {
+            if (data && data.success && data.setup_html) {
                 document.getElementById('content-area').innerHTML = data.setup_html;
                 document.getElementById("2fa-qr-code").src = `data:image/png;base64,${data.qr_code}`;
             } else {
@@ -65,9 +65,9 @@ export const disable2FA = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
     })
-        .then((response) => response.json())
+        .then(response => response ? response.json() : null)
         .then((data) => {
-            if (data.success) {
+            if (data && data.success) {
                 console.log("2FA has been disabled.");
                 navigateTo('/profile-settings', true);
                 displayUpdatingMessage("2FA has been disabled.", 'green');
@@ -91,9 +91,9 @@ const  verify2FA = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
     })
-        .then((response) => response.json())
+        .then(response => response ? response.json() : null)
         .then((data) => {
-            if (data.success) {
+            if (data && data.success) {
                 console.log("2fa code CORRECT !!");
                 navigateTo('/profile-settings', true);
                 displayUpdatingMessage("2FA has been enabled.", 'green');
