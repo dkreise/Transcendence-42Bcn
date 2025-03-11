@@ -2,21 +2,21 @@ import { Ball, Player } from "./remoteClasses.js";
 import { setupControls } from "./localGame.js";
 import { setupControlsAI } from "./AIGame.js"
 import { refreshAccessToken } from "./login.js";
-import { startTournamentGame, stopTournamentGame } from "./tournament.js";
+import { startTournamentGame, stopTournamentGame, saveTournamentGameResult } from "./tournament.js";
 
 const gamePort = window.env.GAME_PORT;
 const host = window.env.HOST;
 const protocolSocket = window.env.PROTOCOL_SOCKET;
 
-const endgameMsg = {
-	"winner": "Congratuations! You've won!\n",
-	"loser": "Better luck next time :')\n"
-};
+// const endgameMsg = {
+// 	"winner": "Congratuations! You've won!\n",
+// 	"loser": "Better luck next time :')\n"
+// };
 
 let canvas, ctx = null;
 
 let ball, targetBallX, targetBallY = null;
-let player, opponent = null;
+let player, opponent = null, dict = null;
 
 let socket = null;
 let gameLoopId = null;
@@ -90,30 +90,30 @@ async function firstCountdown(callback) {
     }, 500);
 }
 
-async function readySteadyGo(countdown)
-{
-	// if (!div || ! div.textContent) return ;
-	const msg = ["1", "2", "3"];
-	let div = document.getElementById("wait");
+// async function readySteadyGo(countdown)
+// {
+// 	// if (!div || ! div.textContent) return ;
+// 	const msg = ["1", "2", "3"];
+// 	let div = document.getElementById("wait");
 
-	if (div) {
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		div.textContent = msg[countdown];
-		div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
+// 	if (div) {
+// 		ctx.clearRect(0, 0, canvas.width, canvas.height);
+// 		div.textContent = msg[countdown];
+// 		div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
 
 
-		ctx.fillStyle = "rgb(0 0 0 / 25%)";
-		ctx.fillRect(0, 0, canvas.width, canvas.height);
-		div.style.display = "block";
-		//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
-		if (countdown >= 0)
-			// await setTimeout(async() => await readySteadyGo(--countdown), 500);
-			countdownTimeout = setTimeout(() => readySteadyGo(--countdown), 500);
+// 		ctx.fillStyle = "rgb(0 0 0 / 25%)";
+// 		ctx.fillRect(0, 0, canvas.width, canvas.height);
+// 		div.style.display = "block";
+// 		//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
+// 		if (countdown >= 0)
+// 			// await setTimeout(async() => await readySteadyGo(--countdown), 500);
+// 			countdownTimeout = setTimeout(() => readySteadyGo(--countdown), 500);
 
-		else
-			div.style.display = "none";
-	}
-}
+// 		else
+// 			div.style.display = "none";
+// 	}
+// }
 
 function displayCountdown()
 {
@@ -121,28 +121,30 @@ function displayCountdown()
 		return ;
 	//let fontSize = Math.floor(canvas.width * 0.05);
 	let div = document.getElementById("wait");
-	let waitMsg = div ? div.dataset.original : "Waiting for X"; 
+	// let waitMsg = div ? div.dataset.original : "Waiting for X"; 
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(0 0 0 / 25%)"; //rectangle style
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	if (opponent && opponent.whoAmI)
-		waitMsg = waitMsg.replace("X", opponent.whoAmI);
-	else if (player.role == "player1")
-		waitMsg = waitMsg.replace("X", "player2");
-	else
-		waitMsg = waitMsg.replace("X", "player1");
-	div.textContent = waitMsg;
+	// if (opponent && opponent.whoAmI)
+	// 	waitMsg = waitMsg.replace("X", opponent.whoAmI);
+	// else if (player.role == "player1")
+	// 	waitMsg = waitMsg.replace("X", "player2");
+	// else
+	// 	waitMsg = waitMsg.replace("X", "player1");
+	// div.textContent = waitMsg;
+	div.textContent = dict['waiting_enemy'];
 	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
 }
 
 
 export function handleEndgame(data) { 
-  if (socket && socket.readyState === WebSocket.OPEN && !tourId) {
-      socket.close();
-    }
-  tourId = null;
+	if (socket && socket.readyState === WebSocket.OPEN && !tourId) {
+		socket.close();
+	}
+	let ifTour = tourId;
+	tourId = null;
 	socket = null;
 	const { winner, loser, scores} = data;
 //	let div = document.getElementById("wait");
@@ -165,10 +167,11 @@ export function handleEndgame(data) {
 	opponent.score = data["scores"][opponent.role];
 	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
 	if (player.whoAmI == loser)
-		player.displayEndgameMessage(ctx, opponent.score, msg[1]);
+		player.displayEndgameMessage(ctx, opponent.score, dict['good_luck']);
 	else
-		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
-
+		player.displayEndgameMessage(ctx, opponent.score, dict['congrats']);
+	if (ifTour)
+		saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);
 //	if (player.whoAmI == winner)
 //		player.displayEndgameMessage(ctx, opponent.score, endgameMsg["winner"]);
 //	else
@@ -200,10 +203,11 @@ function getTimestamp() {
 	return `${date.getDate()}-${date.getMonth() + 1} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 }
 
-export async function setWhoAmI(data)
+export async function setWhoAmI(data, socket)
 {
 	player.whoAmI = data[player.role];
 	opponent.whoAmI = data[opponent.role];
+	socket.send(JSON.stringify({"type": "ready"}))
 }
 
 export async function handleStatus(data, tourSocket = null)
@@ -314,49 +318,15 @@ async function initializeWebSocket() {
 				break;
 			case "players":
 				console.log(`data type is: ${data.type}`);
-				setWhoAmI(data);
-				// player.whoAmI = data[player.role];
-				// opponent.whoAmI = data[opponent.role];
-				socket.send(JSON.stringify({"type": "ready"}))
+				await setWhoAmI(data, socket);
+				// socket.send(JSON.stringify({"type": "ready"}))
 				break;
 			case "status":
 				//console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
 				await handleStatus(data);
-				// if (data.wait) // data.wait [bool]
-				// {
-				// 	if (gameLoopId)
-				// 		cancelAnimationFrame(gameLoopId);
-				// 	if (data.countdown == 0)
-				// 		displayCountdown();
-				// 	else
-				// 	{
-				// 		// await readySteadyGo(data.countdown);
-				// 		await firstCountdown(() => {
-							
-                //         });
-				// 		player.update(data.players, data.scores);
-				// 		opponent.update(data.players, data.scores);
-				// 		ball.resetPosition();
-				// 	}
-				// }
-				// else
-				// {
-				// 	setupControlsAI(player)
-				// 	// console.log(`Setup controls, ${player.role},  ${player.whoAmI}`)
-				// 	gameLoop();
-				// }
 				break;
 			case "update":
 				handleUpdate(data);
-				// if (data.players)
-				// {
-				// 	player.update(data.players, data.scores);
-				// 	opponent.update(data.players, data.scores);
-				// }
-				// if (data.ball) {
-				// 	ball.x = data.ball.x * canvas.width;
-				// 	ball.y = data.ball.y * canvas.height;
-				// }
 				break ;
 			case "reject":
 				// alert(`Connection rejected: ${data.reason}`);
@@ -438,12 +408,13 @@ function resizeCanvas() {
 // Resize canvas when the window resizes
 window.addEventListener("resize", resizeCanvas); 
 
-export function startGame(tour = null)
+export function startGame(dictionary, tour = null)
 {
 	canvas = document.getElementById('newGameCanvas');
 	tourId = tour;
 	console.log("tour is : ", tour);
-
+	window.dict = dictionary;
+	dict = dictionary;
 
 	if (!canvas)
 	{

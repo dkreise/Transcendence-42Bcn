@@ -118,6 +118,8 @@ export async function start3DLocalGame(playerName1, playerName2, mainUserNmb, di
 // Event listeners for player controls
 export function setupControls() {
     window.addEventListener("keydown", (e) => {
+        if (!player1 || ! player2) return ;
+
         if (e.key === "w") player1.up = true;
         if (e.key === "s") player1.down = true;
         if (e.key === "ArrowUp") player2.up = true;
@@ -143,6 +145,7 @@ export function setupControls() {
     });
 
     window.addEventListener("keyup", (e) => {
+        if (!player1 || ! player2) return ;
         if (e.key === "w") player1.up = false;
         if (e.key === "s") player1.down = false;
         if (e.key === "ArrowUp") player2.up = false;
@@ -247,6 +250,7 @@ async function setupRemoteEvents() {
 // Event listeners for player controls
 export function setupRemoteControls(player) {
     window.addEventListener("keydown", (e) => {
+        if (!player) return ;
         if (e.key === "w") player.up = true;
         if (e.key === "s") player.down = true;
         if (e.key === "ArrowUp") player.up = true;
@@ -255,6 +259,7 @@ export function setupRemoteControls(player) {
     });
 
     window.addEventListener("keyup", (e) => {
+        if (!player) return ;
         if (e.key === "w") player.up = false;
         if (e.key === "s") player.down = false;
         if (e.key === "ArrowUp") player.up = false;
@@ -518,6 +523,7 @@ export async function start3DAIGame(playerName2, dict, tournament = null) {
 
 function setupAIControls() {
     window.addEventListener("keydown", (e) => {
+        if (!player2) return ;
         if (e.key === "ArrowLeft") player2.down = true;
         if (e.key === "ArrowRight") player2.up = true;
         if (e.code === "Space" && !gameStarted && !gameEnded && text.start.visible == true) {
@@ -533,6 +539,7 @@ function setupAIControls() {
     });
 
     window.addEventListener("keyup", (e) => {
+        if (!player2) return ;
         if (e.key === "ArrowLeft") player2.down = false;
         if (e.key === "ArrowRight") player2.up = false;
     });
@@ -807,8 +814,15 @@ async function    handleOnlineEndgame(data) {
 		socket.close();
 		socket = null;
 	}
-    if (tournamentId)
+    
+    if (tournamentId) {
+        // const button = document.getElementById('play-again');
+        // if (button) {
+        //     button.textContent = "Back to Tournament Page";
+        //     button.setAttribute("data-route", "/tournament-bracket");
+        // }
         tournamentId = null;
+    }
     handleEndGame(msg);
     resetOnlineTeam();
 }

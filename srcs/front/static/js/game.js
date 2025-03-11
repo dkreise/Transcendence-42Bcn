@@ -265,7 +265,7 @@ if (!checkPermission) {
 
                     console.log("starting game..");
                 if (canvas)
-                    startGame(tourId);
+                    startGame(dictionary, tourId);
 
                 else
                     console.log("Error: Canvas not found");

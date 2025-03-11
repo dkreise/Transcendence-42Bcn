@@ -14,7 +14,7 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const protocolSocket = window.env.PROTOCOL_SOCKET;
 const gamePort = window.env.GAME_PORT;
 
-let socket = null;
+let socket = null, dict = null;
 
 export const manageTournamentHomeBtn = () => { 
     const inTournament = localStorage.getItem('inTournament');
@@ -418,8 +418,8 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 				scaleGame(data);
 				break;
 			case "players":
-				await setWhoAmI(data);
-				socket.send(JSON.stringify({"type": "ready"}));
+				await setWhoAmI(data, socket);
+				// socket.send(JSON.stringify({"type": "ready"}));
 				break;
 			case "status":
 				await handleStatus(data, socket);
@@ -430,14 +430,15 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 			case "endgame":
                 // handleTourEndgame(data);
                 handleEndgame(data);
-                saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);
+                // saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);
 				break;
 			case "reject":
-				alert(`Connection rejected: ${data.reason}`);
+				// alert(`Connection rejected: ${data.reason}`);
+                console.log(`Connection rejected: ${data.reason}`);
 				//return client to tournament home page or bracket page
 				break;
             default:
-                console.warn("Unhandled message type: ", data.type);
+                console.log("Unhandled message type: ", data.type);
 		}
 	};
 });

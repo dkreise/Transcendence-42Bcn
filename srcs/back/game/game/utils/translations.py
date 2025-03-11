@@ -129,7 +129,11 @@ def get_lang_words(lang):
 			'baby': "Малыш",
 			'easy': "Низкий",
 			'medium': "Средний",
-			'hard': "Высокий"
+			'hard': "Высокий",
+			'restart': "Заново", 
+			"congrats": "Ура! Ты победил!",
+			"good_luck": "Удачи в следующий раз...",
+			"back_tour" : "Назад в турнир"
 		}
 	elif lang == 'LV':
 		return {
@@ -213,4 +217,8 @@ def get_lang_words(lang):
 			'medium': "Medium",
 			'hard': "Hard",
 			############### new ones
+			'restart': "restart",
+			"congrats": "Congratuations! You've won!",
+			"good_luck": "Better luck next time...",
+			"back_tour" : "Back to Tournament Page"
 		}
