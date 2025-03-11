@@ -694,7 +694,7 @@ async function setupEvents() {
 }
 
 const beforeUnloadHandlerAI = () => {
-    if (tournamentId && gameStarted && !gameEnded && !remote) {
+    if (tournamentId && !remote) {
         saveTournamentGameResult("@AI", player2.name, 0, player1.score);
     }
 };
@@ -807,7 +807,8 @@ async function    handleOnlineEndgame(data) {
 		socket.close();
 		socket = null;
 	}
-    
+    if (tournamentId)
+        tournamentId = null;
     handleEndGame(msg);
     resetOnlineTeam();
 }
@@ -895,8 +896,8 @@ async function handleResize() {
 
 export async function exit3D() {
     // tournamentId = localStorage.getItem('currentTournamentId')
-    if (tournamentId)
-        quitTournament();
+    // if (tournamentId) 
+    //     quitTournament();
     console.log(`EXITING tournament, the ID is ${tournamentId}`)
     cleanup3D();
     navigateTo('/home');
@@ -905,6 +906,11 @@ export async function exit3D() {
 export async function cleanup3D() {
     // Dispose of all geometries, materials, and textures
     if (!scene) return;
+    
+    if (tournamentId && remote)
+        stopTournamentGame();
+    if (tournamentId) 
+        quitTournament();
 
     drawHeader('main')
     
@@ -913,8 +919,7 @@ export async function cleanup3D() {
         socket = null;
     }
 
-    if (tournamentId)
-        stopTournamentGame();
+    
     // Stop animation loop
     cancelAnimationFrame(gameLoopId);
 

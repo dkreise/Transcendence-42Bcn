@@ -187,47 +187,45 @@ export const gameAI = (args) => {
         if (Enable3D === "true")
             play3D(tournament);
         else {
-
-          makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
-              method: "POST",
-              body: JSON.stringify({
-                  'second-player': "AI",  // Stringify the body data
-              }),
-              headers: {"Content-Type": "application/json"},
-          })
-          .then(response => {
-              console.log('Raw response:', response);  // Add this line to inspect the raw response
-              if (!response) return null;
-              return response.json();
-          })
-          .then(data => {
-              if (data && data.game_html)
-                  console.log("html here");
-              if (Enable3D === "false")
-                  console.log("3d false");
-              if (data && data.game_html && Enable3D === "false") {
-                  console.log('AI game returned!');
-                  document.getElementById('content-area').innerHTML = data.game_html;
-                  const canvas = document.getElementById("newGameCanvas");
-                  if (canvas) {
-                      const button = document.getElementById('play-again');
-                      if (button && !tournament) {
-                          button.setAttribute("data-route", "/play-ai");
-                          button.setAttribute("replace-url", true);
-                      } else if (button && tournament) {
-                          button.textContent = "Quit Tournament";
-                          button.setAttribute("data-route", "/quit-tournament");
-                          button.setAttribute("replace-url", true);
-                          // button.removeAttribute("data-route");
-                          // button.addEventListener('click', () => {
-                          //     // handle give up!! quit?
-                          //     clearIntervalIDGame();
-                          //     quitTournament();
-                          //     // loadBracketTournamentPage(tournament.id);
-                          // });
-        }
-        
-
+            makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
+                method: "POST",
+                body: JSON.stringify({
+                    'second-player': "AI",  // Stringify the body data
+                }),
+                headers: {"Content-Type": "application/json"},
+            })
+            .then(response => {
+                console.log('Raw response:', response);  // Add this line to inspect the raw response
+                if (!response) return null;
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.game_html)
+                    console.log("html here");
+                if (Enable3D === "false")
+                    console.log("3d false");
+                if (data && data.game_html && Enable3D === "false") {
+                    console.log('AI game returned!');
+                    document.getElementById('content-area').innerHTML = data.game_html;
+                    const canvas = document.getElementById("newGameCanvas");
+                    if (canvas) {
+                        const button = document.getElementById('play-again');
+                        if (button && !tournament) {
+                            button.setAttribute("data-route", "/play-ai");
+                            button.setAttribute("replace-url", true);
+                        } else if (button && tournament) {
+                            button.textContent = "Quit Tournament";
+                            button.setAttribute("data-route", "/quit-tournament");
+                            button.setAttribute("replace-url", true);
+                            // button.removeAttribute("data-route");
+                            // button.addEventListener('click', () => {
+                            //     // handle give up!! quit?
+                            //     clearIntervalIDGame();
+                            //     quitTournament();
+                            //     // loadBracketTournamentPage(tournament.id);
+                            // });
+                        }
+                        startAIGame(data['player1'], data['player2'], data['main_user'], tournament);   
                     }
                 } else {
                     console.log('Response: ', data);
