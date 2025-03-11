@@ -4,6 +4,7 @@ import { setupControlsAI } from "./AIGame.js"
 import { refreshAccessToken } from "./login.js";
 import { startTournamentGame, stopTournamentGame } from "./tournament.js";
 import { makeAuthenticatedRequest } from "./login.js"
+import { navigateTo } from "./main.js"
 
 const baseUrl = "http://localhost"; //TODO: change (pase later)
 
@@ -25,6 +26,7 @@ let socket = null;
 let gameLoopId = null;
 let gameStop = false;
 let tourId = null;
+let dict = null;
  
 console.log("Hi! This is remoteGame.js :D");
 
@@ -236,9 +238,9 @@ export async function createRoomId()
 	}
 }
 
-//async function initializeWebSocket(roomId) {
-async function initializeWebSocket() {
-	const roomId = 123;
+async function initializeWebSocket(roomId, isCreator) {
+//async function initializeWebSocket() {
+//	const roomId = 123;
 	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
@@ -249,6 +251,8 @@ async function initializeWebSocket() {
 	}
 	if (!socket)
 	{
+		console.log("ROOM ID initWS: " + roomId);
+		roomId = (isCreator | 0) + roomId.toString();
 		socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
 		console.log("Socket created!");
 	}
@@ -326,6 +330,7 @@ async function initializeWebSocket() {
 			case "reject":
 				alert(`Connection rejected: ${data.reason}`);
 				socket.close();
+				navigateTo("/remote-home");
 				break ;
 			case "endgame":
 				console.log("This game's over!");
@@ -397,10 +402,11 @@ function resizeCanvas() {
 // Resize canvas when the window resizes
 window.addEventListener("resize", resizeCanvas);
 
-export function startGame(roomId)
+export function startGame(roomId, isCreator, dictionary)
 {
 	canvas = document.getElementById('newGameCanvas');
 	tourId = localStorage.getItem('currentTournamentId');
+	dict = dictionary;
 	console.log("tourId is: " + tourId);
 
 	if (!canvas)
@@ -411,7 +417,7 @@ export function startGame(roomId)
 	targetBallY = ball.y;
 	gameStop = false;
 	if (!tourId)
-		initializeWebSocket(roomId);
+		initializeWebSocket(roomId, isCreator);
 	else {
 		startTournamentGame();
 		const button = document.getElementById('play-again');

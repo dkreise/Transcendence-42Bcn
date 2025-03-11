@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 ws_codes = {
 	"4000": "You're already in the room",
 	"4001": "Error trying to reconnect. Please, try again later",
-	"4002": "Access denied: The room is already full"
+	"4002": "Access denied: The room is already full",
 	"4003": "Acces denied: Invalid id"
 }
 
@@ -100,7 +100,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					async with active_games_lock:
 						if (self.room_id not in active_games) and self.room_id == 1:
 							active_games[self.room_id] = GameManager(self.room_id)
-						elif (self.room_id not in active_games) and self.room_id == 0:
+						elif (self.room_id not in active_games) and self.room_id.startswith('0'):
 							await self.send(json.dumps({
 								"type": "reject",
 								"reason": ws_codes["4003"],

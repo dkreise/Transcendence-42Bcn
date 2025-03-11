@@ -140,7 +140,7 @@ export class Ball {
    		    player1.resetPosition();
    		    this.resetPosition();
    		    return 1;
-   		} else if (this.x + this.radius >= this.canvasWidth) {
+   		} else if (this.x + this.radius >= this.canvas.width) {
    		    player1.scored();
    		    player1.resetPosition();
    		    player2.resetPosition();

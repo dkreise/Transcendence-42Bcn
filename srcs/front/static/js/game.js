@@ -13,6 +13,8 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const gamePort = window.env.GAME_PORT;
 
 let Enable3D = false;
+let isCreator = false;
+let roomId;
 
 export const playLocal = () => {
 
@@ -258,9 +260,9 @@ export async function playOnline () {
             if (data.game_html && Enable3D === "false") {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
-				const roomId = await createRoomId();
+				console.log("ROOM ID in playOnline: " + roomId);
                 if (canvas)
-                    startGame(roomId);
+                    startGame(roomId, isCreator, dictionary);
                 else
                     console.log("Error: Canvas not found");
             } else if (Enable3D === "true") {
@@ -269,7 +271,7 @@ export async function playOnline () {
 
                 const contentArea = document.getElementById('content-area');
                 contentArea.innerHTML = ''; // Clear previous content
-                start3DRemoteGame(dictionary);
+                start3DRemoteGame(dictionary, roomId, isCreator);
             } else {
                 console.log('Response: ', data);
                 console.error('Failed to load remote game:', data.error);
@@ -289,6 +291,7 @@ export async function loadRemoteHome() {
 		navigateTo('/login');
     else 
 	{
+    	const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
         drawHeader('main').then(() => {
           return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/remote/home/", {
                 method: "GET",
@@ -300,7 +303,28 @@ export async function loadRemoteHome() {
                 document.getElementById('content-area').innerHTML = data.game_html;
             else
                 console.error('Failed to load home remote game:', data.error);
-        })
+			document.getElementById("join-online")?.addEventListener("click", () => {
+				const inputElement = document.getElementById("game-id-input");
+				const inputValue = inputElement ? inputElement.value.trim() : null;
+
+				if (inputValue)
+				{
+					isCreator = false;
+					roomId = (isCreator | 0) + inputValue.toString();
+					navigateTo("/play-online");
+				}
+				else
+					alert ("bad id error here")
+					//alert(`${dictionary['bad_id']}`);
+			});
+
+			document.getElementById("create-online")?.addEventListener("click", async () => {
+				let roomIdgen = await createRoomId();
+				isCreator = true;
+				roomId = (isCreator | 0) + roomIdgen.toString();
+				navigateTo("/play-online");
+			});
+		})
         .catch(error => {
             console.error('Catch error loading home remote game: ', error);
             if (error == "No access token.")
