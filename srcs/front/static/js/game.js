@@ -260,6 +260,8 @@ export async function playOnline (args) {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
                 if (canvas)
+                    console.log("starting game..");
+                if (canvas)
                     startGame(args);
                 else
                     console.log("Error: Canvas not found");

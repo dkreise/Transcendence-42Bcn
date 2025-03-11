@@ -103,6 +103,7 @@ function displayCountdown()
 
 export function handleEndgame(data) {
 	tourId = null;
+	socket = null;
 	const { winner, loser, scores} = data;
 	const msg = [
 		"Congratulations! You've won 😁",
@@ -236,7 +237,7 @@ export function handleUpdate(data)
 //async function initializeWebSocket(roomId) {
 async function initializeWebSocket() {
 	//const roomID = new URLSearchParams(window.location.search).get("room") || "default";
-	const roomId = 1;
+	const roomId = 12;
 	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
@@ -397,10 +398,11 @@ function resizeCanvas() {
 // Resize canvas when the window resizes
 window.addEventListener("resize", resizeCanvas);
 
-export function startGame(tourId)
+export function startGame(tour = null)
 {
 	canvas = document.getElementById('newGameCanvas');
-	// tourId = localStorage.getItem('currentTournamentId');
+	tourId = tour;
+	console.log("tour is : ", tour);
 
 	if (!canvas)
 	{
@@ -432,7 +434,9 @@ export function cleanRemote() {
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
 	gameLoopId = null;
-	gameStop = true;
+	socket = null;
+	if (tourId)
+		gameStop = true;
 }
 
 const beforeUnloadHandlerRemote = () => {
