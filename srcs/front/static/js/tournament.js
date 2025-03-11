@@ -1,4 +1,3 @@
-import { loadHomePage } from "./home.js";
 import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
@@ -6,7 +5,6 @@ import { gameAI, playOnline } from "./game.js";
 import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleTourEndgame, cleanRemote } from "./remoteGame.js"
 import { drawHeader } from "./main.js";
 import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
-
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -355,7 +353,6 @@ export async function tournamentConnect(tourId, nPlayers=null) {
         cleanRemote();
         removeBeforeUnloadListenerAI();
         removeBeforeUnloadListenerRemote();
-        // alert(localStorage.getItem("user_quit"));
         if (localStorage.getItem("user_quit") == "true") {
             console.log("User quit. No reconnection.");
             localStorage.removeItem('inTournament');
