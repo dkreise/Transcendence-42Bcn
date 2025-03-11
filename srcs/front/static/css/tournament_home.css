@@ -235,22 +235,19 @@ h2 {
     background-color: #595e61 !important;
 }
 
-.bracket {
-    color: #595e61;
-}
 
 .winner {
     font-weight: bold;
-    color: #bae6bc; /* Green color */
-    background-color: #d4edda; /* Light green background */
+    color: #bae6bc;
+    background-color: #d4edda;
 }
   
 @media (max-width: 768px) {
     .tournament-wrapper {
-      flex-direction: column; /* Apila las secciones verticalmente */
-      gap: 10px; /* Ajusta el espacio entre secciones si es necesario */
+      flex-direction: column;
+      gap: 10px;
     }
     .separator {
-      display: none; /* Oculta el separador en vista móvil */
+      display: none;
     }
   }

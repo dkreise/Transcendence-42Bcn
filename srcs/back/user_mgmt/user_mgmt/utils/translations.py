@@ -2,7 +2,8 @@ def add_language_context(cookies, context=None):
     if context is None:
         context = {}
     
-    lang = cookies.get('language') or 'EN'
+    # lang = cookies.get('language') or 'EN'
+    lang = 'EN'
     lang_words = get_lang_words(lang)
     context.update(lang_words)
     return context

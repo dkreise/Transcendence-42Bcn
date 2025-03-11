@@ -1,0 +1,56 @@
+.tournament-card {
+    /* max-width: 400px;
+    max-height: 700px; */
+    background: linear-gradient(#0d0d0d, #212121) padding-box,
+                linear-gradient(145deg, transparent 15%,#d5dcf9, #a7b0ca) border-box;
+    /* border: 2px solid transparent; */
+    padding: 32px 24px;
+    padding-top: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #e1e1e1;
+    display:flex;
+    flex-direction:column;
+    gap: 5px;
+    box-sizing: border-box;
+    border-radius: 16px;
+    opacity: 0.85;
+    
+    margin: 5px;
+  } 
+  
+  .tournament-card .card-body {
+    padding: 0;
+  }
+  
+  .tournament-card h3,
+  .tournament-card h4 {
+    margin: 0;
+    padding: 0.5rem 0;
+  }
+
+  @media (max-width: 576px) {
+    .tournament-card {
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+  }
+
+  .tournament-card:hover, .chart-card:hover{
+    transform: none;
+  }
+
+  #card-tournament {
+    height: 330px;
+  }
+  
+  #chart-card {
+    height: 420px;
+  }
+
+  /* Para pantallas con ancho menor a 768px, se usa altura automática */
+  @media (max-width: 768px) {
+    #card-tournament {
+      height: auto;
+    }
+  }

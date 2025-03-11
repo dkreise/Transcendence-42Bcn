@@ -362,7 +362,7 @@ export async function play3D() {
 
 }
 
-async function getDictFor3DGame() {
+export async function getDictFor3DGame() {
     const response = await makeAuthenticatedRequest(baseUrl + gamePort+ "/api/get-game-dict", {
         method: "GET",
         credentials: "include"

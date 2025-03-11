@@ -116,8 +116,8 @@ function predictBallY() {
     tempY = tempY + tempYspeed * timeToLeftRight;
 
     let error = Math.random() * errorRange - errorRange ;/// 2;  // Random error between ±errorRange/2
-    // console.log('DIFFICULTY:');
-    // console.log(difficulty);
+    console.log('DIFFICULTY:');
+    console.log(difficulty);
     // console.log('ERROR-RANGE:');
     // console.log(errorRange);
     // console.log('ERROR:');

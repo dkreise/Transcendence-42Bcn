@@ -30,7 +30,7 @@
 
 
 <div class="container py-4">
-    <section id="bracket" class="bracket">
+    <section id="bracket" class="card tournament-card">
         {% for round_pairs in pairs_and_winners %}
         {% if forloop.counter0 < cur_round %}  {# Show rounds only up to cur_round #}
         <div class="round-block mb-5">
@@ -59,7 +59,7 @@
     <!-- Botón de salida del torneo -->
     <div class="row justify-content-center mt-4">
         <div class="col-12 col-md-6">
-            <button class="button-trn" replace-url data-route="/quit-tournament" style="margin-top: 10%;">
+            <button class="button-trn" replace-url data-route="/quit-tournament" style="margin-top: 10%; width: 40%;">
                 <span class="button-content-trn">Quit Tournament</span>
             </button>
         </div>
