@@ -12,15 +12,16 @@ export async function connectWS(access_token)
 {
     if (!access_token) {
 			// Token expired; refresh token logic
-        try {
-            let tok = await refreshAccessToken();
-            // Reconnect with the new token
-            await connectWS(tok);
-        } catch (err) {
-            console.error("Failed to refresh token", err);
-            handleLogout();
-            return ;
-        }
+        return ;
+        // try {
+        //     let tok = await refreshAccessToken();
+        //     // Reconnect with the new token
+        //     await connectWS(tok);
+        // } catch (err) {
+        //     console.error("Failed to refresh token", err);
+        //     handleLogout();
+        //     return ;
+        // }
     }
 
     // try {
