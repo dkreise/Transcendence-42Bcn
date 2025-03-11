@@ -62,6 +62,7 @@ async function firstCountdown(callback) {
             ctx.fillStyle = "rgb(0 0 0 / 25%)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             div.style.display = "block";
+            div.style.whitespace = "nowrap";
         }
         countdown--;
     }, 500);
@@ -72,10 +73,11 @@ async function displayCountdown()
 	cancelAnimationFrame(gameLoopId);
 	let div = document.getElementById("wait");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	div.innerHTML = dict["ready"];
-	div.style.display = "block";
-	div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
 	ctx.fillStyle = "rgb(0 0 0 / 25%)";
+	div.style.display = "block";
+    div.style.whitespace = "nowrap";
+	div.style.fontSize = Math.floor(canvas.width * 0.15) + "px";
+	div.innerHTML = dict["ready"];
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	await new Promise(resolve => setTimeout(resolve, 500));
 	div.innerHTML = dict["go"];

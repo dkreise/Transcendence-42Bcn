@@ -58,6 +58,7 @@ def get_lang_words(lang):
 			'game_wo': "Juego",
 			'opponent': "Oponente",
 			'winner_wo': "Ganador",
+			'access_denied': "Acceso denegado",
 		}
 	elif lang == 'CA':
 		return {
@@ -107,6 +108,7 @@ def get_lang_words(lang):
 			'game_wo': "Joc",
 			'opponent': "Oponent",
 			'winner_wo': "Guanyador",
+			'access_denied': "Accés denegat",
 		}
 	elif lang == 'RU':
 		return {
@@ -158,6 +160,7 @@ def get_lang_words(lang):
 			'score_wo': "Счет",
 			'game_wo': "Игра",
 			'opponent': "Противник",
+			'access_denied': "Доступ запрещен",
 		}
 	elif lang == 'LV':
 		return {
@@ -206,6 +209,7 @@ def get_lang_words(lang):
 			'game_wo': "Spēle",
 			'opponent': "Pretinieks",
 			'winner_wo': "Uzvarētājs",
+			'access_denied': "Prieiga uždrausta",
 		}
 	else:
 		return {
@@ -254,6 +258,8 @@ def get_lang_words(lang):
 			'game_wo': "Game",
 			'opponent': "Opponent",
 			'winner_wo': "Winner",
+			'access_denied': "Access denied",
+
 			############### new ones
 			'restart': "restart",
 			"congrats": "Congratuations! You've won!",

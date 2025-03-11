@@ -13,6 +13,8 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const gamePort = window.env.GAME_PORT;
 
 let Enable3D = false;
+let isCreator = false;
+let roomId;
 
 export const playLocal = () => {
 
@@ -239,8 +241,6 @@ export const gameAI = async (args) => {
         };
     }
 } 
-let roomId;
-let isCreator;
 
 
 export async function playOnline (tourId = null) {
@@ -295,6 +295,7 @@ export async function loadRemoteHome() {
 		navigateTo('/login');
     else 
 	{
+    	const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
         drawHeader('main').then(() => {
           return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/remote/home/", {
                 method: "GET",
@@ -306,34 +307,28 @@ export async function loadRemoteHome() {
                 document.getElementById('content-area').innerHTML = data.game_html;
             else
                 console.error('Failed to load home remote game:', data.error);
-            
-            console.log("Estamos aquiiiii!!!!!!!");
-            document.getElementById("join-online")?.addEventListener("click", () => {
-                const inputElement = document.getElementById("game-id-input");
-                const inputValue = inputElement ? inputElement.value.trim() : null;
-                console.warn(`Stored id inputed: ${inputValue}`);
-                
-                // Si se ha introducido un ID, navega a la ruta deseada usando navigateTo()
-                if (inputValue) {
-                    roomId = inputValue;
-                    isCreator = false;
-                    navigateTo("/play-online");
-                } else {
-                    alert("No se ha introducido un ID válido");
-                }
-            });
-            
-            document.getElementById("create-online")?.addEventListener("click", async () => {
-                let roomIdgen = await createRoomId();
-                console.warn(`Room created with ID: ${roomIdgen}`);
-                
-                // Navega a la ruta correspondiente usando el roomId generado
-                roomId = roomIdgen;
-                isCreator = true;
-                navigateTo("/play-online");
-            });
+			document.getElementById("join-online")?.addEventListener("click", () => {
+				const inputElement = document.getElementById("game-id-input");
+				const inputValue = inputElement ? inputElement.value.trim() : null;
 
-        })
+				if (inputValue)
+				{
+					isCreator = false;
+					roomId = inputValue.toString();
+					navigateTo("/play-online");
+				}
+				else
+					alert ("bad id error here")
+					//alert(`${dictionary['bad_id']}`);
+			});
+
+			document.getElementById("create-online")?.addEventListener("click", async () => {
+				let roomIdgen = await createRoomId();
+				isCreator = true;
+				roomId = roomIdgen.toString();
+				navigateTo("/play-online");
+			});
+		})
         .catch(error => {
             console.error('Catch error loading home remote game: ', error);
             if (error == "No access token.")

@@ -4,6 +4,7 @@ import { setupControlsAI } from "./AIGame.js"
 import { refreshAccessToken } from "./login.js";
 import { startTournamentGame, stopTournamentGame, saveTournamentGameResult } from "./tournament.js";
 import { makeAuthenticatedRequest } from "./login.js"
+import { navigateTo } from "./main.js"
 
 const baseUrl = "http://localhost"; //TODO: change (pase later)
 
@@ -27,6 +28,7 @@ let gameLoopId = null;
 let gameStop = false;
 let tourId = null;
 let countdownTimeout = null;
+
  
 // console.log("Hi! This is remoteGame.js :D");
 
@@ -115,6 +117,7 @@ async function readySteadyGo(countdown)
 
 function displayCountdown()
 {
+	console.log("entering displayCountdown");
 	if (!ctx)
 		return ;
 	let div = document.getElementById("wait");
@@ -132,7 +135,9 @@ function displayCountdown()
 	// 	waitMsg = waitMsg.replace("X", "player1");
 	// div.textContent = waitMsg;
 	div.textContent = dict['waiting_enemy'];
+
 	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
+	div.style.display = 'block';
 }
 
 
@@ -270,9 +275,9 @@ export async function createRoomId()
 	}
 }
 
-//async function initializeWebSocket(roomId) {
-async function initializeWebSocket() {
-	const roomId = 123;
+async function initializeWebSocket(roomId, isCreator) {
+//async function initializeWebSocket() {
+//	const roomId = 123;
 	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
@@ -290,6 +295,9 @@ async function initializeWebSocket() {
 	}
 	if (!socket)
 	{
+		console.log("ROOM ID pre initWS: " + roomId);
+		roomId = (isCreator | 0) + roomId.toString();
+		console.log("ROOM ID post initWS: " + roomId);
 		socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
 		// console.log("Socket created!");
 	}
@@ -340,6 +348,7 @@ async function initializeWebSocket() {
 			case "reject":
 				// alert(`Connection rejected: ${data.reason}`);
 				socket.close();
+				navigateTo("/remote-home");
 				break ;
 			case "endgame":
 				console.log("This game's over!");
@@ -419,6 +428,12 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 	// window.dict = dictionary;
 	dict = dictionary;
 	console.warn("porfavooooooooor", roomId);
+  if (!roomId)
+	{
+		alert(`${dict['bad_id']}`);
+		navigateTo("/remote-home");
+		return ;
+	}
 
 	if (!canvas)
 		return ;

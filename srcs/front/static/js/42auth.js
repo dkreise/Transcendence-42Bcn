@@ -1,6 +1,8 @@
 import { clearURL, navigateTo } from "./main.js";
 import { connectWS } from "./onlineStatus.js";
- 
+import { getDictFor3DGame } from "./game.js";
+import { getUserPreferenceLanguageFromDB } from "./langs.js";
+
 const userMgmtPort = window.env.USER_MGMT_PORT;
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -65,7 +67,7 @@ export const handle42Callback = () => {
                     navigateTo('/two-fa-login', true);
                 } else {
                     clearURL();
-                    showModalError("An error occurred. Try again later.");
+                    showModalError();
                     navigateTo("/login");
                     // displayLoginError('Invalid credentials. Please try again.', 'login-form');
                 }
@@ -74,11 +76,11 @@ export const handle42Callback = () => {
                 clearURL();
                 // alert("Access denied. Try again later");
                 if (error.message.includes("401")) {
-                    showModalError("Unauthorized access. Please check your credentials.");
+                    showModalError();
                 } else if (error.message.includes("403")) {
-                    showModalError("Access denied. You do not have permission.");
+                    showModalError();
                 } else {
-                    showModalError("An error occurred. Try again later.");
+                    showModalError();
                 }
                 navigateTo("/login");
                 // displayLoginError('Invalid credentials. Please try again.', 'login-form');
@@ -92,11 +94,21 @@ export const handle42Callback = () => {
         }
 };
 
-export function showModalError(message) {
+export function showModalError() {
+	const dict = {
+		"EN": "Access denied",
+		"ES": "Acceso denegado",
+		"CA": "Accés denegat",
+		"RU": "Доступ запрещен",
+		"LV": "Prieiga uždrausta",
+	};
+	//const lang = getUserPreferenceLanguageFromDB() || 'EN';
+	const lang = 'EN';
+	console.log("lang: " + JSON.stringify(lang));
     Swal.fire({
         icon: 'error',
         title: 'Oops...',
-        text: message,
+        text: dict[lang],
         backdrop: false,
     });
 }
