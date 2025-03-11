@@ -19,7 +19,7 @@
             <p style="display: inline; padding: 1%;">{{name_wo}}: {{ user.first_name }}</p>
             <hr>
             <div class="row">
-              <div class="col-6 text-center"><h6>{{played}}</h6><p id="games-played" style="padding:  1%;">{{ stats_games.games_played }}</p></div>
+              <div class="col-6 text-center"><h6>{{games_played}}</h6><p id="games-played" style="padding:  1%;">{{ stats_games.games_played }}</p></div>
               <div class="col-6 text-center"><h6>{{games_won}}</h6><p id="games-won" style="padding:  1%;">{{ stats_games.games_won }}</p></div>
               <div class="col-6 text-center"><h6>{{tournaments_played}}</h6><p id="tournaments-played" style="padding:  1%;">{{ stats_tournaments.tournaments_played }}</p></div>
               <div class="col-6 text-center"><h6>{{tournament_total_score}}</h6><p id="tournaments-won" style="padding:  1%;">{{ stats_tournaments.tournament_score }}</p></div>
@@ -42,7 +42,6 @@
   <div class="row mt-4">
     <div class="col-12">
       <div class="card chart-card p-3 mx-auto" id="chart-card">
-        <!-- <h5 class="text-center" style="margin-top: 10px; margin-bottom: 0px;">Evolución de Partidas</h5> -->
         <canvas id="last-ten-games-chart"></canvas>
       </div>
     </div>
