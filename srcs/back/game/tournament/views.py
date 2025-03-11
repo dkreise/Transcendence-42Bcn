@@ -40,7 +40,7 @@ def get_player_tournament_statistics(request, player_id):
 @api_view(['GET'])
 def tournament_home_page(request):
     context = {}
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     tournament_home_page_html = render_to_string('tournament_home_page.html', context)
     return JsonResponse({'tournament_home_page_html': tournament_home_page_html}, content_type="application/json")
 
@@ -115,7 +115,7 @@ def get_tournament_data(request, tournament_id):
 @api_view(['GET'])
 def join_tournament_page(request):
     context = {}
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     join_tournament_html = render_to_string('join_tournament.html', context)
     return JsonResponse({'join_tournament_html': join_tournament_html}, content_type="application/json")
 
@@ -148,7 +148,7 @@ def waiting_room_page(request, tournament_id):
         'tournament_id': tournament_id,
         'player_count': len(tournament_data['players']),  # Corrected: access players as a dictionary key
     }
-    add_language_context(request, context)
+    add_language_context(request.COOKIES, context)
     waiting_room_html = render_to_string('waiting_room.html', context)
     
     user = request.user.username
@@ -209,7 +209,7 @@ def tournament_bracket_page(request, tournament_id):
             "tournament_id": tournament_id,
         }
 
-        add_language_context(request, context)
+        add_language_context(request.COOKIES, context)
 
         # Render the correct template based on player count
         # # if player_count == 4:

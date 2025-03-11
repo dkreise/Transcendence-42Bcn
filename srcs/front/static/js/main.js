@@ -52,7 +52,6 @@ const routes = {
     '/game-local': gameLocal,
     '/play-3d': play3D,
     '/play-ai-game': (args) => gameAI(args),
-    // '/game-ai': (args) => gameAI(args),
     '/tournament': manageTournamentHomeBtn,
     '/tournament-home': loadTournamentHomePage,
     '/waiting-room': loadWaitingRoomPage,

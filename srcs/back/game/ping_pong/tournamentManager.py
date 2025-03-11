@@ -105,8 +105,7 @@ class TournamentManager:
 			'tournament_id': self.id,
 			'player_count': total_players,
 		}
-		add_language_context(self.scope.get('request', {}), context)
-		# add_language_context(self.scope.get('cookies', {}), context)
+		add_language_context(self.scope.get('cookies', {}), context)
 		html = render_to_string('waiting_room.html', context)
 		page = {
 			'html': html,
@@ -133,7 +132,7 @@ class TournamentManager:
 			'total_cnt': self.max_user_cnt,
 		}
 		logger.info(f"round:: {self.round}")
-		add_language_context(self.scope.get('request', {}), context)
+		add_language_context(self.scope.get('cookies', {}), context)
 		html = render_to_string('tournament_bracket4.html', context)
 
 		needs_to_play = username in self.players
@@ -170,7 +169,7 @@ class TournamentManager:
 			"winner_player": winner,
 			"results_list": self.results_strings,
 		}
-		add_language_context(self.scope.get('request', {}), context)
+		add_language_context(self.scope.get('cookies', {}), context)
 		html = render_to_string('final_tournament_page.html', context)
 		
 		page = {

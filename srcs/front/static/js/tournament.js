@@ -482,7 +482,6 @@ async function getTournamentId() {
 function getNumberOfPlayers() {
     if (! document.getElementById('create-tournament-form')) {
         navigateTo('/tournament-home', true);
-        console.log("holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         return;
     }
 //     const nPlayers = document.getElementById('tournament-count').value;
