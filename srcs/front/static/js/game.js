@@ -120,13 +120,14 @@ export async function gameLocal () {
             navigateTo('/play-local', true);
             return ;
         }
-        
-        makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
-            method: "POST",
-            body: JSON.stringify({
-                'second-player': secondPlayerName,  // Stringify the body data
-            }),
-            headers: {"Content-Type": "application/json"},
+        drawHeader('main').then(() => {
+            return    makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            'second-player': secondPlayerName,  // Stringify the body data
+                        }),
+                        headers: {"Content-Type": "application/json"},
+                    })
         })
         .then(response => {
             console.log('Raw response:', response);  // Add this line to inspect the raw response
@@ -181,12 +182,14 @@ export const gameAI = async (args) => {
             // clearIntervalIDGame();
             // const savedState = localStorage.getItem("gameState");
         }
-        makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
-            method: "POST",
-            body: JSON.stringify({
-                'second-player': "AI",  // Stringify the body data
-            }),
-            headers: {"Content-Type": "application/json"},
+        drawHeader('main').then(() => {
+            return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
+                method: "POST",
+                body: JSON.stringify({
+                    'second-player': "AI",  // Stringify the body data
+                }),
+                headers: {"Content-Type": "application/json"},
+            })
         })
         .then(response => {
             console.log('Raw response:', response);  // Add this line to inspect the raw response

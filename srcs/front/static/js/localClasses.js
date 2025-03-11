@@ -11,7 +11,7 @@ export class Player {
         console.log(`player width: ${this.x}`)
         this.y = canvas.height / 2 - this.height / 2;
         this.speed = canvas.height / 90;
-        this.color = "white";
+        this.color = "white";   
         this.up = false;
         this.down = false;
         this.score = 0;

@@ -35,19 +35,19 @@
 
   <!-- Contenedor con recuadro -->
   <div class="row justify-content-center">
-    <div class="col-12 col-md-8 col-lg-6">
-      <div class="card profile-card p-4 mx-auto">
-        <div class="card-body text-center">
+    <div class="col-12 col-md-8">
+      <div class="card profile-card p-4 mx-auto" style="height: 350px;">
+        <div class="card-body text-center" style="align-self: normal;">
           <!-- Detalles del Torneo: ID -->
           <div class="tournament-info-box mb-3">
-            <h3 class="tournament-subtitle d-inline">{{ tournament }} ID: </h3>
-            <h3 class="tournament-value d-inline">{{ tournament_id }}</h3>
+            <h3 class="tournament-subtitle" style="margin-top: revert;">{{ tournament }} ID: {{ tournament_id }}</h3>
+            <!-- <h3 class="tournament-value d-inline">{{ tournament_id }}</h3> -->
           </div>
 
           <!-- Detalles del Torneo: Número de Jugadores -->
           <div class="tournament-info-box mb-3">
-            <h3 class="tournament-subtitle d-inline">{{ number_players }}: </h3>
-            <h3 id="cur-player-cnt" class="tournament-value d-inline">{{ player_count }}</h3>
+            <h3 class="tournament-subtitle">{{ number_players }}: {{ player_count }}</h3>
+            <!-- <h3 id="cur-player-cnt" class="tournament-value d-inline">{{ player_count }}</h3> -->
           </div>
 
           <!-- Botón para salir del torneo -->

@@ -87,6 +87,8 @@ async function displayCountdown()
 async function gameLocalLoop() {
     gameLoopId = requestAnimationFrame(gameLocalLoop);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgb(0 0 0 / 25%)";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw players and ball
     player1.draw(ctx);

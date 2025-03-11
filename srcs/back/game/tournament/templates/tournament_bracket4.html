@@ -29,11 +29,11 @@
 </div> -->
 
 
-<div class="container py-4">
-    <section id="bracket" class="card tournament-card">
+<div class="container py-4" style="display: flex; flex-direction: column;">
+    <section id="bracket" class="card tournament-card" style="align-self: center;"">
         {% for round_pairs in pairs_and_winners %}
         {% if forloop.counter0 < cur_round %}  {# Show rounds only up to cur_round #}
-        <div class="round-block mb-5">
+        <div class="round-block mb-5" style="width: inherit;">
             <h3 class="text-center mb-3">Round {{ forloop.counter }}</h3>
             <div class="container">
                 {% for pair, bool_winner in round_pairs %}
