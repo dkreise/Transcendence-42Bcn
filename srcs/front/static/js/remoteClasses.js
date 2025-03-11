@@ -71,18 +71,20 @@ export class Player {
 		let div = document.getElementById("wait");
 		let fontSize = Math.floor(this.canvas.width * 0.05);
 
-		if (this.role == "player1")
-			div.innerHTML = msg + `<br>${this.score} - ${oppScore}`;
-		else
-			div.innerHTML = msg + `<br>${oppScore} - ${this.score}`;
+		if (div) {
+			if (this.role == "player1")
+				div.innerHTML = msg + `<br>${this.score} - ${oppScore}`;
+			else
+				div.innerHTML = msg + `<br>${oppScore} - ${this.score}`;
 
-		div.style.display = "block";
-		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		ctx.fillStyle = "rgba(0 0 0 / 25%)";
-		ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+			div.style.display = "block";
+			ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+			ctx.fillStyle = "rgba(0 0 0 / 25%)";
+			ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-		div.style.fontSize = Math.floor(this.canvas.width * 0.05) + "px";
-		console.log("endgameMsg: " + msg);
+			div.style.fontSize = Math.floor(this.canvas.width * 0.05) + "px";
+			console.log("endgameMsg: " + msg);
+		}
 	}
 
 	send(socket) {

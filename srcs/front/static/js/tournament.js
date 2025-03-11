@@ -1,12 +1,10 @@
-import { loadHomePage } from "./home.js";
 import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
-import { gameAI, playOnline } from "./game.js";
+import { gameAI, playOnline, getDictFor3DGame } from "./game.js";
 import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleTourEndgame, cleanRemote } from "./remoteGame.js"
 import { drawHeader } from "./main.js";
 import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
-
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -225,7 +223,35 @@ function addGameButton(data) {
     }
     const playButton = document.createElement("button");
     playButton.id = "play-game-in-tournament";
-    playButton.textContent = "Play My Game";
+    playButton.classList.add("button-trn");
+    playButton.style.marginTop = "10%";
+    playButton.style.width = "40%";
+    
+    const span = document.createElement("span");
+    span.classList.add("button-content-trn");
+    // const dictionary = getDictFor3DGame();
+    span.textContent = "Play my game";
+    // span.textContent = dictionary['play_my_game'];
+
+    playButton.appendChild(span);
+
+    // Seleccionar el contenedor donde está el botón existente
+    const existingButtonContainer = document.querySelector(".row.justify-content-center.mt-4 .col-12");
+
+    // Crear un nuevo contenedor para colocar los botones en línea
+    const buttonWrapper = document.createElement("div");
+    buttonWrapper.classList.add("d-flex", "justify-content-between", "gap-3"); // Flexbox para alinearlos
+
+    // Mover el botón existente dentro del nuevo contenedor
+    const existingButton = existingButtonContainer.querySelector("button");
+    buttonWrapper.appendChild(existingButton);
+
+    // Agregar el nuevo botón
+    buttonWrapper.appendChild(playButton);
+
+    // Reemplazar el contenido del contenedor con el nuevo diseño
+    existingButtonContainer.appendChild(buttonWrapper);
+    
     if (data.opponent == "@AI") {
         playButton.setAttribute("data-route", '/tournament-game-ai');
         // Pass arguments as a JSON string inside `data-args`
@@ -242,10 +268,11 @@ function addGameButton(data) {
             // socket.send(JSON.stringify({ "type": "start_game" }));
         }
     });
-    bracketSection.append(playButton);
+    //bracketSection.append(playButton);
 }
 
 function changePage(data) {
+    drawHeader('main');
     document.getElementById('content-area').innerHTML = data.html;
     if (data.redirect) {
         let path = data.redirect;
@@ -355,7 +382,6 @@ export async function tournamentConnect(tourId, nPlayers=null) {
         cleanRemote();
         removeBeforeUnloadListenerAI();
         removeBeforeUnloadListenerRemote();
-        // alert(localStorage.getItem("user_quit"));
         if (localStorage.getItem("user_quit") == "true") {
             console.log("User quit. No reconnection.");
             localStorage.removeItem('inTournament');

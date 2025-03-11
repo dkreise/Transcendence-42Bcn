@@ -1,7 +1,5 @@
-import { loadProfilePage } from "./profile.js";
 import { handleLogout } from "./logout.js"
 import { navigateTo, drawHeader } from "./main.js";
-import { loadHomePage } from "./home.js";
 import { updateLanguage } from "./langs.js";
 import { connectWS } from "./onlineStatus.js";
 
@@ -121,7 +119,6 @@ export const handleLogin = async () => {
             } else {
                 localStorage.setItem('access_token', data.tokens.access);
                 localStorage.setItem('refresh_token', data.tokens.refresh);
-                localStorage.setItem('username', data.username);
                 await updateLanguage(); 
                 connectWS(data.tokens.access);
                 navigateTo('/home', true);

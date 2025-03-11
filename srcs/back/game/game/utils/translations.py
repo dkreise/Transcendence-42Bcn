@@ -1,13 +1,40 @@
 def add_language_context(cookies, context=None):
+
 	if context is None:
 		context = {}
-
-	#lang = cookies.get('language') or 'EN'
-	lang = 'EN'
+	lang = 'EN' if cookies is None else cookies.get('language', 'EN')
 	lang_words = get_lang_words(lang)
 	context.update(lang_words)
-	return context
 
+def get_lang_words(lang):
+    if lang == 'ES':
+        return {
+            'lang': "ES",
+            'profile_wo': "Perfil",
+            'settings': "Configuraciones",
+            'friends_wo': "Amigos",
+            'username': "Nombre de usuario",
+            'name_wo': "Nombre",
+            'search': "Buscar",
+            'remove_friend': "Eliminar amigo",
+            'add_friend': "Agregar amigo",
+            'no_users_found': "No se encontraron usuarios",
+            'your_friends': "Tus amigos",
+            'new_photo': "Nueva foto",
+            'first_name': "Nombre",
+            'last_name': "Apellido",
+            'email': "Correo electrónico",
+            'save': "Guardar",
+            'password': "Contraseña",
+            'repeat_password': "Repetir contraseña",
+            'click_here': "Clica aquí",
+            'or_wo': "O",
+            'log_in': "INICIAR SESIÓN",
+            'sign_up': "REGISTRARSE",
+            'submit': "Enviar",
+            'dont_have_account': "¿Aún no tienes una cuenta?",
+            'have_account': "¿Ya tienes una cuenta?",
+            'statistics': "Estadísticas",
 def get_lang_words(lang):
 	if lang == 'ES':
 		return {
@@ -16,6 +43,7 @@ def get_lang_words(lang):
 			'tournament': "Torneo",
 			'home': "Inicio",
 			'create': "Crear",
+			'create_room': "Crear Sala",
 			'join': "Unirse",
 			'create_tournament': "Crear Torneo",
 			'number_players': "Número de jugadores",
@@ -33,7 +61,7 @@ def get_lang_words(lang):
 			'players': "Jugadores",
 			'round': "Ronda",
 			'tournament_finished': "El torneo ha terminado",
-			'winner_wo': "El ganador es",
+			'winner_is': "El ganador es",
 			"start": "¡Comenzar!",
 			"try_again": "Inténtalo de nuevo",
 			"ready": "¿Listo?",
@@ -50,6 +78,13 @@ def get_lang_words(lang):
 			'medium': "Medio",  
 			'hard': "Difícil",
 			'bad_id': "Id inválido",
+			'play_my_game': "Jugar mi partida",
+			'last_10_games_performance': "Rendimiento de los últimos 10 juegos",
+            'game_evolution': "Evolución de las Partidas",
+			'score_wo': "Puntuación",
+			'game_wo': "Juego",
+			'opponent': "Oponente",
+			'winner_wo': "Ganador",
 		}
 	elif lang == 'CA':
 		return {
@@ -75,7 +110,7 @@ def get_lang_words(lang):
 			'players': "Jugadors",
 			'round': "Ronda",
 			'tournament_finished': "El torneig ha acabat",
-			'winner_wo': "El guanyador és",
+			'winner_is': "El guanyador és",
 			"start": "Començar!",
 			"try_again": "Jugar de nou",
 			"ready": "Preparat?",
@@ -90,8 +125,16 @@ def get_lang_words(lang):
 			'baby': "Bebè",  
 			'easy': "Fàcil",  
 			'medium': "Mitjà",  
+			'hard': "Difícil",
+			'play_my_game': "Jugar la meua partida",
 			'hard': "Difícil",  
 			'bad_id': 'Id invàlid',
+			'last_10_games_performance': "Rendiment dels últims 10 jocs",
+            'game_evolution': "Evolució del joc",
+			'score_wo': "Puntuació",
+			'game_wo': "Joc",
+			'opponent': "Oponent",
+			'winner_wo': "Guanyador",
 		}
 	elif lang == 'RU':
 		return {
@@ -117,7 +160,7 @@ def get_lang_words(lang):
 			'players': "Игроки",
 			'round': "Раунд",
 			'tournament_finished': "Турнир завершен",
-			'winner_wo': "Победитель:",
+			'winner_is': "Победитель:",
 			"start": "Начать",
 			"try_again": "Ещё раз!",
 			"ready": "Готов?",
@@ -134,6 +177,13 @@ def get_lang_words(lang):
 			'medium': "Средний",
 			'hard': "Высокий",
 			'bad_id': 'недействительный идентификатор',
+			'play_my_game': "Играй в мою игру",
+			'last_10_games_performance': "Производительность последних 10 игр",
+            'game_evolution': "Эволюция игры",
+			'score_wo': "Очки",
+			'game_wo': "Игра",
+			'opponent': "Противник",
+			'winner_wo': "Победитель",
 		}
 	elif lang == 'LV':
 		return {
@@ -159,7 +209,7 @@ def get_lang_words(lang):
 			'players': "Spēlētāji",
 			'round': "Ronde",
 			'tournament_finished': "Turnīrs ir beidzies",
-			'winner_wo': "Uzvarētājs ir",
+			'winner_is': "Uzvarētājs ir",
 			"start": "Sākt!",
 			"try_again": "Mēģini vēlreiz",
 			"ready": "Gatavs ?",
@@ -176,6 +226,13 @@ def get_lang_words(lang):
 			'medium': "Vidēji",  
 			'hard': "Grūti",
 			'bad_id': 'negaliojantis id',
+			'play_my_game': "Spēlēt manu spēli",
+			'last_10_games_performance': "Pēdējo 10 spēļu veiktspēja",
+            'game_evolution': "Spēles Attīstība",
+			'score_wo': "Punkti",
+			'game_wo': "Spēle",
+			'opponent': "Pretinieks",
+			'winner_wo': "Uzvarētājs",
 		}
 	else:
 		return {
@@ -201,7 +258,7 @@ def get_lang_words(lang):
 			'players': "Players",
 			'round': "Round",
 			'tournament_finished': "The tournament has finished",
-			'winner_wo': "The winner is",
+			'winner_is': "The winner is",
 			"start": "START !",
 			"try_again": "TRY AGAIN",
 			"ready": "READY ?",
@@ -218,4 +275,11 @@ def get_lang_words(lang):
 			'medium': "Medium",
 			'hard': "Hard",
 			'bad_id': "Invalid id",
+			'play_my_game': "Play my game",
+			'last_10_games_performance': "Last 10 games performance",
+            'game_evolution': "Game evolution",
+			'score_wo': "Score",
+			'game_wo': "Game",
+			'opponent': "Opponent",
+			'winner_wo': "Winner",
 		}
