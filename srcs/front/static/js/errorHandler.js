@@ -1,5 +1,4 @@
-import { checkPermission } from "./main.js"
-import { drawHeader } from "./main.js";
+import { checkPermission, drawHeader } from "./main.js"
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB

@@ -14,4 +14,5 @@ __pycache__/*
 
 # Ignorar archivos temporales
 *.*.swp
-
+*.*.swo
+*.*.swn

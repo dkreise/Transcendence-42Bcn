@@ -55,9 +55,33 @@ export function scaleGame(data)
 	ball.setVars(data);
 }
 
+async function firstCountdown(callback) {
+    let countdown = 2;
+    const msg = ["1", "2", "3"];
+    let div = document.getElementById("wait");
+    const interval = setInterval(() => {
+        if (countdown < 0) {
+            clearInterval(interval);
+            div.textContent = "";
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            console.log("RESUME")
+            // handleOnlineEndgame();
+            callback(); // Resume the game
+        } else {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            div.textContent = msg[countdown];
+            div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
+            ctx.fillStyle = "rgb(0 0 0 / 25%)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            div.style.display = "block";
+        }
+        countdown--;
+    }, 500);
+}
+
 async function readySteadyGo(countdown)
 {
-	const msg = ["1", "2", "3", "Rival found!"];
+	const msg = ["1", "2", "3"];
 	let div = document.getElementById("wait");
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -212,9 +236,9 @@ export async function createRoomId()
 	}
 }
 
-async function initializeWebSocket(roomId, isCreator) {
-//async function initializeWebSocket() {
-//	const roomId = 123;
+//async function initializeWebSocket(roomId) {
+async function initializeWebSocket() {
+	const roomId = 123;
 	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
@@ -274,7 +298,9 @@ async function initializeWebSocket(roomId, isCreator) {
 					else
 					{
 						//await readySteadyGo(data.countdown - 1);
-						await readySteadyGo(data.countdown);
+						//await readySteadyGo(data.countdown);
+						await firstCountdown(() => {
+                        });
 						player.update(data.players, data.scores);
 						opponent.update(data.players, data.scores);
 						ball.resetPosition();
@@ -315,7 +341,6 @@ async function initializeWebSocket(roomId, isCreator) {
 
 function gameLoop() {
 	gameLoopId = requestAnimationFrame(gameLoop);
-	console.log("IN GAME LOOP");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(0 0 0 / 75%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);

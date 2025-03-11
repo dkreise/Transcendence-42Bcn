@@ -31,11 +31,16 @@ export class Player {
 
 	move(socket) {
 		const oldY = this.y
+		const relH = (this.height / this.canvas.height) / 2;
 		if (this.up && this.y > 0)
 			this.y -= this.speed;
 		if (this.down && this.y < (this.canvas.height - this.height))
 			this.y += this.speed;
 	
+		if (this.y - relH <= 0)
+			this.y = relH;
+		else if (this.y + relH >= 1)
+			this.y = 1 - relH;
 		if (socket.readyState === WebSocket.OPEN && this.y != oldY)
 			this.send(socket);
 	}

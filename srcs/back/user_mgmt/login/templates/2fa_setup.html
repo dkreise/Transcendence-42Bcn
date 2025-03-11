@@ -22,15 +22,13 @@
                 <form id="two-fa-form" method="post" class="form-container">
                     <div class="form-group">
                         <label for="2fa-code">{{enter_6_digit_code}}</label>
-                        <input type="text" id="2fa-code" name="code" required placeholder="Verification Code" class="form-control text-center">
+                        <input type="text" id="2fa-code" name="code" required placeholder={{verification_code_placeholder}} class="form-control text-center">
                     </div>
                     <button id="verify-2fa-button" type="submit" class="btn form-submit-btn w-100 mt-3">{{verify}}</button>
                 </form>
             </div>
         </div>
     </div>
-
-    <!-- Botón de regreso abajo -->
     <div class="text-center mt-4">
         <button data-route="/profile-settings" style="margin-top: 70px;" class="btn btn-secondary">{{back_to_settings}}</button>
     </div>
