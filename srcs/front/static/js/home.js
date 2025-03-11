@@ -18,7 +18,6 @@ export const setUp3DListener = () => {
         switch3D.checked = isEnable;
 
         // Escuchar cambios en el switch
-        // console.log("3D-option is:", switch3D.checked);
         switch3D.addEventListener("change", () => {
             localStorage.setItem("3D-option", switch3D.checked);
         });

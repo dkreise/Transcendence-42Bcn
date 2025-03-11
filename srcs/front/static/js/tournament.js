@@ -346,7 +346,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
         localStorage.removeItem("gameState");
         removeBeforeUnloadListenerAI();
         removeBeforeUnloadListenerRemote();
-            navigateTo('/home', true);
+        navigateTo('/home', true);
         reject("WebSocket error");
 	};
 

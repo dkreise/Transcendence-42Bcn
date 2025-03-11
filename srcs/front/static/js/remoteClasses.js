@@ -56,7 +56,7 @@ export class Player {
 		const oldY = this.y
 		if (players && players[this.role] && players[this.role]["y"])
 			this.y = players[this.role]["y"];
-		if (players && oldY != players[this.role]["y"] && this.role == "player1")
+		// if (players && oldY != players[this.role]["y"] && this.role == "player1")
 			// console.log(`Updating, oldY ${oldY}, newY ${players[this.role]["y"]}`)
 		if (newScore[this.role])
 			this.score = newScore[this.role];

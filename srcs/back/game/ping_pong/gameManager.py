@@ -187,15 +187,15 @@ class GameManager:
 		# logger.info(f"SIDE COL paddle1 Y {pl1}   1/2hight {padH} ")
 		# logger.info(f"SIDE COL paddle2 Y {pl2}   1/2hight {padH} ")
 		if self.ball["x"] * boardW - radius <= GameManager.paddle_config["width"]:
-			logger.info(f"col Side pl1 x area")
-			logger.info(f"ball Y {self.ball['y'] * boardH} pl1 Y {pl1}")
+			# logger.info(f"col Side pl1 x area")
+			# logger.info(f"ball Y {self.ball['y'] * boardH} pl1 Y {pl1}")
 			if ((self.ball["y"] * boardH <= pl1 + padH + 1) and
 				(self.ball["y"] * boardH >= pl1 - padH - 1)):
-				logger.info(f"col Side pl1")
+				# logger.info(f"col Side pl1")
 				return True
 		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"] - 1:
-			logger.info(f"col Side pl2 x area")
-			logger.info(f"ball Y {self.ball['y'] * boardH} pl2 Y {pl2}")
+			# logger.info(f"col Side pl2 x area")
+			# logger.info(f"ball Y {self.ball['y'] * boardH} pl2 Y {pl2}")
 			if ((self.ball["y"] * boardH <= pl2 + padH + 1) and
 				(self.ball["y"] * boardH >= pl2 - padH - 1)):
 				logger.info(f"col Side pl2")
@@ -229,7 +229,7 @@ class GameManager:
 				# logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH}, Yspeed {self.ball['yspeed']} ")
 				logger.info(f"col Top pl1")
 				return True
-		# Right paddle
+		# Right paddle # APPLY CHANGES HERE
 		elif self.ball["x"] * boardW + radius >= pl2_x:
 			logger.info(f"col Top pl2 x area")
 			if ((self.ball["y"] * boardH + radius >= pl2_y - padH) and
@@ -446,7 +446,7 @@ class GameManager:
 					async with self.ball_lock:
 						await self.update_ball()
 					await self.send_update()
-				await asyncio.sleep(0.008)
+				await asyncio.sleep(0.016)
 		except Exception as e:
 			logger.error(f"Error in game loop: {e}")
 

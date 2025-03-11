@@ -240,18 +240,14 @@ export const gameAI = (args) => {
     }
 } 
 
-export async function playOnline (tourId) {
+export async function playOnline (tourId = null) {
 
     Enable3D = localStorage.getItem("3D-option");
     console.log(`Enable 3D: ${Enable3D}`)
 	// Enable3D = "false";
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
-    if (!checkPermission) {
-        navigateTo('/login');
-    }Enable3D = localStorage.getItem("3D-option");
-
-    if (!checkPermission) {
+if (!checkPermission) {
         navigateTo('/login');
     } else {
         // console.log('Loading online game...')
@@ -266,7 +262,7 @@ export async function playOnline (tourId) {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
                 if (canvas)
-                    startGame();
+                    startGame(tourId);
                 else
                     console.log("Error: Canvas not found");
             } else if (Enable3D === "true") {
