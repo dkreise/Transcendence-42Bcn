@@ -96,13 +96,15 @@ class PongConsumer(AsyncWebsocketConsumer):
 			elif self.type == "G":
 				try:
 					self.room_id = self.scope['url_route']['kwargs']['tgID']
+					isCreator = int(self.room_id[0])
+					self.room_id = self.room_id[1:]
 					await self.accept()
-					logger.info("Connection accepted!")
+					logger.info(f"Connection accepted! room id: {self.room_id}")
 					async with active_games_lock:
-						if (self.room_id not in active_games) and self.room_id.startswith('1'):
+						if (self.room_id not in active_games) and isCreator:
 							active_games[self.room_id] = GameManager(self.room_id)
 							logger.info("Room created!")
-						elif (self.room_id not in active_games) and self.room_id.startswith('0'):
+						elif (self.room_id not in active_games) and not isCreator:
 							await self.send(json.dumps({
 								"type": "reject",
 								"reason": ws_codes["4003"],

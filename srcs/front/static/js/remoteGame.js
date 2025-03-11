@@ -256,8 +256,9 @@ async function initializeWebSocket(roomId, isCreator) {
 	}
 	if (!socket)
 	{
-		console.log("ROOM ID initWS: " + roomId);
+		console.log("ROOM ID pre initWS: " + roomId);
 		roomId = (isCreator | 0) + roomId.toString();
+		console.log("ROOM ID post initWS: " + roomId);
 		socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
 		console.log("Socket created!");
 	}
