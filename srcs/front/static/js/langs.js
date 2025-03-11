@@ -6,8 +6,8 @@ const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
 const userMgmtPort = window.env.USER_MGMT_PORT;
 
-function getUserPreferenceLanguageFromDB() {
-    return makeAuthenticatedRequest(baseUrl + userMgmtPort + "api/get-user-pref-lang", {
+export function getUserPreferenceLanguageFromDB() {
+    return makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/get-user-pref-lang", {
         method: "GET",
         credentials: "include"  // This ensures cookies are sent along with the request 
     })

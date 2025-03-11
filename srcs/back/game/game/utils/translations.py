@@ -1,40 +1,14 @@
 def add_language_context(cookies, context=None):
-
 	if context is None:
 		context = {}
+
+	# lang = cookies.get('language') or 'EN'
+	# lang = 'EN'
 	lang = 'EN' if cookies is None else cookies.get('language', 'EN')
+
 	lang_words = get_lang_words(lang)
 	context.update(lang_words)
 
-def get_lang_words(lang):
-    if lang == 'ES':
-        return {
-            'lang': "ES",
-            'profile_wo': "Perfil",
-            'settings': "Configuraciones",
-            'friends_wo': "Amigos",
-            'username': "Nombre de usuario",
-            'name_wo': "Nombre",
-            'search': "Buscar",
-            'remove_friend': "Eliminar amigo",
-            'add_friend': "Agregar amigo",
-            'no_users_found': "No se encontraron usuarios",
-            'your_friends': "Tus amigos",
-            'new_photo': "Nueva foto",
-            'first_name': "Nombre",
-            'last_name': "Apellido",
-            'email': "Correo electrónico",
-            'save': "Guardar",
-            'password': "Contraseña",
-            'repeat_password': "Repetir contraseña",
-            'click_here': "Clica aquí",
-            'or_wo': "O",
-            'log_in': "INICIAR SESIÓN",
-            'sign_up': "REGISTRARSE",
-            'submit': "Enviar",
-            'dont_have_account': "¿Aún no tienes una cuenta?",
-            'have_account': "¿Ya tienes una cuenta?",
-            'statistics': "Estadísticas",
 def get_lang_words(lang):
 	if lang == 'ES':
 		return {
@@ -77,7 +51,6 @@ def get_lang_words(lang):
 			'easy': "Fácil",  
 			'medium': "Medio",  
 			'hard': "Difícil",
-			'bad_id': "Id inválido",
 			'play_my_game': "Jugar mi partida",
 			'last_10_games_performance': "Rendimiento de los últimos 10 juegos",
             'game_evolution': "Evolución de las Partidas",
@@ -85,6 +58,7 @@ def get_lang_words(lang):
 			'game_wo': "Juego",
 			'opponent': "Oponente",
 			'winner_wo': "Ganador",
+			'access_denied': "Acceso denegado",
 		}
 	elif lang == 'CA':
 		return {
@@ -128,13 +102,13 @@ def get_lang_words(lang):
 			'hard': "Difícil",
 			'play_my_game': "Jugar la meua partida",
 			'hard': "Difícil",  
-			'bad_id': 'Id invàlid',
 			'last_10_games_performance': "Rendiment dels últims 10 jocs",
             'game_evolution': "Evolució del joc",
 			'score_wo': "Puntuació",
 			'game_wo': "Joc",
 			'opponent': "Oponent",
 			'winner_wo': "Guanyador",
+			'access_denied': "Accés denegat",
 		}
 	elif lang == 'RU':
 		return {
@@ -176,7 +150,6 @@ def get_lang_words(lang):
 			'easy': "Низкий",
 			'medium': "Средний",
 			'hard': "Высокий",
-			'bad_id': 'недействительный идентификатор',
 			'play_my_game': "Играй в мою игру",
 			'last_10_games_performance': "Производительность последних 10 игр",
             'game_evolution': "Эволюция игры",
@@ -184,6 +157,7 @@ def get_lang_words(lang):
 			'game_wo': "Игра",
 			'opponent': "Противник",
 			'winner_wo': "Победитель",
+			'access_denied': "Доступ запрещен",
 		}
 	elif lang == 'LV':
 		return {
@@ -225,7 +199,6 @@ def get_lang_words(lang):
 			'easy': "Viegli",  
 			'medium': "Vidēji",  
 			'hard': "Grūti",
-			'bad_id': 'negaliojantis id',
 			'play_my_game': "Spēlēt manu spēli",
 			'last_10_games_performance': "Pēdējo 10 spēļu veiktspēja",
             'game_evolution': "Spēles Attīstība",
@@ -233,6 +206,7 @@ def get_lang_words(lang):
 			'game_wo': "Spēle",
 			'opponent': "Pretinieks",
 			'winner_wo': "Uzvarētājs",
+			'access_denied': "Prieiga uždrausta",
 		}
 	else:
 		return {
@@ -274,7 +248,6 @@ def get_lang_words(lang):
 			'easy': "Easy",
 			'medium': "Medium",
 			'hard': "Hard",
-			'bad_id': "Invalid id",
 			'play_my_game': "Play my game",
 			'last_10_games_performance': "Last 10 games performance",
             'game_evolution': "Game evolution",
@@ -282,4 +255,5 @@ def get_lang_words(lang):
 			'game_wo': "Game",
 			'opponent': "Opponent",
 			'winner_wo': "Winner",
+			'access_denied': "Access denied",
 		}

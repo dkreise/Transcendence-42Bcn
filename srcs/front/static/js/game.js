@@ -235,8 +235,6 @@ export const gameAI = async (args) => {
         });
     }
 } 
-let roomId;
-let isCreator;
 
 export async function playOnline () {
 
