@@ -208,6 +208,7 @@ def get_lang_words(lang):
             'date_wo': "Дата",
             'winner_wo': "Победитель",
             'tournament': "Турнир",
+            'quit': "Выйти",
             'all': "Все",
             'yes': "Да",
             'no': "Нет",
@@ -376,4 +377,6 @@ def get_lang_words(lang):
             'back': "Go back",  
             'enter_winner_username_placeholder': "Enter winner's username",
             'search_by_username_email_ph': "Search by username or email",
+            ##################### new
+            'quit': "QUIT",
         }

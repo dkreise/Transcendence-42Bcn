@@ -470,9 +470,11 @@ class TournamentManager:
 	async def handle_timeout(self, pair):
 		await self.save_tournament_result(pair[0], False, False)
 		await self.save_tournament_result(pair[1], False, False)
-		self.players.remove(pair[0])
+		if pair[0] in self.players:
+			self.players.remove(pair[0])
 		# self.users.remove(pair[0])
-		self.players.remove(pair[1])
+		if pair[1] in self.players:
+			self.players.remove(pair[1])
 		# self.users.remove(pair[1])
 		status = await self.handle_game_end({}, True)
 		channel_layer = get_channel_layer()
