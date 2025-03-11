@@ -2,7 +2,8 @@ def add_language_context(cookies, context=None):
 	if context is None:
 		context = {}
 
-	lang = cookies.get('language') or 'EN'
+	#lang = cookies.get('language') or 'EN'
+	lang = 'EN'
 	lang_words = get_lang_words(lang)
 	context.update(lang_words)
 	return context
@@ -48,6 +49,7 @@ def get_lang_words(lang):
 			'easy': "Fácil",  
 			'medium': "Medio",  
 			'hard': "Difícil",
+			'bad_id': "Id inválido",
 		}
 	elif lang == 'CA':
 		return {
@@ -89,6 +91,7 @@ def get_lang_words(lang):
 			'easy': "Fàcil",  
 			'medium': "Mitjà",  
 			'hard': "Difícil",  
+			'bad_id': 'Id invàlid',
 		}
 	elif lang == 'RU':
 		return {
@@ -129,7 +132,8 @@ def get_lang_words(lang):
 			'baby': "Малыш",
 			'easy': "Низкий",
 			'medium': "Средний",
-			'hard': "Высокий"
+			'hard': "Высокий",
+			'bad_id': 'недействительный идентификатор',
 		}
 	elif lang == 'LV':
 		return {
@@ -171,6 +175,7 @@ def get_lang_words(lang):
 			'easy': "Viegli",  
 			'medium': "Vidēji",  
 			'hard': "Grūti",
+			'bad_id': 'negaliojantis id',
 		}
 	else:
 		return {
@@ -211,5 +216,6 @@ def get_lang_words(lang):
 			'baby': "Baby",
 			'easy': "Easy",
 			'medium': "Medium",
-			'hard': "Hard"
+			'hard': "Hard",
+			'bad_id': "Invalid id",
 		}
