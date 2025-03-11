@@ -2,7 +2,7 @@ import * as THREE from "three";
 
 import { TextGeometry } from '../three/examples/jsm/geometries/TextGeometry.js';
 import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
-import { params, field, textCount } from "./3DLocalGame.js";
+import { params, field, textCount } from "./3DGame.js";
 import { RoundedBoxGeometry } from '../three/examples/jsm/geometries/RoundedBoxGeometry.js'
 
 
@@ -32,7 +32,7 @@ export const fontPaths = {
 
 export class SceneText {
 
-    constructor(scene, dict, rotationX = 0, rotationY = 0, rotationZ = 0) {
+    constructor(scene, dict, tour, rotationX = 0, rotationY = 0, rotationZ = 0) {
         this.scene = scene;
         this.loader = new FontLoader();
         this.fontPathRegular = "../three/examples/fonts/helvetiker_regular.typeface.json";
@@ -40,6 +40,7 @@ export class SceneText {
         this.loadedBoldFont = null;
         this.fonts = null;
         this.dict = dict;
+        this.tour = tour;
         this.rotationX = rotationX;
         this.rotationZ = rotationZ;
         this.rotationY = rotationY;
@@ -52,6 +53,7 @@ export class SceneText {
         this.countdownText = null;
         this.waiting = null;
         this.enemy = null;
+        
         this.group.add(this.button);
         this.group.setRotationFromEuler(new THREE.Euler(this.rotationX, this.rotationY, this.rotationZ, "ZYX"));
     }
@@ -64,6 +66,8 @@ export class SceneText {
             shininess: 100,
             });
         const button = new THREE.Mesh(buttonGeo, buttonMat);
+        if (this.tour)
+            button.visible = false;
         // button.castShadow = true;
         // button.receiveShadow = true;
         button.position.set(0, params.textY, 0); // Adjust position in the scene
@@ -75,10 +79,6 @@ export class SceneText {
         this.fonts = await this.loadFonts();
         this.start = this.createButtonText(this.dict['start'], this.fonts['robotoLight']);
         this.tryAgain = this.createButtonText(this.dict['try_again'], this.fonts['robotoLight']);
-        // this.start = this.createButtonText("Старт!", this.fonts['helvetica']);
-        // this.tryAgain = this.createButtonText("Mēģini vēlreiz", this.fonts['helvetica']);
-        // this.start = this.createButtonText("Començar!", this.fonts['robotoLight']);
-        // this.tryAgain = this.createButtonText("El guanyador és", this.fonts['robotoLight']);
         this.tryAgain.visible = false;
         const textGeo = this.createTextGeometry("3", this.fonts['roboto'], textWinner);
         this.countdownText = new THREE.Mesh(textGeo, new THREE.MeshNormalMaterial());
@@ -92,6 +92,8 @@ export class SceneText {
         this.enemy = new THREE.Mesh(enemyGeo, new THREE.MeshNormalMaterial());
         this.enemy.position.set(0, params.textY, 1.5);
         this.enemy.visible = false;
+        if (this.tour)
+            this.start.visible = false;
         this.winnerMessage = this.createWinnerMessage("winner", this.fonts['robotoLight'])
         this.winnerMessage.visible = false;
         this.group.add(this.start, this.tryAgain, this.enemy, this.waiting, this.countdownText, this.winnerMessage);
@@ -113,7 +115,7 @@ export class SceneText {
     loadFont(path) {
         return new Promise((resolve, reject) => {
             this.loader.load(path, (font) => {
-                console.log("Font loaded");
+                // console.log("Font loaded");
                 resolve(font);  // Resolve with the loaded font
             }, undefined, (error) => {
                 console.error("Font loading failed", error);

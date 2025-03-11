@@ -20,7 +20,7 @@ export function connectWS(access_token)
     };
     
     socket.onopen = function(event) {
-        console.log(`WebSocket Connected! Socket: ${socket}`);
+        // console.log(`WebSocket Connected! Socket: ${socket}`);
     };
     
     socket.onmessage = function(event) {

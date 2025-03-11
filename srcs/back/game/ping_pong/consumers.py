@@ -153,8 +153,18 @@ class PongConsumer(AsyncWebsocketConsumer):
 					del game.players[self.role]
 					logger.info(f"Current users in the room: {game.users}")
 					logger.info(f"Current players in the room: {game.players}")
-				if len(game.players) < 2:
+				
+				if len(game.players) == 1:
+					game.status = 1
+					logger.info(f"The role: {self.role}")
+					if self.role == "player1":
+						await game.declare_winner("player2")
+					else:
+						await game.declare_winner("player1")
 					game.stop_game()
+					async with active_games_lock:
+						if self.room_id in active_games:
+							del active_games[self.room_id]
 
 				if not game.players:
 					async with active_games_lock:

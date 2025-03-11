@@ -126,7 +126,7 @@ export const loadBracketTournamentPage = () => {
 			"type": "bracket_page_request",
 		};
 		socket.send(JSON.stringify(data));
-        console.log("we have sent the request for bracket page!")
+        // console.log("we have sent the request for bracket page!")
 	}
     else {
         console.log(socket.readyState);
@@ -218,11 +218,11 @@ function addGameButton(data) {
     // tournament ID needed!! or maybe not..
     console.log('Player needs to play!!');
     const bracketSection = document.getElementById("bracket");
-    if (bracketSection) {
-        console.log("bracket section here");
-    } else {
-        console.log("no bracket section...");
-    }
+    // if (bracketSection) {
+    //     console.log("bracket section here");
+    // } else {
+    //     console.log("no bracket section...");
+    // }
     const playButton = document.createElement("button");
     playButton.id = "play-game-in-tournament";
     playButton.textContent = "Play My Game";
@@ -258,7 +258,7 @@ function changePage(data) {
 }
 
 function uploadTournamentPage(data) {
-    console.log("CUR PATHNAME: ", window.location.pathname);
+    // console.log("CUR PATHNAME: ", window.location.pathname);
     if (data.redirect == "/tournament-bracket") {
         if (isOnWaitingRoomPage() || isOnBracketPage() || isOnTournamentHomePage()) {
             changePage(data);
@@ -269,17 +269,17 @@ function uploadTournamentPage(data) {
         }
     }
     if (data.request) {
-        console.log("IT WAS A REQUEST");
+        // console.log("IT WAS A REQUEST");
         changePage(data);
     }
 
     // document.getElementById('content-area').innerHTML = data.html;
     const bracketSection = document.getElementById("bracket");
-    if (bracketSection) {
-        console.log("bracket section here");
-    } else {
-        console.log("no bracket section...");
-    }
+    // if (bracketSection) {
+    //     console.log("bracket section here");
+    // } else {
+    //     console.log("no bracket section...");
+    // }
 
     // if (data.needs_to_play) {
     //     addGameButton(data);
@@ -346,7 +346,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
         localStorage.removeItem("gameState");
         removeBeforeUnloadListenerAI();
         removeBeforeUnloadListenerRemote();
-            navigateTo('/home', true);
+        navigateTo('/home', true);
         reject("WebSocket error");
 	};
 
@@ -377,7 +377,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 		const data = JSON.parse(event.data);
         localStorage.setItem("currentTournamentId", tourId);
 
-		console.log(data);
+		// console.log(data);
 		switch(data.type)
 		{
 			case "totalPlayers":
@@ -414,11 +414,11 @@ export async function tournamentConnect(tourId, nPlayers=null) {
                 navigateTo('/tournament');
                 break;
 			case "role":
-				handleRoleAssignment(data);
+				// handleRoleAssignment(data);
 				scaleGame(data);
 				break;
 			case "players":
-				setWhoAmI(data);
+				await setWhoAmI(data);
 				socket.send(JSON.stringify({"type": "ready"}));
 				break;
 			case "status":

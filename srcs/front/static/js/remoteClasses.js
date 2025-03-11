@@ -1,8 +1,8 @@
 export class Player {
 	maxScore = 5;
 
-	constructor(canvas, role) {
-		console.log(`Canvas size: ${canvas.width} x ${canvas.height}`)
+	constructor(data, canvas, role) {
+		// console.log(`Canvas size: ${canvas.width} x ${canvas.height}`)
 		this.color = "white";
 		this.up = false;
 		this.down = false;
@@ -10,11 +10,17 @@ export class Player {
 		this.canvas = canvas;
 		this.whoAmI = null;
 		this.y = 0.5;
+		this.width = canvas.width * (data.padW / data.canvasX);
+		this.height = canvas.height * (data.padH / data.canvasY);
 		this.role = role; // "player1" or "player2"
 		if (this.role === "player1")
 			this.x = 0;
 		else
 			this.x = canvas.width - this.width;
+		this.speed = data.padS;
+		this.uplim = this.height / 2;
+		this.downlim = this.canvas.height - (this.height / 2)
+		console.log(`Constructor finished, ${this.role},  ${this.whoAmI}`)
 	}
  
 	setVars(data) {
@@ -30,21 +36,28 @@ export class Player {
 	}
 
 	move(socket) {
+		// console.log(`Moving, uplim is ${this.uplim}, downlim is ${this.downlim}`)
 		const oldY = this.y
-		if (this.up && this.y > 0)
+		const realY = this.y * this.canvas.height
+		if (this.up && realY > this.uplim)
 			this.y -= this.speed;
-		if (this.down && this.y < (this.canvas.height - this.height))
+		if (this.down && realY < this.downlim)
 			this.y += this.speed;
-	
-		if (socket.readyState === WebSocket.OPEN && this.y != oldY)
+		
+		if (socket.readyState === WebSocket.OPEN && this.y != oldY) {
+			// console.log(`Sending, oldY is ${oldY}, newY is ${this.y}`)
 			this.send(socket);
+		}
 	}
 
 	update(players, newScore) {
 		if (!this.role)
 			return ;
-		if (players[this.role] && players[this.role]["y"])
+		const oldY = this.y
+		if (players && players[this.role] && players[this.role]["y"])
 			this.y = players[this.role]["y"];
+		// if (players && oldY != players[this.role]["y"] && this.role == "player1")
+			// console.log(`Updating, oldY ${oldY}, newY ${players[this.role]["y"]}`)
 		if (newScore[this.role])
 			this.score = newScore[this.role];
 	}
@@ -87,6 +100,7 @@ export class Player {
 	send(socket) {
 		if (socket.readyState === WebSocket.OPEN)
 		{
+			// console.log(`Sending paddle pos: ${this.y}`)
 			const data = {
 				"type": "update",
 				"role": this.role,
