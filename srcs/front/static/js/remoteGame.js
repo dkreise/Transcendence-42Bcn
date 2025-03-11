@@ -59,21 +59,23 @@ async function readySteadyGo(countdown)
 	const msg = ["1", "2", "3"];
 	let div = document.getElementById("wait");
 
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	div.textContent = msg[countdown];
-	div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
+	if (div) {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		div.textContent = msg[countdown];
+		div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
 
 
-	ctx.fillStyle = "rgb(0 0 0 / 25%)";
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	div.style.display = "block";
-	//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
-	if (countdown >= 0)
-		// await setTimeout(async() => await readySteadyGo(--countdown), 500);
-		countdownTimeout = setTimeout(() => readySteadyGo(--countdown), 500);
+		ctx.fillStyle = "rgb(0 0 0 / 25%)";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		div.style.display = "block";
+		//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
+		if (countdown >= 0)
+			// await setTimeout(async() => await readySteadyGo(--countdown), 500);
+			countdownTimeout = setTimeout(() => readySteadyGo(--countdown), 500);
 
-	else
-		div.style.display = "none";
+		else
+			div.style.display = "none";
+	}
 }
 
 function displayCountdown()

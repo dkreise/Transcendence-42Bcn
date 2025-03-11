@@ -575,7 +575,7 @@ class GameManager:
 			"type": "endgame",
 			"winner": winner,
 			"loser": loser,
-			"scores": self.scores
+			"scores": {"player1": 0, "player2": 0}
 		}
 		channel_layer = get_channel_layer()
 		if "T_" in self.id:

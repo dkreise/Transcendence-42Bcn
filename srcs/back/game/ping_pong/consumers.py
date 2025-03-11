@@ -165,6 +165,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 			logger.info(f"\033[1;31mclose_code={close_code}\033[0m")
 			if self.room_id and self.room_id in active_games:
 				game = active_games[self.room_id]
+				logger.info("Removing user from game group..")
+				await self.channel_layer.group_discard(
+					self.room_id,
+					self.channel_name
+				)
 				if game.player2_waiting_task:
 					game.player2_waiting_task.cancel()
 			if close_code in [1001, 1006]:  # WebSocket transport error / browser close
@@ -321,7 +326,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					logger.info(f"quit status : {status}")
 					if status == "remote":
 						if not self.room_id:
-							self.room_id = f"T_{self.tour_id}_{opp}_{usr}_{tournament.round}".replace("@", "-")
+							self.room_id = f"T_{self.tour_id}_{op}_{us}_{tournament.round}".replace("@", "-")
 							game = active_games[self.room_id]
 							# await self.channel_layer.group_add(self.room_id, self.channel_name)
 						await game.stop_tournament_game(op, us)
