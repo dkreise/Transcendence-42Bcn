@@ -1,12 +1,12 @@
 import { loadLoginPage, handleLogin, loadSignupPage, handleSignup } from "./login.js";
 import { loadProfilePage, loadProfileSettingsPage, loadMatchHistoryPage } from "./profile.js";
-import { handleLoginIntra, handle42Callback } from "./42auth.js";
-import { loadHomePage, setUp3DListener } from "./home.js";
+import { handleLoginIntra, handle42Callback, showModalError } from "./42auth.js";
+import { loadHomePage } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { clearIntervalIDGame, cleanupAI } from "./AIGame.js"
-import { playLocal, restartOnline, playAI, gameAI, playOnline, play3D, gameLocal } from "./game.js"
+import { playLocal, restartOnline, playAI, gameAI, playOnline, play3D, gameLocal, loadRemoteHome  } from "./game.js"
 import { cleanup3D, exit3D } from "./3DGame.js";
 import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest } from "./tournament.js";
 import { cleanupLocal } from "./localGame.js"
@@ -64,14 +64,16 @@ const routes = {
     '/tournament-game-remote': tournamentGameRequest,
     '/page-not-found': loadPageNotFound,
     '/exit-3D': exit3D,
+	'/remote-home': loadRemoteHome,
+
     
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
 };
 
-// --- headerType = 1 --> draw mainHeader
-// --- headerType = 2 --> only lenguaje button
-// --- headerType = 3 --> clear Header
+// --- headerType = 'main' --> draw mainHeader
+// --- headerType = 'login' --> only lenguaje button
+// --- headerType = '3d' --> clear Header
 
 export function drawHeader(headerType) {
     return new Promise((resolve, reject) => {
@@ -91,7 +93,7 @@ export function drawHeader(headerType) {
                 break;
             default:
                 document.getElementById('header-area').innerHTML = '';
-                resolve();  // IMPORTANTE: Se debe resolver la promesa en el caso por defecto
+                resolve();
                 return;
         }
         fetch(baseUrl + url, {
@@ -159,6 +161,7 @@ function getRedirectionIfNeeded(path=null) {
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';
     } else if (!checkPermission() && !publicPaths.includes(path) && !openPaths.includes(path)) {
+        showModalError("Unauthorized access. Please check your credentials.");
         return '/login';
     }
     return null;

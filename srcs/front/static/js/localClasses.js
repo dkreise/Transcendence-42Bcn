@@ -10,7 +10,7 @@ export class Player {
         }
         console.log(`player width: ${this.x}`)
         this.y = canvas.height / 2 - this.height / 2;
-        this.speed = 5;
+        this.speed = canvas.height / 90;
         this.color = "white";
         this.up = false;
         this.down = false;
@@ -30,6 +30,10 @@ export class Player {
             this.y -= this.speed;
         if (this.down && this.y < this.canvas.height - this.height) 
             this.y += this.speed;
+		if (this.y < 0)
+			this.y = 0;
+		else if (this.y + this.height > this.canvas.height)
+			this.y = this.canvas.height - this.height;
     }
 
     // update(newScore) {
@@ -37,49 +41,60 @@ export class Player {
 	// }
 
     drawScore(ctx) {
+		const text = `${this.name}: ${this.score}`;
+		let x;
         ctx.fillStyle = 'white';
-        ctx.font = '20px Arial';
+        ctx.font = Math.floor(this.canvas.width * 0.04) + "px Arial";
         if (this.role === 0) {
-            ctx.fillText(`${this.name}: ${this.score}`, 20, 20);
+			x = this.canvas.width / 4 - ctx.measureText(text).width / 2;
         } else {
-            ctx.fillText(`${this.name}: ${this.score}`, this.canvas.width - 150, 20);
+			x = this.canvas.width * 0.75 - ctx.measureText(text).width / 2;
         }
+        ctx.fillText(text, x, this.canvas.height / 10);
     }
 
     scored() {
         this.score++;
     }
 
-    displayEndgameMessage(ctx, finalScore, msg) {
-        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-        ctx.fillStyle = "white";
-        ctx.font = "50px Arial";
-        ctx.textAlign = "center";
-        ctx.fillText(msg, this.canvas.width / 2, this.canvas.height / 2 - 20);
-        ctx.font = "40px Arial";
-        ctx.fillText(finalScore, this.canvas.width / 2, this.canvas.height / 2 + 30);
-    }
+	displayEndgameMessage(ctx, finalScore, msg) {
+		let div = document.getElementById("wait");
+		let fontSize = Math.floor(this.canvas.width * 0.05);
+
+		div.innerHTML = msg + `<br>${finalScore}`;
+		div.style.display = "block";
+		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		ctx.fillStyle = "rgba(0 0 0 / 25%)";
+		ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+		div.style.fontSize = Math.floor(this.canvas.width * 0.05) + "px";
+	}
+
+	resetPosition() {
+		this.y = this.canvas.height / 2;
+	}
 }
 
 export class Ball {
     // radius = 10;
+	div = document.getElementById("wait");
 
-    constructor(canvas) {
+    constructor(canvas, ctx) {
         this.x = canvas.width / 2;
         this.y = canvas.height / 2;
-        this.xspeed = 5;
-        this.yspeed = 5;
+        this.xspeed = canvas.width * 0.01;
+        this.yspeed = canvas.height * 0.02;
         this.color = "white";
         this.canvas = canvas;
         this.radius = canvas.width * 0.015;
+		this.ctx = ctx;
     }
 
-    draw(ctx) {
-        ctx.fillStyle = this.color;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
-        ctx.fill();
+    draw() {
+       this.ctx.fillStyle = this.color;
+       this.ctx.beginPath();
+       this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+       this.ctx.fill();
     }
 
     resetPosition() {
@@ -88,40 +103,53 @@ export class Ball {
         this.xspeed = -this.xspeed; // Alternate serve direction
     }
 
-    move(player1, player2) {
-        this.x += this.xspeed;
-        this.y += this.yspeed;
+	move(player1, player2) {
+   		this.x += this.xspeed;
+   		this.y += this.yspeed;
 
         // Top and bottom wall collision
-        if (this.y <= 0 || this.y + this.radius >= this.canvas.height) {
+        if (this.y - this.radius <= 0 || this.y + this.radius >= this.canvas.height)
             this.yspeed = -this.yspeed;
-        }
+   		// Player 1 paddle collision
+   		if (
+   		    this.x - this.radius <= player1.x + player1.width &&
+   		    this.x - this.radius >= player1.x &&
+   		    this.y >= player1.y &&
+   		    this.y <= player1.y + player1.height
+   		) {
+   		    this.xspeed = Math.abs(this.xspeed);
+   		    this.x = player1.x + player1.width + this.radius;
+   		}
 
-        // Left paddle (Player 1) collision
-        if (
-            this.x - this.radius <= player1.x + player1.width &&
-            this.y >= player1.y &&
-            this.y <= player1.y + player1.height
-        ) {
-            this.xspeed = -this.xspeed;
-        }
+   		// Player 2 paddle collision
+   		if (
+   		    this.x + this.radius >= player2.x &&
+   		    this.x + this.radius <= player2.x + player2.width &&
+   		    this.y >= player2.y &&
+   		    this.y <= player2.y + player2.height
+   		) {
+   		    this.xspeed = -this.xspeed;
+   		    this.x = player2.x - this.radius;
+   		}
 
-        // Right paddle (Player 2) collision
-        if (
-            this.x + this.radius >= player2.x &&
-            this.y >= player2.y &&
-            this.y <= player2.y + player2.height
-        ) {
-            this.xspeed = -this.xspeed;
-        }
 
-        // Scoring conditions
-        if (this.x - this.radius <= 0) {
-            player2.scored();
-            this.resetPosition();
-        } else if (this.x + this.radius >= this.canvas.width) {
-            player1.scored();
-            this.resetPosition();
-        }
-    }
+   		// Scoring conditions
+   		if (this.x - this.radius <= 0) {
+   		    player2.scored();
+   		    player2.resetPosition();
+   		    player1.resetPosition();
+   		    this.resetPosition();
+   		    return 1;
+   		} else if (this.x + this.radius >= this.canvas.width) {
+   		    player1.scored();
+   		    player1.resetPosition();
+   		    player2.resetPosition();
+   		    this.resetPosition();
+   		    return 1;
+   		}
+
+   		return 0;
+	}
+
+
 }

@@ -184,7 +184,7 @@ async function animateLocal() {
 //---------------------------------------------------------------------------------//
 
 // Start game function
-export async function start3DRemoteGame(dict, tournament) {
+export async function start3DRemoteGame(dict, tournament, roomId, isCreator) {
     window.gameDict = dict;
     init();
     remote = true;
@@ -276,12 +276,13 @@ async function initializeWebSocket(roomId = 123) {
     {   
         try {
             token = await refreshAccessToken();
+            // localStorage.setItem("access_token") = token;
         } catch (err) {
             console.log("Failed to refresh token");
             handleLogout();
+            console.log("No access token found");
+            return ;
         }
-        console.log("No access token found");
-        return ;
     }
     if (!socket)
     {
@@ -745,6 +746,25 @@ async function buttonsManager(event) {
     }
 }
 
+//async function showCountdown(callback) {
+//    let count = 2;
+//    text.updateGeometry(text.countdownText, "3", textCount);
+//    text.countdownText.visible = true;
+//    const interval = setInterval((dict) => {
+//        // console.log(window.gameDict);
+//        if (count === 0) {
+//            text.updateGeometry(text.countdownText, window.gameDict['go'], textCount);
+//        } else if (count < 0) {
+//            clearInterval(interval);
+//            text.countdownText.visible = false; // Hide instead of remove
+//            callback(); // Resume the game  
+//        } else {
+//            text.updateGeometry(text.countdownText, `${count}`, textCount);
+//        }
+//        count--;  
+//    }, 1000);
+//}
+
 async function showCountdown(callback) {
     let count = 2;
     text.updateGeometry(text.countdownText, "3", textCount);
@@ -773,7 +793,7 @@ async function firstCountdown(callback) {
         text.countdownText.visible = true;
     }
     const interval = setInterval(() => {    
-        if (count == 2 && text.enemy.visible == true) {
+        if (count == 2 && text.enemy.visible === true) {
             text.enemy.visible = false;
             text.updateGeometry(text.countdownText, `${count}`, textCount);
             player1.show();

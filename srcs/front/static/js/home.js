@@ -1,23 +1,20 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { drawHeader } from "./main.js";
+import { getOrInitialize3DOption } from "./game.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
 const userMgmtPort = window.env.USER_MGMT_PORT;
 
-//Add to fetch:
-// const Enable3D = localStorage.getItem("3D-option") === "true";
-// "3d-option": Enable3D ? "True" : "False",
-
 export const setUp3DListener = () => {
-    const switch3D = document.getElementById("3D-switch"); // ID del switch
+    const switch3D = document.getElementById("3D-switch");
 
     if (switch3D) {
-        const isEnable = localStorage.getItem("3D-option") === "true";
+        const isEnable = getOrInitialize3DOption() === "true";
         switch3D.checked = isEnable;
 
-        // Escuchar cambios en el switch
+        console.log("3D-option is:", switch3D.checked);
         switch3D.addEventListener("change", () => {
             localStorage.setItem("3D-option", switch3D.checked);
         });

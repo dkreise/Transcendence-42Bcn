@@ -144,26 +144,18 @@ class GameManager:
 #################################################
 
 	def handle_message(self, role, data):
-		#logger.info(f"HM data: {data}")
-		# logger.info(f"HM pre: {self.players}")
-		# boardH = GameManager.board_config["height"]
-		# padH = (GameManager.paddle_config["height"] / 2) / boardH
 		if data["type"] == "update" and data["role"] in self.players and data["y"]:
-			self.players[data["role"]]["y"] = data["y"]
-			# logger.info(f"RECEIIIIIVED!!!!! {self.players[data['role']]} role: {self.players[data['role']]['y']}")
-			# if data["y"] <= 0.06:
-			# 	self.players[data["role"]]["y"] = 0.06
-			# elif data["y"] >= 0.93:
-			# 	self.players[data["role"]]["y"] = 0.93
-			# logger.info(f"RECEIIIIIVED!!!!! {self.players[data['role']]} role: {self.players[data['role']]['y']}")
-			# logger.info(f"RECEIIIIIVED!!!!! {self.players[data['role']]} role: {self.players[data['role']]['y']}")
-		#logger.info(f"HM post: {self.players}")
+			if data["y"] < 0:
+				self.players[data["role"]]["y"] = 0 + GameManager.paddle_config["height"] / GameManager.board_config["height"]
+			elif data["y"] > 1:
+				self.players[data["role"]]["y"] = 1 - GameManager.paddle_config["height"] / GameManager.board_config["height"]
+			else:
+				self.players[data["role"]]["y"] = data["y"]
 
 
 ##################################################
 
 	async def has_scored(self, role):
-		# logger.info(f"{role} has scored in room {self.id}")
 		self.status = 1
 		self.reset_positions(role)
 		self.scores[role] += 1
@@ -272,7 +264,6 @@ class GameManager:
 		try:
 			await asyncio.sleep(2)
 			self.status = 0
-			logger.info("sending status in ready_steady")
 			await self.send_status(0)
 		except Exception as e:
 			logger.error(f"Error in Ready Steady Go: {e}")
@@ -476,7 +467,6 @@ class GameManager:
 		if self.game_loop_task:
 			self.game_loop_task_cancel()
 			self.game_loop_task = None
-		logger.info("sending status in stop_game")
 		await self.send_status(GameManager.countdown)
 
 #################################################################
@@ -499,7 +489,6 @@ class GameManager:
 ####################################################################3
 
 	async def send_players_id(self):
-		logger.info("sending players' id (gameMan)")
 		message = {
 			"type": "players",
 			"player1": self.players["player1"]["id"],
@@ -513,7 +502,6 @@ class GameManager:
 			})
 
 	async def send_status(self, countdown):
-		logger.info(f"sending status msg (GM) wait: {self.status} cd: {countdown}")
 		message = {
 			"type": "status",
 			"ball": self.ball,

@@ -2,9 +2,11 @@
     <div class="gameStatus">
         <h1>BUBBLE PONG</h1> <!-- Game title dynamically rendered from the context -->
 
-        <div id="newGameBoard">
-            <canvas id="newGameCanvas" width="1200" height="600" style="display: flex;"></canvas> <!-- Game playfield --> 
+		<div id="newGameBoard" class="d-flex justify-content-center align-items-center position-relative">
+    		<canvas id="newGameCanvas" class="d-block"></canvas> <!-- Game playfield -->
+    		<div id="wait" class="position-absolute text-center w-100">
+            </div>
         </div>
-        <button id="play-again" data-route="/play-local">{{ play_again }}</button>
+        <button id="play-again" data-route="/play-local" style="margin-left: 30px;">{{ play_again }}</button>
     </div>
 </div>

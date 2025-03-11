@@ -1,5 +1,6 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { drawHeader } from "./main.js";
+import { getDictFor3DGame } from "./game.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -30,17 +31,23 @@ const fetchLastTenGames = () => {
     }).then(response => response ? response.json() : null);
 }
 
-const renderLastTenGamesChart = (gamesData, username) => {
+const fillLastTenGamesChart = (gamesData, username, dictionary) => {
+
+    const scoreStr = dictionary['score_wo'] || "Score";
+    const opponentStr = dictionary['opponent'] || "Opponent";
+    const winnerStr = dictionary['winner_wo'] || "Winner";
+    const tournamentStr = dictionary['tournament'] || "Tournament";
+    const gameStr = dictionary['game_wo'] || "Game";
+
     const ctx = document.getElementById('last-ten-games-chart').getContext('2d');
 
-    // Crear un gradiente para las barras
     const gradient = ctx.createLinearGradient(0, 0, 0, 400);
     gradient.addColorStop(0, 'rgba(187, 134, 252, 1)');
     gradient.addColorStop(1, 'rgba(187, 134, 252, 0.5)');
     
     const gameCnt = parseInt(document.getElementById('games-played').textContent, 10);
     const labels = gamesData.map((_, index) => {
-        return `Game ${gameCnt - (gamesData.length - 1 - index)}`;
+        return `${gameStr} ${gameCnt - (gamesData.length - 1 - index)}`;
     });
     
     const scores = gamesData.map((game) => {
@@ -51,13 +58,13 @@ const renderLastTenGamesChart = (gamesData, username) => {
         }
         return 0;
     });
-    
+
     new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labels,
             datasets: [{
-                label: 'Scores',
+                label: scoreStr,
                 data: scores,
                 backgroundColor: gradient,
                 borderColor: "rgba(152, 40, 237, 0.5)",
@@ -82,7 +89,7 @@ const renderLastTenGamesChart = (gamesData, username) => {
             plugins: {
                 title: {
                     display: true,
-                    text: 'Evolución de Partidas',
+                    text: dictionary['game_evolution'],
                     font: { size: 18 },
                     padding: {
                       top: 10,
@@ -106,7 +113,7 @@ const renderLastTenGamesChart = (gamesData, username) => {
                                 game.tournament_id >= 0
                                     ? 'yes'
                                     : 'no';
-                            return `Score: ${score}; Opponent: ${opponent}; Winner: ${winner}; Tournament: ${tournament}`;
+                            return `${scoreStr}: ${score}; ${opponentStr}: ${opponent}; ${winnerStr}: ${winner}; ${tournamentStr}: ${tournament}`;
                         },
                     },
                     displayColors: false,
@@ -118,7 +125,7 @@ const renderLastTenGamesChart = (gamesData, username) => {
                 },
                 title: {
                     display: true,
-                    text: 'Last 10 Games Performance',
+                    text: dictionary['last_10_games_performance'],
                     font: {
                         size: 18,
                     },
@@ -132,7 +139,7 @@ const renderLastTenGamesChart = (gamesData, username) => {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: 'Score',
+                        text: scoreStr,
                     },
                     grid: {
                         color: 'rgba(200,200,200,0.2)',
@@ -153,6 +160,7 @@ const renderLastTenGamesChart = (gamesData, username) => {
         },
     });
 }
+
 export const loadMatchHistoryPage = () => {
     drawHeader('main').then(() => {
        return makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/match-history-page/", {method: "GET"})
@@ -161,11 +169,11 @@ export const loadMatchHistoryPage = () => {
                 if (data && data.match_history_html) {
                     document.getElementById('content-area').innerHTML = data.match_history_html;
                 } else {
-                    console.error('Error fetching settings:', data.error);
+                    console.log('Error fetching settings:', data.error);
                 }
             })
             .catch(error => {
-                console.error('Error fetching settings:', error);
+                console.log('Error fetching settings:', error);
             });
         })
 }
@@ -198,7 +206,6 @@ const applyFilters = () => {
 
 
 export const loadProfileSettingsPage = () => {
-    console.log("LOADING PROFILE...")
     drawHeader('main').then(() => {
     return  makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/profile-settings-page/", {
         method: "GET",
@@ -212,16 +219,17 @@ export const loadProfileSettingsPage = () => {
                 //     displayUpdatingMessage(msg, 'green');
                 // }
             } else {
-                console.error('Error fetching settings:', data.error);
+                console.log('Error fetching settings:', data.error);
             }
         })
         .catch(error => {
-            console.error('Error fetching settings:', error);
+            console.log('Error fetching settings:', error);
         });
     })
 };
 
-export const loadProfilePage = () => {
+export const loadProfilePage = async () => {
+    const dictionary = await getDictFor3DGame();
     console.log('Loading profile page..');
     drawHeader('main').then(() => {
     return makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/profile-page/", {
@@ -229,55 +237,29 @@ export const loadProfilePage = () => {
         credentials: 'include'
         })
     })
-        .then((response) => {
-            if (!response) return null;
-            if (response.ok) {
-                return response.json();
-            } else {
-                console.error("Failed to load user info");
-            }
-        })
-        .then((data) => {
-            console.log("Estamos activoooos");
-            if (data && data.profile_html) {
-                document.getElementById('content-area').innerHTML = data.profile_html;
-                // addLogoutListener();
-                console.log('Profile page loaded');
-                fetchLastTenGames().then((gamesData) => {
-                    if (gamesData) {
-                        const { username, games } = gamesData;
-                        renderLastTenGamesChart(games, username);
-                    }
-                });
-                console.log('Statistics graph rendered');
-            }
-        })
-        .catch((error) => console.error("Error loading user info:", error));
+    .then((response) => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            console.log("Failed to load user info");
+        }
+    })
+    .then((data) => {
+        if (data && data.profile_html) {
+            document.getElementById('content-area').innerHTML = data.profile_html;
+            // addLogoutListener();
+            console.log('Profile page loaded');
+            fetchLastTenGames().then((gamesData) => {
+                if (gamesData) {
+                    const { username, games } = gamesData;
+                    fillLastTenGamesChart(games, username, dictionary);
+                }
+            });
+            console.log('Statistics graph rendered');
+        }
+    })
+    .catch((error) => console.log("Error loading user info:", error));
 };
-
-
-//////////////////// TO DELETE ////////////////////////////////////////
-// export const loadGame = (contentArea) => {
-//     console.log('Loading game..');
-// 	fetch('html/game.html')  // Call the API endpoint to get the form as JSON
-//         .then(response => response.text())
-//         .then(data => {
-//             if (data) {
-//                     console.log('Game returned!');
-//                     contentArea.innerHTML = data;
-// 					const canvas = document.getElementById("gameCanvas");
-// 					if (canvas)
-// 						animate()
-// 					else
-// 						console.log("Error: Canvas not found");
-						
-//             }
-//         })
-//         .catch(error => console.error('Error loading game:', error));
-// };
-
-//////////////////////////////////////////////////////////////
-
 
 const updateProfileSettings = (form) => {
     const formData = new FormData(form);
@@ -291,7 +273,6 @@ const updateProfileSettings = (form) => {
         .then((data) => {
             if (data && data.success) {
                 displayUpdatingMessage("Settings were updated!", 'green');
-                localStorage.setItem('username', data.username);
             } else {
                 displayUpdatingMessage(data.error + ' Please try again.', 'red');
             }

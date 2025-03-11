@@ -16,6 +16,7 @@ let difficulty = 3; // 0.5-1 => easy, 3 => already low chance for ai to lose, 5 
 let errorRange = null;
 let tournamentId = null;
 let gameStop = false;
+let dict = null;
 
 export function clearIntervalIDGame() {
     if (intervalID) {
@@ -115,8 +116,8 @@ function predictBallY() {
     tempY = tempY + tempYspeed * timeToLeftRight;
 
     let error = Math.random() * errorRange - errorRange ;/// 2;  // Random error between ±errorRange/2
-    // console.log('DIFFICULTY:');
-    // console.log(difficulty);
+    console.log('DIFFICULTY:');
+    console.log(difficulty);
     // console.log('ERROR-RANGE:');
     // console.log(errorRange);
     // console.log('ERROR:');
@@ -158,10 +159,32 @@ function checkIfAIneedStop() {
     }
 }
 
+async function displayCountdown()
+{
+	if (tournamentId)
+		return ;
+	cancelAnimationFrame(gameLoopId);
+	let div = document.getElementById("wait");
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	div.innerHTML = dict["ready"];
+	div.style.display = "block";
+	div.style.fontSize = Math.floor(canvas.width * 0.15) + "px";
+	ctx.fillStyle = "rgb(0 0 0 / 25%)";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	await new Promise(resolve => setTimeout(resolve, 500));
+	div.innerHTML = dict["go"];
+	await new Promise(resolve => setTimeout(resolve, 500));
+	div.style.display = "none";
+	gameAILoop();
+}
+
+
 // Game loop
-function gameAILoop() {
+async function gameAILoop() {
     gameLoopId = requestAnimationFrame(gameAILoop);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.clearRect(0, 0, canvas.width, canvas.height);
+	ctx.fillStyle = "rgb(0 0 0 / 75%)";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw players and ball
     player.draw(ctx);
@@ -177,9 +200,11 @@ function gameAILoop() {
     AI.move();
     checkIfAIneedStop();
     if (mainUser == 1) {
-        ball.move(player, AI);
+        if (ball.move(player, AI) && player.score != maxScore && AI.score != maxScore)
+			await displayCountdown();
     } else {
-        ball.move(AI, player);
+        if (ball.move(AI, player) && player.score != maxScore && AI.score != maxScore)
+			await displayCountdown();
     }
     
     if (gameStop || player.score >= maxScore || AI.score >= maxScore) {
@@ -235,7 +260,8 @@ export function setupControlsAI(player) {
 }
 
 // Start game function
-export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
+export async function startAIGame(playerName1, playerName2, mainUserNmb, tournament, dictionary) {
+	dict = dictionary;
     if (intervalID) {
         clearInterval(intervalID);
         intervalID = null;
@@ -270,7 +296,7 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
             player = new Player(canvas, 1, playerName2, canvas.width - 10);
             AI = new Player(canvas, 0, playerName1, 0);
         }
-        ball = new Ball(canvas);
+        ball = new Ball(canvas, ctx);
         // loadGameState();
     // } else {
     //     console.log("game was stopped");
@@ -284,7 +310,7 @@ export function startAIGame(playerName1, playerName2, mainUserNmb, tournament) {
     window.addEventListener("beforeunload", beforeUnloadHandlerAI);
     intervalID = setInterval(doMovesAI, 1000);
     console.log(tournamentId);
-    gameAILoop();
+    await gameAILoop();
 }
 
 const beforeUnloadHandlerAI = () => {
