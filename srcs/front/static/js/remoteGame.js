@@ -2,58 +2,65 @@ import { Ball, Player } from "./remoteClasses.js";
 import { setupControls } from "./localGame.js";
 import { setupControlsAI } from "./AIGame.js"
 import { refreshAccessToken } from "./login.js";
-import { startTournamentGame, stopTournamentGame } from "./tournament.js";
+import { startTournamentGame, stopTournamentGame, saveTournamentGameResult } from "./tournament.js";
 import { makeAuthenticatedRequest } from "./login.js"
 import { navigateTo } from "./main.js"
 
 const baseUrl = "http://localhost"; //TODO: change (pase later)
 
+
 const gamePort = window.env.GAME_PORT;
 const host = window.env.HOST;
 const protocolSocket = window.env.PROTOCOL_SOCKET;
 
-const endgameMsg = {
-	"winner": "Congratuations! You've won!\n",
-	"loser": "Better luck next time :')\n"
-};
+// const endgameMsg = {
+// 	"winner": "Congratuations! You've won!\n",
+// 	"loser": "Better luck next time :')\n"
+// };
 
 let canvas, ctx = null;
 
 let ball, targetBallX, targetBallY = null;
-let player, opponent = null;
+let player, opponent = null, dict = null;
 
 let socket = null;
 let gameLoopId = null;
 let gameStop = false;
 let tourId = null;
-let dict = null;
+let countdownTimeout = null;
+
  
-console.log("Hi! This is remoteGame.js :D");
+// console.log("Hi! This is remoteGame.js :D");
 
 export function handleRoleAssignment(data) {
 	console.log("Hi! I'm " + data.role);
 	if (data.role === "player1") {
-		player = new Player(canvas, "player1");
-		opponent = new Player(canvas, "player2");
+		console.log("Hi! I'm " + data.role + " and I'm a player");
+		player = new Player(data, canvas, "player1");
+		opponent = new Player(data, canvas, "player2");
 	}
 	else {
-		player = new Player(canvas, "player2");
-		opponent = new Player(canvas, "player1");
+		console.log("Hi! I'm " + data.role + " and I'm a player");
+		player = new Player(data, canvas, "player2");
+		opponent = new Player(data, canvas, "player1");
 	}
+
 }
 
 export function scaleGame(data)
 {
-	player.width = canvas.width * (data.padW / data.canvasX);
-	opponent.width = player.width;
-	player.height = canvas.height * (data.padH / data.canvasY);
-	opponent.height = player.height;
-	if (player.x != 0)
-		player.x = canvas.width - player.width;
-	else
-		opponent.x = canvas.width - opponent.width;
-	player.setVars(data);
-	opponent.setVars(data);
+	handleRoleAssignment(data)
+	
+	// player.width = canvas.width * (data.padW / data.canvasX);
+	// opponent.width = player.width;
+	// player.height = canvas.height * (data.padH / data.canvasY);
+	// opponent.height = player.height;
+	// if (player.x != 0)
+	// 	player.x = canvas.width - player.width;
+	// else
+	// 	opponent.x = canvas.width - opponent.width;
+	// player.setVars(data);
+	// opponent.setVars(data);
 	ball.setVars(data);
 }
 
@@ -81,22 +88,27 @@ async function firstCountdown(callback) {
     }, 500);
 }
 
+
+
 async function readySteadyGo(countdown)
 {
+	// if (!div || ! div.textContent) return ;
 	const msg = ["1", "2", "3"];
 	let div = document.getElementById("wait");
 
 	if (div) {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		div.innerHTML = msg[countdown];
-		div.style.fontSize = Math.floor(canvas.width * 0.15) + "px";
-		div.style.display = "block";
+		div.textContent = msg[countdown];
+		div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
+
 
 		ctx.fillStyle = "rgb(0 0 0 / 25%)";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		div.style.display = "block";
 		//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
 		if (countdown >= 0)
-			await setTimeout(async() => await readySteadyGo(--countdown), 500);
+			// await setTimeout(async() => await readySteadyGo(--countdown), 500);
+			countdownTimeout = setTimeout(() => readySteadyGo(--countdown), 500);
 
 		else
 			div.style.display = "none";
@@ -109,42 +121,60 @@ function displayCountdown()
 	if (!ctx)
 		return ;
 	let div = document.getElementById("wait");
-	let waitMsg = div ? div.dataset.original : "Waiting for X"; 
+	// let waitMsg = div ? div.dataset.original : "Waiting for X"; 
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(0 0 0 / 25%)"; //rectangle style
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	if (opponent && opponent.whoAmI)
-		waitMsg = waitMsg.replace("X", opponent.whoAmI);
-	else if (player.role == "player1")
-		waitMsg = waitMsg.replace("X", "player2");
-	else
-		waitMsg = waitMsg.replace("X", "player1");
-	div.innerHTML = waitMsg;
-	console.log("dC: waitMsg: " + waitMsg);
+	// if (opponent && opponent.whoAmI)
+	// 	waitMsg = waitMsg.replace("X", opponent.whoAmI);
+	// else if (player.role == "player1")
+	// 	waitMsg = waitMsg.replace("X", "player2");
+	// else
+	// 	waitMsg = waitMsg.replace("X", "player1");
+	// div.textContent = waitMsg;
+	div.textContent = dict['waiting_enemy'];
+
 	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
 	div.style.display = 'block';
 }
 
 
-function handleEndgame(data) {
+export function handleEndgame(data) { 
+	if (socket && socket.readyState === WebSocket.OPEN && !tourId) {
+		socket.close();
+	}
+	let ifTour = tourId;
+	tourId = null;
+	socket = null;
 	const { winner, loser, scores} = data;
+//	let div = document.getElementById("wait");
 	const msg = [
 		"Congratulations! You've won 😁",
 		"Better luck next time! 🥲"
 	]
-	
 	console.log(`winner ${winner} loser ${loser}`);
+	console.log(`I am: ${player.whoAmI}`);
+
+	//div.style.display = 'none';
+	// console.log(`winner ${winner} loser ${loser}`);
+
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
+	clearTimeout(countdownTimeout); // Clear the timeout
+    let div = document.getElementById("wait");
+    if (div) div.style.display = "none";
 	player.score = data["scores"][player.role];
 	opponent.score = data["scores"][opponent.role];
 	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
-	if (player.whoAmI == winner)
-		player.displayEndgameMessage(ctx, opponent.score, msg[0]);
+	if (player.whoAmI == loser)
+		player.displayEndgameMessage(ctx, opponent.score, dict['good_luck']);
 	else
-		player.displayEndgameMessage(ctx, opponent.score, msg[1]);
+		player.displayEndgameMessage(ctx, opponent.score, dict['congrats']);
+	if (ifTour)
+		saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);
+
 }
 
 export function handleTourEndgame(data) {
@@ -172,13 +202,14 @@ function getTimestamp() {
 	return `${date.getDate()}-${date.getMonth() + 1} ${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`
 }
 
-export function setWhoAmI(data)
+export async function setWhoAmI(data, socket)
 {
 	player.whoAmI = data[player.role];
 	opponent.whoAmI = data[opponent.role];
+	socket.send(JSON.stringify({"type": "ready"}))
 }
 
-export async function handleStatus(data, tourSocket)
+export async function handleStatus(data, tourSocket = null)
 {
 	if (tourSocket) {
 		socket = tourSocket;
@@ -191,6 +222,7 @@ export async function handleStatus(data, tourSocket)
 			displayCountdown();
 		else
 		{
+			// await firstCountdown(() => {});
 			await readySteadyGo(data.countdown - 1);
 			player.update(data.players, data.scores);
 			opponent.update(data.players, data.scores);
@@ -249,10 +281,17 @@ async function initializeWebSocket(roomId, isCreator) {
 	let retries = 0;
 
 	const token = localStorage.getItem("access_token");
+	//// CHECK ALL
 	if (!token)
 	{
-		console.warn("No access token found");
-		return ;
+		try {
+            token = await refreshAccessToken();
+        } catch (err) {
+            console.log("Failed to refresh token");
+            handleLogout();
+            console.log("No access token found");
+            return ;
+        } 
 	}
 	if (!socket)
 	{
@@ -260,15 +299,15 @@ async function initializeWebSocket(roomId, isCreator) {
 		roomId = (isCreator | 0) + roomId.toString();
 		console.log("ROOM ID post initWS: " + roomId);
 		socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
-		console.log("Socket created!");
+		// console.log("Socket created!");
 	}
 	socket.onopen = () => console.log("WebSocket connection established.");
 	socket.onerror = (error) => {
-		console.error("WebSocket encountered an error:", error);
-		alert("Unable to connect to the server. Please check your connection.");
+		console.log("WebSocket encountered an error:", error);
+		// alert("Unable to connect to the server. Please check your connection.");
 	};
 	socket.onclose = async (event) => {
-		console.log("WebSocket connection closed. Retrying...");
+		console.log("WebSocket connection closed");
 		if (event.code === 4001) {
 			// Token expired; refresh token logic
 			try {
@@ -279,63 +318,35 @@ async function initializeWebSocket(roomId, isCreator) {
 			  console.error("Failed to refresh token", err);
 			  handleLogout();
 			}
-		} else if (retries++ <= 5)
-			setTimeout(initializeWebSocket, 1000);
+		}
+		// } else if (retries++ <= 5)
+		// 	setTimeout(initializeWebSocket, 1000);
 	};
 
 	socket.onmessage = async (event) => {
 		const data = JSON.parse(event.data);
 
-		console.log(`data type is: ${data.type}`);
+		// console.log(`data type is: ${data.type}`);
 		switch (data.type) {
 			case "role":
-				handleRoleAssignment(data);
+				// handleRoleAssignment(data);
+				console.log(`data type is: ${data.type}`);
 				scaleGame(data);
 				break;
 			case "players":
-				player.whoAmI = data[player.role];
-				opponent.whoAmI = data[opponent.role];
-				socket.send(JSON.stringify({"type": "ready"}))
+				console.log(`data type is: ${data.type}`);
+				await setWhoAmI(data, socket);
+				// socket.send(JSON.stringify({"type": "ready"}))
 				break;
 			case "status":
 				//console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
-				if (data.wait) // data.wait [bool]
-				{
-					console.log("status: countdown is: " + data.countdown)
-					if (gameLoopId)
-						cancelAnimationFrame(gameLoopId);
-					if (data.countdown == 0)
-						displayCountdown();
-					else
-					{
-						//await readySteadyGo(data.countdown - 1);
-						//await readySteadyGo(data.countdown);
-						await firstCountdown(() => {
-                        });
-						player.update(data.players, data.scores);
-						opponent.update(data.players, data.scores);
-						ball.resetPosition();
-					}
-				}
-				else
-				{
-					setupControlsAI(player)
-					gameLoop();
-				}
+				await handleStatus(data);
 				break;
 			case "update":
-				if (data.players)
-				{
-					player.update(data.players, data.scores);
-					opponent.update(data.players, data.scores);
-				}
-				if (data.ball) {
-					ball.x = data.ball.x * canvas.width;
-					ball.y = data.ball.y * canvas.height;
-				}
+				handleUpdate(data);
 				break ;
 			case "reject":
-				alert(`Connection rejected: ${data.reason}`);
+				// alert(`Connection rejected: ${data.reason}`);
 				socket.close();
 				navigateTo("/remote-home");
 				break ;
@@ -344,7 +355,7 @@ async function initializeWebSocket(roomId, isCreator) {
 				handleEndgame(data);
 				break ;
 			default:
-				console.warn("Unhandled message type:", data.type);
+				console.log("Unhandled message type:", data.type);
 		}
 	};
 }
@@ -357,13 +368,13 @@ function gameLoop() {
 	ctx.fillStyle = "rgb(0 0 0 / 75%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+	player.move(socket);
 	player.draw(ctx);
 	opponent.draw(ctx);
 	player.drawScore(ctx);
 	opponent.drawScore(ctx);
 	ball.draw(ctx);
 
-	player.move(socket);
 	if (gameStop) {
 		stopTournamentGame();
 	}
@@ -407,15 +418,17 @@ function resizeCanvas() {
 }
 
 // Resize canvas when the window resizes
-window.addEventListener("resize", resizeCanvas);
+window.addEventListener("resize", resizeCanvas); 
 
-export function startGame(roomId, isCreator, dictionary)
+export function startGame(roomId, isCreator, dictionary, tour = null)
 {
 	canvas = document.getElementById('newGameCanvas');
-	tourId = localStorage.getItem('currentTournamentId');
+	tourId = tour;
+	console.log("tour is : ", tour);
+	// window.dict = dictionary;
 	dict = dictionary;
-	console.log("tourId is: " + tourId);
-	if (!roomId)
+	console.warn("porfavooooooooor", roomId);
+  if (!roomId)
 	{
 		alert(`${dict['bad_id']}`);
 		navigateTo("/remote-home");
@@ -432,6 +445,7 @@ export function startGame(roomId, isCreator, dictionary)
 	if (!tourId)
 		initializeWebSocket(roomId, isCreator);
 	else {
+		console.log("it is a tour game");
 		startTournamentGame();
 		const button = document.getElementById('play-again');
         if (button) {
@@ -445,8 +459,19 @@ export function startGame(roomId, isCreator, dictionary)
 export function cleanRemote() {
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
+	if (socket && socket.readyState === WebSocket.OPEN && !tourId) {
+        socket.close();
+//         socket = null;
+    }
 	gameLoopId = null;
-	gameStop = true;
+
+	socket = null;
+
+	if (tourId) {
+		gameStop = true;
+		tourId = null;
+	}
+
 }
 
 const beforeUnloadHandlerRemote = () => {

@@ -50,13 +50,13 @@ export const handle42Callback = () => {
                 }
                 return response.json();
             })
-            .then(data => {		
+            .then(async data => {		
                 if (data.access_token && data.refresh_token){
                     
                     localStorage.setItem('access_token', data.access_token);
                     localStorage.setItem('refresh_token', data.refresh_token);
                     clearURL();
-                    connectWS(data.access_token);
+                    await connectWS(data.access_token);
                     console.log(history.state)
                     navigateTo('/home', true);
                     

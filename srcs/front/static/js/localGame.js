@@ -32,6 +32,7 @@ export function saveScore(score1, score2, mainUser) {
         headers: {"Content-Type": "application/json"},
     })
     .then((response) => {
+        if (!response) return null;
         if (response.ok) {
             console.log('Score saved successfully');
         }
@@ -89,6 +90,8 @@ async function displayCountdown()
 async function gameLocalLoop() {
     gameLoopId = requestAnimationFrame(gameLocalLoop);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = "rgb(0 0 0 / 75%)";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw players and ball
     player1.draw(ctx);
@@ -142,7 +145,7 @@ export async function startLocalGame(playerName1, playerName2, mainUserNmb, dict
 	console.log("dictionary: ", dictionary);
 
     canvas.width = window.innerWidth * 0.65; // % of screen width
-    canvas.height = canvas.width * 0.5; // % of screen height
+    canvas.height = canvas.width * 0.57; // % of screen height
 
     mainUser = mainUserNmb;
 

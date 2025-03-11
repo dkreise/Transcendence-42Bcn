@@ -28,7 +28,7 @@ export const displayUpdatingMessage = (message, color) => {
 const fetchLastTenGames = () => {
     return makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/last-ten-games/", {
         method: "GET",
-    }).then((response) => response.json());
+    }).then(response => response ? response.json() : null);
 }
 
 const fillLastTenGamesChart = (gamesData, username, dictionary) => {
@@ -164,9 +164,9 @@ const fillLastTenGamesChart = (gamesData, username, dictionary) => {
 export const loadMatchHistoryPage = () => {
     drawHeader('main').then(() => {
        return makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/match-history-page/", {method: "GET"})
-            .then(response => response.json())
+            .then(response => response ? response.json() : null)
             .then(data => {
-                if (data.match_history_html) {
+                if (data && data.match_history_html) {
                     document.getElementById('content-area').innerHTML = data.match_history_html;
                 } else {
                     console.log('Error fetching settings:', data.error);
@@ -211,9 +211,9 @@ export const loadProfileSettingsPage = () => {
         method: "GET",
         credentials: 'include'
     })
-        .then(response => response.json())
+        .then(response => response ? response.json() : null)
         .then(data => {
-            if (data.profile_settings_html) {
+            if (data && data.profile_settings_html) {
                 document.getElementById('content-area').innerHTML = data.profile_settings_html;
                 // if (msg) {
                 //     displayUpdatingMessage(msg, 'green');
@@ -269,9 +269,9 @@ const updateProfileSettings = (form) => {
         body: formData,
         credentials: 'include',
     })
-        .then((response) => response.json())
+        .then(response => response ? response.json() : null)
         .then((data) => {
-            if (data.success) {
+            if (data && data.success) {
                 displayUpdatingMessage("Settings were updated!", 'green');
             } else {
                 displayUpdatingMessage(data.error + ' Please try again.', 'red');

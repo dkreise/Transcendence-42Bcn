@@ -23,7 +23,7 @@ export function clearIntervalIDGame() {
         clearInterval(intervalID);
         intervalID = null;
     }
-    console.log("stopping the game");
+    // console.log("stopping the game");
     gameStop = true;
 }
 
@@ -207,22 +207,6 @@ async function gameAILoop() {
 			await displayCountdown();
     }
     
-    // Endgame check
-    // if (gameStop) {
-    //     cancelAnimationFrame(gameLoopId);
-    //     if (intervalID) {
-    //         clearInterval(intervalID);
-    //         intervalID = null;
-    //     }
-    //     if (tournamentId) {
-    //         console.log('TOURNAMENT GAME FINISHED');
-    //         // console.log(tournamentId);
-    //         saveTournamentGameResult(winner, looser, player.score, AI.score);
-    //     } else {
-    //         console.log("SIMPLE GAME FINISHED");
-    //     }
-    //     return;
-    // }
     if (gameStop || player.score >= maxScore || AI.score >= maxScore) {
         localStorage.removeItem("gameState");
         let winner = player.score > AI.score ? player.name : "@AI";
@@ -260,6 +244,7 @@ async function gameAILoop() {
 // Event listeners for player controls
 export function setupControlsAI(player) {
     window.addEventListener("keydown", (e) => {
+        // console.log("REMOTE CONTROLS ACTING")
         if (e.key === "w") player.up = true;
         if (e.key === "s") player.down = true;
         if (e.key === "ArrowUp") player.up = true;

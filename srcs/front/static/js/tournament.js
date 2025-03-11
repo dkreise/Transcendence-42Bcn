@@ -12,7 +12,7 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const protocolSocket = window.env.PROTOCOL_SOCKET;
 const gamePort = window.env.GAME_PORT;
 
-let socket = null;
+let socket = null, dict = null;
 
 export const manageTournamentHomeBtn = () => { 
     const inTournament = localStorage.getItem('inTournament');
@@ -49,9 +49,9 @@ export const loadTournamentHomePage = () => {
     drawHeader('main').then(() => {
       return  makeAuthenticatedRequest(baseUrl + gamePort + "/api/tournament-home-page/", 
             {method: "GET", credentials: "include"})
-        .then((response) => response.json())
+        .then(response => response ? response.json() : null)
         .then(data => {
-            if (data.tournament_home_page_html) {
+            if (data && data.tournament_home_page_html) {
                 document.getElementById('content-area').innerHTML = data.tournament_home_page_html;
             } else {
                 console.error('Tournament home page HTML not found in response:', data);
@@ -124,7 +124,7 @@ export const loadBracketTournamentPage = () => {
 			"type": "bracket_page_request",
 		};
 		socket.send(JSON.stringify(data));
-        console.log("we have sent the request for bracket page!")
+        // console.log("we have sent the request for bracket page!")
 	}
     else {
         console.log(socket.readyState);
@@ -216,11 +216,11 @@ function addGameButton(data) {
     // tournament ID needed!! or maybe not..
     console.log('Player needs to play!!');
     const bracketSection = document.getElementById("bracket");
-    if (bracketSection) {
-        console.log("bracket section here");
-    } else {
-        console.log("no bracket section...");
-    }
+    // if (bracketSection) {
+    //     console.log("bracket section here");
+    // } else {
+    //     console.log("no bracket section...");
+    // }
     const playButton = document.createElement("button");
     playButton.id = "play-game-in-tournament";
     playButton.classList.add("button-trn");
@@ -285,7 +285,7 @@ function changePage(data) {
 }
 
 function uploadTournamentPage(data) {
-    console.log("CUR PATHNAME: ", window.location.pathname);
+    // console.log("CUR PATHNAME: ", window.location.pathname);
     if (data.redirect == "/tournament-bracket") {
         if (isOnWaitingRoomPage() || isOnBracketPage() || isOnTournamentHomePage()) {
             changePage(data);
@@ -296,17 +296,17 @@ function uploadTournamentPage(data) {
         }
     }
     if (data.request) {
-        console.log("IT WAS A REQUEST");
+        // console.log("IT WAS A REQUEST");
         changePage(data);
     }
 
     // document.getElementById('content-area').innerHTML = data.html;
     const bracketSection = document.getElementById("bracket");
-    if (bracketSection) {
-        console.log("bracket section here");
-    } else {
-        console.log("no bracket section...");
-    }
+    // if (bracketSection) {
+    //     console.log("bracket section here");
+    // } else {
+    //     console.log("no bracket section...");
+    // }
 
     // if (data.needs_to_play) {
     //     addGameButton(data);
@@ -373,7 +373,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
         localStorage.removeItem("gameState");
         removeBeforeUnloadListenerAI();
         removeBeforeUnloadListenerRemote();
-            navigateTo('/home', true);
+        navigateTo('/home', true);
         reject("WebSocket error");
 	};
 
@@ -403,7 +403,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 		const data = JSON.parse(event.data);
         localStorage.setItem("currentTournamentId", tourId);
 
-		console.log(data);
+		// console.log(data);
 		switch(data.type)
 		{
 			case "totalPlayers":
@@ -432,7 +432,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
                 else if (data.opponent == "@AI") {
                     tournamentGameAIstart(data, tourId);
                 } else {
-                    playOnline();
+                    playOnline(tourId);
                 }
                 break;
             case "tournament_status":
@@ -440,12 +440,12 @@ export async function tournamentConnect(tourId, nPlayers=null) {
                 navigateTo('/tournament');
                 break;
 			case "role":
-				handleRoleAssignment(data);
+				// handleRoleAssignment(data);
 				scaleGame(data);
 				break;
 			case "players":
-				setWhoAmI(data);
-				socket.send(JSON.stringify({"type": "ready"}));
+				await setWhoAmI(data, socket);
+				// socket.send(JSON.stringify({"type": "ready"}));
 				break;
 			case "status":
 				await handleStatus(data, socket);
@@ -454,15 +454,17 @@ export async function tournamentConnect(tourId, nPlayers=null) {
 				handleUpdate(data);
 				break;
 			case "endgame":
-                handleTourEndgame(data);
-                saveTournamentGameResult(data["winnerID"], data["loserID"], 3, 5);
+                // handleTourEndgame(data);
+                handleEndgame(data);
+                // saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);
 				break;
 			case "reject":
-				alert(`Connection rejected: ${data.reason}`);
+				// alert(`Connection rejected: ${data.reason}`);
+                console.log(`Connection rejected: ${data.reason}`);
 				//return client to tournament home page or bracket page
 				break;
             default:
-                console.warn("Unhandled message type: ", data.type);
+                console.log("Unhandled message type: ", data.type);
 		}
 	};
 });
@@ -486,6 +488,7 @@ async function getTournamentId() {
     try {
         const response = await makeAuthenticatedRequest(baseUrl + gamePort + `/api/check-tournament/${id}/`, 
             { method: "GET", credentials: "include" });
+        if (!response) return -1;
         const data = await response.json();
         
         console.log("ACTIVE?");

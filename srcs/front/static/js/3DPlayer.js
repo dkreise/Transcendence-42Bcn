@@ -4,7 +4,7 @@ import { MathUtils} from 'three';
 import { TextGeometry } from '../three/examples/jsm/geometries/TextGeometry.js';
 import { FontLoader } from '../three/examples/jsm/loaders/FontLoader.js';
 import { ballParams } from "./3DBall.js";
-import { field, text } from "./3DLocalGame.js";
+import { field, text } from "./3DGame.js";
 import { EventDispatcher } from "../three/build/three.core.js";
 import { RoundedBoxGeometry } from '../three/examples/jsm/geometries/RoundedBoxGeometry.js'
 
@@ -66,7 +66,7 @@ export class BasicPlayer {
         this.score = 0;
         this.role = role; // 1 - right or -1 - left (AI)
         this.name = name;
-        // console.log(`My name is ${this.name}`)
+        console.log(`My name is ${this.name}`)
         // console.log(`Originally ${name}`)
         this.scene = scene;
         this.text = `${this.score}`;
@@ -246,7 +246,7 @@ export class AIPlayer extends BasicPlayer {
         if (this.role === 1) {
             this.text = this.dict['you'] + ` - ${this.score}`
         }
-        console.log(`In AI, text: ${this.text}`)
+        // console.log(`In AI, text: ${this.text}`)
         return (this.text);
     }
 
