@@ -1,12 +1,17 @@
 def add_language_context(cookies, context=None):
-    if context is None:
-        context = {}
+    # if context is None:
+    #     context = {}
     
-    # lang = cookies.get('language') or 'EN'
-    lang = 'EN'
-    lang_words = get_lang_words(lang)
-    context.update(lang_words)
-    return context
+    # # lang = cookies.get('language') or 'EN'
+    # lang = 'EN'
+    # lang_words = get_lang_words(lang)
+    # context.update(lang_words)
+    # return context
+	if context is None:
+		context = {}
+	lang = 'EN' if cookies is None else cookies.get('language', 'EN')
+	lang_words = get_lang_words(lang)
+	context.update(lang_words)
 
 def get_lang_words(lang):
     if lang == 'ES':
@@ -37,8 +42,8 @@ def get_lang_words(lang):
             'dont_have_account': "¿Aún no tienes una cuenta?",
             'have_account': "¿Ya tienes una cuenta?",
             'statistics': "Estadísticas",
-            'played': "Jugados",
-            'games_won': "Ganados",
+            'games_won': "Juegos ganados",
+            'games_played': "Juegos jugados",
             'tournaments_played': "Torneos jugados",
             'tournament_total_score': "Puntuación total del torneo",
             'online': "En línea",
@@ -111,8 +116,8 @@ def get_lang_words(lang):
             'dont_have_account': "Encara no tens un compte?",
             'have_account': "Ja tens un compte?",
             'statistics': "Estadístiques",
-            'played': "Jugats",
-            'games_won': "Guanyats",
+            'games_won': "Jocs guanyats",
+            'games_played': "Jocs jugats",
             'tournaments_played': "Torneigs jugats",
             'tournament_total_score': "Puntuació total del torneig",
             'online': "En línia",
@@ -185,8 +190,8 @@ def get_lang_words(lang):
             'dont_have_account': "У вас еще нет учетной записи?",
             'have_account': "У вас уже есть учетная запись?",
             'statistics': "Статистика",
-            'played': "Сыграно",
-            'games_won': "Выиграно",
+            'games_won': "Выигранные игры",
+            'games_played': "Сыгранные игры",
             'tournaments_played': "Турниры сыграны",
             'tournament_total_score': "Общий счет турнира",
             'online': "В сети",
@@ -259,8 +264,8 @@ def get_lang_words(lang):
             'dont_have_account': "Vai jums vēl nav konta?",
             'have_account': "Vai jums jau ir konts?",
             'statistics': "Statistika",
-            'played': "Spēlēts",
-            'games_won': "Uzvarēts",
+            'games_won': "Uzvarētās spēles",
+            'games_played': "Spēlētās spēles",
             'tournaments_played': "Turnīri spēlēti",
             'tournament_total_score': "Turnīra kopvērtējums",
             'online': "Tiešsaistē",
@@ -333,8 +338,8 @@ def get_lang_words(lang):
             'dont_have_account': "Don't have an account yet?",
             'have_account': "Already have an account?",
             'statistics': "Statistics",
-            'played': "Played",
-            'games_won': "Games Won",
+            'games_won': "Games won",
+            'games_played': "Games played",
             'tournaments_played': "Tournaments Played",
             'tournament_total_score': "Tournament total Score",
             'online': "Online",
