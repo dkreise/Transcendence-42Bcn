@@ -78,19 +78,19 @@ h2 {
   .section {
     flex: 1;
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 25px;
     transition: opacity 0.3s ease, box-shadow 0.3s ease;
   }
   
   /* Estilos individuales para cada sección */
   .section-create {
-    background-color: #e8f7e4;
-    border: 2px solid #a8d5ba;
+    background-color: #11111178;
+    border: 2px solid #833ef1;
   }
   
   .section-join {
-    background-color: #e4f0fa;
-    border: 2px solid #a0c8e0;
+    background-color: #ffffff7d;
+    border: 2px solid #833ef1
   }
   
   /* Encabezados de cada sección */
@@ -100,6 +100,9 @@ h2 {
     border-radius: 4px;
     margin-bottom: 20px;
     text-align: center;
+    color: #323232;
+    border: 1px solid #833ef1;
+    border-radius: 15px;
   }
   
   /* Separador vertical */
@@ -187,6 +190,7 @@ h2 {
     color: #fff;
     border: none;
     cursor: pointer;
+    width: 100%;
   }
   
   .button-trn:hover::before {
@@ -221,25 +225,6 @@ h2 {
         flex: 0 0 auto;
         width: 27.66666667%;
     }
-}
-
-.team {
-    display: block;
-    padding: 10px;
-    margin: 5px 0;
-    border-radius: 5px;
-    text-align: center;
-    /* font-weight: bold; */
-    font-size: 16px;
-    color: white;
-    background-color: #595e61 !important;
-}
-
-
-.winner {
-    font-weight: bold;
-    color: #bae6bc;
-    background-color: #d4edda;
 }
   
 @media (max-width: 768px) {

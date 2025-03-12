@@ -59,6 +59,7 @@ def get_lang_words(lang):
 			'opponent': "Oponente",
 			'winner_wo': "Ganador",
 			'access_denied': "Acceso denegado",
+			'create_room': "Crear Sala",
 		}
 	elif lang == 'CA':
 		return {
@@ -109,6 +110,7 @@ def get_lang_words(lang):
 			'opponent': "Oponent",
 			'winner_wo': "Guanyador",
 			'access_denied': "Accés denegat",
+			'create_room': "Crear Sales",
 		}
 	elif lang == 'RU':
 		return {
@@ -161,6 +163,7 @@ def get_lang_words(lang):
 			'game_wo': "Игра",
 			'opponent': "Противник",
 			'access_denied': "Доступ запрещен",
+			'create_room': "создать_комнату",
 		}
 	elif lang == 'LV':
 		return {
@@ -210,6 +213,7 @@ def get_lang_words(lang):
 			'opponent': "Pretinieks",
 			'winner_wo': "Uzvarētājs",
 			'access_denied': "Prieiga uždrausta",
+			'create_room': "izveidot_telpu",
 		}
 	else:
 		return {
@@ -264,6 +268,7 @@ def get_lang_words(lang):
 			'restart': "restart",
 			"congrats": "Congratuations! You've won!",
 			"good_luck": "Better luck next time...",
-			"back_tour" : "Back to Tournament Page"
+			"back_tour" : "Back to Tournament Page",
+			'create_room': "Create Room",
 
 		}
