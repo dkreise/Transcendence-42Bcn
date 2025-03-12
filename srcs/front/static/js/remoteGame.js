@@ -7,12 +7,11 @@ import { makeAuthenticatedRequest } from "./login.js"
 import { navigateTo } from "./main.js";
 import { checkToken } from "./onlineStatus.js";
 
-const baseUrl = "http://localhost"; //TODO: change (pase later)
-
-
 const gamePort = window.env.GAME_PORT;
 const host = window.env.HOST;
 const protocolSocket = window.env.PROTOCOL_SOCKET;
+const protocolWeb = window.env.PROTOCOL_WEB
+const baseUrl = protocolWeb + "://" + host + ":";
 
 // const endgameMsg = {
 // 	"winner": "Congratuations! You've won!\n",
@@ -260,13 +259,12 @@ export async function createRoomId()
 	try {
 		while (1)
 		{
-			let response = await makeAuthenticatedRequest(baseUrl + `:8001/api/check-remote/${id}`,
+			let response = await makeAuthenticatedRequest(baseUrl + gamePort + `/api/check-remote/${id}`,
 							{ method: "GET", credentials: "include" });
 			let data = await response.json();
+			console.log("createRoomId: data: " + JSON.stringify(data));
 			if (!data.active)
-			{
 				return id;
-			}
 		}
 	}
 	catch (error)
@@ -288,7 +286,8 @@ async function initializeWebSocket(roomId, isCreator) {
         return ;
     }
 	//// CHECK ALL
-	if (!socket || roomId != -1)
+	console.log(`initWS roomID: ${roomId}`);
+	if (!socket && roomId != -1)
 	{
 		console.log("ROOM ID pre initWS: " + roomId);
 		roomId = (isCreator | 0) + roomId.toString();
