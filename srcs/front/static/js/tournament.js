@@ -394,15 +394,16 @@ function updatePlayerCount(data) {
 }
 
 export async function tournamentConnect(tourId, nPlayers=null) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         const access_token = localStorage.getItem("access_token");
-        const token = checkToken(access_token);
+        const token = await checkToken(access_token);
 	if (!token)
 	{
 		console.log("No access token found");
         reject("No access token found");
 		return ;
 	}
+	console.log("tournamentConnect token: " + token);
 
     localStorage.setItem("currentTournamentId", tourId);
     console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
