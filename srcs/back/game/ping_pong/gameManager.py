@@ -56,7 +56,7 @@ class GameManager:
 	ball_config = {"rad": 9, "xspeed": 4, "yspeed": 5}
 	board_config = {"width": 600, "height": 400, "max_score": 3}
 
-	paddle_config = {"width": 10, "height": 50, "speed": 5}
+	paddle_config = {"width": 5, "height": 70, "speed": 5}
 	countdown = 5
 
 	def __init__(self, game_id):
