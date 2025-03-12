@@ -249,7 +249,7 @@ export async function playOnline (tourId = null) {
     console.log(`Enable 3D: ${Enable3D}`)
     const dictionary = await getDictFor3DGame(); //DICTIONARY FUNCTION
 
-if (!checkPermission) {
+    if (!checkPermission) {
         navigateTo('/login');
     } else {
         // console.log('Loading online game...')

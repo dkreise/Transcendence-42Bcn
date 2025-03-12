@@ -11,8 +11,8 @@ export function isTokenExpired(token) {
         const decoded = jwt_decode(token);
         // Ensure the token has an expiration field
         if (!decoded.exp) {
-          console.log("Token missing expiration claim");
-          return true;
+            console.log("Token missing expiration claim");
+            return true;
         }
       // JWT 'exp' is usually in seconds, so compare against Date.now() in milliseconds.
         return Date.now() >= exp * 1000;

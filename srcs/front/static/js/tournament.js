@@ -5,6 +5,7 @@ import { gameAI, playOnline, getDictFor3DGame } from "./game.js";
 import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, handleTourEndgame, cleanRemote } from "./remoteGame.js"
 import { drawHeader } from "./main.js";
 import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
+import { checkToken } from "./onlineStatus.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -333,10 +334,11 @@ function updatePlayerCount(data) {
 
 export async function tournamentConnect(tourId, nPlayers=null) {
     return new Promise((resolve, reject) => {
-	const token = localStorage.getItem("access_token");
+        const access_token = localStorage.getItem("access_token");
+        const token = checkToken(access_token);
 	if (!token)
 	{
-		console.warn("No access token found");
+		console.log("No access token found");
         reject("No access token found");
 		return ;
 	}

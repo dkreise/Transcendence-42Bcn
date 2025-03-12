@@ -4,7 +4,8 @@ import { setupControlsAI } from "./AIGame.js"
 import { refreshAccessToken } from "./login.js";
 import { startTournamentGame, stopTournamentGame, saveTournamentGameResult } from "./tournament.js";
 import { makeAuthenticatedRequest } from "./login.js"
-import { navigateTo } from "./main.js"
+import { navigateTo } from "./main.js";
+import { checkToken } from "./onlineStatus.js";
 
 const baseUrl = "http://localhost"; //TODO: change (pase later)
 
@@ -280,19 +281,13 @@ async function initializeWebSocket(roomId, isCreator) {
 //	const roomId = 123;
 	let retries = 0;
 
-	const token = localStorage.getItem("access_token");
+	const access_token = localStorage.getItem("access_token");
+	const token = await checkToken(access_token);
+    if (!token) {
+        console.log("No access token found");
+        return ;
+    }
 	//// CHECK ALL
-	if (!token)
-	{
-		try {
-            token = await refreshAccessToken();
-        } catch (err) {
-            console.log("Failed to refresh token");
-            handleLogout();
-            console.log("No access token found");
-            return ;
-        } 
-	}
 	if (!socket)
 	{
 		console.log("ROOM ID pre initWS: " + roomId);
@@ -307,7 +302,7 @@ async function initializeWebSocket(roomId, isCreator) {
 		// alert("Unable to connect to the server. Please check your connection.");
 	};
 	socket.onclose = async (event) => {
-		console.log("WebSocket connection closed");
+		console.log("WebSocket connection closing");
 		if (event.code === 4001) {
 			// Token expired; refresh token logic
 			try {
@@ -315,8 +310,9 @@ async function initializeWebSocket(roomId, isCreator) {
 			  // Reconnect with the new token
 				initializeWebSocket();
 			} catch (err) {
-			  console.error("Failed to refresh token", err);
-			  handleLogout();
+				console.log("Failed to refresh token", err);
+				cleanRemote();
+				return ;
 			}
 		}
 		// } else if (retries++ <= 5)

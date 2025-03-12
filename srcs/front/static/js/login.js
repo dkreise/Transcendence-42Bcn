@@ -88,7 +88,7 @@ export const makeAuthenticatedRequest = async (url, options = {}) => {
             console.log("Access token expired, attempting refresh..");
             const newAccessToken = await refreshAccessToken();
             if (!newAccessToken) {
-                console.error("Failed to refresh access token.");
+                console.log("Failed to refresh access token.");
                 localStorage.clear();
                 navigateTo('/login', true);
                 return null;
@@ -100,7 +100,7 @@ export const makeAuthenticatedRequest = async (url, options = {}) => {
         return response; // Valid response
 
     } catch (error) {
-        console.error("Fetch error:", error);
+        console.log("Fetch error:", error);
         return null;
     }
 };
