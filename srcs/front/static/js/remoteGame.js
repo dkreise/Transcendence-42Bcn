@@ -455,6 +455,7 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 export function cleanRemote() {
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
+	console.log("CLEAN REMOTE tourId::: ", tourId);
 	if (socket && socket.readyState === WebSocket.OPEN && !tourId) {
         socket.close();
 //         socket = null;
@@ -465,7 +466,7 @@ export function cleanRemote() {
 
 	if (tourId) {
 		gameStop = true;
-		tourId = null;
+		// tourId = null;
 	}
 
 }

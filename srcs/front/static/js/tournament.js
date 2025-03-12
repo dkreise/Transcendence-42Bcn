@@ -68,8 +68,11 @@ export const createTournament = async () => {
     const nPlayers = getNumberOfPlayers();
     const tourId = await getTournamentId(); 
     // alert(tourId)
-    if (tourId > 0)
-        tournamentConnect(tourId, nPlayers);
+    if (tourId > 0) {
+        tournamentConnect(tourId, nPlayers)
+            .then(() => console.log("Successfully connected!"))
+            .catch(() => console.log("Can't connect to tournament."));
+    }
 };
 
 export const joinTournament = () => {
@@ -78,11 +81,13 @@ export const joinTournament = () => {
         return;
     }
     const tourId = document.getElementById('tournament-id-input').value.trim();
-    if (!tourId) {
-        alert("Please enter a tournament ID.");
+    if (! /^\d{7}$/.test(tourId)) {
+        alert("The tournament ID is not correct.");
         return;
     }
-    tournamentConnect(tourId);
+    tournamentConnect(tourId)
+        .then(() => console.log("Successfully connected!"))
+        .catch(() => console.log("Can't connect to tournament."));
 };
 
 function isOnWaitingRoomPage() {
@@ -367,7 +372,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
     };
     
     socket.onerror = (error) => {
-		console.error("WebSocket encountered an error: ", error);
+		console.log("WebSocket encountered an error: ", error);
 		alert("ONERROR: Unable to connect to the server. Please check your connection.");
         localStorage.removeItem('inTournament');
         localStorage.removeItem("user_quit");

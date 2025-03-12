@@ -242,17 +242,19 @@ function homePage() {
 // console.log('main.js is loaded');
 document.addEventListener('DOMContentLoaded', () => {
     // console.log("DOMContentLoaded event triggered");
+    let shouldRoute = true;
 
     window.addEventListener('popstate', (event) => {
         console.log("Popstate triggered:", event);
+        // shouldRoute = false;
         // cleanup3D();       // Always clean up before routing
         // clearIntervalIDGame();
         // cleanRemote();
-        cleanupGames();
+        // cleanupGames();
         router();          // Then handle the new route
     });
 
-    let shouldRoute = true;
+    
     const tourId = localStorage.getItem("currentTournamentId");
     const tourReload = localStorage.getItem("tournamentReload");
     if (tourId && tourReload) {

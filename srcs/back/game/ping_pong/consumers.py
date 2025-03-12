@@ -41,6 +41,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					max_user_cnt = self.get_nb_users_from_url()
 					async with active_tournaments_lock:
 						if self.tour_id not in active_tournaments:
+							logger.info(max_user_cnt)
 							active_tournaments[self.tour_id] = TournamentManager(self.scope, self.tour_id, max_user_cnt) #add tournament in array activetournaments
 						tournament = active_tournaments[self.tour_id]
 						# Check if the tournament is already full
@@ -49,7 +50,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 							await self.accept()
 							await self.send(text_data=json.dumps({
 								"type": "full",
-								"message": "Tournament is full or has already started.",
+								"message": "Tournament does not exist or has already started.",
 							}))
 							return
 						status = tournament.add_player(self.user.username)
