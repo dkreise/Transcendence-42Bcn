@@ -368,3 +368,9 @@ def get_3D_header(request):
     add_language_context(request.COOKIES, context)
     header_html = render_to_string('3d_header.html', context)
     return JsonResponse({'header_html': header_html}, content_type="application/json")
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_lang_from_cookies(request):
+    lang = request.COOKIES.get('language', 'EN')
+    return JsonResponse({'status': 'success', 'language': lang}, status=200)
