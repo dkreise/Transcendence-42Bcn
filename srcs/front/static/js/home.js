@@ -1,6 +1,7 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { drawHeader } from "./main.js";
 import { getOrInitialize3DOption } from "./game.js";
+//import { updateHandlers } from "./tournament.js"
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -17,6 +18,7 @@ export const setUp3DListener = () => {
         console.log("3D-option is:", switch3D.checked);
         switch3D.addEventListener("change", () => {
             localStorage.setItem("3D-option", switch3D.checked);
+            updateHandlers(localStorage.getItem("3D-option") === "true");
         });
     } else {
         console.log("Switch not found =(");

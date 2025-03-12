@@ -16,86 +16,9 @@ from .websocket_state import active_tournaments, active_tournaments_lock, active
 import asyncio
 from asgiref.sync import sync_to_async
 from django.contrib.auth.decorators import login_required
-# from django.db import transaction
-# from django.contrib.auth import get_user_model
 
 
 # User = get_user_model()
-
- 
-# @api_view(['GET'])
-# @login_required
-# def player_list(request):
-#     players = User.objects.all()  # Get all players from the database
-#     serializer = PlayerSerializer(players, many=True)  # Serialize the players
-#     return Response(serializer.data)  # Return the serialized data in the response
-
-
-# @api_view(['GET'])
-# @login_required
-# def score_list(request):
-#     scores = Game.objects.all()  # Get all players from the database
-#     serializer = GameSerializer(scores, many=True)  # Serialize the players
-#     return Response(serializer.data)  # Return the serialized data in the response
-
-# @api_view(['GET'])
-# @login_required
-# def get_current_players(request):
-#     try:
-#         # Fetch all users
-#         users = list(User.objects.all())
-        
-#         # Ensure there are at least two users
-#         if len(users) < 2:
-#             return Response({"error": "Not enough players available"}, status=400)
-
-#         # Randomly select two different players
-#         player1, player2 = random.sample(users, 2)
-
-#         return Response({
-#             "name1": player1.username,
-#             "name2": player2.username
-#         })
-#     except Exception as e:
-#         return Response({"error": str(e)}, status=500)
-
-
-# @api_view(['POST'])
-# @login_required
-# def send_score(request):
-#     try:
-#         # Extract data from request
-#         player1_name = request.data.get('player1')
-#         player2_name = request.data.get('player2')
-#         score1 = request.data.get('score1')
-#         score2 = request.data.get('score2')
-
-#         # Validate players
-#         player1 = User.objects.filter(username=player1_name).first() if score1 > score2 else User.objects.filter(username=player2_name).first() #if score2 > score1
-#         player2 = User.objects.filter(username=player2_name).first() if score1 > score2 else User.objects.filter(username=player1_name).first() #if score2 > score1
-
-#         if not player1 or not player2:
-#             return Response({"status": "failure"}, status=400)
-
-#         # Determine the winner
-#         winner = player1 if score1 > score2 else player2 #if score2 > score1 else None
-
-#         # Save to the database
-#         game = Game.objects.create(
-#             player1=player1,
-#             score_player1=score1,
-#             player2=player2,
-#             score_player2=score2,
-#             winner=winner
-#         )
-#         game.save()
-        
-#         return Response({"status": "success"})
-#     except Exception:
-#         return Response({"status": "failure"}, status=500)
-
-# def winner_page(request):
-#     return render(request, 'winner.html')
 
 @api_view(['GET'])
 @login_required
@@ -146,17 +69,6 @@ def get_player_all_games(request, player_id):
         )
         print("GAMES OBJECTS:::")
         print(games)
-        # for game in games:
-        #     print(game)
-        #     print(f"game id: {game.id}")
-        #     dat = game.date.strftime("%Y-%m-%d %H:%M")
-        #     print(f"date: {dat}")
-        #     print(f"username1: {game.player1.username}")
-        #     print(f"score1: {game.score_player1}")
-        #     print(f"username2: {game.player2.username}")
-        #     print(f"score2: {game.score_player2}")
-        #     print(f"winner: {game.winner.username}")
-        #     print(f"tourn: {game.tournament_id}")
         games_data = [
             {
                 "id": game.id,
@@ -229,27 +141,6 @@ def check_tournament_id(request, tour_id):
     print(f"IS ACTIVE? {is_active}")
     return JsonResponse({"active": is_active})
 
-# # Create an async function that checks the tournament status (to be run async)
-# async def check_tournament_status(tour_id):
-#     async with active_tournaments_lock:
-#         is_active = tour_id in active_tournaments
-#     return is_active
-
-# # Wrap the async function with sync_to_async for use in synchronous DRF views
-# @sync_to_async
-# def get_tournament_status(tour_id):
-#     return check_tournament_status(tour_id)
-
-# # API view
-# @api_view(["GET"])
-# def check_tournament_id(request, tour_id):
-#     # Get the tournament status asynchronously
-#     try:
-#         is_active = get_tournament_status(tour_id)
-#         return JsonResponse({"active": is_active})
-#     except Exception as e:
-#         return JsonResponse({"error": str(e)}, status=500)
-
 @api_view(['GET'])
 @login_required
 def get_username(request):
@@ -260,46 +151,4 @@ def get_game_dict(request):
     context = {}
     add_language_context(request.COOKIES, context)
     return JsonResponse({'dict': context}, status=200)
-
-# def save_remote_score(room_id, winner_id, scores, players):
-#     """
-#     Save the game result in the database while preventing race conditions.
-    
-#     :param room_id: ID of the game room.
-#     :param winner_id: The ID of the winning player.
-#     :param scores: Dictionary containing scores for player1 and player2.
-#     :param players: Dictionary containing player IDs and aliases.
-#     """
-#     try:
-#         with transaction.atomic():  # Ensure atomicity
-#             player1_id = players.get("player1")
-#             player2_id = players.get("player2")
-
-#             # Fetch users (set to None if they don't exist)
-#             # player1 = User.objects.filter(id=player1_id).first()
-#             # player2 = User.objects.filter(id=player2_id).first()
-#             winner = User.objects.filter(id=winner_id).first()
-#             player1 = winner
-#             player2 = User.objects.filter(id=player1_id).first() if player1_id == winner_id else User.objects.filter(id=player2_id).first()
-#             score1 = scores["player1"] if scores["player1"] > scores["player2"] else scores["player2"]
-#             score2 = scores["player1"] if scores["player1"] < scores["player2"] else scores["player2"]
-#             # Save the game result
-#             game = Game.objects.create(
-#                 player1=player1,
-#                 # alias1=players.get("alias1", "Guest" if not player1 else player1.username),
-#                 score_player1=score1,
-#                 player2=player2,
-#                 # alias2=players.get("alias2", "Guest" if not player2 else player2.username),
-#                 score_player2=score2,
-#                 winner=winner,
-#                 tournament_id=-1  # Set tournament_id accordingly if needed
-#             )
-#             game.save()
-
-#             return game  # Return the saved game instance
-
-#     except Exception as e:
-#         print(f"Error saving game result: {e}")
-#         return None
-
 

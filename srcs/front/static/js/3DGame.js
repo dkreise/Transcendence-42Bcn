@@ -189,7 +189,13 @@ export async function start3DRemoteGame(dict, tournament, roomId, isCreator) {
     init();
     remote = true;
     tournamentId = tournament;
-    roomID = roomId;
+    // roomID = roomId;
+    console.log(`ROOM ID: ${roomId}`)
+    if (!roomId) {
+        navigateTo('/remote-home');
+        return ;
+    }
+    roomID = (isCreator | 0) + roomId.toString();
     await setupScene();
     text = new SceneText(scene, dict,  tournamentId, 0, -Math.PI / 2);
     await text.createText();
@@ -819,7 +825,7 @@ async function handleEndGame(message) {
     text.winnerMessage.visible = true;
 }
 
-async function    handleOnlineEndgame(data) {
+export async function  handleOnlineEndgame(data) {
     
     const { winner, loser, scores} = data;
     const msg = `${winner} ` + window.gameDict['wins'] + " !";
@@ -828,17 +834,12 @@ async function    handleOnlineEndgame(data) {
 	if (socket && socket.readyState === WebSocket.OPEN && !tournamentId) {
 		socket.close();
 		socket = null;
-	}
-    
-    if (tournamentId) {
-        // const button = document.getElementById('play-again');
-        // if (button) {
-        //     button.textContent = "Back to Tournament Page";
-        //     button.setAttribute("data-route", "/tournament-bracket");
-        // }
-        tournamentId = null;
-    }
+	} 
     handleEndGame(msg);
+    if (tournamentId){
+        tournamentId = null;
+        saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);
+    }
     resetOnlineTeam();
 }
 
@@ -1005,7 +1006,8 @@ export async function cleanup3D() {
     tournamentId = null;
     gameStarted = false;
     gameEnded = false;
-    roomID = null
+    roomID = null;
+    moveCamera = false;
 
     pause = false;
 

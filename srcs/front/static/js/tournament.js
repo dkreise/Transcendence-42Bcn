@@ -1,8 +1,9 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
-import { gameAI, playOnline, getDictFor3DGame } from "./game.js";
-import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, handleTourEndgame, cleanRemote } from "./remoteGame.js"
+import { gameAI, playOnline, getDictFor3DGame, getOrInitialize3DOption } from "./game.js";
+import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, handleTourEndgame, cleanRemote } from "./remoteGame.js"
+import { scale3DGame, setWhoAmI3D, handle3DStatus, handle3DUpdate, handleOnlineEndgame} from "./3DGame.js"
 import { drawHeader } from "./main.js";
 import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 import { checkToken } from "./onlineStatus.js";
@@ -14,6 +15,61 @@ const protocolSocket = window.env.PROTOCOL_SOCKET;
 const gamePort = window.env.GAME_PORT;
 
 let socket = null, dict = null;
+
+// Define your 2D handlers
+//const handlers2D = {
+//    role: scaleGame,          // synchronous
+//    players: setWhoAmI,       // might be asynchronous
+//    status: handleStatus,      // might be asynchronous
+//    update: handleUpdate,      // synchronous
+//    endgame: handleTourEndgame // synchronous
+//};
+//
+//// Define your 3D handlers
+//const handlers3D = {
+//    role: scale3DGame,         // asynchronous
+//    players: setWhoAmI3D,      // asynchronous
+//    status: handle3DStatus,    // asynchronous
+//    update: handle3DUpdate,    // synchronous or asynchronous
+//    endgame: handleOnlineEndgame // synchronous or asynchronous
+//};
+//
+//const handlersTour = {
+//    totalPlayers: totalPlayers,
+//    html: uploadTournamentPage, 
+//    new_player_cnt: updatePlayerCount,
+//    game_update: gameUpdate,
+//    full: tourFull,
+//    needs_to_play: needsPlay,
+//    tournament_status: tourStatus,
+//}
+//
+//const wrapHandlers = (handlers) => {
+//    const wrapped = {};
+//    Object.keys(handlers).forEach((key) => {
+//      wrapped[key] = (...args) => Promise.resolve(handlers[key](...args));
+//    });
+//    return wrapped;
+//  };
+//
+//const asyncHandlers2D = wrapHandlers(handlers2D);
+//const asyncHandlers3D = wrapHandlers(handlers3D);
+//const asyncHandlersTour = wrapHandlers(handlersTour);
+//
+//let currentHandlers = getCombinedHandlers(getOrInitialize3DOption());
+//
+//const getCombinedHandlers = (is3DEnabled) => {
+//    const modeHandlers = is3DEnabled ? asyncHandlers3D : asyncHandlers2D;
+//    return { ...modeHandlers, ...asyncHandlersTour };
+//};
+//
+//export const updateHandlers = (is3DEnabled) => {
+//    currentHandlers = getCombinedHandlers(is3DEnabled);
+//    console.log("Handlers updated. 3D mode:", is3DEnabled);
+//};
+
+
+
 
 export const manageTournamentHomeBtn = () => { 
     const inTournament = localStorage.getItem('inTournament');
@@ -338,15 +394,16 @@ function updatePlayerCount(data) {
 }
 
 export async function tournamentConnect(tourId, nPlayers=null) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         const access_token = localStorage.getItem("access_token");
-        const token = checkToken(access_token);
+        const token = await checkToken(access_token);
 	if (!token)
 	{
 		console.log("No access token found");
         reject("No access token found");
 		return ;
 	}
+	console.log("tournamentConnect token: " + token);
 
     localStorage.setItem("currentTournamentId", tourId);
     console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
@@ -575,3 +632,35 @@ path change , reload ---> main.js from start, all vars in games are cleared
 path change is the same as reload
 event listener before onload -> game end
 */
+
+function totalPlayers() {
+    console.log("current number of players in the tournament: " + data.total);
+}
+
+function gameUpdate() {
+    alert("GAME_UPDATE??  A player has disconnected. Waiting for reconnection...");
+}
+
+function tourFull() {
+    console.log("Tournament is full:", data.message);
+    alert(data.message);
+    localStorage.removeItem('inTournament');
+    localStorage.removeItem("user_quit");
+    localStorage.removeItem("currentTournamentId");
+    socket.close();
+}
+
+function needsPlay(data, tourId) {
+    if (!data.needs_to_play)
+        navigateTo('/tournament', true);
+    else if (data.opponent == "@AI") {
+        tournamentGameAIstart(data, tourId);
+    } else {
+        playOnline(tourId);
+    }
+}
+
+function tourStatus(data) {
+    localStorage.setItem('inTournament', data.status);
+    navigateTo('/tournament');
+}
