@@ -214,16 +214,23 @@ class GameManager:
 		# # logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH} ")
 		# logger.info(f"TOP COL paddle2 Y {pl2_y}   1/2hight {padH} ")
 		# Left paddle((self.ball["y"] * boardH + radius <= pl1_y + padH) and (GameManager.ball_config["yspeed"] <= 0.5))):
+		# if self.ball["x"] * boardW - radius <= pl1_x:
+		# 	logger.info(f"col Top pl1 x area")
+		# 	# logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}, radius {radius}")
+		# 	# logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH}, Yspeed {self.ball['yspeed']} ")
+		# 	if (((self.ball["y"] * boardH + radius >= pl1_y - padH) and (self.ball["yspeed"] >= 0) and
+		# 		(self.ball["y"] * boardH + radius <= pl1_y + padH)) or 
+		# 		((self.ball["y"] * boardH - radius >= pl1_y - padH) and (self.ball["yspeed"] <= 0) and
+		# 		(self.ball["y"] * boardH - radius <= pl1_y + padH))):
+		# 		# logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}, radius {radius}")
+		# 		# logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH}, Yspeed {self.ball['yspeed']} ")
+		# 		logger.info(f"col Top pl1")
+		# 		return True
+		# Left paddle
 		if self.ball["x"] * boardW - radius <= pl1_x:
 			logger.info(f"col Top pl1 x area")
-			# logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}, radius {radius}")
-			# logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH}, Yspeed {self.ball['yspeed']} ")
-			if (((self.ball["y"] * boardH + radius >= pl1_y - padH) and (self.ball["yspeed"] >= 0) and
-				(self.ball["y"] * boardH + radius <= pl1_y + padH)) or 
-				((self.ball["y"] * boardH - radius >= pl1_y - padH) and (self.ball["yspeed"] <= 0) and
-				(self.ball["y"] * boardH - radius <= pl1_y + padH))):
-				# logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}, radius {radius}")
-				# logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH}, Yspeed {self.ball['yspeed']} ")
+			if ((self.ball["y"] * boardH + radius >= pl1_y - padH) and
+				(self.ball["y"] * boardH - radius <= pl1_y + padH)):
 				logger.info(f"col Top pl1")
 				return True
 		# Right paddle # APPLY CHANGES HERE
