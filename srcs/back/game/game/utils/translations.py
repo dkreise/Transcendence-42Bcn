@@ -124,6 +124,7 @@ def get_lang_words(lang):
 			'submit': "Отправить",
 			'start_tournament': "Начать турнир",
 			'quit': "Выйти",
+			'quit_tournament': "Покинуть турнир",
 			'play': "Играть",
 			'ranking': "Рейтинг",
 			'play_again': "Начать заново",
@@ -264,6 +265,6 @@ def get_lang_words(lang):
 			'restart': "restart",
 			"congrats": "Congratuations! You've won!",
 			"good_luck": "Better luck next time...",
-			"back_tour" : "Back to Tournament Page"
-
+			"back_tour" : "Back to Tournament Page",
+			'quit_tournament': "Quit Tournament",
 		}

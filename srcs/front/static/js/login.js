@@ -12,7 +12,10 @@ export async function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refresh_token");
     if (!refreshToken) {
         console.error("No refresh token found. User needs to log in again.");
-        handleLogout();
+        // handleLogout();
+        localStorage.clear();
+        window.history.replaceState(null, null, '/');
+        navigateTo('/login', true);
         return Promise.reject("No refresh token available");
     }
 
@@ -26,7 +29,10 @@ export async function refreshAccessToken() {
             return response.json();
         } else {
             console.error("Refresh token invalid or expired.");
-            handleLogout();
+            // handleLogout();
+            localStorage.clear();
+            window.history.replaceState(null, null, '/');
+            navigateTo('/login', true);
             return Promise.reject("Refresh token invalid or expired.");
         }
     })
