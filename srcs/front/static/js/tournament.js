@@ -1,7 +1,7 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
-import { gameAI, playOnline, getDictFor3DGame } from "./game.js";
+import { gameAI, playOnline, getDictFor3DGame, getOrInitialize3DOption } from "./game.js";
 import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, handleTourEndgame, cleanRemote } from "./remoteGame.js"
 import { scale3DGame, setWhoAmI3D, handle3DStatus, handle3DUpdate, handleOnlineEndgame} from "./3DGame.js"
 import { drawHeader } from "./main.js";
@@ -33,6 +33,41 @@ const handlers3D = {
     update: handle3DUpdate,    // synchronous or asynchronous
     endgame: handleOnlineEndgame // synchronous or asynchronous
 };
+
+const handlersTour = {
+    totalPlayers: totalPlayers,
+    html: uploadTournamentPage, 
+    new_player_cnt: updatePlayerCount,
+    game_update: gameUpdate,
+    full: tourFull,
+    needs_to_play: needsPlay,
+    tournament_status: tourStatus,
+}
+
+const wrapHandlers = (handlers) => {
+    const wrapped = {};
+    Object.keys(handlers).forEach((key) => {
+      wrapped[key] = (...args) => Promise.resolve(handlers[key](...args));
+    });
+    return wrapped;
+  };
+
+const asyncHandlers2D = wrapHandlers(handlers2D);
+const asyncHandlers3D = wrapHandlers(handlers3D);
+const asyncHandlersTour = wrapHandlers(handlersTour);
+
+let currentHandlers = getCombinedHandlers(getOrInitialize3DOption());
+
+const getCombinedHandlers = (is3DEnabled) => {
+    const modeHandlers = is3DEnabled ? asyncHandlers3D : asyncHandlers2D;
+    return { ...modeHandlers, ...asyncHandlersTour };
+};
+
+export const updateHandlers = (is3DEnabled) => {
+    currentHandlers = getCombinedHandlers(is3DEnabled);
+    console.log("Handlers updated. 3D mode:", is3DEnabled);
+};
+
 
 
 
