@@ -59,6 +59,8 @@ def get_lang_words(lang):
 			'opponent': "Oponente",
 			'winner_wo': "Ganador",
 			'access_denied': "Acceso denegado",
+			'add_friend': "Agregar amigo",
+			'remove_friend': "Eliminar amigo",
 		}
 	elif lang == 'CA':
 		return {
@@ -109,6 +111,8 @@ def get_lang_words(lang):
 			'opponent': "Oponent",
 			'winner_wo': "Guanyador",
 			'access_denied': "Accés denegat",
+			'add_friend': "Afegir amic",
+			'remove_friend': "Eliminar amic",
 		}
 	elif lang == 'RU':
 		return {
@@ -162,6 +166,8 @@ def get_lang_words(lang):
 			'game_wo': "Игра",
 			'opponent': "Противник",
 			'access_denied': "Доступ запрещен",
+			'add_friend': "Добавить друга",
+			'remove_friend': "Удалить друга",
 		}
 	elif lang == 'LV':
 		return {
@@ -211,6 +217,8 @@ def get_lang_words(lang):
 			'opponent': "Pretinieks",
 			'winner_wo': "Uzvarētājs",
 			'access_denied': "Prieiga uždrausta",
+			'add_friend': "Pievienot draugu",
+			'remove_friend': "Noņemt draugu",
 		}
 	else:
 		return {
@@ -260,6 +268,8 @@ def get_lang_words(lang):
 			'opponent': "Opponent",
 			'winner_wo': "Winner",
 			'access_denied': "Access denied",
+			'add_friend': "Add Friend",
+			'remove_friend': "Remove Friend",
 
 			############### new ones
 			'restart': "restart",

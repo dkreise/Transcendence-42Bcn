@@ -236,7 +236,7 @@ def search_users(request):
                 'profile': user.profile,
                 'is_friend': request.user.profile.is_friend_already(user.profile) if hasattr(request.user, 'profile') else False
             }
-            for user in users if hasattr(user, 'profile')
+            for user in users if (hasattr(user, 'profile') and user.username != "@AI")
         ]
     else:
         results = []
