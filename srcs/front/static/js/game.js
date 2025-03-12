@@ -14,7 +14,7 @@ const gamePort = window.env.GAME_PORT;
 
 let Enable3D = false;
 let isCreator = false;
-let roomId;
+let roomId = null;
 
 export const playLocal = () => {
 

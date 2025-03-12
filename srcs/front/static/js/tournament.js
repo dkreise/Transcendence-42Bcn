@@ -2,7 +2,7 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
 import { gameAI, playOnline, getDictFor3DGame } from "./game.js";
-import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleTourEndgame, cleanRemote } from "./remoteGame.js"
+import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, handleTourEndgame, cleanRemote } from "./remoteGame.js"
 import { drawHeader } from "./main.js";
 import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 
