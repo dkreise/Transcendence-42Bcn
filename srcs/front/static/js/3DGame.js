@@ -9,7 +9,7 @@ import { SceneText, textParams, textWinner } from './3DText.js';
 import { AmbientLight, DirectionalLight , Vector3} from 'three'
 import { drawHeader, navigateTo } from "./main.js";
 import { quitTournament, saveTournamentGameResult, startTournamentGame, stopTournamentGame } from "./tournament.js"
-
+import { checkToken } from "./onlineStatus.js";
 
 //----------------------------------------------------------------------------//
 //-------------------- VARIABLES INITIALIZATION ------------------------------//
@@ -24,7 +24,7 @@ let renderer, scene, camera, player, opponent, waiting = false, mainplayer, head
 
 let limits, planeGeo, planeMat, plane, addplane, controls, ai, loader, countdownText;
 let player1, player2, ball, gameLoopId, targetBallX, targetBallY; // if the main user is player 1 or 2
-let mainUser, lights, dict, socket = null, moveCamera = false, cameraId, remote = false;
+let mainUser, lights, dict, socket = null, roomID = null, moveCamera = false, cameraId, remote = false;
 let ifAI = false, tournamentId;
 let gameStarted = false;
 let gameEnded = false;
@@ -189,6 +189,7 @@ export async function start3DRemoteGame(dict, tournament, roomId, isCreator) {
     init();
     remote = true;
     tournamentId = tournament;
+    roomID = roomId;
     await setupScene();
     text = new SceneText(scene, dict,  tournamentId, 0, -Math.PI / 2);
     await text.createText();
@@ -236,7 +237,7 @@ async function setupRemoteEvents() {
                 text.start.position.set(0, params.textY, 1.5);
                 await animateCameraToField()
             } else if (!tournamentId) {
-                initializeWebSocket();
+                initializeWebSocket(roomID);
             }
         }
         if (e.code === "Space" && !gameStarted && gameEnded && text.tryAgain.visible == true) {
@@ -270,19 +271,12 @@ export function setupRemoteControls(player) {
 //async function initializeWebSocket(roomId) {
 async function initializeWebSocket(roomId = 123) {
     let retries = 0;
-    // console.log("Initializing Web socket...");
-    let token = localStorage.getItem("access_token");
-    if (!token)
-    {   
-        try {
-            token = await refreshAccessToken();
-            // localStorage.setItem("access_token") = token;
-        } catch (err) {
-            console.log("Failed to refresh token");
-            handleLogout();
-            console.log("No access token found");
-            return ;
-        }
+    console.warn(`Initializing Web socket... ROOM ID ${roomId}`);
+    const access_token = localStorage.getItem("access_token");
+	const token = await checkToken(access_token);
+    if (!token) {
+        console.log("No access token found");
+        return ;
     }
     if (!socket)
     {
@@ -291,22 +285,24 @@ async function initializeWebSocket(roomId = 123) {
     }
     socket.onopen = () => console.log("WebSocket connection established.");
     socket.onerror = (error) => {
-        console.error("WebSocket encountered an error:", error);
-        alert("Unable to connect to the server. Please check your connection.");
+        console.log("WebSocket encountered an error:", error);
+        // alert("Unable to connect to the server. Please check your connection.");
     };
     socket.onclose = async (event) => {
-        console.log("WebSocket closed with code:", event.code);
+        console.log("WebSocket closing with code:", event.code);
 
-        console.log("WebSocket connection closed. ...");
+        // console.log("WebSocket connection closed. ...");
         if (event.code === 4001) {
             // Token expired; refresh token logic
             try {
                 await refreshAccessToken();
                 // Reconnect with the new token
-                initializeWebSocket();
+                initializeWebSocket(roomId);
             } catch (err) {
-                console.error("Failed to refresh token", err);
-                handleLogout();
+                console.log("Failed to refresh token", err);
+                cleanup3D();
+                return; 
+                // handleLogout();
             }
         }
     };
@@ -471,7 +467,7 @@ async function animateCameraToField() {
         } else {
             cancelAnimationFrame(cameraId);
             if (!tournamentId)
-                initializeWebSocket();
+                initializeWebSocket(roomID);
             return;
         } 
     }
@@ -736,7 +732,7 @@ async function buttonsManager(event) {
             text.start.position.set(0, params.textY, 1.5);
             await animateCameraToField()
         } else if (remote && !tournamentId) {
-            initializeWebSocket();
+            initializeWebSocket(roomID);
         } else {
             gameStarted = true;
         }
@@ -887,7 +883,7 @@ async function restart() {
         text.start.visible = true;
     } else {
         text.button.visible = false;
-        initializeWebSocket();
+        initializeWebSocket(roomID);
     }
 }
 
@@ -1010,6 +1006,7 @@ export async function cleanup3D() {
     tournamentId = null;
     gameStarted = false;
     gameEnded = false;
+    roomID = null
 
     pause = false;
 
