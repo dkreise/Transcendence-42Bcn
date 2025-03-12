@@ -288,7 +288,7 @@ async function initializeWebSocket(roomId, isCreator) {
         return ;
     }
 	//// CHECK ALL
-	if (!socket)
+	if (!socket || roomId != -1)
 	{
 		console.log("ROOM ID pre initWS: " + roomId);
 		roomId = (isCreator | 0) + roomId.toString();
@@ -423,7 +423,6 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 	console.log("tour is : ", tour);
 	// window.dict = dictionary;
 	dict = dictionary;
-	console.warn("porfavooooooooor", roomId);
   if (!roomId && !tour)
 	{
 		// alert(`${dict['bad_id']}`);
