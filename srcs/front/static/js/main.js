@@ -1,6 +1,6 @@
 import { loadLoginPage, handleLogin, loadSignupPage, handleSignup } from "./login.js";
 import { loadProfilePage, loadProfileSettingsPage, loadMatchHistoryPage } from "./profile.js";
-import { handleLoginIntra, handle42Callback, showModalError } from "./42auth.js";
+import { handleLoginIntra, handle42Callback } from "./42auth.js";
 import { loadHomePage } from "./home.js";
 import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
@@ -12,14 +12,18 @@ import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, cre
 import { cleanupLocal } from "./localGame.js"
 import { connectWS } from "./onlineStatus.js";
 import { cleanRemote } from "./remoteGame.js";
-import { loadPageNotFound } from "./errorHandler.js";
+import { loadPageNotFound, showModalError } from "./errorHandler.js";
 
 const historyTracker = [];
-
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
 const userMgmtPort = window.env.USER_MGMT_PORT;
+const modeProduction = window.env.SECURE;
+
+if (modeProduction === 'true') {
+    console.log = () => {};
+}
 
 // The routes object maps URL paths to their respective handler functions:
 // Each key is a path (e.g., /, /profile).
@@ -45,10 +49,8 @@ const routes = {
     '/settings': loadProfileSettingsPage,
     '/play-local': playLocal,
     '/play-ai': (args) => playAI(args),
-    // '/play-online': playOnline,
     '/play-online': (args) => playOnline(args),
     '/restart-online': restartOnline,
-
     '/game-local': gameLocal,
     '/play-3d': play3D,
     '/play-ai-game': (args) => gameAI(args),
@@ -161,7 +163,7 @@ function getRedirectionIfNeeded(path=null) {
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';
     } else if (!checkPermission() && !publicPaths.includes(path) && !openPaths.includes(path)) {
-        showModalError();
+        showModalError("ACCESS_DENIED");
         return '/login';
     }
     return null;
@@ -239,7 +241,6 @@ function homePage() {
 // data-route Click Handling: Intercepts clicks on elements with the 
 // data-route attribute and calls navigateTo() with the target route.
 
-// console.log('main.js is loaded');
 document.addEventListener('DOMContentLoaded', () => {
     // console.log("DOMContentLoaded event triggered");
     let shouldRoute = true;
@@ -251,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // clearIntervalIDGame();
         // cleanRemote();
         // cleanupGames();
-        router();          // Then handle the new route
+        router();
     });
 
     
