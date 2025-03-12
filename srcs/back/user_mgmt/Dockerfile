@@ -13,5 +13,5 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Expose ports and Run Daphne 
-EXPOSE 8000
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "user_mgmt.asgi:application"]
+EXPOSE 8444
+CMD ["daphne", "-e", "ssl:8444:privateKey=/usr/src/app/certs/key.pem:certKey=/usr/src/app/certs/crt.pem", "user_mgmt.asgi:application", "-b", "0.0.0.0", "-p", "80"]

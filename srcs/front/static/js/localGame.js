@@ -43,30 +43,30 @@ export function saveScore(score1, score2, mainUser) {
 }
 
 
-async function firstCountdown(callback) {
-    let countdown = 2;
-    const msg = ["1", "2", "3"];
-    let div = document.getElementById("wait");
-    const interval = setInterval(() => {
-        if (countdown < 0) {
-            clearInterval(interval);
-            div.textContent = "";
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            console.log("RESUME")
-            // handleOnlineEndgame();
-            callback(); // Resume the game
-        } else {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            div.textContent = msg[countdown];
-            div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
-            ctx.fillStyle = "rgb(0 0 0 / 25%)";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            div.style.display = "block";
-            div.style.whitespace = "nowrap";
-        }
-        countdown--;
-    }, 500);
-}
+//async function firstCountdown(callback) {
+//    let countdown = 2;
+//    const msg = ["1", "2", "3"];
+//    let div = document.getElementById("wait");
+//    const interval = setInterval(() => {
+//        if (countdown < 0) {
+//            clearInterval(interval);
+//            div.textContent = "";
+//            ctx.clearRect(0, 0, canvas.width, canvas.height);
+//            console.log("RESUME")
+//            // handleOnlineEndgame();
+//            callback(); // Resume the game
+//        } else {
+//            ctx.clearRect(0, 0, canvas.width, canvas.height);
+//            div.textContent = msg[countdown];
+//            div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
+//            ctx.fillStyle = "rgb(0 0 0 / 25%)";
+//            ctx.fillRect(0, 0, canvas.width, canvas.height);
+//            div.style.display = "block";
+//            div.style.whitespace = "nowrap";
+//        }
+//        countdown--;
+//    }, 500);
+//}
 
 async function displayCountdown()
 {
@@ -76,7 +76,7 @@ async function displayCountdown()
 	ctx.fillStyle = "rgb(0 0 0 / 25%)";
 	div.style.display = "block";
     div.style.whitespace = "nowrap";
-	div.style.fontSize = Math.floor(canvas.width * 0.15) + "px";
+	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
 	div.innerHTML = dict["ready"];
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	await new Promise(resolve => setTimeout(resolve, 500));
