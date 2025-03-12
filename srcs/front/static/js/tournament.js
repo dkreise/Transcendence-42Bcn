@@ -575,3 +575,35 @@ path change , reload ---> main.js from start, all vars in games are cleared
 path change is the same as reload
 event listener before onload -> game end
 */
+
+function totalPlayers() {
+    console.log("current number of players in the tournament: " + data.total);
+}
+
+function gameUpdate() {
+    alert("GAME_UPDATE??  A player has disconnected. Waiting for reconnection...");
+}
+
+function tourFull() {
+    console.log("Tournament is full:", data.message);
+    alert(data.message);
+    localStorage.removeItem('inTournament');
+    localStorage.removeItem("user_quit");
+    localStorage.removeItem("currentTournamentId");
+    socket.close();
+}
+
+function needsPlay(data, tourId) {
+    if (!data.needs_to_play)
+        navigateTo('/tournament', true);
+    else if (data.opponent == "@AI") {
+        tournamentGameAIstart(data, tourId);
+    } else {
+        playOnline(tourId);
+    }
+}
+
+function tourStatus(data) {
+    localStorage.setItem('inTournament', data.status);
+    navigateTo('/tournament');
+}
