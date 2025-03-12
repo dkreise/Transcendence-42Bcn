@@ -189,7 +189,13 @@ export async function start3DRemoteGame(dict, tournament, roomId, isCreator) {
     init();
     remote = true;
     tournamentId = tournament;
-    roomID = roomId;
+    // roomID = roomId;
+    console.log(`ROOM ID: ${roomId}`)
+    if (!roomId) {
+        navigateTo('/remote-home');
+        return ;
+    }
+    roomID = (isCreator | 0) + roomId.toString();
     await setupScene();
     text = new SceneText(scene, dict,  tournamentId, 0, -Math.PI / 2);
     await text.createText();

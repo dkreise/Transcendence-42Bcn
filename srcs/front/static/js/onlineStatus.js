@@ -15,7 +15,7 @@ export function isTokenExpired(token) {
             return true;
         }
       // JWT 'exp' is usually in seconds, so compare against Date.now() in milliseconds.
-        return Date.now() >= exp * 1000;
+        return Date.now() >= decoded.exp * 1000;
     } catch (error) {
       // If token is invalid or cannot be decoded, treat it as expired.
         console.log(`Token is damaged or invalid: ${ error}`);
