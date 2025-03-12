@@ -1,4 +1,4 @@
-console.log('parti.js is loaded');
+// console.log('parti.js is loaded');
 
 document.addEventListener("DOMContentLoaded", function () {
     const particleBackground = document.getElementById("particle-background");

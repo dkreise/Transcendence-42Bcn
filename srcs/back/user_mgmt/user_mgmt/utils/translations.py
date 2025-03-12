@@ -1,12 +1,5 @@
 def add_language_context(cookies, context=None):
-    # if context is None:
-    #     context = {}
-    
-    # # lang = cookies.get('language') or 'EN'
-    # lang = 'EN'
-    # lang_words = get_lang_words(lang)
-    # context.update(lang_words)
-    # return context
+
 	if context is None:
 		context = {}
 	lang = 'EN' if cookies is None else cookies.get('language', 'EN')
@@ -190,10 +183,10 @@ def get_lang_words(lang):
             'dont_have_account': "У вас еще нет учетной записи?",
             'have_account': "У вас уже есть учетная запись?",
             'statistics': "Статистика",
-            'games_won': "Выигранные игры",
-            'games_played': "Сыгранные игры",
-            'tournaments_played': "Турниры сыграны",
-            'tournament_total_score': "Общий счет турнира",
+            'games_won': "Выигранo",
+            'games_played': "Сыграно",
+            'tournaments_played': "Турниров",
+            'tournament_total_score': "Счет турниров",
             'online': "В сети",
             'offline': "Не в сети",
             'no_friends_yet': "У вас еще нет друзей",
@@ -214,6 +207,7 @@ def get_lang_words(lang):
             'date_wo': "Дата",
             'winner_wo': "Победитель",
             'tournament': "Турнир",
+            'quit': "Выйти",
             'all': "Все",
             'yes': "Да",
             'no': "Нет",
@@ -382,4 +376,6 @@ def get_lang_words(lang):
             'back': "Go back",  
             'enter_winner_username_placeholder': "Enter winner's username",
             'search_by_username_email_ph': "Search by username or email",
+            ##################### new
+            'quit': "QUIT",
         }

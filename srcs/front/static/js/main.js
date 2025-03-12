@@ -6,8 +6,8 @@ import { loadFriendsSearchPage } from "./friends.js"
 import { handleLogout } from "./logout.js"
 import { loadLogin2FAPage, enable2FA, disable2FA } from "./twoFA.js";
 import { clearIntervalIDGame, cleanupAI } from "./AIGame.js"
-import { playLocal, playAI, gameAI, playOnline, play3D, gameLocal, loadRemoteHome } from "./game.js"
-import { cleanup3D } from "./3DLocalGame.js";
+import { playLocal, restartOnline, playAI, gameAI, playOnline, play3D, gameLocal, loadRemoteHome  } from "./game.js"
+import { cleanup3D, exit3D } from "./3DGame.js";
 import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest } from "./tournament.js";
 import { cleanupLocal } from "./localGame.js"
 import { connectWS } from "./onlineStatus.js";
@@ -45,7 +45,10 @@ const routes = {
     '/settings': loadProfileSettingsPage,
     '/play-local': playLocal,
     '/play-ai': (args) => playAI(args),
-    '/play-online': playOnline,
+    // '/play-online': playOnline,
+    '/play-online': (args) => playOnline(args),
+    '/restart-online': restartOnline,
+
     '/game-local': gameLocal,
     '/play-3d': play3D,
     '/play-ai-game': (args) => gameAI(args),
@@ -60,7 +63,9 @@ const routes = {
     '/tournament-game-ai': tournamentGameRequest,
     '/tournament-game-remote': tournamentGameRequest,
     '/page-not-found': loadPageNotFound,
+    '/exit-3D': exit3D,
 	'/remote-home': loadRemoteHome,
+
     
     // EXAMPLE how to announce a function that receives parameters:
     // '/login': (args) => loadLoginPage(args),
@@ -98,16 +103,16 @@ export function drawHeader(headerType) {
         .then((response) => response.json())
         .then(data => {
             if (data.header_html) {
-                console.log('Header! returned!');
+                // console.log('Header! returned!');
                 document.getElementById('header-area').innerHTML = data.header_html;
                 document.dispatchEvent(new CustomEvent("headerLoaded"));
-                console.log('header event active');
+                // console.log('header event active');
             } else
-                console.error('Header not found in response:', data);
+                console.log('Header not found in response:', data);
             resolve();
         })
         .catch(error => {
-            console.error('Error loading Header =(', error);
+            console.log('Error loading Header =(', error);
             reject(error);
         });
     });
@@ -116,6 +121,8 @@ export function drawHeader(headerType) {
 export function cleanupGames() {
     cleanup3D();
     cleanupLocal();
+    cleanRemote();
+    clearIntervalIDGame();
     // cleanupAI();
 }
 
@@ -132,7 +139,7 @@ function router(args=null) {
 // const contentArea = document.getElementById('content-area');
 // contentArea.innerHTML = ''; // Clear previous content
 
-    console.log(`Content cleared in router`);
+    // console.log(`Content cleared in router`);
 
     const redirectPath = getRedirectionIfNeeded(path);
     if (redirectPath) {
@@ -150,11 +157,11 @@ function getRedirectionIfNeeded(path=null) {
 
     //Check if the user has the required permissions, if not, redirect
     const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/handle-login', '/handle-signup', '/callback'];
-    const openPaths = ['/page-not-found']; //open for authenticated and not authenticated
+    const openPaths = ['/', '/page-not-found']; //open for authenticated and not authenticated
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';
     } else if (!checkPermission() && !publicPaths.includes(path) && !openPaths.includes(path)) {
-        showModalError("Unauthorized access. Please check your credentials.");
+        showModalError();
         return '/login';
     }
     return null;
@@ -180,13 +187,13 @@ export function navigateTo(path, replace = false, args = null) {
     if (replace) { //DONT ADD TO HISTORY
         history.replaceState({ path, args }, null, path);
         historyTracker.push({ action: 'replaceState', path });
-        console.log(`${path} is replaced in history`)
+        // console.log(`${path} is replaced in history`)
     }
     else { //ADD TO HISTORY
 
         history.pushState({ path, args }, null, path);
         historyTracker.push({ action: 'pushState', path });
-        console.log(`${path} is pushed to history`)
+        // console.log(`${path} is pushed to history`)
     }
     //console.log('History Tracker:', JSON.stringify(historyTracker, null, 2)); // Log the history
     router(args);
@@ -232,32 +239,35 @@ function homePage() {
 // data-route Click Handling: Intercepts clicks on elements with the 
 // data-route attribute and calls navigateTo() with the target route.
 
-console.log('main.js is loaded');
+// console.log('main.js is loaded');
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOMContentLoaded event triggered");
+    // console.log("DOMContentLoaded event triggered");
+    let shouldRoute = true;
 
     window.addEventListener('popstate', (event) => {
         console.log("Popstate triggered:", event);
-        cleanup3D();       // Always clean up before routing
-        clearIntervalIDGame();
-        cleanRemote();
+        // shouldRoute = false;
+        // cleanup3D();       // Always clean up before routing
+        // clearIntervalIDGame();
+        // cleanRemote();
+        // cleanupGames();
         router();          // Then handle the new route
     });
 
-    let shouldRoute = true;
+    
     const tourId = localStorage.getItem("currentTournamentId");
     const tourReload = localStorage.getItem("tournamentReload");
     if (tourId && tourReload) {
         shouldRoute = false;
-        console.log("Reconnecting WebSocket after page reload...");
+        // console.log("Reconnecting WebSocket after page reload...");
         localStorage.removeItem("tournamentReload");
         // tournamentConnect(tourId);
         tournamentConnect(tourId).then(() => {
-            console.log("WebSocket connection established, now navigating to ...");
+            // console.log("WebSocket connection established, now navigating to ...");
             // navigateTo('/waiting-room');
             router();
         }).catch((error) => {
-            console.error("Error connecting WebSocket:", error);
+            console.log("Error connecting WebSocket:", error);
             // Handle error, possibly redirect to another page or show an alert
         });
     } else if (tourReload) {
@@ -273,7 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (target) {
             const route = target.getAttribute('data-route');
-            console.log(`Data-route clicked: ${route}`);
+            // console.log(`Data-route clicked: ${route}`);
 
             event.preventDefault();
 
@@ -283,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const args = target.hasAttribute("data-args")
                 ? JSON.parse(target.getAttribute("data-args"))
                 : null;
-            console.log("Extracted args:", args);
+            // console.log("Extracted args:", args);
 
             navigateTo(route, shouldReplace, args);
         }
@@ -291,7 +301,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (shouldRoute) {
         console.log(history.state)
-        cleanup3D();
+        cleanupGames();
         router();        
     }
 });

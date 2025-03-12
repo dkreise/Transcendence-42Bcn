@@ -6,16 +6,17 @@ const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
 const userMgmtPort = window.env.USER_MGMT_PORT;
 
-function getUserPreferenceLanguageFromDB() {
-    return makeAuthenticatedRequest(baseUrl + userMgmtPort + "api/get-user-pref-lang", {
+export function getUserPreferenceLanguageFromDB() {
+    return makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/get-user-pref-lang", {
         method: "GET",
         credentials: "include"  // This ensures cookies are sent along with the request 
     })
     .then((response) => {
+        if (!response) return null;
         return response.json();
     })
     .then((data) => {
-        if (data.status === "success") {
+        if (data && data.status === "success") {
             return data.language;
         } else {
             console.log("Failed to fetch user language preference:", data.message);
@@ -41,9 +42,9 @@ function saveUserPreferenceLanguageToDB(lang) {
         },
         body: JSON.stringify({ language: lang }),
     })
-    .then((response) => response.json())
+    .then(response => response ? response.json() : null)
     .then((data) => {
-        if (data.status !== "success") {
+        if (!data || data.status !== "success") {
             console.error('Failed to update language on the server.');
         }
     })
@@ -90,12 +91,12 @@ export async function updateLanguage(lang) {
 document.addEventListener("headerLoaded", () => {
     const headerContainer = document.getElementById("header-container");
     if (headerContainer) {
-        console.log('header event recived');
+        // console.log('header event recived');
         const languageButton = document.getElementById("language-button");
         const languageMenu = document.getElementById("language-menu");
 
-        console.log("languageButton: ", languageButton);
-        console.log("language-menu: ", languageMenu);
+        // console.log("languageButton: ", languageButton);
+        // console.log("language-menu: ", languageMenu);
     
         // Toggle the visibility of the language menu
         if (languageButton && languageMenu) {

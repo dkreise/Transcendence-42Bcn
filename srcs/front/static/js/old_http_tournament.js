@@ -77,4 +77,4 @@ export const loadJoinTournamentPage = () => {
 //     .catch(error => {
 //         console.error('Error loading page', error);
 //     });
-// };
+};

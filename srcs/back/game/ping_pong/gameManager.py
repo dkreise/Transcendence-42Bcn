@@ -59,8 +59,8 @@ speeds => relative
 class GameManager:
 
 
-	ball_config = {"rad": 9, "xspeed": 4, "yspeed": 0}
-	board_config = {"width": 600, "height": 400, "max_score": 5}
+	ball_config = {"rad": 9, "xspeed": 4, "yspeed": 5}
+	board_config = {"width": 600, "height": 400, "max_score": 3}
 
 	paddle_config = {"width": 10, "height": 50, "speed": 5}
 	countdown = 5
@@ -108,6 +108,8 @@ class GameManager:
 				if len(self.players) == 2:
 					self.status = 0
 					self.users.append(user)
+					if self.player2_waiting_task:
+						self.player2_waiting_task.cancel()
 				return role
 			logger.info(f"Reconnection error for user {user}. Please, try again later")
 			#await self.send_reject(channel, "Error trying to reconnect. Try again later")
@@ -134,7 +136,6 @@ class GameManager:
 			else:
 				if self.player2_waiting_task:
 					self.player2_waiting_task.cancel()
-				logger.info(f"adding {user} as player2")
 				self.players["player2"] = {"id": user, "y": 0.5}
 				self.status = 0
 				return "player2"
@@ -144,12 +145,16 @@ class GameManager:
 
 	def handle_message(self, role, data):
 		if data["type"] == "update" and data["role"] in self.players and data["y"]:
-			if data["y"] < 0:
-				self.players[data["role"]]["y"] = 0 + GameManager.paddle_config["height"] / GameManager.board_config["height"]
-			elif data["y"] > 1:
-				self.players[data["role"]]["y"] = 1 - GameManager.paddle_config["height"] / GameManager.board_config["height"]
-			else:
-				self.players[data["role"]]["y"] = data["y"]
+			self.players[data["role"]]["y"] = data["y"]
+	
+	# def handle_message(self, role, data):
+	# 	if data["type"] == "update" and data["role"] in self.players and data["y"]:
+	# 		if data["y"] < 0:
+	# 			self.players[data["role"]]["y"] = 0 + GameManager.paddle_config["height"] / GameManager.board_config["height"]
+	# 		elif data["y"] > 1:
+	# 			self.players[data["role"]]["y"] = 1 - GameManager.paddle_config["height"] / GameManager.board_config["height"]
+	# 		else:
+	# 			self.players[data["role"]]["y"] = data["y"]
 
 
 ##################################################
@@ -166,6 +171,7 @@ class GameManager:
 			self.rsg_task = asyncio.create_task(self.ready_steady_go())
 			await self.send_status(3)
 
+	
 	def is_pad_col_side(self):
 		boardW = GameManager.board_config["width"]
 		boardH = GameManager.board_config["height"]
@@ -174,20 +180,28 @@ class GameManager:
 		padH = GameManager.paddle_config["height"] / 2
 		pl1 = self.players["player1"]["y"] * boardH
 		pl2 = self.players["player2"]["y"] * boardH
-
+		# logger.info(f"SIDE COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW} radius {radius}")
+		# logger.info(f"SIDE COL paddle1 Y {pl1}   1/2hight {padH} ")
+		# logger.info(f"SIDE COL paddle2 Y {pl2}   1/2hight {padH} ")
 		if self.ball["x"] * boardW - radius <= GameManager.paddle_config["width"]:
-			if ((self.ball["y"] * boardH + radius <= pl1 + padH) and
-				(self.ball["y"] * boardH - radius >= pl1 - padH)):
+			# logger.info(f"col Side pl1 x area")
+			# logger.info(f"ball Y {self.ball['y'] * boardH} pl1 Y {pl1}")
+			if ((self.ball["y"] * boardH <= pl1 + padH + 1) and
+				(self.ball["y"] * boardH >= pl1 - padH - 1)):
+				# logger.info(f"col Side pl1")
 				return True
-		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"]:
-			if ((self.ball["y"] * boardH + radius <= pl2 + padH) and
-				(self.ball["y"] * boardH - radius >= pl2 - padH)):
+		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"] - 1:
+			# logger.info(f"col Side pl2 x area")
+			# logger.info(f"ball Y {self.ball['y'] * boardH} pl2 Y {pl2}")
+			if ((self.ball["y"] * boardH <= pl2 + padH + 1) and
+				(self.ball["y"] * boardH >= pl2 - padH - 1)):
+				logger.info(f"col Side pl2")
 				return True
 		return False
 
 	def is_pad_col_top(self):
 		radius = GameManager.ball_config["rad"]
-		padH = GameManager.paddle_config["height"]
+		padH = GameManager.paddle_config["height"] / 2
 		padW = GameManager.paddle_config["width"]
 		boardH = GameManager.board_config["height"]
 		boardW = GameManager.board_config["width"]
@@ -196,18 +210,27 @@ class GameManager:
 		pl2_x = boardW - padW
 		pl2_y = self.players["player2"]["y"] * boardH
 
-		# Left paddle
+		# logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}, radius {radius}")
+		# # logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH} ")
+		# logger.info(f"TOP COL paddle2 Y {pl2_y}   1/2hight {padH} ")
+		# Left paddle((self.ball["y"] * boardH + radius <= pl1_y + padH) and (GameManager.ball_config["yspeed"] <= 0.5))):
 		if self.ball["x"] * boardW - radius <= pl1_x:
 			logger.info(f"col Top pl1 x area")
-			if ((self.ball["y"] * boardH - radius >= pl1_y - padH) or
-				(self.ball["y"] * boardH + radius <= pl1_y + padH)):
+			# logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}, radius {radius}")
+			# logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH}, Yspeed {self.ball['yspeed']} ")
+			if (((self.ball["y"] * boardH + radius >= pl1_y - padH) and (self.ball["yspeed"] >= 0) and
+				(self.ball["y"] * boardH + radius <= pl1_y + padH)) or 
+				((self.ball["y"] * boardH - radius >= pl1_y - padH) and (self.ball["yspeed"] <= 0) and
+				(self.ball["y"] * boardH - radius <= pl1_y + padH))):
+				# logger.info(f"TOP COL ball Y {self.ball['y'] * boardH} ball X {self.ball['x'] * boardW}, radius {radius}")
+				# logger.info(f"TOP COL paddle1 Y {pl1_y}  1/2hight {padH}, Yspeed {self.ball['yspeed']} ")
 				logger.info(f"col Top pl1")
 				return True
-		# Right paddle
+		# Right paddle # APPLY CHANGES HERE
 		elif self.ball["x"] * boardW + radius >= pl2_x:
 			logger.info(f"col Top pl2 x area")
-			if ((self.ball["y"] * boardH - radius >= pl2_y - padH) or
-				(self.ball["y"] * boardH + radius <= pl2_y + padH)):
+			if ((self.ball["y"] * boardH + radius >= pl2_y - padH) and
+				(self.ball["y"] * boardH - radius <= pl2_y + padH)):
 				logger.info(f"col Top pl2")
 				return True
 		return False
@@ -220,12 +243,14 @@ class GameManager:
 		is_col_s = self.is_pad_col_side()
 		is_col_t = self.is_pad_col_top()
 		# logger.info("IN UPDATE BALL")
-		# logger.info(f"ball x: {self.ball['x']}, ball y: {self.ball['y']}")
+		# logger.info(f"side col: {is_col_s} top col: {is_col_t}")
 
 		if is_col_s:
 			self.ball["xspeed"] *= -1
+
 		elif is_col_t:
 			self.ball["yspeed"] *= -1
+			self.ball["xspeed"] *= -1
 		elif self.ball["y"] - radius <= 0 or self.ball["y"] + radius >= 1:
 			self.ball["yspeed"] *= -1
 		if not (is_col_s and is_col_t) and (self.ball["x"] * GameManager.board_config["width"] - GameManager.ball_config["rad"] <= 0):
@@ -234,7 +259,6 @@ class GameManager:
 		elif not (is_col_s and is_col_t) and (self.ball["x"] * GameManager.board_config["width"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]):
 			# logger.info(f"{self.players['player2']} has scored")
 			await self.has_scored("player1")
-
 
 
 ##################################################
@@ -330,14 +354,18 @@ class GameManager:
 			else:
 				logger.info("F*ck, couldn't save the game")
 		# logger.info(f"Player {winner_id} wins in room {self.id}")
-		loser = next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
+		loser = self.users[1] if winner_id == self.users[0] else self.users[0]
+		# loser = next((value['id'] for value in self.players.values() if value['id'] != winner_id), None)
 		logger.info(f"Player {winner_id} wins in room {self.id}")
 		logger.info(f"Player {loser} loses in room {self.id}")
 		
 		message = {
 			"type": "endgame",
-			"winnerID": winner_id,
-			"loserID": loser
+			# "winnerID": winner_id,
+			# "loserID": loser
+			"winner": winner_id,
+			"loser": loser,
+			"scores": self.scores
 			#"loserID": next((loser for loser in self.users if loser != winner_id), None)
 		}
 		# logger.info(f"Player {message["loserID"]} loses in room {self.id}")
@@ -372,9 +400,9 @@ class GameManager:
 				# logger.info(winner_id)
 				# logger.info(self.players["player1"]["id"])
 				# if self.players["player1"]["id"] == winner_id:
-				player1 = User.objects.get(username=self.players["player1"]["id"])
+				player1 = User.objects.get(username=self.users[0])
 				# else:
-				player2 = User.objects.get(username=self.players["player2"]["id"])
+				player2 = User.objects.get(username=self.users[1])
 				
 				# if self.scores["player1"] > self.scores["player2"]:
 				score1 = self.scores["player1"]
@@ -569,8 +597,9 @@ class GameManager:
 			self.rsg_task = None
 		message = {
 			"type": "endgame",
-			"winnerID": winner,
-			"loserID": loser,
+			"winner": winner,
+			"loser": loser,
+			"scores": {"player1": 0, "player2": 0}
 		}
 		channel_layer = get_channel_layer()
 		if "T_" in self.id:
@@ -592,7 +621,10 @@ class GameManager:
 
 	async def check_unstarted_game(self):
 		await asyncio.sleep(10)
-		if len(self.players) != 2:
+		logger.info(f"CHECK UNSTARTED GAME {self.id}")
+		logger.info(f"task: {self.player2_waiting_task}")
+		logger.info(f"LEN users: {len(self.users)}")
+		if len(self.users) != 2:
 			logger.info(f"SECOND PLAYER ({self.tour_op}) HAS NOT STARTED")
 			await self.stop_tournament_game(self.users[0], self.tour_op)
 

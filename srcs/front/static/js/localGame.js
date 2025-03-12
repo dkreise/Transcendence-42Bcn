@@ -32,6 +32,7 @@ export function saveScore(score1, score2, mainUser) {
         headers: {"Content-Type": "application/json"},
     })
     .then((response) => {
+        if (!response) return null;
         if (response.ok) {
             console.log('Score saved successfully');
         }
@@ -61,6 +62,7 @@ async function firstCountdown(callback) {
             ctx.fillStyle = "rgb(0 0 0 / 25%)";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             div.style.display = "block";
+            div.style.whitespace = "nowrap";
         }
         countdown--;
     }, 500);
@@ -71,10 +73,11 @@ async function displayCountdown()
 	cancelAnimationFrame(gameLoopId);
 	let div = document.getElementById("wait");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	div.innerHTML = dict["ready"];
-	div.style.display = "block";
-	div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
 	ctx.fillStyle = "rgb(0 0 0 / 25%)";
+	div.style.display = "block";
+    div.style.whitespace = "nowrap";
+	div.style.fontSize = Math.floor(canvas.width * 0.15) + "px";
+	div.innerHTML = dict["ready"];
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	await new Promise(resolve => setTimeout(resolve, 500));
 	div.innerHTML = dict["go"];
@@ -87,7 +90,7 @@ async function displayCountdown()
 async function gameLocalLoop() {
     gameLoopId = requestAnimationFrame(gameLocalLoop);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "rgb(0 0 0 / 25%)";
+    ctx.fillStyle = "rgb(0 0 0 / 75%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw players and ball
@@ -142,7 +145,7 @@ export async function startLocalGame(playerName1, playerName2, mainUserNmb, dict
 	console.log("dictionary: ", dictionary);
 
     canvas.width = window.innerWidth * 0.65; // % of screen width
-    canvas.height = canvas.width * 0.5; // % of screen height
+    canvas.height = canvas.width * 0.57; // % of screen height
 
     mainUser = mainUserNmb;
 

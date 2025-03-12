@@ -317,7 +317,8 @@ class TournamentManager:
 	async def handle_quit(self, username, timeout):
 		logger.info(f"{username} wants to quit!!!")
 		if username not in self.players or self.finished:
-			self.users.remove(username)
+			if username in self.users:
+				self.users.remove(username)
 			return
 		if self.round == 0:
 			logger.info("tournament has not started")
@@ -337,8 +338,10 @@ class TournamentManager:
 			if is_winner:
 				self.quit_winners += 1 # mutexx it.. ?
 				await self.save_tournament_result(username, False, True)
-				self.players.remove(username)
-				self.users.remove(username)
+				if username in self.players:
+					self.players.remove(username)
+				if username in self.users:
+					self.users.remove(username)
 			else:
 				opponent = self.get_opponent(username)
 				match_i = self.get_match_idx(username, opponent)
@@ -347,7 +350,8 @@ class TournamentManager:
 				else:
 					data = {'winner': opponent, 'loser': username, 'winner_score': 0, 'loser_score': 0}
 					status = await self.handle_game_end(data, False)
-				self.users.remove(username)
+				if username in self.users:
+					self.users.remove(username)
 				return status
 
 			if (self.get_players_cnt() == 1):
@@ -466,9 +470,11 @@ class TournamentManager:
 	async def handle_timeout(self, pair):
 		await self.save_tournament_result(pair[0], False, False)
 		await self.save_tournament_result(pair[1], False, False)
-		self.players.remove(pair[0])
+		if pair[0] in self.players:
+			self.players.remove(pair[0])
 		# self.users.remove(pair[0])
-		self.players.remove(pair[1])
+		if pair[1] in self.players:
+			self.players.remove(pair[1])
 		# self.users.remove(pair[1])
 		status = await self.handle_game_end({}, True)
 		channel_layer = get_channel_layer()

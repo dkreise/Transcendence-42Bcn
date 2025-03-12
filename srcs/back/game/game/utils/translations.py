@@ -58,6 +58,7 @@ def get_lang_words(lang):
 			'game_wo': "Juego",
 			'opponent': "Oponente",
 			'winner_wo': "Ganador",
+			'access_denied': "Acceso denegado",
 		}
 	elif lang == 'CA':
 		return {
@@ -107,6 +108,7 @@ def get_lang_words(lang):
 			'game_wo': "Joc",
 			'opponent': "Oponent",
 			'winner_wo': "Guanyador",
+			'access_denied': "Accés denegat",
 		}
 	elif lang == 'RU':
 		return {
@@ -132,29 +134,33 @@ def get_lang_words(lang):
 			'players': "Игроки",
 			'round': "Раунд",
 			'tournament_finished': "Турнир завершен",
-			'winner_is': "Победитель:",
-			"start": "Начать",
-			"try_again": "Ещё раз!",
+			'winner_wo': "Победитель:",
+			"start": "НАЧАТЬ",
+			"try_again": "ЕЩЕ РАЗ!",
 			"ready": "Готов?",
-			"go": "Вперед!",
-			"enemy": "Враг",
+			"go": "ВПЕРЕД!",
+			"enemy": "@Враг",
 			"waiting_enemy": "Ожидание врага...",
 			"enemy_connected": "Враг прибыл!",
-			"wins": "Победил",
-			"exit": "Выход",
+			"wins": "победил",
+			"exit": "ВЫХОД",
 			'you': "ты",
 			'difficulty': "Выбрать уровень",
 			'baby': "Малыш",
 			'easy': "Низкий",
 			'medium': "Средний",
 			'hard': "Высокий",
-			'play_my_game': "Играй в мою игру",
-			'last_10_games_performance': "Производительность последних 10 игр",
-            'game_evolution': "Эволюция игры",
-			'score_wo': "Очки",
+			'restart': "Заново", 
+			"congrats": "Ура! Ты победил!",
+			"good_luck": "Удачи в следующий раз...",
+			"back_tour" : "Назад в турнир",
+			'play_my_game': "Играть",
+			'last_10_games_performance': "Статистика последних 10 игр",
+            'game_evolution': "Статистика игр",
+			'score_wo': "Счет",
 			'game_wo': "Игра",
 			'opponent': "Противник",
-			'winner_wo': "Победитель",
+			'access_denied': "Доступ запрещен",
 		}
 	elif lang == 'LV':
 		return {
@@ -203,6 +209,7 @@ def get_lang_words(lang):
 			'game_wo': "Spēle",
 			'opponent': "Pretinieks",
 			'winner_wo': "Uzvarētājs",
+			'access_denied': "Prieiga uždrausta",
 		}
 	else:
 		return {
@@ -251,4 +258,12 @@ def get_lang_words(lang):
 			'game_wo': "Game",
 			'opponent': "Opponent",
 			'winner_wo': "Winner",
+			'access_denied': "Access denied",
+
+			############### new ones
+			'restart': "restart",
+			"congrats": "Congratuations! You've won!",
+			"good_luck": "Better luck next time...",
+			"back_tour" : "Back to Tournament Page"
+
 		}
