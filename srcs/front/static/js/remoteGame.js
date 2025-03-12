@@ -428,7 +428,7 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 	// window.dict = dictionary;
 	dict = dictionary;
 	console.warn("porfavooooooooor", roomId);
-  if (!roomId)
+  if (!roomId && !tour)
 	{
 		alert(`${dict['bad_id']}`);
 		navigateTo("/remote-home");
