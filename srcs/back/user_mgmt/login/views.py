@@ -83,7 +83,7 @@ def login_view(request):
                 'username': username,
             })
     else:
-        return Response({'success': False, 'message': 'Invalid credentials'}, status=401)
+        return Response({'success': False, 'message': 'Invalid credentials'})
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -212,7 +212,7 @@ def register_user(request):
         return JsonResponse({"error": "Invalid JSON format."}, status=status.HTTP_400_BAD_REQUEST)
 
     except Exception as e:
-        return JsonResponse({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return JsonResponse({"error": str(e)})
 		
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -239,7 +239,7 @@ def logout(request):
 
         return Response({"message": "Logged out successfully"}, status=200)
     except Exception as e:
-        return Response({"error": str(e)}, status=400)
+        return Response({"error": str(e)})
 
 @api_view(['POST'])
 def enable_2fa(request):
@@ -308,8 +308,6 @@ def disable_2fa(request):
             profile.two_fa = False
             profile.save()
         return JsonResponse({"success": True, "message": "2FA disabled successfully."})
-        # else:
-        #     return JsonResponse({"success": False, "error": "2FA is not enabled for this account."}, status=400)
     else:
         return JsonResponse({'error': 'user not authenticated'}, status=401)
 

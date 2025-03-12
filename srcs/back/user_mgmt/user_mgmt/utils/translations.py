@@ -79,7 +79,7 @@ def get_lang_words(lang):
             'back': "Volver atrás",  
             'enter_winner_username_placeholder': "Ingrese usuario del ganador",
             'search_by_username_email_ph': "Buscar por nombre de usuario o correo electrónico",
-            'back_login': "Volver al inicio de sesión",
+            'go_back': "Volver Atrás",
             'quit': "SALIR",
         }
 
@@ -155,7 +155,7 @@ def get_lang_words(lang):
             'back': "Tornar enrrere",  
             'enter_winner_username_placeholder': "Introdueix usuari del guanyador",  
             'search_by_username_email_ph': "Cercar per nom d'usuari o correu electrònic",
-            'go_back': "Volver Atrás",
+            'go_back': "Tornar enrrere",
             'quit': "SORTIR",
         }
 
