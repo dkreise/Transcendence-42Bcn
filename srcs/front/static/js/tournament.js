@@ -2,7 +2,8 @@ import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
 import { gameAI, playOnline, getDictFor3DGame } from "./game.js";
-import {handleRoleAssignment, scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, handleTourEndgame, cleanRemote } from "./remoteGame.js"
+import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, handleTourEndgame, cleanRemote } from "./remoteGame.js"
+import { scale3DGame, setWhoAmI3D, handle3DStatus, handle3DUpdate, handleOnlineEndgame} from "./3DGame.js"
 import { drawHeader } from "./main.js";
 import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 import { checkToken } from "./onlineStatus.js";
@@ -14,6 +15,26 @@ const protocolSocket = window.env.PROTOCOL_SOCKET;
 const gamePort = window.env.GAME_PORT;
 
 let socket = null, dict = null;
+
+// Define your 2D handlers
+const handlers2D = {
+    role: scaleGame,          // synchronous
+    players: setWhoAmI,       // might be asynchronous
+    status: handleStatus,      // might be asynchronous
+    update: handleUpdate,      // synchronous
+    endgame: handleTourEndgame // synchronous
+};
+
+// Define your 3D handlers
+const handlers3D = {
+    role: scale3DGame,         // asynchronous
+    players: setWhoAmI3D,      // asynchronous
+    status: handle3DStatus,    // asynchronous
+    update: handle3DUpdate,    // synchronous or asynchronous
+    endgame: handleOnlineEndgame // synchronous or asynchronous
+};
+
+
 
 export const manageTournamentHomeBtn = () => { 
     const inTournament = localStorage.getItem('inTournament');
