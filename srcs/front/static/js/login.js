@@ -150,6 +150,7 @@ export const handleLogin = async () => {
             }
         } else {
             displayLoginError('login-form', 'Invalid Credentials');
+            navigateTo('/login', true);
         }
     } catch (error) {
         console.error('Error logging in:', error);

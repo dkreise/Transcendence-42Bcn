@@ -83,7 +83,8 @@ def login_view(request):
                 'username': username,
             })
     else:
-        return Response({'success': False, 'message': 'Invalid credentials'}, status=401)
+        #return Response({'success': False, 'message': 'Invalid credentials'}, status=401)
+        return Response({'success': False, 'message': 'Invalid credentials'})
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
