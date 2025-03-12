@@ -163,7 +163,8 @@ async function displayCountdown()
 {
 	if (tournamentId)
 		return ;
-	cancelAnimationFrame(gameLoopId);
+//	if (gameLoopId)
+//		cancelAnimationFrame(gameLoopId);
 	let div = document.getElementById("wait");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	div.innerHTML = dict["ready"];
@@ -175,7 +176,7 @@ async function displayCountdown()
 	div.innerHTML = dict["go"];
 	await new Promise(resolve => setTimeout(resolve, 500));
 	div.style.display = "none";
-	gameAILoop();
+	await gameAILoop();
 }
 
 
