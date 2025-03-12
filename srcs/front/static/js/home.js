@@ -54,7 +54,7 @@ export const loadHomePage = () => {
                 setUp3DListener();
 
             } else {
-                console.error("home_html not found in the response data");
+                console.log("home_html not found in the response data");
             }
         })
         .catch((error) => console.log("Error loading home page:", error));

@@ -25,7 +25,7 @@ export async function refreshAccessToken() {
         if (response.ok) {
             return response.json();
         } else {
-            console.error("Refresh token invalid or expired.");
+            console.log("Refresh token invalid or expired.");
             handleLogout();
             return Promise.reject("Refresh token invalid or expired.");
         }
@@ -51,7 +51,7 @@ export async function refreshAccessToken() {
 export const makeAuthenticatedRequest = async (url, options = {}) => {
     const accessToken = localStorage.getItem("access_token");
     if (!accessToken) {
-        console.error("No access token available.");
+        console.log("No access token available.");
         localStorage.clear();
         navigateTo('/login', true);
         return null;

@@ -3,7 +3,7 @@ import logging
 from channels.auth import AuthMiddlewareStack
 from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
 from rest_framework.exceptions import AuthenticationFailed
 from asgiref.sync import sync_to_async
 # from django.utils.deprecation import MiddlewareMixin
@@ -28,6 +28,14 @@ logger = logging.getLogger(__name__)
 #         print("@@@@@@@@@@@@@@@@@@@@@@@  HA PASADO POR MIDDLEWARE @@@@@@@@@@@@@@@@@")
 #         return response
 
+# Fetch user from database using sync-to-async
+async def get_user_from_token(username):
+    User = get_user_model()
+    try:
+        return await sync_to_async(User.objects.get)(username=username)
+    except ObjectDoesNotExist:
+        raise AuthenticationFailed('Invalid or expired token')
+
 class JwtAuthMiddleware:
     def __init__(self, inner):
         self.inner = inner
@@ -35,6 +43,7 @@ class JwtAuthMiddleware:
     async def __call__(self, scope, receive=None, send=None):
         
         print("@@@@@@@@@@@@@@@@@@@@@@@  JWT  MIDDLEWARE @@@@@@@@@@@@@@@@@")
+        User = get_user_model()
         query_string = scope['query_string'].decode('utf-8')
         query_params = parse_qs(query_string)
         
@@ -45,8 +54,6 @@ class JwtAuthMiddleware:
 
         jwt_authenticator = JWTAuthentication()
 
-        # Simular el request, ya que WebSockets no usan HTTP requests tradicionales
-        # Vamos a crear un objeto "fake" para pasar a `authenticate`
         fake_request = type('Request', (object,), {'META': {'HTTP_AUTHORIZATION': f'Bearer {token}'}})()
 
         try:
@@ -58,9 +65,20 @@ class JwtAuthMiddleware:
             else:
                 raise AuthenticationFailed('Invalid or expired token')
         
-        except AuthenticationFailed as e:
+        except (InvalidToken, TokenError, AuthenticationFailed) as e:
             logger.error(f"Authentication failed: {e}")
-            raise AuthenticationFailed('Invalid or expired token')
+            # Check if the error details indicate that the token is expired.
+            # The exception's detail might be a dict with a "messages" key.
+            detail = getattr(e, "detail", str(e))
+            if isinstance(detail, dict):
+                messages = detail.get("messages", [])
+                for message in messages:
+                    token_message = message.get("message", "")
+                    if "expired" in token_message.lower():
+                        # Raise a distinct error so the client can detect token expiration.
+                        raise AuthenticationFailed("TokenExpired")
+            # Fallback: raise a generic error message.
+            raise AuthenticationFailed("Invalid or expired token")
 
         return await self.inner(scope, receive, send)
 
