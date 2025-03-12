@@ -145,12 +145,16 @@ class GameManager:
 
 	def handle_message(self, role, data):
 		if data["type"] == "update" and data["role"] in self.players and data["y"]:
-			if data["y"] < 0:
-				self.players[data["role"]]["y"] = 0 + GameManager.paddle_config["height"] / GameManager.board_config["height"]
-			elif data["y"] > 1:
-				self.players[data["role"]]["y"] = 1 - GameManager.paddle_config["height"] / GameManager.board_config["height"]
-			else:
-				self.players[data["role"]]["y"] = data["y"]
+			self.players[data["role"]]["y"] = data["y"]
+	
+	# def handle_message(self, role, data):
+	# 	if data["type"] == "update" and data["role"] in self.players and data["y"]:
+	# 		if data["y"] < 0:
+	# 			self.players[data["role"]]["y"] = 0 + GameManager.paddle_config["height"] / GameManager.board_config["height"]
+	# 		elif data["y"] > 1:
+	# 			self.players[data["role"]]["y"] = 1 - GameManager.paddle_config["height"] / GameManager.board_config["height"]
+	# 		else:
+	# 			self.players[data["role"]]["y"] = data["y"]
 
 
 ##################################################
