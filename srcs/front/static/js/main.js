@@ -163,6 +163,8 @@ function getRedirectionIfNeeded(path=null) {
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';
     } else if (!checkPermission() && !publicPaths.includes(path) && !openPaths.includes(path)) {
+        localStorage.clear();
+        window.history.replaceState(null, null, '/')
         showModalError("ACCESS_DENIED");
         return '/login';
     }

@@ -111,7 +111,7 @@ export const loadTournamentHomePage = () => {
             if (data && data.tournament_home_page_html) {
                 document.getElementById('content-area').innerHTML = data.tournament_home_page_html;
             } else {
-                console.error('Tournament home page HTML not found in response:', data);
+                console.log('Tournament home page HTML not found in response:', data);
             }
         })
         .catch(error => {
@@ -232,7 +232,7 @@ export const quitTournament = () => {
 export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) => {
     const button = document.getElementById('play-again');
     if (button) {
-        button.textContent = "Back to Tournament Page";
+        button.textContent = dict['back_tour'] || "Back to Tournament Page";
         button.setAttribute("data-route", "/tournament-bracket");
     }
     removeBeforeUnloadListenerAI();
@@ -276,6 +276,7 @@ export const tournamentGameAIstart = (data, tourId) => {
 
 function addGameButton(data) {
     // tournament ID needed!! or maybe not..
+    
     console.log('Player needs to play!!');
     const bracketSection = document.getElementById("bracket");
     // if (bracketSection) {
@@ -292,8 +293,8 @@ function addGameButton(data) {
     const span = document.createElement("span");
     span.classList.add("button-content-trn");
     // const dictionary = getDictFor3DGame();
-    span.textContent = "Play my game";
-    // span.textContent = dictionary['play_my_game'];
+    // span.textContent = "Play my game";
+    span.textContent = dict['play_my_game'] || "Play My Game";
 
     playButton.appendChild(span);
 
@@ -394,6 +395,7 @@ function updatePlayerCount(data) {
 }
 
 export async function tournamentConnect(tourId, nPlayers=null) {
+    dict = await getDictFor3DGame();
     return new Promise(async (resolve, reject) => {
         const access_token = localStorage.getItem("access_token");
         const token = await checkToken(access_token);

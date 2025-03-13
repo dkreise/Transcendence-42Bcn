@@ -1,12 +1,16 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { drawHeader } from "./main.js";
+import { getDictFor3DGame } from "./game.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
 const userMgmtPort = window.env.USER_MGMT_PORT;
 
-export const loadFriendsSearchPage = () => {
+let dict = null;
+
+export const loadFriendsSearchPage = async () => {
+    dict = await getDictFor3DGame();
     drawHeader('main').then(() => {
        return  makeAuthenticatedRequest(baseUrl + userMgmtPort + "/api/search-users", {method: "GET", credentials: "include"})
             .then(response => response ? response.json() : null)
@@ -54,7 +58,7 @@ const addFriend = (friendId) => {
 
                 const button = document.querySelector(`#add-friend-button[data-id="${friendId}"]`);
                 if (button) {
-                    button.textContent = 'Remove Friend';
+                    button.textContent = dict['remove_friend'] || 'Remove Friend';
                     button.id = 'remove-friend-button';
                     button.classList.remove('btn-success');
                     button.classList.add('btn-danger');
@@ -105,7 +109,7 @@ const removeFriend = (friendId) => {
 
                 const button = document.querySelector(`#remove-friend-button[data-id="${friendId}"]`);
                 if (button) {
-                    button.textContent = 'Add Friend';
+                    button.textContent = dict['add_friend'] || 'Add Friend';
                     button.id = 'add-friend-button';
                     button.classList.remove('btn-danger');
                     button.classList.add('btn-success');
