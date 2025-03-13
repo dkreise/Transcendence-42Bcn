@@ -33,7 +33,7 @@ let countdownTimeout = null;
 // console.log("Hi! This is remoteGame.js :D");
 
 export function handleRoleAssignment(data) {
-	console.log("Hi! I'm " + data.role);
+	console.log("222222222222222DHi! I'm " + data.role);
 	if (data.role === "player1") {
 		console.log("Hi! I'm " + data.role + " and I'm a player");
 		player = new Player(data, canvas, "player1");
@@ -49,6 +49,7 @@ export function handleRoleAssignment(data) {
 
 export function scaleGame(data)
 {
+	console.log("2222222D sCALE GAME")
 	handleRoleAssignment(data)
 	
 	ball.setVars(data);
@@ -412,7 +413,7 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 	console.log("tour is : ", tour);
 	// window.dict = dictionary;
 	dict = dictionary;
-  if (!roomId && !tour)
+  	if (!roomId && !tour)
 	{
 		// alert(`${dict['bad_id']}`);
 		navigateTo("/remote-home");
@@ -441,13 +442,14 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 }
 
 export function cleanRemote() {
+
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
 	console.log("CLEAN REMOTE tourId::: ", tourId);
-	if (socket && socket.readyState === WebSocket.OPEN && !tourId) {
-        socket.close();
-//         socket = null;
-    }
+// 	if (socket && socket.readyState === WebSocket.OPEN && !tourId) {
+//         socket.close();
+// //         socket = null;
+//     }
 	gameLoopId = null;
 
 	socket = null;

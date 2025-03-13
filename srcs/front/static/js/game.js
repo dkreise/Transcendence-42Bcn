@@ -264,15 +264,17 @@ export async function playOnline (tourId = null) {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
 
-                if (canvas)
+                if (canvas) {
+                    console.log("GOING TO START 2D");
                     startGame(roomId, isCreator, dictionary, tourId);
+                }
 
                 else
                     console.log("Error: Canvas not found");
             } else if (Enable3D === "true") {
                 //HERE SOMETHING WITH LANGUAGES
                 // start3DOnlineGame(localStorage.getItem('username'));
-                
+                console.log("GOING TO START 3D")
                 const contentArea = document.getElementById('content-area');
                 contentArea.innerHTML = ''; // Clear previous content
                 start3DRemoteGame(dictionary, tourId, roomId, isCreator);

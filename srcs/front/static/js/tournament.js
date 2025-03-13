@@ -19,20 +19,20 @@ let socket = null, dict = null, tourId = null;
 // Define your 2D handlers
 
 const handlers2D = {
-    role: (args) => scaleGame(args),          // synchronous
-    players: (args) => setWhoAmI(args),       // might be asynchronous
-    status: (args) => handleStatus(args),      // might be asynchronous
-    update: (args) => handleUpdate(args),      // synchronous
-    endgame: (args) => handleTourEndgame(args) // synchronous
+    role: (data) => scaleGame(data),          // synchronous
+    players: (data, socket) => setWhoAmI(data, socket),       // might be asynchronous
+    status: (data, socket) => handleStatus(data, socket),      // might be asynchronous
+    update: (data) => handleUpdate(data),      // synchronous
+    endgame: (data) => handleEndgame(data) // synchronous
 };
 
 // Define your 3D handlers
 const handlers3D = {
-    role: (args) => scale3DGame(args),         // asynchronous
-    players: (args) => setWhoAmI3D(args),      // asynchronous
-    status: (args) => handle3DStatus(args),    // asynchronous
-    update: (args) => handle3DUpdate(args),    // synchronous or asynchronous
-    endgame: (args) => handleOnlineEndgame(args) // synchronous or asynchronous
+    role: (data) => scale3DGame(data),          // asynchronous
+    players: (data, socket) => setWhoAmI3D(data, socket),      // asynchronous
+    status: (data, socket) => handle3DStatus(data, socket),    // asynchronous
+    update: (data) => handle3DUpdate(data),    // synchronous or asynchronous
+    endgame: (data) => handleOnlineEndgame(data) // synchronous or asynchronous
 };
 
 const handlersTour = {
@@ -41,8 +41,8 @@ const handlersTour = {
     new_player_cnt: updatePlayerCount,
     game_update: gameUpdate,
     full: tourFull,
-    needs_to_play(args) { return needsPlay(args); },
-    tournament_status: (args) => tourStatus(args),
+    needs_to_play: (data) => needsPlay(data),
+    tournament_status: (data) => tourStatus(data),
 }
 
 const wrapHandlers = (handlers) => {
@@ -60,7 +60,7 @@ const asyncHandlersTour = wrapHandlers(handlersTour);
 const getCombinedHandlers = (is3DEnabled) => {
     const modeHandlers = is3DEnabled ? asyncHandlers3D : asyncHandlers2D;
     console.log(`the functions I'm using are 3D? ${is3DEnabled}`)
-    console.log(modeHandlers);
+    // console.log(modeHandlers);
     return { ...modeHandlers, ...asyncHandlersTour };
 };
 
@@ -219,6 +219,7 @@ export const quitTournament = () => {
     removeBeforeUnloadListenerRemote();
     console.log("QUIT button clicked")
     if (!socket) {
+        console.log("No socket")
         navigateTo('/home', true);
         return;
     }
@@ -413,8 +414,7 @@ export async function tournamentConnect(tourID, nPlayers=null) {
         localStorage.setItem("currentTournamentId", tourId);
         console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
 
-        if (!currentHandlers)
-            currentHandlers = getCombinedHandlers(getOrInitialize3DOption());
+        // currentHandlers = getCombinedHandlers(getOrInitialize3DOption());
 
         if (nPlayers) {
             socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
@@ -474,83 +474,15 @@ export async function tournamentConnect(tourID, nPlayers=null) {
         socket.onmessage = async (event) => { //we're receiving messages from the backend via WB
             const data = JSON.parse(event.data);
             localStorage.setItem("currentTournamentId", tourId);
-            currentHandlers = getCombinedHandlers(getOrInitialize3DOption());
+
             const handler = currentHandlers[data.type];
-            // console.log(data);
+            console.log(data.type);
             if (handler) {
                 await handler(data, socket);
             } else {
                 console.log("Unhandled message type:", data.type);
             }
         };
-    // socket.onmessage = async (event) => { //we're receiving messages from the backend via WB
-	// 	const data = JSON.parse(event.data);
-    //     localStorage.setItem("currentTournamentId", tourId);
-
-	// 	// console.log(data);
-	// 	switch(data.type)
-	// 	{
-	// 		case "totalPlayers":
-	// 			console.log("current number of players in the tournament: " + data.total);
-    //             break;
-	// 		case "html":
-	// 			uploadTournamentPage(data);
-    //             break;
-    //         case "new_player_cnt":
-    //             updatePlayerCount(data);
-    //             break;
-    //         case "game_update":
-    //             alert("GAME_UPDATE??  A player has disconnected. Waiting for reconnection...");
-    //             break;
-    //         case "full":
-    //             console.log("Tournament is full:", data.message);
-    //             alert(data.message);
-    //             localStorage.removeItem('inTournament');
-    //             localStorage.removeItem("user_quit");
-    //             localStorage.removeItem("currentTournamentId");
-    //             socket.close();
-    //             break;
-    //         case "needs_to_play":
-    //             if (!data.needs_to_play)
-    //                 navigateTo('/tournament', true);
-    //             else if (data.opponent == "@AI") {
-    //                 tournamentGameAIstart(data, tourId);
-    //             } else {
-    //                 playOnline(tourId);
-    //             }
-    //             break;
-    //         case "tournament_status":
-    //             localStorage.setItem('inTournament', data.status);
-    //             navigateTo('/tournament');
-    //             break;
-	// 		case "role":
-	// 			// handleRoleAssignment(data);
-	// 			scaleGame(data);
-	// 			break;
-	// 		case "players":
-	// 			await setWhoAmI(data, socket);
-	// 			// socket.send(JSON.stringify({"type": "ready"}));
-	// 			break;
-	// 		case "status":
-	// 			await handleStatus(data, socket);
-	// 			break;
-	// 		case "update":
-	// 			handleUpdate(data);
-	// 			break;
-	// 		case "endgame":
-    //             // handleTourEndgame(data);
-    //             handleEndgame(data);
-    //             // saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);
-	// 			break;
-	// 		case "reject":
-	// 			// alert(`Connection rejected: ${data.reason}`);
-    //             console.log(`Connection rejected: ${data.reason}`);
-	// 			//return client to tournament home page or bracket page
-	// 			break;
-    //         default:
-    //             console.log("Unhandled message type: ", data.type);
-	// 	}
-	// };
 });
 }
 

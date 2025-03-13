@@ -191,11 +191,10 @@ export async function start3DRemoteGame(dict, tournament, roomId, isCreator) {
     tournamentId = tournament;
     // roomID = roomId;
     console.log(`ROOM ID: ${roomId}`)
-    if (!roomId) {
+    if (!roomId && ! tournament) {
         navigateTo('/remote-home');
         return ;
     }
-    roomID = (isCreator | 0) + roomId.toString();
     await setupScene();
     text = new SceneText(scene, dict,  tournamentId, 0, -Math.PI / 2);
     await text.createText();
@@ -205,6 +204,7 @@ export async function start3DRemoteGame(dict, tournament, roomId, isCreator) {
     if (!tournamentId) {
         camera.position.set(-90.5, 200.5, 0);
         camera.lookAt(new THREE.Vector3(0, 201, 53))
+        roomID = (isCreator | 0) + roomId.toString();
     } else {
         camera.position.set(-39.5, 22.5, 0);
         camera.lookAt(new THREE.Vector3(0, 0, 0))
@@ -321,8 +321,8 @@ async function initializeWebSocket(roomId = 123) {
                 break;
             case "players":
                 // console.log(`Player 1 name: ${data.p1}, Player 2 name: ${data.p2}`)
-                await setWhoAmI3D(data);
-                socket.send(JSON.stringify({"type": "ready"}))
+                await setWhoAmI3D(data, socket);
+                // socket.send(JSON.stringify({"type": "ready"}))
                 break;
             case "status":
                 await handle3DStatus(data);
@@ -350,6 +350,7 @@ function convertXToFront(backX) {
 
 export async function scale3DGame(data)
 {
+    console.log("333333333333D sCALE GAME")
     if (!player1) {
         player1 = new OnlinePlayer(data, dict, limits, scene, -1, "player1", new THREE.Vector3(0, 0, -field.y), -0.1, -0.5, 0);
         console.log(`player1: ${field.y}`)
@@ -359,7 +360,7 @@ export async function scale3DGame(data)
         ball = new OnlineBall(data, dict, scene, limits, [player1, player2], false);
         waiting = true;
     }
-    handleRoleAssignment(data.role);
+    handle3DRoleAssignment(data.role);
 }
 
 export async function handle3DStatus(data, tourSocket = null)
@@ -406,7 +407,8 @@ export function handle3DUpdate(data)
     }
 }
 
-export async function setWhoAmI3D(data) {
+export async function setWhoAmI3D(data, sock) {
+    console.log("3DDDDDD Set who am I ");
     text.waiting.visible = false;
     text.enemy.visible = true;
     await player1.setupText();
@@ -414,10 +416,11 @@ export async function setWhoAmI3D(data) {
     // console.log(`player1: ${data.player1}, player2: ${data.player2}`)
     player1.setName(data.player1);
     player2.setName(data.player2);
+    sock.send(JSON.stringify({"type": "ready"}))
 }
 
-function handleRoleAssignment(role) {
-	console.log("Hi! I'm " + role + " Setting REmote controls");
+function handle3DRoleAssignment(role) {
+	console.log("3DDDDDD Hi! I'm " + role + " Setting REmote controls");
 	if (role === "player1") {
         setupRemoteControls(player1);
         mainplayer = player1;
@@ -665,7 +668,7 @@ async function setupField() {
 
 async function setupEvents() {
     ball.addEventListener("aifinish", (e) => {
-        handleEndGame(e.message);
+        handleEnd3DGame(e.message);
         if (tournamentId) {
             console.log(player2.name);
             if (e.player == window.gameDict['enemy'])
@@ -677,7 +680,7 @@ async function setupEvents() {
     })
 
     ball.addEventListener("localfinish", (e) => {
-        handleEndGame(e.message);
+        handleEnd3DGame(e.message);
         if (!player1 || !player2) return;
         saveScore(player1.score, player2.score, mainUser);
     })
@@ -793,7 +796,9 @@ async function firstCountdown(callback) {
         text.updateGeometry(text.countdownText, `${count}`, textCount);
         text.countdownText.visible = true;
     }
-    const interval = setInterval(() => {    
+    const interval = setInterval(() => {   
+        if (!scene)
+            return ; 
         if (count == 2 && text.enemy.visible === true) {
             text.enemy.visible = false;
             text.updateGeometry(text.countdownText, `${count}`, textCount);
@@ -813,15 +818,18 @@ async function firstCountdown(callback) {
     }, 500);
 }
 
-async function handleEndGame(message) {
+async function handleEnd3DGame(message) {
     gameEnded = true;
     gameStarted = false;
+    if (!text)
+        return ;
     if (text.winnerMessage)
         text.updateGeometry(text.winnerMessage, message, textWinner); // PUT BACK
     if (!tournamentId) {
         text.button.visible = true;
         text.tryAgain.visible = true;
     }
+    text.countdownText.visible = false;
     text.winnerMessage.visible = true;
 }
 
@@ -830,17 +838,19 @@ export async function  handleOnlineEndgame(data) {
     const { winner, loser, scores} = data;
     const msg = `${winner} ` + window.gameDict['wins'] + " !";
 	console.log(`winner ${winner} loser ${loser}`);
-
+    if (!scene)
+        return ;
 	if (socket && socket.readyState === WebSocket.OPEN && !tournamentId) {
+        console.log(`Closing socket tourId: ${tournamentId}`);
 		socket.close();
 		socket = null;
 	} 
-    handleEndGame(msg);
+    handleEnd3DGame(msg);
     if (tournamentId){
-        tournamentId = null;
+        // tournamentId = null;
         saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);
     }
-    resetOnlineTeam();
+    // resetOnlineTeam();
 }
 
 async function createSky() {
@@ -939,12 +949,13 @@ export async function cleanup3D() {
     
     if (tournamentId && remote)
         stopTournamentGame();
-    if (tournamentId) 
-        quitTournament();
+    // if (tournamentId) 
+    //     quitTournament();
 
     drawHeader('main')
     
-    if (socket && socket.readyState === WebSocket.OPEN) {
+    if (socket && socket.readyState === WebSocket.OPEN && !tournamentId) {
+        console.log("333ddd Closing SOCKET~")
         socket.close();
         socket = null;
     }
