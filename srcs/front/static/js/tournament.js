@@ -386,7 +386,8 @@ function uploadTournamentPage(data) {
 
 function updatePlayerCount(data) {
     if (isOnWaitingRoomPage()) {
-        document.getElementById('cur-player-cnt').textContent = data.player_cnt;
+        if (document.getElementById('cur-player-cnt'))
+            document.getElementById('cur-player-cnt').textContent = data.player_cnt;
         // let prev_player_cnt = document.getElementById('cur-player-cnt');
         // if (prev_player_cnt) {
         //     prev_player_cnt.textContent = data.player_cnt;
