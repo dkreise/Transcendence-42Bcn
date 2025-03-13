@@ -101,6 +101,13 @@ canvas {
     }
 }
 
-#gameCanvas {
+#newGameCanvas {
     animation: fieldGlow 3s infinite alternate;
+}
+
+#play-again {
+    margin-left: 30px;
+    width: 30%;
+    align-self: center;
+    margin-top: 25px;
 }
