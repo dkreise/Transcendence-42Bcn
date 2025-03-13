@@ -44,6 +44,7 @@ export async function checkToken(token) {
 }
 
 export var socket = null;
+let off = false;
 
 export async function connectWS(access_token)
 {
@@ -69,7 +70,9 @@ export async function connectWS(access_token)
         //         return ;
 		// 	}
 		// }
-        if (access_token) {
+
+        if (access_token && !off) {
+            off = true;
             setTimeout(() => connectWS(access_token), 1000); // Retry after 1 second
             console.log('Reconnecting...');
         }
