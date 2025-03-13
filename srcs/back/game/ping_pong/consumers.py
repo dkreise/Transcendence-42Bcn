@@ -100,7 +100,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					isCreator = int(self.room_id[0])
 					self.room_id = self.room_id[1:]
 					await self.accept()
-					logger.info(f"Connection accepted! room id: {self.room_id}")
+					logger.info(f"Connection accepted! room id: {self.room_id} is creator: {isCreator}, roomid[0]: {self.room_id[0]}")
 					async with active_games_lock:
 						if (self.room_id not in active_games) and isCreator:
 							active_games[self.room_id] = GameManager(self.room_id)

@@ -189,42 +189,45 @@ export async function start3DRemoteGame(dict, tournament, roomId, isCreator) {
     init();
     remote = true;
     tournamentId = tournament;
-    // roomID = roomId;
-    console.log(`ROOM ID: ${roomId}`)
+    roomID = roomId;
+    console.log(`ROOM ID: ${roomId}, is Creator: ${isCreator}`)
     if (!roomId && ! tournament) {
         navigateTo('/remote-home');
         return ;
+    } else if (!tournament) {
+        roomID = (isCreator | 0) + roomID.toString();
     }
     await setupScene();
-    text = new SceneText(scene, dict,  tournamentId, 0, -Math.PI / 2);
+    text = new SceneText(scene, dict, true, 0, -Math.PI / 2);
     await text.createText();
-    text.button.position.set(0, 200, 52);
-    text.start.position.set(0, 200, 53.5);
+
+    // text.button.position.set(0, 200, 52);
+    // text.start.position.set(0, 200, 53.5);
     camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 1000);
-    if (!tournamentId) {
-        camera.position.set(-90.5, 200.5, 0);
-        camera.lookAt(new THREE.Vector3(0, 201, 53))
-        roomID = (isCreator | 0) + roomId.toString();
-    } else {
-        camera.position.set(-39.5, 22.5, 0);
-        camera.lookAt(new THREE.Vector3(0, 0, 0))
-    }
+    // if (!tournamentId) {
+    camera.position.set(-90.5, 200.5, 0);
+    camera.lookAt(new THREE.Vector3(0, 201, 53))
+        // roomID = (isCreator | 0) + roomId.toString();
+    // } else {
+    //     camera.position.set(-39.5, 22.5, 0);
+    //     camera.lookAt(new THREE.Vector3(0, 0, 0))
+    // }
 
     await createLights(-20);
     await setupField();
     controls.target.set(50, 201, 0);
-    if (tournamentId)
-        controls.target.set(0, 7, 0);
+    // if (tournamentId)
+    //     controls.target.set(0, 7, 0);
     // console.log('Starting remote 3D game...');
 
     setupRemoteEvents();
-    if (tournamentId) {
-        await animateCameraToField();
+    // if (tournamentId) {
+    await animateCameraToField();
+    if (tournamentId) 
         startTournamentGame();
-    }
+    // }
     // gameStarted = true;
     animateRemote();
-    
 
 }
 
@@ -243,6 +246,7 @@ async function setupRemoteEvents() {
                 text.start.position.set(0, params.textY, 1.5);
                 await animateCameraToField()
             } else if (!tournamentId) {
+                console.log("initializing Web Socket")
                 initializeWebSocket(roomID);
             }
         }
@@ -277,7 +281,7 @@ export function setupRemoteControls(player) {
 //async function initializeWebSocket(roomId) {
 async function initializeWebSocket(roomId = 123) {
     let retries = 0;
-    console.warn(`Initializing Web socket... ROOM ID ${roomId}`);
+    console.warn(`Initializing Web socket... ROOM ID ${roomID}`);
     const access_token = localStorage.getItem("access_token");
 	const token = await checkToken(access_token);
     if (!token) {
@@ -287,7 +291,8 @@ async function initializeWebSocket(roomId = 123) {
     if (!socket)
     {
         text.waiting.visible = true;
-        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
+        console.warn(`REALLY Initializing Web socket... ROOM ID ${roomID}`);
+        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomID.toString()}/?token=${token}`);
     }
     socket.onopen = () => console.log("WebSocket connection established.");
     socket.onerror = (error) => {
@@ -303,7 +308,7 @@ async function initializeWebSocket(roomId = 123) {
             try {
                 await refreshAccessToken();
                 // Reconnect with the new token
-                initializeWebSocket(roomId);
+                initializeWebSocket(roomID);
             } catch (err) {
                 console.log("Failed to refresh token", err);
                 cleanup3D();
