@@ -308,7 +308,6 @@ async function initializeWebSocket(roomId = 123) {
                 console.log("Failed to refresh token", err);
                 cleanup3D();
                 return; 
-                // handleLogout();
             }
         }
     };

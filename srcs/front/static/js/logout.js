@@ -37,12 +37,13 @@ export const handleLogout = () => {
     disconnectWS()
     console.log("WebSocket closed upon logout.");
 
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
-    localStorage.removeItem('inTournament');
-    localStorage.removeItem('currentTournamentId');
-    localStorage.removeItem('intra_token');
-    localStorage.setItem("3D-option", "false")
+    localStorage.clear();
+    // localStorage.removeItem('access_token');
+    // localStorage.removeItem('refresh_token');
+    // localStorage.removeItem('inTournament');
+    // localStorage.removeItem('currentTournamentId');
+    // localStorage.removeItem('intra_token');
+    // localStorage.setItem("3D-option", "false")
 
     //contentArea.innerHTML = ''; // to clear user content
     window.history.replaceState(null, null, '/'); // ????

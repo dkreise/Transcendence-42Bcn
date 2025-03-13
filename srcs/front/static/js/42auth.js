@@ -1,7 +1,6 @@
 import { clearURL, navigateTo } from "./main.js";
 import { connectWS } from "./onlineStatus.js";
-import { getDictFor3DGame } from "./game.js";
-import { getUserPreferenceLanguageFromDB } from "./langs.js";
+import { showModalError } from "./errorHandler.js";
 
 const userMgmtPort = window.env.USER_MGMT_PORT;
 const host = window.env.HOST;
@@ -27,7 +26,7 @@ export const handle42Callback = () => {
             console.log(`error string: ${err}`);
             // alert("Access denied. Try again later");
             clearURL();
-            showModalError(`An error occurred: ${err}. Try again later.`);
+            showModalError("ERROR");
             navigateTo("/login");
             // displayLoginError('Invalid credentials. Please try again.', 'login-form');
         }
@@ -60,55 +59,32 @@ export const handle42Callback = () => {
                     console.log(history.state)
                     navigateTo('/home', true);
                     
-                    // loadProfilePage();
                 } else if (data.two_fa_required) {
                     localStorage.setItem('temp_token', data.temp_token);
                     localStorage.setItem('intra_token', data.intra_token);
                     navigateTo('/two-fa-login', true);
                 } else {
                     clearURL();
-                    showModalError();
+                    showModalError("ACCESS_DENIED");
                     navigateTo("/login");
-                    // displayLoginError('Invalid credentials. Please try again.', 'login-form');
                 }
             })
             .catch(error => {
                 clearURL();
                 // alert("Access denied. Try again later");
                 if (error.message.includes("401")) {
-                    showModalError();
+                    showModalError("ACCESS_DENIED");
                 } else if (error.message.includes("403")) {
-                    showModalError();
+                    showModalError("ACCESS_DENIED");
                 } else {
-                    showModalError();
+                    showModalError("ACCESS_DENIED");
                 }
                 navigateTo("/login");
-                // displayLoginError('Invalid credentials. Please try again.', 'login-form');
             });
         } else {
             console.log(`No relevant information provided in callback`);
-            // alert("Access denied. Try again later");
             clearURL();
             navigateTo("/login");
-            // displayLoginError('Invalid credentials. Please try again.', 'login-form');
         }
 };
 
-export function showModalError() {
-	const dict = {
-		"EN": "Access denied",
-		"ES": "Acceso denegado",
-		"CA": "Accés denegat",
-		"RU": "Доступ запрещен",
-		"LV": "Prieiga uždrausta",
-	};
-	//const lang = getUserPreferenceLanguageFromDB() || 'EN';
-	const lang = 'EN';
-	console.log("lang: " + JSON.stringify(lang));
-    Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: dict[lang],
-        backdrop: false,
-    });
-}

@@ -34,7 +34,7 @@
         {% for round_pairs in pairs_and_winners %}
         {% if forloop.counter0 < cur_round %}  {# Show rounds only up to cur_round #}
         <div class="round-block mb-5">
-            <h3 class="text-center mb-3">Round {{ forloop.counter }}</h3>
+            <h3 class="text-center mb-3">{{ round }} {{ forloop.counter }}</h3>
             <div class="container">
                 {% for pair, bool_winner in round_pairs %}
                 <div class="row justify-content-center mb-2">
@@ -60,7 +60,7 @@
     <div class="row justify-content-center mt-4">
         <div class="col-12 col-md-6">
             <button class="button-trn" replace-url data-route="/quit-tournament" style="margin-top: 10%; width: 40%;">
-                <span class="button-content-trn">Quit Tournament</span>
+                <span class="button-content-trn">{{ quit_tournament }}</span>
             </button>
         </div>
     </div>

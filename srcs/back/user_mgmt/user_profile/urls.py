@@ -19,8 +19,8 @@ urlpatterns = [
     path('api/get-main-header/', views.get_main_header, name='mainheader'),
     path('api/get-languages-header/', views.get_languages_header, name='languagesheader'),
     path('api/get-3D-header/', views.get_3D_header, name='3Dheader'),
+    path('api/get-lang-from-cookies/', views.get_lang_from_cookies, name='get_lang_from_cookies'),
 ] 
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-# in production we will need to configure nginx to serve files from the media_root directory

@@ -17,6 +17,7 @@ const gamePort = window.env.GAME_PORT;
 let socket = null, dict = null, tourId = null;
 
 // Define your 2D handlers
+
 const handlers2D = {
     role: (args) => scaleGame(args),          // synchronous
     players: (args) => setWhoAmI(args),       // might be asynchronous
@@ -113,7 +114,7 @@ export const loadTournamentHomePage = () => {
             if (data && data.tournament_home_page_html) {
                 document.getElementById('content-area').innerHTML = data.tournament_home_page_html;
             } else {
-                console.error('Tournament home page HTML not found in response:', data);
+                console.log('Tournament home page HTML not found in response:', data);
             }
         })
         .catch(error => {
@@ -234,7 +235,7 @@ export const quitTournament = () => {
 export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) => {
     const button = document.getElementById('play-again');
     if (button) {
-        button.textContent = "Back to Tournament Page";
+        button.textContent = dict['back_tour'] || "Back to Tournament Page";
         button.setAttribute("data-route", "/tournament-bracket");
     }
     removeBeforeUnloadListenerAI();
@@ -278,6 +279,7 @@ export const tournamentGameAIstart = (data, tourId) => {
 
 function addGameButton(data) {
     // tournament ID needed!! or maybe not..
+    
     console.log('Player needs to play!!');
     const bracketSection = document.getElementById("bracket");
     // if (bracketSection) {
@@ -294,8 +296,8 @@ function addGameButton(data) {
     const span = document.createElement("span");
     span.classList.add("button-content-trn");
     // const dictionary = getDictFor3DGame();
-    span.textContent = "Play my game";
-    // span.textContent = dictionary['play_my_game'];
+    // span.textContent = "Play my game";
+    span.textContent = dict['play_my_game'] || "Play My Game";
 
     playButton.appendChild(span);
 
@@ -387,11 +389,14 @@ function uploadTournamentPage(data) {
 
 function updatePlayerCount(data) {
     if (isOnWaitingRoomPage()) {
-        document.getElementById('cur-player-cnt').textContent = data.player_cnt;
+        if (document.getElementById('cur-player-cnt'))
+            document.getElementById('cur-player-cnt').textContent = data.player_cnt;
     }
 }
 
+
 export async function tournamentConnect(tourID, nPlayers=null) {
+    dict = await getDictFor3DGame();
     return new Promise( async (resolve, reject) => {
         const access_token = localStorage.getItem("access_token");
         const token = await checkToken(access_token);
@@ -403,6 +408,7 @@ export async function tournamentConnect(tourID, nPlayers=null) {
             reject("No access token found");
             return ;
         }
+        console.log("tournamentConnect token: " + token);
         tourId = tourID;
         localStorage.setItem("currentTournamentId", tourId);
         console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);

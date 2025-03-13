@@ -1,7 +1,7 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { drawHeader } from "./main.js";
 import { getOrInitialize3DOption } from "./game.js";
-import { updateHandlers } from "./tournament.js"
+// import { updateHandlers } from "./tournament.js"
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
