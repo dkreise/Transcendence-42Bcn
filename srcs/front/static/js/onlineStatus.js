@@ -58,17 +58,17 @@ export async function connectWS(access_token)
 
         console.log('WebSocket Disconnected. ');
         access_token = localStorage.getItem('access_token');
-        if (event.code === 4001) {
-			// Token expired; refresh token logic
-			try {
-				access_token = await refreshAccessToken();
-			  // Reconnect with the new token
-                // await connectWS(tok);
-			} catch (err) {
-			    console.log("Failed to refresh token", err);
-                return ;
-			}
-		}
+        // if (event.code === 4001) {
+		// 	// Token expired; refresh token logic
+		// 	try {
+		// 		access_token = await refreshAccessToken();
+		// 	  // Reconnect with the new token
+        //         // await connectWS(tok);
+		// 	} catch (err) {
+		// 	    console.log("Failed to refresh token", err);
+        //         return ;
+		// 	}
+		// }
         if (access_token) {
             setTimeout(() => connectWS(access_token), 1000); // Retry after 1 second
             console.log('Reconnecting...');
