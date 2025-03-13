@@ -418,6 +418,8 @@ window.addEventListener("resize", resizeCanvasRemote);
 export function startGame(roomId, isCreator, dictionary, tour = null)
 {
 	canvas = document.getElementById('newGameCanvas');
+	
+
 	tourId = tour;
 	console.log("tour is : ", tour);
 	// window.dict = dictionary;

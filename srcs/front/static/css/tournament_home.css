@@ -223,7 +223,7 @@ h2 {
   @media (min-width: 768px) {
     #join-tournament-form, #create-tournament-form {
         flex: 0 0 auto;
-        width: 27.66666667%;
+        width: 37.66666667%;
     }
 }
   

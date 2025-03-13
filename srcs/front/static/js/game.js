@@ -268,6 +268,10 @@ export async function playOnline (tourId = null) {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
 
+                let id_html = document.getElementById('id-room-remote');
+                id_html.textContent = `${roomId}`;
+                console.warn(roomId);
+                
                 if (canvas)
                     startGame(roomId, isCreator, dictionary, tourId);
 

@@ -1,10 +1,15 @@
 <div id="game-container">
-    <div class="gameStatus">
-		<div id="newGameBoard" class="d-flex justify-content-center align-items-center position-relative">
-    		<canvas id="newGameCanvas" class="d-block"></canvas> <!-- Game playfield -->
-    		<div id="wait" class="position-absolute text-center w-100" data-original="{{ waiting_message }}">
-			</div>
+	<div class="gameStatus" style="display: flex; flex-direction: column;">
+		<div style="display: flex;"> 
+			<h2 style="color: #6f42c1;">ID:  </h2> <h2 id="id-room-remote" style="color: #ddd;"></h2>
 		</div>
-        <button id="play-again" data-route="/restart-online">{{ restart }}</button>
-    </div>
+		<div id="newGameBoard" class="d-flex justify-content-center align-items-center position-relative">
+			<canvas id="newGameCanvas" class="d-block"></canvas> <!-- Game playfield -->
+			<div id="wait" class="position-absolute text-center w-100" data-original="{{ waiting_message }}"></div>
+		</div>
+		<!-- <button id="play-again" style="align-self: center;" data-route="/restart-online" class="button-trn">{{ restart }}</button> -->
+		<button id="play-again" style="align-self: center;" data-route="/restart-online" class="button-trn">
+			  <span class="button-content-trn">{{ restart }}</span>
+		</button>
+	</div>
 </div>
