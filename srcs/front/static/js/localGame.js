@@ -44,8 +44,11 @@ export function saveScore(score1, score2, mainUser) {
 
 async function displayCountdown()
 {
-	if (gameLoopId)
+	console.log("display countdown");
+	if (gameLoopId) {
 		cancelAnimationFrame(gameLoopId);
+		console.log("frame animation cancelled! gameLoopId: " + gameLoopId);
+	}
 	let div = document.getElementById("wait");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(0 0 0 / 25%)";

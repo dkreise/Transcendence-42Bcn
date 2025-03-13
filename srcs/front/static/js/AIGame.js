@@ -161,15 +161,15 @@ function checkIfAIneedStop() {
 
 async function displayCountdown()
 {
-	if (tournamentId)
-		return ;
-//	if (gameLoopId)
-//		cancelAnimationFrame(gameLoopId);
+	//if (tournamentId)
+	//	return ;
+	if (gameLoopId)
+		cancelAnimationFrame(gameLoopId);
 	let div = document.getElementById("wait");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	div.innerHTML = dict["ready"];
 	div.style.display = "block";
-	div.style.fontSize = Math.floor(canvas.width * 0.15) + "px";
+	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
 	ctx.fillStyle = "rgb(0 0 0 / 25%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	await new Promise(resolve => setTimeout(resolve, 500));
