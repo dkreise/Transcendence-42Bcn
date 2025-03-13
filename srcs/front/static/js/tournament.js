@@ -58,13 +58,12 @@ const asyncHandlers3D = wrapHandlers(handlers3D);
 const asyncHandlersTour = wrapHandlers(handlersTour);
 
 const getCombinedHandlers = (is3DEnabled) => {
+
     const modeHandlers = is3DEnabled ? asyncHandlers3D : asyncHandlers2D;
-    console.log(`the functions I'm using are 3D? ${is3DEnabled}`)
-    // console.log(modeHandlers);
     return { ...modeHandlers, ...asyncHandlersTour };
 };
 
-let currentHandlers = getCombinedHandlers(getOrInitialize3DOption());
+let currentHandlers = getCombinedHandlers(getOrInitialize3DOption() === "true");
 
 export const updateHandlers = (is3DEnabled) => {
     currentHandlers = getCombinedHandlers(is3DEnabled);
@@ -401,7 +400,7 @@ export async function tournamentConnect(tourID, nPlayers=null) {
     return new Promise( async (resolve, reject) => {
         const access_token = localStorage.getItem("access_token");
         const token = await checkToken(access_token);
-        console.log(token);
+        // console.log(token);
 
         if (!token)
         {
@@ -409,12 +408,12 @@ export async function tournamentConnect(tourID, nPlayers=null) {
             reject("No access token found");
             return ;
         }
-        console.log("tournamentConnect token: " + token);
+        // console.log("tournamentConnect token: " + token);
         tourId = tourID;
         localStorage.setItem("currentTournamentId", tourId);
         console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
 
-        // currentHandlers = getCombinedHandlers(getOrInitialize3DOption());
+        currentHandlers = getCombinedHandlers(getOrInitialize3DOption() === "true");
 
         if (nPlayers) {
             socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
@@ -474,6 +473,8 @@ export async function tournamentConnect(tourID, nPlayers=null) {
         socket.onmessage = async (event) => { //we're receiving messages from the backend via WB
             const data = JSON.parse(event.data);
             localStorage.setItem("currentTournamentId", tourId);
+            console.log(`SDFGHJKLSDFGHJKL: ${getOrInitialize3DOption()}`)
+            currentHandlers = getCombinedHandlers(getOrInitialize3DOption() === "true");
 
             const handler = currentHandlers[data.type];
             console.log(data.type);
