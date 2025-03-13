@@ -375,7 +375,7 @@ function gameLoop() {
 	}
 }
 
-function resizeCanvas() {
+function resizeCanvasRemote() {
 	if (!canvas)
 		return ;
 
@@ -413,7 +413,7 @@ function resizeCanvas() {
 }
 
 // Resize canvas when the window resizes
-window.addEventListener("resize", resizeCanvas); 
+window.addEventListener("resize", resizeCanvasRemote);
 
 export function startGame(roomId, isCreator, dictionary, tour = null)
 {
@@ -432,7 +432,7 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 	if (!canvas)
 		return ;
 	ball = new Ball(canvas);
-	resizeCanvas();
+	resizeCanvasRemote();
 	targetBallX = ball.x;
 	targetBallY = ball.y;
 	gameStop = false;
