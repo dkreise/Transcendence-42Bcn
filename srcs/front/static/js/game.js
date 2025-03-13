@@ -330,7 +330,7 @@ export async function loadRemoteHome() {
 			});
 		})
         .catch(error => {
-            console.error('Catch error loading home remote game: ', error);
+            console.log('Catch error loading home remote game: ', error);
             if (error == "No access token.")
                 navigateTo('/login');
         });

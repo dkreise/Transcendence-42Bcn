@@ -52,16 +52,6 @@ export function scaleGame(data)
 {
 	handleRoleAssignment(data)
 	
-	// player.width = canvas.width * (data.padW / data.canvasX);
-	// opponent.width = player.width;
-	// player.height = canvas.height * (data.padH / data.canvasY);
-	// opponent.height = player.height;
-	// if (player.x != 0)
-	// 	player.x = canvas.width - player.width;
-	// else
-	// 	opponent.x = canvas.width - opponent.width;
-	// player.setVars(data);
-	// opponent.setVars(data);
 	ball.setVars(data);
 }
 
