@@ -490,7 +490,7 @@ const beforeUnloadHandlerRemote = () => {
 // -------------------- GAME WITH AI FUNCTIONS ---------------------- //
 //--------------------------------------------------------------------//
 
-export async function start3DAIGame(playerName2, dict, tournament = null) {
+export async function start3DAIGame(playerName2, dict, tournament = null, difficulty = 1) {
 
     // dict = dict;
     window.gameDict = dict;
@@ -509,7 +509,8 @@ export async function start3DAIGame(playerName2, dict, tournament = null) {
     player2 = new AIPlayer(dict, limits, scene, 1, playerName2, new THREE.Vector3(0, 0, field.y - 2), -0.1);
     player1 = new AIPlayer(dict, limits, scene, -1, dict['enemy'], new THREE.Vector3(0, 0, -field.y + 2), -0.1);
     ball = new Ball(dict, scene, limits, [player1, player2], true);
-    ai = new AIController(player1, ball, limits);
+    ai = new AIController(player1, ball, limits, difficulty);
+    console.warn("AI diffff", ai.difficulty);
     setupEvents();
     setupAIControls();
     animateAI();
