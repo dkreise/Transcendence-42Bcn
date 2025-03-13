@@ -79,7 +79,9 @@ def get_lang_words(lang):
             'back': "Volver atrás",  
             'enter_winner_username_placeholder': "Ingrese usuario del ganador",
             'search_by_username_email_ph': "Buscar por nombre de usuario o correo electrónico",
-        } 
+            'go_back': "Volver Atrás",
+            'quit': "SALIR",
+        }
 
     elif lang == 'CA':
         return {
@@ -153,6 +155,8 @@ def get_lang_words(lang):
             'back': "Tornar enrrere",  
             'enter_winner_username_placeholder': "Introdueix usuari del guanyador",  
             'search_by_username_email_ph': "Cercar per nom d'usuari o correu electrònic",
+            'go_back': "Tornar enrrere",
+            'quit': "SORTIR",
         }
 
     elif lang == 'RU':
@@ -208,6 +212,7 @@ def get_lang_words(lang):
             'winner_wo': "Победитель",
             'tournament': "Турнир",
             'quit': "Выйти",
+            'quit_tournament': "Покинуть турнир",
             'all': "Все",
             'yes': "Да",
             'no': "Нет",
@@ -228,6 +233,8 @@ def get_lang_words(lang):
             'back': "Назад",  
             'enter_winner_username_placeholder': "Введите имя пользователя победителя",  
             'search_by_username_email_ph': "Поиск по имени пользователя или электронной почте",
+            'go_back': "Вернуться назад",
+            'quit': "ВЫЙТИ",
         }
 
     elif lang == 'LV':
@@ -302,6 +309,8 @@ def get_lang_words(lang):
             'back': "Atpakaļ",  
             'enter_winner_username_placeholder': "Ievadiet uzvarētāja lietotājvārdu",  
             'search_by_username_email_ph': "Meklēt pēc lietotājvārda vai e-pasta",
+            'go_back': "Atgriezties atpakaļ",
+            'quit': "IZIET",
         }
         
     else:
@@ -376,6 +385,7 @@ def get_lang_words(lang):
             'back': "Go back",  
             'enter_winner_username_placeholder': "Enter winner's username",
             'search_by_username_email_ph': "Search by username or email",
-            ##################### new
+            'go_back': "Go Back",
             'quit': "QUIT",
+            'quit_tournament': "Quit Tournament"
         }

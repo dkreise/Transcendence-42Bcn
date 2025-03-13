@@ -12,7 +12,10 @@ export async function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refresh_token");
     if (!refreshToken) {
         console.error("No refresh token found. User needs to log in again.");
-        handleLogout();
+        // handleLogout();
+        localStorage.clear();
+        window.history.replaceState(null, null, '/');
+        navigateTo('/login', true);
         return Promise.reject("No refresh token available");
     }
 
@@ -25,8 +28,11 @@ export async function refreshAccessToken() {
         if (response.ok) {
             return response.json();
         } else {
-            console.log("Refresh token invalid or expired.");
-            handleLogout();
+            console.error("Refresh token invalid or expired.");
+            // handleLogout();
+            localStorage.clear();
+            window.history.replaceState(null, null, '/');
+            navigateTo('/login', true);
             return Promise.reject("Refresh token invalid or expired.");
         }
     })
@@ -65,26 +71,12 @@ export const makeAuthenticatedRequest = async (url, options = {}) => {
         },
         credentials: "include",
     };
-
-    // return fetch(url, options).then((response) => {
-    //     if (response.status === 401) {
-    //         console.log("Access token expired, attempting refresh..");
-    //         return refreshAccessToken().then((newAccessToken) => {
-    //             options.headers["Authorization"] = `Bearer ${newAccessToken}`;
-    //             return fetch(url, options); //retry the original request
-    //         });
-    //     } else {
-    //         console.log(url);
-    //         return response; // means that response is valid
-    //     }
-    // });
-
     try {
         let response = await fetch(url, options);
 
         if (!response)
             return null;
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
             console.log("Access token expired, attempting refresh..");
             const newAccessToken = await refreshAccessToken();
             if (!newAccessToken) {
@@ -96,8 +88,7 @@ export const makeAuthenticatedRequest = async (url, options = {}) => {
             options.headers["Authorization"] = `Bearer ${newAccessToken}`;
             return fetch(url, options); // Retry original request once
         }
-
-        return response; // Valid response
+        return response;
 
     } catch (error) {
         console.log("Fetch error:", error);
@@ -118,11 +109,11 @@ export const loadLoginPage = () => {
             console.log('Form html returned!');
             document.getElementById('content-area').innerHTML = data.form_html;
         } else {
-            console.error('Form HTML not found in response:', data);
+            console.log('Form HTML not found in response:', data);
         }
     })
     .catch(error => {
-        console.error('Error loading page', error);
+        console.log('Error loading page', error);
     });
 };
 
@@ -153,7 +144,8 @@ export const handleLogin = async () => {
             navigateTo('/login', true);
         }
     } catch (error) {
-        console.error('Error logging in:', error);
+        console.log('Error logging in:', error);
+        navigateTo('login', true)
     }
 };
 
@@ -170,11 +162,11 @@ export const loadSignupPage = () => {
             console.log('Form html returned!');
             document.getElementById('content-area').innerHTML = data.form_html;
         } else {
-            console.error('Form HTML not found in response:', data);
+            console.log('Form HTML not found in response:', data);
         }
     })
     .catch(error => {
-        console.error('Error loading page', error);
+        console.log('Error loading page', error);
     });
 };
 
@@ -198,10 +190,12 @@ export const handleSignup = async () => {
             navigateTo('/home', true);
         } else {
             displayLoginError('signup-form', `${signupData.error}`);
+            navigateTo('signup', true)
         }
     })
     .catch(error => {
-        console.error('Error submitting signup form:', error);
+        console.log('Error submitting signup form:', error);
+        navigateTo('signup', true)
     });
 };
 

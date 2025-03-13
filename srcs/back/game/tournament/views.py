@@ -25,6 +25,7 @@ import redis
 from django.core.cache import cache 
 
 @api_view(['GET'])
+@login_required
 def get_player_tournament_statistics(request, player_id):
     tournaments_played = Tournament.objects.filter(player_id=player_id).count()
     tournament_score = Tournament.objects.filter(player_id=player_id).aggregate(
@@ -38,6 +39,7 @@ def get_player_tournament_statistics(request, player_id):
     })
 
 @api_view(['GET'])
+@login_required
 def tournament_home_page(request):
     context = {}
     add_language_context(request.COOKIES, context)
