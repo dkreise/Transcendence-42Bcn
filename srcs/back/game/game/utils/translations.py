@@ -59,7 +59,12 @@ def get_lang_words(lang):
 			'opponent': "Oponente",
 			'winner_wo': "Ganador",
 			'access_denied': "Acceso denegado",
+<<<<<<< HEAD
 			'create_room': "Crear Sala",
+=======
+			'add_friend': "Agregar amigo",
+			'remove_friend': "Eliminar amigo",
+>>>>>>> main
 		}
 	elif lang == 'CA':
 		return {
@@ -110,7 +115,12 @@ def get_lang_words(lang):
 			'opponent': "Oponent",
 			'winner_wo': "Guanyador",
 			'access_denied': "Accés denegat",
+<<<<<<< HEAD
 			'create_room': "Crear Sales",
+=======
+			'add_friend': "Afegir amic",
+			'remove_friend': "Eliminar amic",
+>>>>>>> main
 		}
 	elif lang == 'RU':
 		return {
@@ -126,6 +136,7 @@ def get_lang_words(lang):
 			'submit': "Отправить",
 			'start_tournament': "Начать турнир",
 			'quit': "Выйти",
+			'quit_tournament': "Покинуть турнир",
 			'play': "Играть",
 			'ranking': "Рейтинг",
 			'play_again': "Начать заново",
@@ -163,7 +174,12 @@ def get_lang_words(lang):
 			'game_wo': "Игра",
 			'opponent': "Противник",
 			'access_denied': "Доступ запрещен",
+<<<<<<< HEAD
 			'create_room': "создать_комнату",
+=======
+			'add_friend': "Добавить друга",
+			'remove_friend': "Удалить друга",
+>>>>>>> main
 		}
 	elif lang == 'LV':
 		return {
@@ -213,7 +229,12 @@ def get_lang_words(lang):
 			'opponent': "Pretinieks",
 			'winner_wo': "Uzvarētājs",
 			'access_denied': "Prieiga uždrausta",
+<<<<<<< HEAD
 			'create_room': "izveidot_telpu",
+=======
+			'add_friend': "Pievienot draugu",
+			'remove_friend': "Noņemt draugu",
+>>>>>>> main
 		}
 	else:
 		return {
@@ -263,12 +284,18 @@ def get_lang_words(lang):
 			'opponent': "Opponent",
 			'winner_wo': "Winner",
 			'access_denied': "Access denied",
+			'add_friend': "Add Friend",
+			'remove_friend': "Remove Friend",
 
 			############### new ones
 			'restart': "restart",
 			"congrats": "Congratuations! You've won!",
 			"good_luck": "Better luck next time...",
 			"back_tour" : "Back to Tournament Page",
+<<<<<<< HEAD
 			'create_room': "Create Room",
 
+=======
+			'quit_tournament': "Quit Tournament",
+>>>>>>> main
 		}

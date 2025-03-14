@@ -11,8 +11,11 @@ const userMgmtPort = window.env.USER_MGMT_PORT;
 export async function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refresh_token");
     if (!refreshToken) {
-        console.log("No refresh token found. User needs to log in again.");
-        handleLogout();
+        console.error("No refresh token found. User needs to log in again.");
+        // handleLogout();
+        localStorage.clear();
+        window.history.replaceState(null, null, '/');
+        navigateTo('/login', true);
         return Promise.reject("No refresh token available");
     }
 
@@ -25,8 +28,11 @@ export async function refreshAccessToken() {
         if (response.ok) {
             return response.json();
         } else {
-            console.log("Refresh token invalid or expired.");
-            handleLogout();
+            console.error("Refresh token invalid or expired.");
+            // handleLogout();
+            localStorage.clear();
+            window.history.replaceState(null, null, '/');
+            navigateTo('/login', true);
             return Promise.reject("Refresh token invalid or expired.");
         }
     })
@@ -70,7 +76,7 @@ export const makeAuthenticatedRequest = async (url, options = {}) => {
 
         if (!response)
             return null;
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
             console.log("Access token expired, attempting refresh..");
             const newAccessToken = await refreshAccessToken();
             if (!newAccessToken) {

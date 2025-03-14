@@ -244,7 +244,7 @@ export const gameAI = async (args) => {
                             button.setAttribute("data-route", "/play-ai");
                             button.setAttribute("replace-url", true);
                         } else if (button && tournament) {
-                            button.textContent = "Quit Tournament";
+                            button.textContent = dictionary['quit_tournament'] || "Quit Tournament";
                             button.setAttribute("data-route", "/quit-tournament");
                             button.setAttribute("replace-url", true);
                             // button.removeAttribute("data-route");
@@ -295,16 +295,18 @@ export async function playOnline (tourId = null) {
                 let id_html = document.getElementById('id-room-remote');
                 id_html.textContent = `${roomId}`;
                 console.warn(roomId);
-                
-                if (canvas)
+
+                if (canvas) {
+                    console.log("GOING TO START 2D");
                     startGame(roomId, isCreator, dictionary, tourId);
+                }
 
                 else
                     console.log("Error: Canvas not found");
             } else if (Enable3D === "true") {
                 //HERE SOMETHING WITH LANGUAGES
                 // start3DOnlineGame(localStorage.getItem('username'));
-                
+                console.log("GOING TO START 3D")
                 const contentArea = document.getElementById('content-area');
                 contentArea.innerHTML = ''; // Clear previous content
                 start3DRemoteGame(dictionary, tourId, roomId, isCreator);
@@ -362,7 +364,7 @@ export async function loadRemoteHome() {
 			});
 		})
         .catch(error => {
-            console.error('Catch error loading home remote game: ', error);
+            console.log('Catch error loading home remote game: ', error);
             if (error == "No access token.")
                 navigateTo('/login');
         });

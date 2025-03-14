@@ -365,7 +365,7 @@ export class OnlinePlayer extends BasicPlayer {
     constructor(data, dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
         super(dict, limits, scene, role, name, position, rotationX, rotationY, rotationZ);
         this.backY = (limits.x * 2) / data.canvasY / 10;
-        this.width = limits.y * 2 * data.padW / data.canvasX;
+        this.width = 2 * limits.y * 2 * data.padW / data.canvasX;
         this.height = limits.x * 2 * data.padH / data.canvasY;
         // console.log(`Creating paddles ${name}, position x ${position.z}, position y ${position.x}`)
         this.initial.z = position.z - (this.role * this.width / 2);
@@ -421,7 +421,7 @@ export class OnlinePlayer extends BasicPlayer {
     resetAll() {
         this.score = 0;
         this.name = "";
-        this.setText();
+        this.setText();1
         this.updateGeo();
         this.updateName();
         this.resetPos();
