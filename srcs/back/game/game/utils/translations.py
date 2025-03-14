@@ -64,6 +64,7 @@ def get_lang_words(lang):
 			'remove_friend': "Eliminar amigo",
 			'restart': "Reiniciar",
 			'waiting for players': "Esperando a los jugadores...",
+			'quit_tournament': "Salir del torneo",
 		}
 	elif lang == 'CA':
 		return {
@@ -118,7 +119,8 @@ def get_lang_words(lang):
 			'add_friend': "Afegir amic",
 			'remove_friend': "Eliminar amic",
 			'restart': "Reiniciar",
-			'waiting for players': "Esperando a los jugadores...",
+			'waiting for players': "Esperant jugadors...",
+			'quit_tournament': "Surtir del torneig",
 		}
 	elif lang == 'RU':
 		return {
@@ -176,6 +178,7 @@ def get_lang_words(lang):
 			'add_friend': "Добавить друга",
 			'remove_friend': "Удалить друга",
 			'waiting for players': "Ожидание игроков...",
+			'quit_tournament': "Выйти из турнира",
 		}
 	elif lang == 'LV':
 		return {
@@ -230,6 +233,7 @@ def get_lang_words(lang):
 			'remove_friend': "Noņemt draugu",
 			'restart': "restartēt",
 			'waiting for players': "Gaida spēlētājus...",
+			'quit_tournament': "Iziet no turnīra",
 		}
 	else:
 		return {

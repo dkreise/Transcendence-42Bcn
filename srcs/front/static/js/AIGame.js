@@ -259,6 +259,50 @@ export function setupControlsAI(player) {
     });
 }
 
+function resizeCanvasAI() {
+	if (!canvas)
+		return ;
+
+    canvas = document.getElementById("newGameCanvas");
+    const container = document.getElementById("newGameBoard");
+	if (!canvas || !container)
+		return ;
+
+    let maxWidth = container.clientWidth;
+    let maxHeight = container.clientHeight;
+
+    let newWidth = maxWidth;
+    let newHeight = (9 / 16) * newWidth;
+
+	//Apply aspect ratio
+    if (newHeight > maxHeight) {
+        newHeight = maxHeight;
+        newWidth = (16 / 9) * newHeight;
+    }
+
+    // newWidth = Math.max(500, Math.min(newWidth, 1200));
+    // newHeight = Math.max(300, Math.min(newHeight, 800));
+
+    newWidth = Math.floor(newWidth);
+    newHeight = Math.floor(newHeight);
+
+    canvas.style.width = `${newWidth - 5}px`;
+    canvas.style.height = `${newHeight}px`;
+	ctx = canvas.getContext('2d');
+
+	if (player)
+		player.resize(newWidth, newHeight);
+    if (AI)
+		AI.resize(newWidth, newHeight);
+	if (ball)
+		ball.resize(newWidth, newHeight);
+
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+}
+
+window.addEventListener("resize", resizeCanvasAI);
+
 // Start game function
 export async function startAIGame(playerName1, playerName2, mainUserNmb, tournament, dictionary) {
 	dict = dictionary;
@@ -280,8 +324,10 @@ export async function startAIGame(playerName1, playerName2, mainUserNmb, tournam
     console.log(playerName1);
     console.log(playerName2);
 
-    canvas.width = window.innerWidth * 0.65; // % of screen width
-    canvas.height = canvas.width * 0.57; // % of screen height
+    // canvas.width = window.innerWidth * 0.65; // % of screen width
+    // canvas.height = canvas.width * 0.57; // % of screen height
+
+    resizeCanvasAI();
 
     mainUser = mainUserNmb;
 
