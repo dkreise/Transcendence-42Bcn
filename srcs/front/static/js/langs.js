@@ -105,28 +105,42 @@ document.addEventListener("headerLoaded", () => {
     }
 });
 
-export function getLanguageFromCookies() {
-    return fetch(baseUrl + userMgmtPort + "/api/get-lang-from-cookies", {
-        method: "GET",
-        credentials: "include"
-    })
-    .then((response) => {
-        if (!response.ok) {
-            console.log("Failed to fetch language.");
-            return null;
+export function getFrontDict(lang, key) {
+    const dict = {
+        "EN": {
+            "ACCESS_DENIED": "Access denied",
+            "ERROR": "An error occurred."
+        },
+        "ES": {
+            "ACCESS_DENIED": "Acceso denegado",
+            "ERROR": "Ocurrió un error."
+        },
+        "CA": {
+            "ACCESS_DENIED": "Accés denegat",
+            "SERVER_ERROR": "S'ha produït un error."
+        },
+        "RU": {
+            "ACCESS_DENIED": "Доступ запрещен",
+            "SERVER_ERROR": "Произошла ошибка."
+        },
+        "LV": {
+            "ACCESS_DENIED": "Prieiga uždrausta",
+            "SERVER_ERROR": "Įvyko klaida."
         }
-        return response.json();
-    })
-    .then((data) => {
-        if (data && data.status === "success") {
-            return data.language;
-        } else {
-            console.log("Failed to fetch language.");
-            return null;
+    };
+
+    return dict[lang]?.[key] || dict["EN"][key] || "An error occurred.";
+}
+
+export function getCookie(name) {
+    const cookies = document.cookie.split(";");
+
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        
+        if (cookie.startsWith(name + "=")) {
+            return cookie.substring(name.length + 1);
         }
-    })
-    .catch((error) => {
-        console.log("Error fetching language.", error);
-        return null;
-    });
+    }
+    return 'EN';
 }

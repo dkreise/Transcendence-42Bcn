@@ -1,12 +1,10 @@
 import { makeAuthenticatedRequest } from "./login.js";
-import { navigateTo } from "./main.js";
+import { navigateTo, drawHeader } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
-import { gameAI, playOnline, getDictFor3DGame, getOrInitialize3DOption } from "./game.js";
-import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, handleTourEndgame, cleanRemote } from "./remoteGame.js"
-import { scale3DGame, setWhoAmI3D, handle3DStatus, handle3DUpdate, handleOnlineEndgame} from "./3DGame.js"
-import { drawHeader } from "./main.js";
-import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
+import { gameAI, playOnline, getDictFor3DGame } from "./game.js";
+import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, cleanRemote, removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 import { checkToken } from "./onlineStatus.js";
+import { getCookie } from "./langs.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -167,8 +165,12 @@ export const loadWaitingRoomPage = () => {
     }
     if (socket.readyState === WebSocket.OPEN)
 	{
-		const data = {
+		let lang = getCookie("language");
+
+        console.log("LANG IN TOURNAMENT", lang)
+        const data = {
 			"type": "waiting_room_page_request",
+            "lang": lang,
 		};
 		socket.send(JSON.stringify(data));
 	}
@@ -182,8 +184,10 @@ export const loadBracketTournamentPage = () => {
     }
     if (socket.readyState === WebSocket.OPEN)
 	{
+        let lang = getCookie("language");
         const data = {
 			"type": "bracket_page_request",
+            "lang": lang,
 		};
 		socket.send(JSON.stringify(data));
         // console.log("we have sent the request for bracket page!")
@@ -203,8 +207,10 @@ export const loadFinalTournamentPage = () => {
     }
     if (socket.readyState === WebSocket.OPEN)
 	{
+        let lang = getCookie("language");
         const data = {
 			"type": "final_page_request",
+            "lang": lang,
 		};
 		socket.send(JSON.stringify(data));
 	}

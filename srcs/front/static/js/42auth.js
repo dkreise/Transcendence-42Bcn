@@ -28,7 +28,6 @@ export const handle42Callback = () => {
             clearURL();
             showModalError("ERROR");
             navigateTo("/login");
-            // displayLoginError('Invalid credentials. Please try again.', 'login-form');
         }
         else if (code && state){
             const queryParams = new URLSearchParams({code , state}).toString();

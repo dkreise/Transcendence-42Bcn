@@ -32,6 +32,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 			self.user = self.scope['user']
 			self.role = None
 			self.room_id = None
+			self.lang = self.scope['cookies'].get('language', 'EN')
 			logger.info(f"SELF.TYPE: {self.type}")
 			if self.type == "T":
 				#call tournament manager
@@ -62,7 +63,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 							return
 
 						if tournament.get_players_cnt() < tournament.max_user_cnt:
-							page = tournament.get_waiting_room_page(self.user.username)
+							page = tournament.get_waiting_room_page(self.user.username, self.lang)
 							await self.channel_layer.group_send(
 								self.tour_id,
 								{
@@ -79,7 +80,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 								"replace": True,
 							}))
 						else:
-							# page = tournament.get_bracket_page(self.user.username) 
 							tournament.increase_round()
 							await self.channel_layer.group_send(
 								self.tour_id,
@@ -251,7 +251,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 				tournament = active_tournaments[self.tour_id]
 				dtype = data["type"]
 				if dtype == "bracket_page_request":
-					page = tournament.get_bracket_page(self.user.username)
+					self.lang = data.get("lang", "EN")
+					page = tournament.get_bracket_page(self.user.username, self.lang)
 					await self.send(text_data=json.dumps({
 						"type": "html",
 						"html": page['html'],
@@ -261,7 +262,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 						"request": True,
 					}))
 				elif dtype == "waiting_room_page_request":
-					page = tournament.get_waiting_room_page(self.user.username)
+					self.lang = data.get("lang", "EN")
+					page = tournament.get_waiting_room_page(self.user.username, self.lang)
 					await self.send(text_data=json.dumps({
 						"type": "html",
 						"html": page['html'],
@@ -272,7 +274,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 					}))
 
 				elif dtype == "final_page_request":
-					page = tournament.get_final_page(self.user.username)
+					self.lang = data.get("lang", "EN")
+					page = tournament.get_final_page(self.user.username, self.lang)
 					await self.send(text_data=json.dumps({
 						"type": "html",
 						"html": page['html'],
@@ -521,7 +524,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 		logger.info(f"TOURNAMENT_STARTS FOR {self.user.username}")
 		tournament = active_tournaments[self.tour_id]
 		round_data = tournament.handle_tournament_start(self.user.username)
-		page = tournament.get_bracket_page(self.user.username)
+		self.lang = data.get("lang", "EN")
+		page = tournament.get_bracket_page(self.user.username, self.lang)
 		await self.send(text_data=json.dumps({
 			"type": "html",
 			"html": page['html'],
@@ -536,7 +540,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 		logger.info(f"TOURNAMENT_ENDS FOR {self.user.username}")
 		tournament = active_tournaments[self.tour_id]
 		tournament.finished = True
-		page = tournament.get_final_page(self.user.username)
+		self.lang = data.get("lang", "EN")
+		page = tournament.get_final_page(self.user.username, self.lang)
 		await self.send(text_data=json.dumps({
 			"type": "html",
 			"html": page['html'],
@@ -547,7 +552,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def tournament_update(self, event):
 		logger.info(f"TOURNAMENT_UPDATE FOR {self.user.username}")
 		tournament = active_tournaments[self.tour_id]
-		page = tournament.get_bracket_page(self.user.username)
+		self.lang = data.get("lang", "EN")
+		page = tournament.get_bracket_page(self.user.username, self.lang)
 		await self.send(text_data=json.dumps({
 			"type": "html",
 			"html": page['html'],

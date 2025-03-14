@@ -83,7 +83,7 @@ def login_view(request):
                 'username': username,
             })
     else:
-        return Response({'success': False, 'message': 'Invalid credentials'})
+        return Response({'success': False, 'message': get_translation(request, 'invalid_credentials')})
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -166,26 +166,26 @@ def register_user(request):
         password = data.get("password")
         repassword = data.get("repassword")
 
-        if password != repassword:
-            return JsonResponse({"error": "Password mismatch."}, status=status.HTTP_400_BAD_REQUEST)
-
         if not username or not email or not password or not name:
-            return JsonResponse({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "all_fields_required")})
+        
+        if password != repassword:
+            return JsonResponse({'success': False, "error": get_translation(request, "password_mismatch")})
         
         if not re.match(r'^[a-zA-Z0-9.]+$', username):
-            return JsonResponse({"error": "Username should consist only of letters, digits and dots(.)."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "invalid_username")})
         
         if len(username) < 2 or len(username) > 10 or len(name) < 2 or len(name) > 10:
-            return JsonResponse({"error": "Username and Name should be 2-10 (included) chars length."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "username_length")})
 
         if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
-            return JsonResponse({"error": "Invalid email format."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "invalid_email")})
 
         if User.objects.filter(username=username).exists():
-            return JsonResponse({"error": "Username already exists."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "username_exists")})
 
         if User.objects.filter(email=email).exists():
-            return JsonResponse({"error": "Email already registered."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "email_registered")})
 
         # UNCOMMENT FOR STRONG PASSWORD CHECK:
         # temp_user = User(username=username, email=email, first_name=name)
@@ -209,7 +209,7 @@ def register_user(request):
     # else:
 
     except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON format."}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({'success': False, "error": get_translation(request, "invalid_json")})
 
     except Exception as e:
         return JsonResponse({"error": str(e)})
@@ -340,3 +340,9 @@ def page_not_found(request):
     add_language_context(request.COOKIES, context)
     page_not_found_html = render_to_string('page_not_found.html', context)
     return JsonResponse({'page_not_found_html': page_not_found_html}, content_type="application/json")
+
+def get_translation(request, key):
+    context = {}
+    add_language_context(request.COOKIES, context)
+    return context.get(key, key)
+
