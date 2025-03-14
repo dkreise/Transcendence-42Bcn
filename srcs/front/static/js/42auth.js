@@ -24,7 +24,6 @@ export const handle42Callback = () => {
         window.history.replaceState(null, null, '/');
         if (err) {
             console.log(`error string: ${err}`);
-            // alert("Access denied. Try again later");
             clearURL();
             showModalError("ERROR");
             navigateTo("/login");
@@ -70,7 +69,6 @@ export const handle42Callback = () => {
             })
             .catch(error => {
                 clearURL();
-                // alert("Access denied. Try again later");
                 if (error.message.includes("401")) {
                     showModalError("ACCESS_DENIED");
                 } else if (error.message.includes("403")) {

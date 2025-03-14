@@ -5,6 +5,7 @@ import { gameAI, playOnline, getDictFor3DGame } from "./game.js";
 import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, cleanRemote, removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 import { checkToken } from "./onlineStatus.js";
 import { getCookie } from "./langs.js";
+import { showModalError } from "./errorHandler.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -113,7 +114,7 @@ export const loadTournamentHomePage = () => {
             }
         })
         .catch(error => {
-            console.error('Error loading page', error);
+            console.log('Error loading page', error);
         });
     })     
 };
@@ -121,7 +122,6 @@ export const loadTournamentHomePage = () => {
 export const createTournament = async () => {
     const nPlayers = getNumberOfPlayers();
     const tourId = await getTournamentId(); 
-    // alert(tourId)
     if (tourId > 0) {
         tournamentConnect(tourId, nPlayers)
             .then(() => console.log("Successfully connected!"))
@@ -136,7 +136,7 @@ export const joinTournament = () => {
     }
     const tourId = document.getElementById('tournament-id-input').value.trim();
     if (! /^\d{7}$/.test(tourId)) {
-        alert("The tournament ID is not correct.");
+        showModalError("WRONG_TOURNAMENT_ID")
         return;
     }
     tournamentConnect(tourId)
@@ -194,8 +194,6 @@ export const loadBracketTournamentPage = () => {
 	}
     else {
         console.log(socket.readyState);
-        // alert("waiting for websoket connection")
-        // loadBracketTournamentPage();
     }
 };
 
@@ -439,7 +437,6 @@ export async function tournamentConnect(tourId, nPlayers=null) {
     
     socket.onerror = (error) => {
 		console.log("WebSocket encountered an error: ", error);
-		alert("ONERROR: Unable to connect to the server. Please check your connection.");
         localStorage.removeItem('inTournament');
         localStorage.removeItem("user_quit");
         localStorage.removeItem("currentTournamentId");
@@ -493,7 +490,7 @@ export async function tournamentConnect(tourId, nPlayers=null) {
                 break;
             case "full":
                 console.log("Tournament is full:", data.message);
-                alert(data.message);
+                showModalError("FULL_TOURNAMENT")
                 localStorage.removeItem('inTournament');
                 localStorage.removeItem("user_quit");
                 localStorage.removeItem("currentTournamentId");
@@ -532,7 +529,6 @@ export async function tournamentConnect(tourId, nPlayers=null) {
                 // saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);
 				break;
 			case "reject":
-				// alert(`Connection rejected: ${data.reason}`);
                 console.log(`Connection rejected: ${data.reason}`);
 				//return client to tournament home page or bracket page
 				break;
@@ -574,7 +570,7 @@ async function getTournamentId() {
             return -1;  // If the ID is active, return -1
         }
     } catch (error) {
-        console.error('Failed to fetch tournament status:', error);
+        console.log('Failed to fetch tournament status:', error);
         return -1;  // Return -1 in case of an error
     }
 }
@@ -586,11 +582,9 @@ function getNumberOfPlayers() {
     }
 //     const nPlayers = document.getElementById('tournament-count').value;
     const nPlayers = document.querySelector('input[name="btn"]:checked').value;
-    console.log("aquiiiiiiiiiiii", nPlayers);
     const validPlayers = ["3", "4", "7", "8", "1", "2"];
     
     if (!validPlayers.includes(nPlayers)) {
-        alert("Incorrect number of players");
         return null;
     }
     return nPlayers;

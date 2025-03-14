@@ -109,23 +109,48 @@ export function getFrontDict(lang, key) {
     const dict = {
         "EN": {
             "ACCESS_DENIED": "Access denied",
-            "ERROR": "An error occurred."
+            "ERROR": "An error occurred",
+            "WRONG_ID": "Wrong ID",
+            "REPEATED_NAME": "Both names cannot be equal. Set another name",
+            "SECOND_PLAYER_NEEDED": "Set second player's name",
+            "WRONG_TOURNAMENT_ID": "The tournament ID is not correct",
+            "FULL_TOURNAMENT": "Tournament is full",
         },
         "ES": {
             "ACCESS_DENIED": "Acceso denegado",
-            "ERROR": "Ocurrió un error."
+            "ERROR": "Ocurrió un error",
+            "WRONG_ID": "ID incorrecto",
+            "REPEATED_NAME": "Ambos nombres no pueden ser iguales. Pon otro nombre.",
+            "SECOND_PLAYER_NEEDED": "Pon el nombre del segundo jugador",
+            "WRONG_TOURNAMENT_ID": "El ID del torneo no es correcto.",
+            "FULL_TOURNAMENT": "El torneo está lleno",
         },
         "CA": {
             "ACCESS_DENIED": "Accés denegat",
-            "SERVER_ERROR": "S'ha produït un error."
+            "SERVER_ERROR": "S'ha produït un error",
+            "WRONG_ID": "ID incorrecta",
+            "REPEATED_NAME": "Els dos noms no poden ser iguals. Poseu un altre nom.",
+            "SECOND_PLAYER_NEEDED": "Poseu el nom del segon jugador",
+            "WRONG_TOURNAMENT_ID": "L'ID del torneig no és correcte",
+            "FULL_TOURNAMENT": "El torneig està ple",
         },
         "RU": {
             "ACCESS_DENIED": "Доступ запрещен",
-            "SERVER_ERROR": "Произошла ошибка."
+            "SERVER_ERROR": "Произошла ошибка",
+            "WRONG_ID": "Неверный ID",
+            "REPEATED_NAME": "Имена не могут быть одинаковыми. Укажите другое имя",
+            "SECOND_PLAYER_NEEDED": "Укажите имя второго игрока",
+            "WRONG_TOURNAMENT_ID": "ID турнира некорректен",
+            "FULL_TOURNAMENT": "Турнир заполнен",
         },
         "LV": {
             "ACCESS_DENIED": "Prieiga uždrausta",
-            "SERVER_ERROR": "Įvyko klaida."
+            "SERVER_ERROR": "Įvyko klaida",
+            "WRONG_ID": "Nederīgs ID",
+            "REPEATED_NAME": "Abi vārdi nevar būt vienādi. Ievadiet citu vārdu",
+            "SECOND_PLAYER_NEEDED": "Norādiet otra spēlētāja vārdu",
+            "WRONG_TOURNAMENT_ID": "Torneja ID nav pareizs",
+            "FULL_TOURNAMENT": "Turnīrs ir pilns",
         }
     };
 

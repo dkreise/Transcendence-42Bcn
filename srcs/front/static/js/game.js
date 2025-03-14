@@ -5,6 +5,7 @@ import { startLocalGame } from "./localGame.js";
 import { startGame, cleanRemote, createRoomId } from "./remoteGame.js"; 
 import { start3DAIGame, start3DLocalGame, start3DRemoteGame } from "./3DGame.js";
 import { loadBracketTournamentPage, quitTournament } from "./tournament.js";
+import { showModalError } from "./errorHandler.js";
 
 
 const host = window.env.HOST;
@@ -116,11 +117,11 @@ export async function gameLocal () {
         const secondPlayerName = playerNameInput ? playerNameInput.value.trim() : null;
         console.log(`Stored second player name: ${secondPlayerName}`);
         if (secondPlayerName === username) {
-            alert("Both names cannot be equal. Set another name");
+            showModalError("REPEATED_NAME")
             navigateTo('/play-local', true);
             return ;
         } else if (!secondPlayerName) {
-            alert("Set second player's name");
+            showModalError("SECOND_PLAYER_NEEDED")
             navigateTo('/play-local', true);
             return ;
         }
@@ -231,7 +232,7 @@ export const gameAI = async (args) => {
                     }
                 } else {
                     console.log('Response: ', data);
-                    console.error('Failed to fetch the local game:', data.error);
+                    console.log('Failed to fetch the local game:', data.error);
                 }
 
             })
@@ -289,7 +290,6 @@ export async function playOnline (tourId = null) {
     }
 } 
 
-
 export async function loadRemoteHome() {
 	if (!checkPermission)
 		navigateTo('/login');
@@ -306,7 +306,7 @@ export async function loadRemoteHome() {
             if (data.game_html)
                 document.getElementById('content-area').innerHTML = data.game_html;
             else
-                console.error('Failed to load home remote game:', data.error);
+                console.log('Failed to load home remote game:', data.error);
 			document.getElementById("join-online")?.addEventListener("click", () => {
 				const inputElement = document.getElementById("game-id-input");
 				const inputValue = inputElement ? inputElement.value.trim() : null;
@@ -318,8 +318,7 @@ export async function loadRemoteHome() {
 					navigateTo("/play-online");
 				}
 				else
-					alert ("bad id error here")
-					//alert(`${dictionary['bad_id']}`);
+                    showModalError("WRONG_ID")
 			});
 
 			document.getElementById("create-online")?.addEventListener("click", async () => {
@@ -330,7 +329,7 @@ export async function loadRemoteHome() {
 			});
 		})
         .catch(error => {
-            console.error('Catch error loading home remote game: ', error);
+            console.log('Catch error loading home remote game: ', error);
             if (error == "No access token.")
                 navigateTo('/login');
         });

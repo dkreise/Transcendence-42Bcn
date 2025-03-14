@@ -269,7 +269,7 @@ export async function createRoomId()
 	}
 	catch (error)
 	{
-		console.error("Failed to fetch game status: ", error);
+		console.log("Failed to fetch game status: ", error);
 		return -1;
 	}
 }
@@ -298,7 +298,6 @@ async function initializeWebSocket(roomId, isCreator) {
 	socket.onopen = () => console.log("WebSocket connection established.");
 	socket.onerror = (error) => {
 		console.log("WebSocket encountered an error:", error);
-		// alert("Unable to connect to the server. Please check your connection.");
 	};
 	socket.onclose = async (event) => {
 		console.log("WebSocket connection closing");
@@ -341,7 +340,6 @@ async function initializeWebSocket(roomId, isCreator) {
 				handleUpdate(data);
 				break ;
 			case "reject":
-				// alert(`Connection rejected: ${data.reason}`);
 				socket.close();
 				navigateTo("/remote-home");
 				break ;
@@ -420,15 +418,12 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 	canvas = document.getElementById('newGameCanvas');
 	tourId = tour;
 	console.log("tour is : ", tour);
-	// window.dict = dictionary;
 	dict = dictionary;
-  if (!roomId && !tour)
+	if (!roomId && !tour)
 	{
-		// alert(`${dict['bad_id']}`);
 		navigateTo("/remote-home");
 		return ;
 	}
-
 	if (!canvas)
 		return ;
 	ball = new Ball(canvas);
