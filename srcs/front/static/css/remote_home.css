@@ -125,7 +125,7 @@
   }
 
 
-  @media (min-width: 768px) {
+  @media (min-width: 1200px) {
     #join-game-form, #create-game-form {
         flex: 0 0 auto;
         width: 27.66666667%;
