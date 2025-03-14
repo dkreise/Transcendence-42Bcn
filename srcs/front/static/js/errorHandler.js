@@ -40,7 +40,6 @@ export function showModalError(msg) {
         text: translation,
         backdrop: false,
         width: '400px',
-        height: '200px',
         customClass: {
             icon: 'custom-icon-showmodal',
         }

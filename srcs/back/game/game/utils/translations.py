@@ -57,6 +57,7 @@ def get_lang_words(lang):
 			'access_denied': "Acceso denegado",
 			'add_friend': "Agregar amigo",
 			'remove_friend': "Eliminar amigo",
+			"user_not_authenticated": "Usuario no autenticado",
 		}
 	elif lang == 'CA':
 		return {
@@ -109,6 +110,7 @@ def get_lang_words(lang):
 			'access_denied': "Accés denegat",
 			'add_friend': "Afegir amic",
 			'remove_friend': "Eliminar amic",
+			"user_not_authenticated": "Usuari no autenticat",
 		}
 	elif lang == 'RU':
 		return {
@@ -164,6 +166,7 @@ def get_lang_words(lang):
 			'access_denied': "Доступ запрещен",
 			'add_friend': "Добавить друга",
 			'remove_friend': "Удалить друга",
+			"user_not_authenticated": "Пользователь не аутентифицирован",
 		}
 	elif lang == 'LV':
 		return {
@@ -215,6 +218,7 @@ def get_lang_words(lang):
 			'access_denied': "Prieiga uždrausta",
 			'add_friend': "Pievienot draugu",
 			'remove_friend': "Noņemt draugu",
+			"user_not_authenticated": "Lietotājs nav autentificēts",
 		}
 	else:
 		return {
@@ -266,6 +270,8 @@ def get_lang_words(lang):
 			'access_denied': "Access denied",
 			'add_friend': "Add Friend",
 			'remove_friend': "Remove Friend",
+			"user_not_authenticated": "User not authenticated",
+			"tournament_not_found": "Tournament not found",
 
 			############### new ones
 			'restart': "restart",

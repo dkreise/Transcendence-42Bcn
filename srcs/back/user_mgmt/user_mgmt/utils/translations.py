@@ -91,6 +91,7 @@ def get_lang_words(lang):
 			"invalid_json": "Formato JSON inválido.",
 			"user_registered": "Usuario registrado con éxito.",
 			"login_successful": "Inicio de sesión exitoso",
+			"user_not_authenticated": "Usuario no autenticado",
 		}
 
 	elif lang == 'CA':
@@ -178,6 +179,7 @@ def get_lang_words(lang):
 			"invalid_json": "Format JSON no vàlid.",
 			"user_registered": "Usuari registrat amb èxit.",
 			"login_successful": "Sessió iniciada amb èxit",
+			"user_not_authenticated": "Usuari no autenticat",
 		}
 
 	elif lang == 'RU':
@@ -267,6 +269,7 @@ def get_lang_words(lang):
 			"invalid_json": "Неверный формат JSON.",
 			"user_registered": "Пользователь успешно зарегистрирован!",
 			"login_successful": "Вход выполнен успешно",
+			"user_not_authenticated": "Пользователь не аутентифицирован",
 		}
 
 	elif lang == 'LV':
@@ -355,6 +358,7 @@ def get_lang_words(lang):
 			"invalid_json": "Nederīgs JSON formāts.",
 			"user_registered": "Lietotājs veiksmīgi reģistrēts!",
 			"login_successful": "Pieteikšanās veiksmīga",
+			"user_not_authenticated": "Lietotājs nav autentificēts",
 		}
 		
 	else:
@@ -443,4 +447,5 @@ def get_lang_words(lang):
 			"invalid_json": "Invalid JSON format.",
 			"user_registered": "User registered successfully!",
 			"login_successful": "Login successful",
+			"user_not_authenticated": "User not authenticated",
 		}

@@ -50,7 +50,7 @@ def user_info_api(request):
         user_html = render_to_string('user.html', context)
         return JsonResponse({'user_html': user_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 def player_game_statistics(request, player_id):
     endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/game_statistics/'
@@ -98,7 +98,7 @@ def player_last_ten_games(request):
         except requests.RequestException as e:
             return JsonResponse({'error': 'Failed to fetch game data.'}, status=500)
     else:
-        return JsonResponse({'error': 'User not authenticated.'}, status=401)
+        return JsonResponse({'error': 'User not authenticated.'})
 
 def player_all_games(request, player_id):
     endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/all_games/'
@@ -126,7 +126,7 @@ def match_history_page(request):
         match_history_html = render_to_string('match_history.html', context)
         return JsonResponse({'match_history_html': match_history_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 
 @api_view(['GET'])
@@ -158,7 +158,7 @@ def profile_page(request):
         profile_html = render_to_string('profile.html', context)
         return JsonResponse({'profile_html': profile_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 @api_view(['GET'])
 def profile_settings_page(request):
@@ -173,7 +173,7 @@ def profile_settings_page(request):
         profile_settings_html = render_to_string('settings_profile.html', context)
         return JsonResponse({'profile_settings_html': profile_settings_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 @api_view(['POST'])
 def update_profile_settings(request):
@@ -214,7 +214,7 @@ def update_profile_settings(request):
 
         return JsonResponse({'success': True, 'message': 'Settings updated successfully!', 'username': username})
     else:
-        return JsonResponse({'success': False, 'error': 'User not authenticated.'}, status=401)
+        return JsonResponse({'success': False, 'error': 'User not authenticated.'})
 
 @api_view(['GET'])
 def search_users(request):
@@ -304,13 +304,13 @@ def save_user_pref_lang(request):
     user_profile.save()
     
     activate(lang)
-    return JsonResponse({'status': 'success', 'message': 'Language has been setted.'})
+    return JsonResponse({'status': 'success'})
 
 @api_view(['GET'])
-@login_required 
+@login_required
 def get_user_pref_lang(request):
-    lang = request.user.profile.language
-    return JsonResponse({'status': 'success', 'language': lang}, status=200)
+    lang = getattr(request.user.profile, 'language', 'EN')
+    return JsonResponse({'status': 'success', 'language': lang})
 
 # def root_view(request):
 #     #print('------->entro root_view<-------')
@@ -338,7 +338,7 @@ def home_page(request):
         home_html = render_to_string('home_page.html', context)
         return JsonResponse({'home_html': home_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 
 @api_view(['GET'])
@@ -369,8 +369,3 @@ def get_3D_header(request):
     header_html = render_to_string('3d_header.html', context)
     return JsonResponse({'header_html': header_html}, content_type="application/json")
 
-@api_view(['GET'])
-@permission_classes([AllowAny])
-def get_lang_from_cookies(request):
-    lang = request.COOKIES.get('language', 'EN')
-    return JsonResponse({'status': 'success', 'language': lang}, status=200)
