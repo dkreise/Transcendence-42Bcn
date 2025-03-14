@@ -111,10 +111,11 @@ h2 {
     width: 1px;
   }
   
-  /* Efecto: cuando se hace hover sobre una sección, la otra se "apaga" */
-  .tournament-wrapper:hover .section {
+  .tournament-wrapper:has(#create-tournament-form:hover) #join-tournament-form,
+  .tournament-wrapper:has(#join-tournament-form:hover) #create-tournament-form {
     opacity: 0.5;
   }
+
   .tournament-wrapper .section:hover {
     opacity: 1;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
