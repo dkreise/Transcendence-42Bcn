@@ -10,6 +10,13 @@ def get_lang_words(lang):
     if lang == 'ES':
         return {
             'lang': "ES",
+            'lang_flag': """
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1000" width="30" height="20">
+                        <rect width="1500" height="333.33" fill="#AA151B" data-lang="ES" />
+                        <rect y="333.33" width="1500" height="333.33" fill="#F1BF00" data-lang="ES" />
+                        <rect y="666.66" width="1500" height="333.33" fill="#AA151B" data-lang="ES" />
+                    </svg>
+                    """,
             'profile_wo': "Perfil",
             'settings': "Configuraciones",
             'friends_wo': "Amigos",
@@ -86,6 +93,12 @@ def get_lang_words(lang):
     elif lang == 'CA':
         return {
             'lang': "CA",
+            'lang_flag': """
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="20" viewBox="0 0 810 540" data-lang="CA">
+                        <rect width="810" height="540" fill="#FCDD09" data-lang="CA" />
+                        <path stroke="#DA121A" stroke-width="60" d="M0,90H810m0,120H0m0,120H810m0,120H0"></path>
+                    </svg>
+                    """,
             'profile_wo': "Perfil",
             'settings': "Configuracions",
             'friends_wo': "Amics",
@@ -162,6 +175,13 @@ def get_lang_words(lang):
     elif lang == 'RU':
         return {
             'lang': "RU",
+            'lang_flag': """
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" width="30" height="20">
+                        <rect width="3" height="2" fill="#fff" data-lang="RU"/>
+                        <rect width="3" height="1.333" y="0.667" fill="#0033a0" data-lang="RU"/>
+                        <rect width="3" height="0.667" y="1.333" fill="#d52b1e" data-lang="RU"/>
+                    </svg>
+                    """,
             'profile_wo': "Профиль",
             'settings': "Настройки",
             'friends_wo': "Друзья",
@@ -240,6 +260,13 @@ def get_lang_words(lang):
     elif lang == 'LV':
         return {
             'lang': "LV",
+            'lang_flag': """
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" width="30" height="20">
+                        <rect width="200" height="40" fill="#9E3039" data-lang="LV" />
+                        <rect y="40" width="200" height="20" fill="#FFFFFF" data-lang="LV" />
+                        <rect y="60" width="200" height="40" fill="#9E3039" data-lang="LV" />
+                    </svg>
+                    """,
             'profile_wo': "Profils",
             'settings': "Iestatījumi",
             'friends_wo': "Draugi",
@@ -316,6 +343,13 @@ def get_lang_words(lang):
     else:
         return {
             'lang': "EN",
+            'lang_flag': """
+                    <svg id="mySvg" viewBox="0 0 1200 800" width="30" height="20" data-lang="EN">
+                        <rect width="1200" height="800" fill="#ffffff" data-lang="EN" />
+                        <rect width="200" height="800" x="400" fill="#c8102e" data-lang="EN" />
+                        <rect width="1200" height="200" y="300" fill="#c8102e" data-lang="EN" />
+                    </svg>
+                    """,
             'profile_wo': "Profile",
             'settings': "Settings",
             'friends_wo': "Friends",
