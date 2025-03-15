@@ -62,12 +62,16 @@
 #language-menu {
     background-color:rgba(226, 219, 248, 0.8); /* Color de fondo deseado */
     border: none; /* Quita bordes si los hay */
+    width: 100px !important;
+    min-width: 30px !important;
+    max-width: 100px !important;
+    left: -44%;
   }
   
   /* Cambia el estilo de cada item del dropdown */
   #language-menu .dropdown-item {
     color: #fff;
-    background-color: rgba(226, 219, 248, 0.8);
+    /* background-color: rgba(226, 219, 248, 0.8); */
   }
   
   /* Cambia el fondo al hacer hover sobre un item */
@@ -77,6 +81,6 @@
   }
 
   .dropdown-menu {
-    position: absolute; /* Asegura que se posicione relativo a su contenedor */
-    z-index: 9999;      /* Valor alto para que se muestre sobre otros elementos */
+    position: absolute;
+    z-index: 9999;
   }

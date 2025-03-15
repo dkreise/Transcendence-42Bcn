@@ -57,7 +57,7 @@ class GameManager:
 	board_config = {"width": 600, "height": 400, "max_score": 3}
 
 	paddle_config = {"width": 5, "height": 70, "speed": 5}
-	countdown = 5
+	countdown = 200000
 
 	def __init__(self, game_id):
 		self.id = game_id
@@ -568,7 +568,7 @@ class GameManager:
 				self.player2_waiting_task = None
 
 	async def check_unstarted_game(self):
-		await asyncio.sleep(10)
+		await asyncio.sleep(10000) #Changeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 		logger.info(f"CHECK UNSTARTED GAME {self.id}")
 		logger.info(f"task: {self.player2_waiting_task}")
 		logger.info(f"LEN users: {len(self.users)}")
