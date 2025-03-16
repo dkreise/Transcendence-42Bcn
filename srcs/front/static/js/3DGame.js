@@ -569,7 +569,17 @@ async function setupScene() {
     contentArea.style.padding = 0;
     
     scene = new THREE.Scene();
-    drawHeader('3d');
+    let id_3d;
+    drawHeader('3d').then(() => {
+        if (remote && !tournamentId) {
+            id_3d = document.getElementById("3D-header-id");
+            if (id_3d) {
+                id_3d.textContent = `ID: ${roomID}`;
+                id_3d.style.color = "white";
+            }
+        }
+    });
+    
     scene.background = new THREE.Color(params.fogColor);
     scene.fog = new THREE.Fog(params.fogColor, params.fogNear, params.fogFar);
 }
