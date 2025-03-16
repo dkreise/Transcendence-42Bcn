@@ -6,6 +6,7 @@ import { startTournamentGame, stopTournamentGame, saveTournamentGameResult } fro
 import { makeAuthenticatedRequest } from "./login.js"
 import { navigateTo } from "./main.js";
 import { checkToken } from "./onlineStatus.js";
+import { showModalError } from "./errorHandler.js";
 
 const gamePort = window.env.GAME_PORT;
 const host = window.env.HOST;
@@ -81,7 +82,6 @@ async function firstCountdown(callback) {
 
 async function readySteadyGo(countdown)
 {
-	// if (!div || ! div.textContent) return ;
 	const msg = ["1", "2", "3"];
 	let div = document.getElementById("wait");
 
@@ -94,9 +94,7 @@ async function readySteadyGo(countdown)
 		ctx.fillStyle = "rgb(0 0 0 / 25%)";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		div.style.display = "block";
-		//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
 		if (countdown >= 0)
-			// await setTimeout(async() => await readySteadyGo(--countdown), 500);
 			countdownTimeout = setTimeout(() => readySteadyGo(--countdown), 500);
 
 		else
@@ -288,8 +286,6 @@ async function initializeWebSocket(roomId, isCreator) {
 				return ;
 			}
 		}
-		// } else if (retries++ <= 5)
-		// 	setTimeout(initializeWebSocket, 1000);
 	};
 
 	socket.onmessage = async (event) => {
@@ -298,11 +294,9 @@ async function initializeWebSocket(roomId, isCreator) {
 		// console.log(`data type is: ${data.type}`);
 		switch (data.type) {
 			case "role":
-				console.log(`data type is: ${data.type}`);
 				scaleGame(data);
 				break;
 			case "players":
-				console.log(`data type is: ${data.type}`);
 				await setWhoAmI(data, socket);
 				break;
 			case "status":
@@ -314,6 +308,7 @@ async function initializeWebSocket(roomId, isCreator) {
 				break ;
 			case "reject":
 				socket.close();
+				showModalError("WRONG_ID");
 				navigateTo("/remote-home");
 				break ;
 			case "endgame":
