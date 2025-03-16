@@ -106,7 +106,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 							await self.close(4001)
 							return
 							
-						# TODO: False should be dynamic (player = T / viewer = F)
 						game = active_games[self.room_id]
 						self.role = await game.join_room(self.user.username, False)
 						logger.info(f"self role: {self.role}")

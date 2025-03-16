@@ -102,6 +102,12 @@ def get_lang_words(lang):
 			'lastname_length': "El apellido debe tener un máximo de 15 caracteres.",
 			'please_try_again': "Por favor, inténtalo de nuevo.",
     		'settings_updated': "¡La configuración se ha actualizado!",
+			'2fa_not_enable': "La autenticación en dos pasos no está habilitada para esta cuenta.",
+			'2fa_verification_success': "Verificación en dos pasos completada con éxito.",
+			'invalid_code': "Código TOTP inválido o expirado.",
+			'2fa_disable': "La autenticación en dos pasos se ha desactivado correctamente.",
+			'invalid_verification_code': "Código de verificación inválido o expirado.",
+			"invalid_temp_token": "Token temporal inválido o expirado.",
 		}
 
 	elif lang == 'CA':
@@ -199,6 +205,12 @@ def get_lang_words(lang):
 			'lastname_length': "El cognom ha de tenir un màxim de 15 caràcters.",
 			'please_try_again': "Si us plau, torna-ho a provar.",
     		'settings_updated': "La configuració s'ha actualitzat!",
+			"2fa_not_enable": "L'autenticació en dos passos no està habilitada per a aquest compte.",
+			"2fa_verification_success": "Verificació en dos passos completada amb èxit.",
+			"invalid_code": "Codi TOTP invàlid o caducat.",
+			"2fa_disable": "L'autenticació en dos passos s'ha desactivat correctament.",
+			'invalid_verification_code': "Codi de verificació invàlid o caducat.",
+			"invalid_temp_token": "Token temporal invàlid o caducat.",
 		}
 
 	elif lang == 'RU':
@@ -299,6 +311,12 @@ def get_lang_words(lang):
 			'lastname_length': "Фамилия должна содержать не более 15 символов.",
 			'please_try_again': "Пожалуйста, попробуйте снова.",
     		'settings_updated': "Настройки были обновлены!",
+			"2fa_not_enable": "Двухфакторная аутентификация не включена для этого аккаунта.",
+			"2fa_verification_success": "Двухфакторная аутентификация пройдена успешно.",
+			"invalid_code": "Недействительный или истекший TOTP-код.",
+			"2fa_disable": "Двухфакторная аутентификация успешно отключена.",
+			'invalid_verification_code': "Неверный или истекший код подтверждения.",
+			"invalid_temp_token": "Недействительный или истекший временный токен.",
 		}
 
 	elif lang == 'LV':
@@ -397,7 +415,13 @@ def get_lang_words(lang):
 			'user_not_authenticated': "Lietotājs nav autentificēts",
 			'lastname_length': "Uzvārds nedrīkst pārsniegt 15 rakstzīmes.",
 			'please_try_again': "Lūdzu, mēģiniet vēlreiz.",
-    		'settings_updated': "Iestatījumi tika atjaunināti!",
+			'settings_updated': "Iestatījumi tika atjaunināti!",
+			"2fa_not_enable": "Divfaktoru autentifikācija šim kontam nav iespējota.",
+			"2fa_verification_success": "Divfaktoru autentifikācija veiksmīgi pabeigta.",
+			"invalid_code": "Nederīgs vai beidzies TOTP kods.",
+			"2fa_disable": "Divfaktoru autentifikācija veiksmīgi atspējota.",
+			'invalid_verification_code': "Nederīgs vai beidzies verifikācijas kods.",
+			"invalid_temp_token": "Nederīgs vai beidzies pagaidu pilnvarojuma žetons.",
 		}
 		
 	else:
@@ -496,6 +520,12 @@ def get_lang_words(lang):
 			'user_not_authenticated': "User not authenticated",
 			'lastname_length': "Last Name should be a maximum of 15 characters long.",
 			'please_try_again': "Please try again.",
-    		'settings_updated': "Settings were updated!"
+    		'settings_updated': "Settings were updated!",
+			"2fa_not_enable": "2FA is not enabled for this account.",
+			"2fa_verification_success": "2FA verification successful.",
+			"invalid_code": "Invalid or expired TOTP code.",
+			"2fa_disable": "2FA disabled successfully.",
+			'invalid_verification_code': "Invalid or expired verification code.",
+			"invalid_temp_token": "Invalid or expired temporary token.",
 		}
 

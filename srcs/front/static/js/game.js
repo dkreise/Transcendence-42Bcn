@@ -391,22 +391,27 @@ export async function play3D(tour) {
         navigateTo('/logout');
         return;
     }
-    console.warn("dificiiiiilll", difficulty);
     start3DAIGame(name, dictionary, tour, difficulty);
 
 }
 
 export async function getDictFor3DGame() {
-    const response = await makeAuthenticatedRequest(baseUrl + gamePort+ "/api/get-game-dict", {
-        method: "GET",
-        credentials: "include"
-    })
-    .catch(error => {
-        console.log('Error fetching game dictionary: ', error);
-    });
-
-    const data = await response.json();
-    return data.dict;
+    if (!checkPermission) {
+        return;
+    }
+    try {
+        const response = await makeAuthenticatedRequest(baseUrl + gamePort + "/api/get-game-dict", {
+            method: "GET",
+            credentials: "include"
+        });
+        if (!response.ok) {
+            console.log("Error fetching dictionary.");
+        }
+        const data = await response.json();
+        return data.dict; 
+    } catch (error) {
+        console.log("Error fetching dictionary.");
+    }
 }
 
 async function getUsername() {
