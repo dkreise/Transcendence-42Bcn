@@ -476,6 +476,7 @@ export async function tournamentConnect(tourID, nPlayers=null) {
             localStorage.setItem("currentTournamentId", tourId);
             console.log(`SDFGHJKLSDFGHJKL: ${getOrInitialize3DOption()}`)
             currentHandlers = getCombinedHandlers(getOrInitialize3DOption() === "true");
+            dict = await getDictFor3DGame();
 
             const handler = currentHandlers[data.type];
             console.log(data.type);
