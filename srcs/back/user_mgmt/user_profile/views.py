@@ -184,19 +184,19 @@ def update_profile_settings(request):
         last_name = request.POST.get('last_name', '')
 
         if not re.match(r'^[a-zA-Z0-9.]+$', username) and not (user.username.startswith('@') and user.username == username):
-            return JsonResponse({'success': False, "error": "Username should consist only of letters, digits and dots(.)."})
+            return JsonResponse({'success': False, "error": get_translation(request, "invalid_username")})
 
         if User.objects.filter(username=username).exclude(id=request.user.id).exists():
-            return JsonResponse({'success': False, "error": "Username already exists."})
+            return JsonResponse({'success': False, "error": get_translation(request, "username_exists")})
 
         if len(username) < 2 or len(username) > 10:
-            return JsonResponse({'success': False, "error": "Username should be 2-10 (included) chars length."})
+            return JsonResponse({'success': False, "error": get_translation(request, "username_length")})
 
         if len(first_name) < 2 or len(first_name) > 10:
-            return JsonResponse({'success': False, "error": "First Name should be 2-10 (included) chars length."})
+            return JsonResponse({'success': False, "error": get_translation(request, "username_length") + " " + get_translation(request, "please_try_again" )})
         
         if len(last_name) > 15:
-            return JsonResponse({'success': False, "error": "Last Name should be max 15 chars length."})
+            return JsonResponse({'success': False, "error": "lastname_length"})
 
         user.username = username
         user.first_name = first_name
@@ -211,8 +211,7 @@ def update_profile_settings(request):
             profile.save()
 
         user.save()
-
-        return JsonResponse({'success': True, 'message': 'Settings updated successfully!', 'username': username})
+        return JsonResponse({'success': True, 'message': get_translation(request, 'settings_updated'), 'username': username})
     else:
         return JsonResponse({'success': False, 'error': 'User not authenticated.'})
 
@@ -374,3 +373,8 @@ def get_3D_header(request):
 def get_lang_from_cookies(request):
     lang = request.COOKIES.get('language', 'EN')
     return JsonResponse({'status': 'success', 'language': lang}, status=200)
+
+def get_translation(request, key):
+    context = {}
+    add_language_context(request.COOKIES, context)
+    return context.get(key, key)
