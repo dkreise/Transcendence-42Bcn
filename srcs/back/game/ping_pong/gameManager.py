@@ -96,7 +96,7 @@ class GameManager:
 					logger.info(f"{user} is already in the room. Rejecting new connection")
 				if self.tour_id:
 					return role
-				return "4000"
+				return "ALREADY_THERE"
 
 				if len(self.players) == 2:
 					self.status = 0
