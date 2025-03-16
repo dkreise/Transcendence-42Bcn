@@ -182,7 +182,7 @@ export class BasicPlayer {
     }
 }
 
-export class Player extends BasicPlayer {
+export class LocalPlayer extends BasicPlayer {
 
     constructor(dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
         super(dict, limits, scene, role, name, position, rotationX, rotationY, rotationZ)

@@ -131,8 +131,6 @@ export async function gameLocal () {
     if (!checkPermission) {
         navigateTo('/login');
     } else {
-        console.log("Navigating to /game-local");
-
     // Retrieve the second player's name from the form
         const playerNameInput = document.getElementById("player-name");
         const secondPlayerName = playerNameInput ? playerNameInput.value.trim() : null;

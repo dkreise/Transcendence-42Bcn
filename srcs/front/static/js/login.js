@@ -1,6 +1,6 @@
 import { navigateTo, drawHeader } from "./main.js";
 import { updateLanguage, getCookie } from "./langs.js";
-import { connectWS } from "./onlineStatus.js";
+import { connectWS, disconnectWS } from "./onlineStatus.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -13,6 +13,7 @@ export async function refreshAccessToken() {
         console.log("No refresh token found. User needs to log in again.");
         // handleLogout();
         localStorage.clear();
+        disconnectWS();
         window.history.replaceState(null, null, '/');
         navigateTo('/login', true);
         return Promise.reject("No refresh token available");
@@ -30,6 +31,7 @@ export async function refreshAccessToken() {
             console.log("Refresh token invalid or expired.");
             // handleLogout();
             localStorage.clear();
+            disconnectWS();
             window.history.replaceState(null, null, '/');
             navigateTo('/login', true);
             return Promise.reject("Refresh token invalid or expired.");
@@ -58,10 +60,11 @@ export const makeAuthenticatedRequest = async (url, options = {}) => {
     if (!accessToken) {
         console.log("No access token available.");
         localStorage.clear();
+        disconnectWS();
         navigateTo('/login', true);
         return null;
     }
-    console.log(url);
+    // console.log(url);
     options = {
         ...options,
         headers: {

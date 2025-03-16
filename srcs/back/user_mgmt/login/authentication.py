@@ -3,21 +3,19 @@
 # from rest_framework_simplejwt.authentication import JWTAuthentication
 # import requests
 # import logging
-# from django.contrib.auth.models import User
+# from django.contrib.auth.models import User, AnonymousUser
 
 # logger = logging.getLogger(__name__)
 
-# class Intra42Authentication(BaseAuthentication):
+# class CustomAuthentication(BaseAuthentication):
 #     def authenticate(self, request):
-#         print("==========================================================")
-#         print(auth_header)
-#         print("==========================================================")
+#         logger.info("======================ENTERED====================================")
 #         auth_header = request.headers.get('Authorization')
 #         if not auth_header:
 #             return None
-#         print("==========================================================")
-#         print(auth_header)
-#         print("==========================================================")
+#         logger.info("==========================================================")
+#         logger.info(auth_header)
+#         logger.info("==========================================================")
         
 #         jwt_authenticator = JWTAuthentication()
 #         try:
