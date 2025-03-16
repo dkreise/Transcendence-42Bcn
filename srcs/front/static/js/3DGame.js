@@ -259,7 +259,6 @@ export function setupRemoteControls(player) {
 //async function initializeWebSocket(roomId) {
 async function initializeWebSocket(roomId = 123) {
     let retries = 0;
-    console.warn(`Initializing Web socket... ROOM ID ${roomID}`);
     const access_token = localStorage.getItem("access_token");
 	const token = await checkToken(access_token);
     if (!token) {
@@ -269,7 +268,6 @@ async function initializeWebSocket(roomId = 123) {
     if (!socket)
     {
         text.waiting.visible = true;
-        console.warn(`REALLY Initializing Web socket... ROOM ID ${roomID}`);
         socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomID.toString()}/?token=${token}`);
     }
     socket.onopen = () => console.log("WebSocket connection established.");

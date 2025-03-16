@@ -144,7 +144,8 @@ def get_username(request):
     return JsonResponse({'status': 'success', 'username': request.user.username}, status=200)
 
 @api_view(['GET'])
+@login_required
 def get_game_dict(request):
     context = {}
     add_language_context(request.COOKIES, context)
-    return JsonResponse({'dict': context}, status=200)
+    return JsonResponse({'dict': context})
