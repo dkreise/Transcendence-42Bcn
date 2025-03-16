@@ -438,7 +438,7 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 		startTournamentGame();
 		const button = document.getElementById('play-again');
         if (button) {
-            button.textContent = "Quit Tournament";
+            button.textContent = dictionary['quit_tournament'] || "Quit Tournament";
             button.setAttribute("data-route", "/quit-tournament");
             button.setAttribute("replace-url", true);
         }
