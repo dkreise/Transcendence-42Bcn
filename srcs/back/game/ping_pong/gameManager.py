@@ -57,7 +57,7 @@ class GameManager:
 	board_config = {"width": 600, "height": 400, "max_score": 3}
 
 	paddle_config = {"width": 5, "height": 70, "speed": 5}
-	countdown = 5
+	countdown = 200000
 
 	def __init__(self, game_id):
 		self.id = game_id
@@ -96,7 +96,7 @@ class GameManager:
 					logger.info(f"{user} is already in the room. Rejecting new connection")
 				if self.tour_id:
 					return role
-				return "4000"
+				return "ALREADY_THERE"
 
 				if len(self.players) == 2:
 					self.status = 0
@@ -181,27 +181,24 @@ class GameManager:
 	def is_pad_col_top(self):
 		radius = GameManager.ball_config["rad"]
 		padH = GameManager.paddle_config["height"] / 2
-		padW = GameManager.paddle_config["width"]
-		boardH = GameManager.board_config["height"]
-		boardW = GameManager.board_config["width"]
-		pl1_x = padW
-		pl1_y = self.players["player1"]["y"] * boardH
-		pl2_x = boardW - padW
-		pl2_y = self.players["player2"]["y"] * boardH
+		ballY = self.ball["y"] * GameManager.board_config["height"]
+		pl1_y = self.players["player1"]["y"] * GameManager.board_config["height"]
+		pl2_x =  GameManager.board_config["width"] - GameManager.paddle_config["width"]
+		pl2_y = self.players["player2"]["y"] * GameManager.board_config["height"]
 
 		# Left paddle
-		if self.ball["x"] * boardW - radius <= pl1_x:
-			logger.info(f"col Top pl1 x area")
-			if ((self.ball["y"] * boardH + radius >= pl1_y - padH) and
-				(self.ball["y"] * boardH - radius <= pl1_y + padH)):
-				logger.info(f"col Top pl1")
+		if self.ball["x"] * GameManager.board_config["width"] - radius <= GameManager.paddle_config["width"]:
+			#logger.info(f"col Top pl1 x area")
+			if ((ballY + radius >= pl1_y - padH) and
+				(ballY - radius <= pl1_y + padH)):
+				#logger.info(f"col Top pl1")
 				return True
 		# Right paddle # APPLY CHANGES HERE
-		elif self.ball["x"] * boardW + radius >= pl2_x:
-			logger.info(f"col Top pl2 x area")
-			if ((self.ball["y"] * boardH + radius >= pl2_y - padH) and
-				(self.ball["y"] * boardH - radius <= pl2_y + padH)):
-				logger.info(f"col Top pl2")
+		elif self.ball["x"] * GameManager.board_config["width"] + radius >= pl2_x:
+			#logger.info(f"col Top pl2 x area")
+			if ((ballY + radius >= pl2_y - padH) and
+				(ballY - radius <= pl2_y + padH)):
+				#logger.info(f"col Top pl2")
 				return True
 		return False
 	
@@ -210,6 +207,7 @@ class GameManager:
 		radius = GameManager.ball_config["rad"] / GameManager.board_config["height"]
 		self.ball["x"] += self.ball["xspeed"] / GameManager.board_config["width"]
 		self.ball["y"] += self.ball["yspeed"] / GameManager.board_config["height"]
+		ballX = self.ball["x"] * GameManager.board_config["width"]
 		is_col_s = self.is_pad_col_side()
 		is_col_t = self.is_pad_col_top()
 
@@ -220,9 +218,9 @@ class GameManager:
 			self.ball["xspeed"] *= -1
 		elif self.ball["y"] - radius <= 0 or self.ball["y"] + radius >= 1:
 			self.ball["yspeed"] *= -1
-		if not (is_col_s and is_col_t) and (self.ball["x"] * GameManager.board_config["width"] - GameManager.ball_config["rad"] <= 0):
+		if not (is_col_s and is_col_t) and (ballX - GameManager.ball_config["rad"] <= 0):
 			await self.has_scored("player2")
-		elif not (is_col_s and is_col_t) and (self.ball["x"] * GameManager.board_config["width"] + GameManager.ball_config["rad"] >= GameManager.board_config["width"]):
+		elif not (is_col_s and is_col_t) and (ballX + GameManager.ball_config["rad"] >= GameManager.board_config["width"]):
 			await self.has_scored("player1")
 
 
@@ -568,7 +566,7 @@ class GameManager:
 				self.player2_waiting_task = None
 
 	async def check_unstarted_game(self):
-		await asyncio.sleep(10)
+		await asyncio.sleep(10000) #Changeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
 		logger.info(f"CHECK UNSTARTED GAME {self.id}")
 		logger.info(f"task: {self.player2_waiting_task}")
 		logger.info(f"LEN users: {len(self.users)}")

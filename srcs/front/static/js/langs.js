@@ -97,7 +97,8 @@ document.addEventListener("headerLoaded", () => {
 
             languageMenu.addEventListener("click", event => {
                 const lang = event.target.getAttribute("data-lang");
-                if (lang) {
+                console.warn(lang);
+                if (lang) { 
                     updateLanguage(lang);
                 }
             });
@@ -114,8 +115,9 @@ export function getFrontDict(lang, key) {
             "REPEATED_NAME": "Both names cannot be equal. Set another name",
             "SECOND_PLAYER_NEEDED": "Set second player's name",
             "WRONG_TOURNAMENT_ID": "The tournament ID is not correct",
-            "FULL_TOURNAMENT": "Tournament is full",
+            "FULL_TOURNAMENT": "Tournament is full or it doesn't exist",
             "PLAY_MY_GAME": "Play my game",
+			"ALREADY_THERE": "You're already in that room!",
         },
         "ES": {
             "ACCESS_DENIED": "Acceso denegado",
@@ -124,8 +126,9 @@ export function getFrontDict(lang, key) {
             "REPEATED_NAME": "Ambos nombres no pueden ser iguales. Pon otro nombre.",
             "SECOND_PLAYER_NEEDED": "Pon el nombre del segundo jugador",
             "WRONG_TOURNAMENT_ID": "El ID del torneo no es correcto.",
-            "FULL_TOURNAMENT": "El torneo está lleno",
+            "FULL_TOURNAMENT": "El torneo está lleno o no existe",
             "PLAY_MY_GAME": "Jugar mi partida",
+			"ALREADY_THERE": "¡Ya estás en esa habitación!",
         },
         "CA": {
             "ACCESS_DENIED": "Accés denegat",
@@ -134,8 +137,9 @@ export function getFrontDict(lang, key) {
             "REPEATED_NAME": "Els dos noms no poden ser iguals. Poseu un altre nom.",
             "SECOND_PLAYER_NEEDED": "Poseu el nom del segon jugador",
             "WRONG_TOURNAMENT_ID": "L'ID del torneig no és correcte",
-            "FULL_TOURNAMENT": "El torneig està ple",
+            "FULL_TOURNAMENT": "El torneig està ple o no existeix",
             "PLAY_MY_GAME": "Jugar la meua partida",
+			"ALREADY_THERE": "Ja estàs dins d'aquesta habitació!",
         },
         "RU": {
             "ACCESS_DENIED": "Доступ запрещен",
@@ -144,8 +148,9 @@ export function getFrontDict(lang, key) {
             "REPEATED_NAME": "Имена не могут быть одинаковыми. Укажите другое имя",
             "SECOND_PLAYER_NEEDED": "Укажите имя второго игрока",
             "WRONG_TOURNAMENT_ID": "ID турнира некорректен",
-            "FULL_TOURNAMENT": "Турнир заполнен",
+            "FULL_TOURNAMENT": "Турнир заполнен или его не существует",
             "PLAY_MY_GAME": "Играть",
+			"ALREADY_THERE": "Вы уже в этой комнате!",
         },
         "LV": {
             "ACCESS_DENIED": "Prieiga uždrausta",
@@ -154,8 +159,9 @@ export function getFrontDict(lang, key) {
             "REPEATED_NAME": "Abi vārdi nevar būt vienādi. Ievadiet citu vārdu",
             "SECOND_PLAYER_NEEDED": "Norādiet otra spēlētāja vārdu",
             "WRONG_TOURNAMENT_ID": "Torneja ID nav pareizs",
-            "FULL_TOURNAMENT": "Turnīrs ir pilns",
+            "FULL_TOURNAMENT": "Turnyras pilnas arba jo nėra",
             "PLAY_MY_GAME": "Spēlēt manu spēli",
+			"ALREADY_THERE": "Tu jau tame kambaryje!",
         }
     };
 

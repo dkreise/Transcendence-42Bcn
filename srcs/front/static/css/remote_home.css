@@ -114,17 +114,18 @@
   }
   
 
-  /* Efecto: cuando se hace hover sobre una sección, la otra se "apaga" */
-  .game-wrapper:hover .section {
+  .game-wrapper:has(#create-game-form:hover) #join-game-form,
+  .game-wrapper:has(#join-game-form:hover) #create-game-form {
     opacity: 0.5;
   }
+
   .game-wrapper .section:hover {
     opacity: 1;
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
   }
 
 
-  @media (min-width: 768px) {
+  @media (min-width: 1200px) {
     #join-game-form, #create-game-form {
         flex: 0 0 auto;
         width: 27.66666667%;

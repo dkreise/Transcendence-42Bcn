@@ -10,7 +10,7 @@ import { playLocal, restartOnline, playAI, gameAI, playOnline, play3D, gameLocal
 import { cleanup3D, exit3D } from "./3DGame.js";
 import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest } from "./tournament.js";
 import { cleanupLocal } from "./localGame.js"
-import { connectWS } from "./onlineStatus.js";
+import { connectWS, disconnectWS } from "./onlineStatus.js";
 import { cleanRemote } from "./remoteGame.js";
 import { loadPageNotFound, showModalError } from "./errorHandler.js";
 
@@ -22,9 +22,10 @@ const userMgmtPort = window.env.USER_MGMT_PORT;
 const modeProduction = window.env.SECURE;
 
 // if (modeProduction === 'true') {
-//     console.log = () => {};
+    // console.log = () => {};
 // }
 
+// console.log = () => {};
 // The routes object maps URL paths to their respective handler functions:
 // Each key is a path (e.g., /, /profile).
 // Each value is a function that handles what should happen when the app navigates to that path.

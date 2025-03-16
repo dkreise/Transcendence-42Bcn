@@ -302,7 +302,7 @@ class TournamentManager:
 					score += 1
 
 				logger.info(f"res for user: {player}, score: {score}")
-				self.results_strings.append(f"{player}, score: {score}")
+				self.results_strings.append(f"{player}: {score}")
 				# Save the tournament result
 				tournament_res = Tournament.objects.create(
 					id_tournament=self.id,
@@ -541,7 +541,7 @@ class TournamentManager:
 		return 'playing'
 
 	async def start_countdown_until_close(self):
-		await asyncio.sleep(2000)
+		await asyncio.sleep(20) #changeeeeeeeee??????????????????
 		logger.info("TIME TO DELETE")
 		channel_layer = get_channel_layer()
 		await channel_layer.group_send(

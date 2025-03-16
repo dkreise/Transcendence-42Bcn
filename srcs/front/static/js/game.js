@@ -291,8 +291,10 @@ export async function playOnline (tourId = null) {
                 const canvas = document.getElementById("newGameCanvas");
 
                 let id_html = document.getElementById('id-room-remote');
-                id_html.textContent = `${roomId}`;
-                console.log(roomId);
+
+                if (roomId)
+                    id_html.textContent = `ID: ${roomId}`;
+
 
                 if (canvas) {
                     console.log("GOING TO START 2D");

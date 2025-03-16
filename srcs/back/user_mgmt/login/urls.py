@@ -2,6 +2,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 from . import views, auth42
 from .auth42 import Callback42API
+from .tokenRefreshView import CustomTokenRefreshView
 
 urlpatterns = [
 	# path("", views.home, name="home"),
@@ -13,7 +14,7 @@ urlpatterns = [
 	path("api/login-form/", views.login_form, name="login_form"),
 	path("api/signup-form/", views.signup_form, name="signup_form"),
 	path("api/register/", views.register_user, name='register_user'),
-	path("api/token/refresh/", TokenRefreshView.as_view(), name='token_refresh'),
+	path("api/token/refresh/", CustomTokenRefreshView.as_view(), name='token_refresh'),
 	path("api/login-intra/", auth42.login_intra, name="login_intra"),
 	path("api/login-intra/callback", Callback42API.as_view(), name="callback"),
 	path("api/logout/", views.logout, name="logout"),
