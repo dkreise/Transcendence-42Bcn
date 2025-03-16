@@ -11,7 +11,7 @@ export class Player {
         console.log(`player width: ${this.x}`)
         this.y = canvas.height / 2 - this.height / 2;
         this.speed = canvas.height / 90;
-        this.color = "white";
+        this.color = "white";   
         this.up = false;
         this.down = false;
         this.score = 0;
@@ -35,10 +35,6 @@ export class Player {
 		else if (this.y + this.height > this.canvas.height)
 			this.y = this.canvas.height - this.height;
     }
-
-    // update(newScore) {
-	// 	this.score = newScore;
-	// }
 
     drawScore(ctx) {
 		const text = `${this.name}: ${this.score}`;
@@ -71,22 +67,32 @@ export class Player {
 	}
 
 	resetPosition() {
-		this.y = this.canvas.height / 2;
+		this.y = (this.canvas.height - this.height) / 2;
 	}
+
+    resize(nW, nH) {
+		const factor = nH / this.canvas.height;
+
+		this.width = this.width * nW / this.canvas.width;
+		this.height = this.height * factor;
+		if (this.x != 0)
+			this.x = nW - this.width;
+		this.y = this.y * factor;
+        this.speed = this.speed * factor;
+  }
 }
 
 export class Ball {
-    // radius = 10;
-	div = document.getElementById("wait");
 
     constructor(canvas, ctx) {
         this.x = canvas.width / 2;
         this.y = canvas.height / 2;
-        this.xspeed = canvas.width * 0.01;
-        this.yspeed = canvas.height * 0.02;
+        this.xspeed = canvas.width  * 0.008;
+        //this.yspeed = canvas.height * 0.01;
+        this.yspeed = 0;
         this.color = "white";
         this.canvas = canvas;
-        this.radius = canvas.width * 0.015;
+        this.radius = canvas.width * 0.01;
 		this.ctx = ctx;
     }
 
@@ -151,5 +157,18 @@ export class Ball {
    		return 0;
 	}
 
+    resize(nW, nH) {
+		const factor = nH / this.canvas.height;         // Factor vertical
+    const factorX = nW / this.canvas.width;           // Factor horizontal
 
+    // Escalamos posición y tamaño
+    this.radius = this.radius * factor;
+    this.x = this.x * factorX;
+    this.y = this.y * factor;
+
+    // Escalamos las velocidades de forma proporcional
+    this.xspeed = this.xspeed * factorX;
+    this.yspeed = this.yspeed * factor;
+
+	}
 }

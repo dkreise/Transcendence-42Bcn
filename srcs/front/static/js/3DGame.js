@@ -10,6 +10,7 @@ import { AmbientLight, DirectionalLight , Vector3} from 'three'
 import { drawHeader, navigateTo } from "./main.js";
 import { quitTournament, saveTournamentGameResult, startTournamentGame, stopTournamentGame } from "./tournament.js"
 import { checkToken } from "./onlineStatus.js";
+import { showModalError } from "./errorHandler.js";
 
 //----------------------------------------------------------------------------//
 //-------------------- VARIABLES INITIALIZATION ------------------------------//
@@ -275,13 +276,12 @@ async function initializeWebSocket(roomId = 123) {
     socket.onopen = () => console.log("WebSocket connection established.");
     socket.onerror = (error) => {
         console.log("WebSocket encountered an error:", error);
-        // alert("Unable to connect to the server. Please check your connection.");
     };
     socket.onclose = async (event) => {
         console.log("WebSocket closing with code:", event.code);
 
         // console.log("WebSocket connection closed. ...");
-        if (event.code === 4001) {
+        if (event.code === 4242) {
             // Token expired; refresh token logic
             try {
                 await refreshAccessToken();
@@ -313,6 +313,11 @@ async function initializeWebSocket(roomId = 123) {
             case "update":
                 handle3DUpdate(data);
                 break ;
+			case "reject":
+				socket.close();
+				showModalError(data.reason);
+				navigateTo("/remote-home");
+				return ;
             case "endgame":
                 console.log("endgame!"); 
                 handleOnlineEndgame(data);
@@ -471,7 +476,7 @@ const beforeUnloadHandlerRemote = () => {
 // -------------------- GAME WITH AI FUNCTIONS ---------------------- //
 //--------------------------------------------------------------------//
 
-export async function start3DAIGame(playerName2, dict, tournament = null) {
+export async function start3DAIGame(playerName2, dict, tournament = null, difficulty = 1) {
 
     // dict = dict;
     window.gameDict = dict;
@@ -490,7 +495,8 @@ export async function start3DAIGame(playerName2, dict, tournament = null) {
     player2 = new AIPlayer(dict, limits, scene, 1, playerName2, new THREE.Vector3(0, 0, field.y - 2), -0.1);
     player1 = new AIPlayer(dict, limits, scene, -1, dict['enemy'], new THREE.Vector3(0, 0, -field.y + 2), -0.1);
     ball = new Ball(dict, scene, limits, [player1, player2], true);
-    ai = new AIController(player1, ball, limits);
+    ai = new AIController(player1, ball, limits, difficulty);
+    console.warn("AI diffff", ai.difficulty);
     setupEvents();
     setupAIControls();
     animateAI();
@@ -713,13 +719,16 @@ async function buttonsManager(event) {
         text.start.visible = false; // Hide the button
         text.button.visible = false;
         if (remote && !moveCamera) {
+            console.log(`Starting online game: Remote: ${remote}, Tour: ${tournamentId}, moveCamera: ${moveCamera}`)
             moveCamera = true;
             text.button.position.set(0, params.textY, 0);
             text.start.position.set(0, params.textY, 1.5);
             await animateCameraToField()
         } else if (remote && !tournamentId) {
+            console.log(`Remote: ${remote}, Tour: ${tournamentId}, initializing the sockets`)
             initializeWebSocket(roomID);
         } else {
+            console.log(`Starting local game: Remote: ${remote}, Tour: ${tournamentId}, moveCamera: ${moveCamera}`)
             gameStarted = true;
         }
     } else if ((intersects.length > 0 || intersectsTryAgain.length > 0) && gameEnded && text.tryAgain.visible == true) {

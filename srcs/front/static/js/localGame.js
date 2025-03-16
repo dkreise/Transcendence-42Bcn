@@ -42,48 +42,49 @@ export function saveScore(score1, score2, mainUser) {
     });
 }
 
-
-//async function firstCountdown(callback) {
-//    let countdown = 2;
-//    const msg = ["1", "2", "3"];
-//    let div = document.getElementById("wait");
-//    const interval = setInterval(() => {
-//        if (countdown < 0) {
-//            clearInterval(interval);
-//            div.textContent = "";
-//            ctx.clearRect(0, 0, canvas.width, canvas.height);
-//            console.log("RESUME")
-//            // handleOnlineEndgame();
-//            callback(); // Resume the game
-//        } else {
-//            ctx.clearRect(0, 0, canvas.width, canvas.height);
-//            div.textContent = msg[countdown];
-//            div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
-//            ctx.fillStyle = "rgb(0 0 0 / 25%)";
-//            ctx.fillRect(0, 0, canvas.width, canvas.height);
-//            div.style.display = "block";
-//            div.style.whitespace = "nowrap";
-//        }
-//        countdown--;
-//    }, 500);
+//async function displayCountdown()
+//{
+//	console.log("display countdown");
+//	if (gameLoopId) {
+//		cancelAnimationFrame(gameLoopId);
+//		console.log("frame animation cancelled! gameLoopId: " + gameLoopId);
+//	}
+//	let div = document.getElementById("wait");
+//	ctx.clearRect(0, 0, canvas.width, canvas.height);
+//	ctx.fillStyle = "rgb(0 0 0 / 25%)";
+//	div.style.display = "block";
+//    div.style.whitespace = "nowrap";
+//	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
+//	div.innerHTML = dict["ready"];
+//	ctx.fillRect(0, 0, canvas.width, canvas.height);
+//	await new Promise(resolve => setTimeout(resolve, 500));
+//	div.innerHTML = dict["go"];
+//	await new Promise(resolve => setTimeout(resolve, 500));
+//	div.style.display = "none";
+//	await gameLocalLoop();
 //}
 
-async function displayCountdown()
+async function readySteadyGo(countdown = 3)
 {
-	cancelAnimationFrame(gameLoopId);
+	const msg = ["1", "2", "3"];
 	let div = document.getElementById("wait");
-	ctx.clearRect(0, 0, canvas.width, canvas.height);
-	ctx.fillStyle = "rgb(0 0 0 / 25%)";
-	div.style.display = "block";
-    div.style.whitespace = "nowrap";
-	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
-	div.innerHTML = dict["ready"];
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
-	await new Promise(resolve => setTimeout(resolve, 500));
-	div.innerHTML = dict["go"];
-	await new Promise(resolve => setTimeout(resolve, 500));
-	div.style.display = "none";
-	gameLocalLoop();
+
+	if (div) {
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+		div.textContent = msg[countdown];
+		div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
+
+
+		ctx.fillStyle = "rgb(0 0 0 / 25%)";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+		div.style.display = "block";
+		while (countdown >= 0) {
+            div.textContent = msg[countdown];
+            await new Promise(resolve => setTimeout(resolve, 500)); // Wait 500ms before the next update
+            countdown--;
+        }
+		div.style.display = "none";
+	}
 }
 
 // Game loop
@@ -107,8 +108,11 @@ async function gameLocalLoop() {
     // Move players and ball
     player1.move();
     player2.move();
-    if (ball.move(player1, player2) && player1.score != maxScore && player2.score != maxScore)
-		displayCountdown();
+    if (ball.move(player1, player2) && player1.score != maxScore && player2.score != maxScore) {
+		cancelAnimationFrame(gameLoopId);
+		await readySteadyGo();
+		await gameLocalLoop();
+	}
 
     // Endgame check
     if (player1.score >= maxScore || player2.score >= maxScore) {
@@ -137,6 +141,50 @@ export function setupControls(player1, player2) {
     });
 }
 
+function resizeCanvasLocal() {
+	if (!canvas)
+		return ;
+
+    canvas = document.getElementById("newGameCanvas");
+    const container = document.getElementById("newGameBoard");
+	if (!canvas || !container)
+		return ;
+
+    let maxWidth = container.clientWidth;
+    let maxHeight = container.clientHeight;
+
+    let newWidth = maxWidth;
+    let newHeight = (9 / 16) * newWidth;
+
+	//Apply aspect ratio
+    if (newHeight > maxHeight) {
+        newHeight = maxHeight;
+        newWidth = (16 / 9) * newHeight;
+    }
+
+    // newWidth = Math.max(500, Math.min(newWidth, 1200));
+    // newHeight = Math.max(300, Math.min(newHeight, 800));
+
+    newWidth = Math.floor(newWidth);
+    newHeight = Math.floor(newHeight);
+
+    canvas.style.width = `${newWidth - 5}px`;
+    canvas.style.height = `${newHeight}px`;
+	ctx = canvas.getContext('2d');
+
+	if (player1)
+		player1.resize(newWidth, newHeight);
+    if (player2)
+		player2.resize(newWidth, newHeight);
+	if (ball)
+		ball.resize(newWidth, newHeight);
+
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+}
+
+window.addEventListener("resize", resizeCanvasLocal);
+
 // Start game function
 export async function startLocalGame(playerName1, playerName2, mainUserNmb, dictionary) {
     canvas = document.getElementById("newGameCanvas");
@@ -144,19 +192,21 @@ export async function startLocalGame(playerName1, playerName2, mainUserNmb, dict
 	dict = dictionary;
 	console.log("dictionary: ", dictionary);
 
-    canvas.width = window.innerWidth * 0.65; // % of screen width
-    canvas.height = canvas.width * 0.57; // % of screen height
-
+    // canvas.width = window.innerWidth * 0.65; // % of screen width
+    // canvas.height = canvas.width * 0.57; // % of screen height
+    
     mainUser = mainUserNmb;
-
+    
+    resizeCanvasLocal();
     // Initialize players and ball
     console.log('Starting local game...');
     console.log(`Canvas: ${canvas.width} x ${canvas.height}`);
     player1 = new Player(canvas, 0, playerName1);
     player2 = new Player(canvas, 1, playerName2);
     ball = new Ball(canvas, ctx, dict);
-
+    
     setupControls(player1, player2);
+	await readySteadyGo();
     await gameLocalLoop();
 }
 

@@ -257,7 +257,7 @@ export class AIPlayer extends BasicPlayer {
 }
 
 export class AIController {
-    constructor(paddle, target, limits) {
+    constructor(paddle, target, limits, difficulty) {
         this.paddle = paddle;
         this.target = target;
         this.time = 0;
@@ -265,8 +265,8 @@ export class AIController {
         this.lastUpdateTime = 0;
         this.maxSpeed = paddle.speed;
         this.limits = limits;
-        this.difficulty = 3; // 0.5-1 => easy, 3 => already low chance for ai to lose, 5 => almost impossible; 
-        this.errorRange = (limits.y / 10) * (2 / this.difficulty); 
+        this.difficulty = difficulty; // 0.5-1 => easy, 3 => already low chance for ai to lose, 5 => almost impossible; 
+        this.errorRange = (limits.x / 10) * (2 / this.difficulty); 
     }
 
     update(elapsedTime) {

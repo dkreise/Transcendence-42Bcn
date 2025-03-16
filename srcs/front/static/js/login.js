@@ -1,6 +1,5 @@
-import { handleLogout } from "./logout.js"
 import { navigateTo, drawHeader } from "./main.js";
-import { updateLanguage } from "./langs.js";
+import { updateLanguage, getCookie } from "./langs.js";
 import { connectWS } from "./onlineStatus.js";
 
 const host = window.env.HOST;
@@ -11,7 +10,7 @@ const userMgmtPort = window.env.USER_MGMT_PORT;
 export async function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refresh_token");
     if (!refreshToken) {
-        console.error("No refresh token found. User needs to log in again.");
+        console.log("No refresh token found. User needs to log in again.");
         // handleLogout();
         localStorage.clear();
         window.history.replaceState(null, null, '/');
@@ -28,7 +27,7 @@ export async function refreshAccessToken() {
         if (response.ok) {
             return response.json();
         } else {
-            console.error("Refresh token invalid or expired.");
+            console.log("Refresh token invalid or expired.");
             // handleLogout();
             localStorage.clear();
             window.history.replaceState(null, null, '/');
@@ -125,29 +124,39 @@ export const handleLogin = async () => {
         const response = await fetch(baseUrl + userMgmtPort + "/api/login/", {
             method: 'POST',
             body: dataToSend,
+            credentials: "include",
             headers: { 'Content-Type': 'application/json' }
         });
         const data = await response.json();
         if (data.success) {
             if (data.two_fa_required) {
                 localStorage.setItem('temp_token', data.temp_token);
-                navigateTo('/two-fa-login', true);
+                navigateTo('/two-fa-login');
             } else {
                 localStorage.setItem('access_token', data.tokens.access);
                 localStorage.setItem('refresh_token', data.tokens.refresh);
                 await updateLanguage(); 
                 await connectWS(data.tokens.access);
-                navigateTo('/home', true);
+                navigateTo('/home');
             }
         } else {
-            displayLoginError('login-form', 'Invalid Credentials');
-            navigateTo('login', true)
+            if (data.message)
+                displayLoginError('login-form', data.message);
         }
     } catch (error) {
         console.log('Error logging in:', error);
-        navigateTo('login', true)
+
     }
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+    const contentArea = document.getElementById("content-area");
+    contentArea.addEventListener("click", (event) => {
+        if (event.target && event.target.id == "login-submit") {
+            handleLogin();
+        }
+    });
+});
 
 export const loadSignupPage = () => {
     drawHeader('login').then(() => {
@@ -176,6 +185,7 @@ export const handleSignup = async () => {
 
     fetch(baseUrl + userMgmtPort + "/api/register/", {
         method: 'POST',
+        credentials: "include",
         body: JSON.stringify(Object.fromEntries(formData)),
         headers: { 'Content-Type': 'application/json'}
     })
@@ -184,13 +194,12 @@ export const handleSignup = async () => {
         if (signupData.success) {
             localStorage.setItem('access_token', signupData.tokens.access);
             localStorage.setItem('refresh_token', signupData.tokens.refresh);
-            let lang = getCookie("language") || "en";
+            let lang = getCookie("language");
             await updateLanguage(lang);
             await connectWS(signupData.tokens.access);
-            navigateTo('/home', true);
+            navigateTo('/home');
         } else {
             displayLoginError('signup-form', `${signupData.error}`);
-            navigateTo('signup', true)
         }
     })
     .catch(error => {
@@ -198,6 +207,15 @@ export const handleSignup = async () => {
         navigateTo('signup', true)
     });
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+    const contentArea = document.getElementById("content-area");
+    contentArea.addEventListener("click", (event) => {
+        if (event.target && event.target.id == "signup-submit") {
+            handleSignup();
+        }
+    });
+});
 
 export const displayLoginError = (form, errorMessage) => {
     const login_error = document.getElementById('login-error');
@@ -210,24 +228,9 @@ export const displayLoginError = (form, errorMessage) => {
     setTimeout(() => {
         login_error.classList.remove('show');
       }, 2500);
-    // loginContainer.prepend(errorMessage); //adding at the top of the login container
     
     const loginForm = document.getElementById(form);
     if (loginForm) {
-        loginForm.reset();  // to clear the form
+        loginForm.reset();
     }
 };
-
-function getCookie(name) {
-    const cookies = document.cookie.split(";");
-
-    for (let i = 0; i < cookies.length; i++) {
-        let cookie = cookies[i].trim();
-        
-        if (cookie.startsWith(name + "=")) {
-            return cookie.substring(name.length + 1);
-        }
-    }
-    return null;
-}
-

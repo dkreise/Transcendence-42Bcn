@@ -17,9 +17,6 @@ import asyncio
 from asgiref.sync import sync_to_async
 from django.contrib.auth.decorators import login_required
 
-
-# User = get_user_model()
-
 @api_view(['GET'])
 @login_required
 def get_player_game_statistics(request, player_id):
@@ -101,7 +98,7 @@ def get_difficulty_level(request):
         get_difficulty_html = render_to_string('get_difficulty.html', context)
         return JsonResponse({'get_difficulty_html': get_difficulty_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=402)
+        return JsonResponse({'error': 'user not authenticated'})
 
 @api_view(['GET'])
 @login_required
@@ -151,4 +148,3 @@ def get_game_dict(request):
     context = {}
     add_language_context(request.COOKIES, context)
     return JsonResponse({'dict': context}, status=200)
-

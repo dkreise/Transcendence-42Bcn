@@ -274,7 +274,7 @@ const updateProfileSettings = (form) => {
             if (data && data.success) {
                 displayUpdatingMessage("Settings were updated!", 'green');
             } else {
-                displayUpdatingMessage(data.error + ' Please try again.', 'red');
+                displayUpdatingMessage(data.error, 'red');
             }
         })
         .catch((error) => {
