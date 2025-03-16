@@ -275,7 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem("tournamentReload");
     }
 
-    window.addEventListener("beforeunload", disconnectWS());
     window.addEventListener("load", connectWS(localStorage.getItem('access_token')));
    
     // Event delegation for data-route attributes

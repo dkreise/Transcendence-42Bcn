@@ -71,11 +71,11 @@ export async function connectWS(access_token)
 		// 	}
 		// }
 
-        // if (access_token && !off) {
-        //     off = true;
-        //     setTimeout(() => connectWS(access_token), 1000); // Retry after 1 second
-        //     console.log('Reconnecting...');
-        // }
+        if (access_token && !off) {
+            off = true;
+            setTimeout(() => connectWS(access_token), 1000); // Retry after 1 second
+            console.log('Reconnecting...');
+        }
     };
     
     socket.onopen = function(event) {
