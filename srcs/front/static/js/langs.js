@@ -116,6 +116,7 @@ export function getFrontDict(lang, key) {
             "WRONG_TOURNAMENT_ID": "The tournament ID is not correct",
             "FULL_TOURNAMENT": "Tournament is full or it doesn't exist",
             "PLAY_MY_GAME": "Play my game",
+			"ALREADY_THERE": "You're already in that room!",
         },
         "ES": {
             "ACCESS_DENIED": "Acceso denegado",
@@ -126,6 +127,7 @@ export function getFrontDict(lang, key) {
             "WRONG_TOURNAMENT_ID": "El ID del torneo no es correcto.",
             "FULL_TOURNAMENT": "El torneo está lleno o no existe",
             "PLAY_MY_GAME": "Jugar mi partida",
+			"ALREADY_THERE": "¡Ya estás en esa habitación!",
         },
         "CA": {
             "ACCESS_DENIED": "Accés denegat",
@@ -136,6 +138,7 @@ export function getFrontDict(lang, key) {
             "WRONG_TOURNAMENT_ID": "L'ID del torneig no és correcte",
             "FULL_TOURNAMENT": "El torneig està ple o no existeix",
             "PLAY_MY_GAME": "Jugar la meua partida",
+			"ALREADY_THERE": "Ja estàs dins d'aquesta habitació!",
         },
         "RU": {
             "ACCESS_DENIED": "Доступ запрещен",
@@ -146,6 +149,7 @@ export function getFrontDict(lang, key) {
             "WRONG_TOURNAMENT_ID": "ID турнира некорректен",
             "FULL_TOURNAMENT": "Турнир заполнен или его не существует",
             "PLAY_MY_GAME": "Играть",
+			"ALREADY_THERE": "Вы уже в этой комнате!",
         },
         "LV": {
             "ACCESS_DENIED": "Prieiga uždrausta",
@@ -156,6 +160,7 @@ export function getFrontDict(lang, key) {
             "WRONG_TOURNAMENT_ID": "Torneja ID nav pareizs",
             "FULL_TOURNAMENT": "Turnyras pilnas arba jo nėra",
             "PLAY_MY_GAME": "Spēlēt manu spēli",
+			"ALREADY_THERE": "Tu jau tame kambaryje!",
         }
     };
 
