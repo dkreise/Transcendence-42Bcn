@@ -1,12 +1,11 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { navigateTo, drawHeader } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
-import { gameAI, playOnline, getDictFor3DGame } from "./game.js";
+import { gameAI, playOnline, getDictFor3DGame, getOrInitialize3DOption } from "./game.js";
 import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, cleanRemote, removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 import { checkToken } from "./onlineStatus.js";
-import { getCookie } from "./langs.js";
+import { getCookie, getFrontDict } from "./langs.js";
 import { showModalError } from "./errorHandler.js";
-import { getOrInitialize3DOption } from "./game.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -282,7 +281,6 @@ export const tournamentGameAIstart = (data, tourId) => {
 
 function addGameButton(data) {
     // tournament ID needed!! or maybe not..
-    
     console.log('Player needs to play!!');
     const bracketSection = document.getElementById("bracket");
     // if (bracketSection) {
@@ -300,7 +298,8 @@ function addGameButton(data) {
     span.classList.add("button-content-trn");
     // const dictionary = getDictFor3DGame();
     // span.textContent = "Play my game";
-    span.textContent = dict['play_my_game'] || "Play My Game";
+    const lang = getCookie("language");
+    span.textContent = getFrontDict(lang || "EN", 'PLAY_MY_GAME') || "Play my game";
 
     playButton.appendChild(span);
 
@@ -595,8 +594,8 @@ function gameUpdate() {
 }
 
 function tourFull() {
-    console.log("Tournament is full:", data.message);
-    alert(data.message);
+    console.log("Tournament is full");
+    showModalError("FULL_TOURNAMENT")
     localStorage.removeItem('inTournament');
     localStorage.removeItem("user_quit");
     localStorage.removeItem("currentTournamentId");

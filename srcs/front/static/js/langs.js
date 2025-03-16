@@ -115,6 +115,7 @@ export function getFrontDict(lang, key) {
             "SECOND_PLAYER_NEEDED": "Set second player's name",
             "WRONG_TOURNAMENT_ID": "The tournament ID is not correct",
             "FULL_TOURNAMENT": "Tournament is full",
+            "PLAY_MY_GAME": "Play my game",
         },
         "ES": {
             "ACCESS_DENIED": "Acceso denegado",
@@ -124,6 +125,7 @@ export function getFrontDict(lang, key) {
             "SECOND_PLAYER_NEEDED": "Pon el nombre del segundo jugador",
             "WRONG_TOURNAMENT_ID": "El ID del torneo no es correcto.",
             "FULL_TOURNAMENT": "El torneo está lleno",
+            "PLAY_MY_GAME": "Jugar mi partida",
         },
         "CA": {
             "ACCESS_DENIED": "Accés denegat",
@@ -133,6 +135,7 @@ export function getFrontDict(lang, key) {
             "SECOND_PLAYER_NEEDED": "Poseu el nom del segon jugador",
             "WRONG_TOURNAMENT_ID": "L'ID del torneig no és correcte",
             "FULL_TOURNAMENT": "El torneig està ple",
+            "PLAY_MY_GAME": "Jugar la meua partida",
         },
         "RU": {
             "ACCESS_DENIED": "Доступ запрещен",
@@ -142,6 +145,7 @@ export function getFrontDict(lang, key) {
             "SECOND_PLAYER_NEEDED": "Укажите имя второго игрока",
             "WRONG_TOURNAMENT_ID": "ID турнира некорректен",
             "FULL_TOURNAMENT": "Турнир заполнен",
+            "PLAY_MY_GAME": "Играть",
         },
         "LV": {
             "ACCESS_DENIED": "Prieiga uždrausta",
@@ -151,10 +155,11 @@ export function getFrontDict(lang, key) {
             "SECOND_PLAYER_NEEDED": "Norādiet otra spēlētāja vārdu",
             "WRONG_TOURNAMENT_ID": "Torneja ID nav pareizs",
             "FULL_TOURNAMENT": "Turnīrs ir pilns",
+            "PLAY_MY_GAME": "Spēlēt manu spēli",
         }
     };
 
-    return dict[lang]?.[key] || dict["EN"][key] || "An error occurred.";
+    return dict[lang]?.[key] || dict["EN"][key] || key;
 }
 
 export function getCookie(name) {

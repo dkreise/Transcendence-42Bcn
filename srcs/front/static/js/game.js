@@ -7,7 +7,6 @@ import { start3DAIGame, start3DLocalGame, start3DRemoteGame } from "./3DGame.js"
 import { loadBracketTournamentPage, quitTournament } from "./tournament.js";
 import { showModalError } from "./errorHandler.js";
 
-
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
@@ -293,7 +292,7 @@ export async function playOnline (tourId = null) {
 
                 let id_html = document.getElementById('id-room-remote');
                 id_html.textContent = `${roomId}`;
-                console.warn(roomId);
+                console.log(roomId);
 
                 if (canvas) {
                     console.log("GOING TO START 2D");
