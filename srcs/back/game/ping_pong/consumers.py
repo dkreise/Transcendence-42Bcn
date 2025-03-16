@@ -87,6 +87,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 									"type": "tournament_starts",
 									"message": "Tournament has started",
 									"status": "playing",
+									"lang": self.lang,
 								}
 							)
 
@@ -524,7 +525,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 		logger.info(f"TOURNAMENT_STARTS FOR {self.user.username}")
 		tournament = active_tournaments[self.tour_id]
 		round_data = tournament.handle_tournament_start(self.user.username)
-		self.lang = data.get("lang", "EN")
 		page = tournament.get_bracket_page(self.user.username, self.lang)
 		await self.send(text_data=json.dumps({
 			"type": "html",
@@ -540,7 +540,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 		logger.info(f"TOURNAMENT_ENDS FOR {self.user.username}")
 		tournament = active_tournaments[self.tour_id]
 		tournament.finished = True
-		self.lang = data.get("lang", "EN")
 		page = tournament.get_final_page(self.user.username, self.lang)
 		await self.send(text_data=json.dumps({
 			"type": "html",
@@ -552,7 +551,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 	async def tournament_update(self, event):
 		logger.info(f"TOURNAMENT_UPDATE FOR {self.user.username}")
 		tournament = active_tournaments[self.tour_id]
-		self.lang = data.get("lang", "EN")
 		page = tournament.get_bracket_page(self.user.username, self.lang)
 		await self.send(text_data=json.dumps({
 			"type": "html",

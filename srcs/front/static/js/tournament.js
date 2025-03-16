@@ -166,8 +166,6 @@ export const loadWaitingRoomPage = () => {
     if (socket.readyState === WebSocket.OPEN)
 	{
 		let lang = getCookie("language");
-
-        console.log("LANG IN TOURNAMENT", lang)
         const data = {
 			"type": "waiting_room_page_request",
             "lang": lang,
@@ -245,12 +243,14 @@ export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) =>
 
     if (socket.readyState === WebSocket.OPEN)
     {
+        let lang = getCookie("language");
         const data = {
             "type": "game_result",
             "winner": winner,
             "winner_score": playerScore > AIScore ? playerScore : AIScore,
             "loser": loser,
             "loser_score": playerScore > AIScore ? AIScore : playerScore,
+            "lang": lang,
         };
         socket.send(JSON.stringify(data));
     }
