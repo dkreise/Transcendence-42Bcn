@@ -274,7 +274,7 @@ async function initializeWebSocket(roomId, isCreator) {
 	};
 	socket.onclose = async (event) => {
 		console.log("WebSocket connection closing");
-		if (event.code === 4001) {
+		if (event.code === 4242) {
 			// Token expired; refresh token logic
 			try {
 				await refreshAccessToken();
@@ -308,9 +308,9 @@ async function initializeWebSocket(roomId, isCreator) {
 				break ;
 			case "reject":
 				socket.close();
-				showModalError("WRONG_ID");
+				showModalError(data.reason);
 				navigateTo("/remote-home");
-				break ;
+				return ;
 			case "endgame":
 				console.log("This game's over!");
 				handleEndgame(data);
