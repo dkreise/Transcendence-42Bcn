@@ -81,7 +81,8 @@ export class Ball {
         this.x = canvas.width / 2;
         this.y = canvas.height / 2;
         this.xspeed = canvas.width  * 0.008;
-        this.yspeed = canvas.height * 0.01;
+        //this.yspeed = canvas.height * 0.01;
+        this.yspeed = 0;
         this.color = "white";
         this.canvas = canvas;
         this.radius = canvas.width * 0.01;

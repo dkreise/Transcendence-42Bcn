@@ -36,9 +36,10 @@ export class Player {
 	}
 
 	move(socket) {
-		// console.log(`Moving, uplim is ${this.uplim}, downlim is ${this.downlim}`)
+		console.log(`Moving, uplim is ${this.uplim}, downlim is ${this.downlim}`)
 		const oldY = this.y
 		const realY = this.y * this.canvas.height
+		console.log(`Current y position: ${this.y}\nCurrent REAL y position ${realY}`);
 		if (this.up && realY > this.uplim)
 			this.y -= this.speed;
 		if (this.down && realY < this.downlim)

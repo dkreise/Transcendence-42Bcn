@@ -50,17 +50,6 @@ export function handleRoleAssignment(data) {
 export function scaleGame(data)
 {
 	handleRoleAssignment(data)
-	
-	// player.width = canvas.width * (data.padW / data.canvasX);
-	// opponent.width = player.width;
-	// player.height = canvas.height * (data.padH / data.canvasY);
-	// opponent.height = player.height;
-	// if (player.x != 0)
-	// 	player.x = canvas.width - player.width;
-	// else
-	// 	opponent.x = canvas.width - opponent.width;
-	// player.setVars(data);
-	// opponent.setVars(data);
 	ball.setVars(data);
 }
 
@@ -121,19 +110,11 @@ function displayCountdown()
 	if (!ctx)
 		return ;
 	let div = document.getElementById("wait");
-	// let waitMsg = div ? div.dataset.original : "Waiting for X"; 
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(0 0 0 / 25%)"; //rectangle style
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	// if (opponent && opponent.whoAmI)
-	// 	waitMsg = waitMsg.replace("X", opponent.whoAmI);
-	// else if (player.role == "player1")
-	// 	waitMsg = waitMsg.replace("X", "player2");
-	// else
-	// 	waitMsg = waitMsg.replace("X", "player1");
-	// div.textContent = waitMsg;
 	div.textContent = dict['waiting_enemy'];
 
 	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
@@ -150,10 +131,6 @@ export function handleEndgame(data) {
 	socket = null;
 	const { winner, loser, scores} = data;
 //	let div = document.getElementById("wait");
-	const msg = [
-		"Congratulations! You've won 😁",
-		"Better luck next time! 🥲"
-	]
 	console.log(`winner ${winner} loser ${loser}`);
 	console.log(`I am: ${player.whoAmI}`);
 
@@ -275,8 +252,6 @@ export async function createRoomId()
 }
 
 async function initializeWebSocket(roomId, isCreator) {
-//async function initializeWebSocket() {
-//	const roomId = 123;
 	let retries = 0;
 
 	const access_token = localStorage.getItem("access_token");
@@ -324,14 +299,12 @@ async function initializeWebSocket(roomId, isCreator) {
 		// console.log(`data type is: ${data.type}`);
 		switch (data.type) {
 			case "role":
-				// handleRoleAssignment(data);
 				console.log(`data type is: ${data.type}`);
 				scaleGame(data);
 				break;
 			case "players":
 				console.log(`data type is: ${data.type}`);
 				await setWhoAmI(data, socket);
-				// socket.send(JSON.stringify({"type": "ready"}))
 				break;
 			case "status":
 				//console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
