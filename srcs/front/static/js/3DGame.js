@@ -719,13 +719,16 @@ async function buttonsManager(event) {
         text.start.visible = false; // Hide the button
         text.button.visible = false;
         if (remote && !moveCamera) {
+            console.log(`Starting online game: Remote: ${remote}, Tour: ${tournamentId}, moveCamera: ${moveCamera}`)
             moveCamera = true;
             text.button.position.set(0, params.textY, 0);
             text.start.position.set(0, params.textY, 1.5);
             await animateCameraToField()
         } else if (remote && !tournamentId) {
+            console.log(`Remote: ${remote}, Tour: ${tournamentId}, initializing the sockets`)
             initializeWebSocket(roomID);
         } else {
+            console.log(`Starting local game: Remote: ${remote}, Tour: ${tournamentId}, moveCamera: ${moveCamera}`)
             gameStarted = true;
         }
     } else if ((intersects.length > 0 || intersectsTryAgain.length > 0) && gameEnded && text.tryAgain.visible == true) {

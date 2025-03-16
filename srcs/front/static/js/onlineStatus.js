@@ -5,6 +5,7 @@ import { refreshAccessToken } from "./login.js";
 const host = window.env.HOST;
 const userMgmtPort = window.env.USER_MGMT_PORT;
 const protocolSocket = window.env.PROTOCOL_SOCKET;
+let intentionalDisconnect = false;
 
 export function isTokenExpired(token) {
     try {
@@ -24,6 +25,7 @@ export function isTokenExpired(token) {
 }
 
 export async function checkToken(token) {
+    console.log(`Trying to check token for token access`);
     if (!token) {
         console.log("No access token found");
         return null;
@@ -54,7 +56,17 @@ export async function connectWS(access_token)
         return ;
     }
 
-    socket = new WebSocket(`${protocolSocket}://${host}:${userMgmtPort}/${protocolSocket}/online-status/?token=${access_token}`);
+    const options = {
+        debug: false, // turns off default logging if available
+        // Optionally, supply your own logger:
+        logger: (msg) => {
+          if (!intentionalDisconnect) {
+            console.log("Reconnection log:", msg);
+          }
+        }
+      };
+
+    socket = new WebSocket(`${protocolSocket}://${host}:${userMgmtPort}/${protocolSocket}/online-status/?token=${access_token}`, [], options);
     socket.onclose = async (event) => {
 
         console.log('WebSocket Disconnected. ');
@@ -98,6 +110,7 @@ export async function connectWS(access_token)
 
 export function disconnectWS() {
     if (socket) {
+        intentionalDisconnect = true;
         socket.close();
         socket = null;
     }
