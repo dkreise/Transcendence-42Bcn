@@ -83,7 +83,7 @@ def login_view(request):
                 'username': username,
             })
     else:
-        return Response({'success': False, 'message': 'Invalid credentials'})
+        return Response({'success': False, 'message': get_translation(request, 'invalid_credentials')})
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -91,24 +91,24 @@ def verify_login_2fa(request):
     data = json.loads(request.body)
     temp_token = data.get('temp_token')
     if not temp_token:
-        return Response({'success': False, 'message': 'Invalid or expired temporary token.'}, status=401)
+        return Response({'success': False, 'message': 'Invalid or expired temporary token.'})
     code = data.get('code')
     user_id = decode_temp_token(temp_token)
 
     if not user_id:
-        return Response({'success': False, 'message': 'Invalid or expired temporary token.'}, status=401)
+        return Response({'success': False, 'message': 'Invalid or expired temporary token.'})
     try:
         user = User.objects.get(id=user_id)
         profile = user.profile
         if not profile.two_fa:
-            return Response({'success': False, 'message': '2FA is not enabled for this account.'}, status=400)
+            return Response({'success': False, 'message': '2FA is not enabled for this account.'})
         if TwoFA.verify_code(profile.totp_secret, code):
             tokens = generate_jwt_tokens(user)
             return Response({'success': True, 'tokens': tokens, 'message': '2FA verification successful.', 'username': user.username})
         else:
-            return Response({'success': False, 'message': 'Invalid or expired TOTP code.'}, status=401)
+            return Response({'success': False, 'message': 'Invalid or expired TOTP code.'})
     except User.DoesNotExist:
-        return Response({'success': False, 'message': 'User does not exist.'}, status=404)
+        return Response({'success': False, 'message': 'User does not exist.'})
 
 # @api_view(['GET'])
 # @permission_classes([AllowAny])
@@ -123,29 +123,20 @@ def verify_login_2fa(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def login_form(request):
-    if request.method == "GET":
-        print("Login form API called")
-        context = {}
-        add_language_context(request.COOKIES, context)
-        form_html = render_to_string('login_form.html', context)
-        return JsonResponse({'form_html': form_html}, content_type="application/json")
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
+    print("Login form API called")
+    context = {}
+    add_language_context(request.COOKIES, context)
+    form_html = render_to_string('login_form.html', context)
+    return JsonResponse({'form_html': form_html}, content_type="application/json")
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def signup_form(request):
-    print("Signup method called")
-    if request.method == "GET":
-        print("Signup form API called")
-        context = {}
-        add_language_context(request.COOKIES, context)
-        form_html = render_to_string('signup_form.html', context)
-        return JsonResponse({'form_html': form_html}, content_type="application/json")
-    else:
-        return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-
+    print("Signup form API called")
+    context = {}
+    add_language_context(request.COOKIES, context)
+    form_html = render_to_string('signup_form.html', context)
+    return JsonResponse({'form_html': form_html}, content_type="application/json")
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -166,26 +157,26 @@ def register_user(request):
         password = data.get("password")
         repassword = data.get("repassword")
 
-        if password != repassword:
-            return JsonResponse({"error": "Password mismatch."}, status=status.HTTP_400_BAD_REQUEST)
-
         if not username or not email or not password or not name:
-            return JsonResponse({"error": "All fields are required."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "all_fields_required")})
+        
+        if password != repassword:
+            return JsonResponse({'success': False, "error": get_translation(request, "password_mismatch")})
         
         if not re.match(r'^[a-zA-Z0-9.]+$', username):
-            return JsonResponse({"error": "Username should consist only of letters, digits and dots(.)."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "invalid_username")})
         
         if len(username) < 2 or len(username) > 10 or len(name) < 2 or len(name) > 10:
-            return JsonResponse({"error": "Username and Name should be 2-10 (included) chars length."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "username_length")})
 
         if not re.match(r'^[^\s@]+@[^\s@]+\.[^\s@]+$', email):
-            return JsonResponse({"error": "Invalid email format."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "invalid_email")})
 
         if User.objects.filter(username=username).exists():
-            return JsonResponse({"error": "Username already exists."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "username_exists")})
 
         if User.objects.filter(email=email).exists():
-            return JsonResponse({"error": "Email already registered."}, status=status.HTTP_400_BAD_REQUEST)
+            return JsonResponse({'success': False, "error": get_translation(request, "email_registered")})
 
         # UNCOMMENT FOR STRONG PASSWORD CHECK:
         # temp_user = User(username=username, email=email, first_name=name)
@@ -194,8 +185,6 @@ def register_user(request):
         #     validate_password(password, user=temp_user)
         # except ValidationError as e:
         #     print(e.messages)
-        #     return JsonResponse({"error": " ".join(e.messages)}, status=status.HTTP_400_BAD_REQUEST)
-
         user = User.objects.create(
             username=username,
             first_name=name,
@@ -209,7 +198,7 @@ def register_user(request):
     # else:
 
     except json.JSONDecodeError:
-        return JsonResponse({"error": "Invalid JSON format."}, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse({'success': False, "error": get_translation(request, "invalid_json")})
 
     except Exception as e:
         return JsonResponse({"error": str(e)})
@@ -221,7 +210,7 @@ def logout(request):
         print("trying logout")
         refresh_token = request.data.get('refresh_token')
         if not refresh_token:
-            return Response({"error": "No refresh token provided"}, status=400)
+            return Response({"error": "No refresh token provided"})
 
         token = RefreshToken(refresh_token)
         token.blacklist()
@@ -270,7 +259,7 @@ def enable_2fa(request):
             "qr_code": qr_base64,
         })
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
     
 @api_view(['POST'])
 def verify_2fa(request):
@@ -283,7 +272,7 @@ def verify_2fa(request):
         print("CODE::::", code)
 
         if not secret:
-            return JsonResponse({"success": False, "error": "2FA is not enabled for this account."}, status=400)
+            return JsonResponse({"success": False, "error": "2FA is not enabled for this account."})
         
         try:
             if TwoFA.verify_code(secret, code):
@@ -291,11 +280,11 @@ def verify_2fa(request):
                 profile.save()
                 return JsonResponse({"success": True, "message": "2FA verification successful."})
             else:
-                return JsonResponse({"success": False, "error": "Invalid or expired TOTP code."}, status=400)
+                return JsonResponse({"success": False, "error": "Invalid or expired TOTP code."})
         except ValueError as e:
-            return JsonResponse({"success": False, "error": str(e)}, status=400)
+            return JsonResponse({"success": False, "error": str(e)})
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 @api_view(['POST'])
 def disable_2fa(request):
@@ -309,7 +298,7 @@ def disable_2fa(request):
             profile.save()
         return JsonResponse({"success": True, "message": "2FA disabled successfully."})
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 @api_view(['GET'])
 def check_status_2fa(request):
@@ -319,7 +308,7 @@ def check_status_2fa(request):
         is_enabled = profile.two_fa
         return JsonResponse({"success": True, "2fa_enabled": is_enabled})
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -340,3 +329,8 @@ def page_not_found(request):
     add_language_context(request.COOKIES, context)
     page_not_found_html = render_to_string('page_not_found.html', context)
     return JsonResponse({'page_not_found_html': page_not_found_html}, content_type="application/json")
+
+def get_translation(request, key):
+    context = {}
+    add_language_context(request.COOKIES, context)
+    return context.get(key, key)

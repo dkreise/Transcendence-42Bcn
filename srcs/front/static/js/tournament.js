@@ -1,12 +1,11 @@
 import { makeAuthenticatedRequest } from "./login.js";
-import { navigateTo } from "./main.js";
+import { navigateTo, drawHeader } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
 import { gameAI, playOnline, getDictFor3DGame, getOrInitialize3DOption } from "./game.js";
-import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, handleTourEndgame, cleanRemote } from "./remoteGame.js"
-import { scale3DGame, setWhoAmI3D, handle3DStatus, handle3DUpdate, handleOnlineEndgame} from "./3DGame.js"
-import { drawHeader } from "./main.js";
-import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
+import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, cleanRemote, removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 import { checkToken } from "./onlineStatus.js";
+import { getCookie, getFrontDict } from "./langs.js";
+import { showModalError } from "./errorHandler.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -14,62 +13,61 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const protocolSocket = window.env.PROTOCOL_SOCKET;
 const gamePort = window.env.GAME_PORT;
 
-let socket = null, dict = null;
+let socket = null, dict = null, tourId = null;
 
 // Define your 2D handlers
-//const handlers2D = {
-//    role: scaleGame,          // synchronous
-//    players: setWhoAmI,       // might be asynchronous
-//    status: handleStatus,      // might be asynchronous
-//    update: handleUpdate,      // synchronous
-//    endgame: handleTourEndgame // synchronous
-//};
-//
-//// Define your 3D handlers
-//const handlers3D = {
-//    role: scale3DGame,         // asynchronous
-//    players: setWhoAmI3D,      // asynchronous
-//    status: handle3DStatus,    // asynchronous
-//    update: handle3DUpdate,    // synchronous or asynchronous
-//    endgame: handleOnlineEndgame // synchronous or asynchronous
-//};
-//
-//const handlersTour = {
-//    totalPlayers: totalPlayers,
-//    html: uploadTournamentPage, 
-//    new_player_cnt: updatePlayerCount,
-//    game_update: gameUpdate,
-//    full: tourFull,
-//    needs_to_play: needsPlay,
-//    tournament_status: tourStatus,
-//}
-//
-//const wrapHandlers = (handlers) => {
-//    const wrapped = {};
-//    Object.keys(handlers).forEach((key) => {
-//      wrapped[key] = (...args) => Promise.resolve(handlers[key](...args));
-//    });
-//    return wrapped;
-//  };
-//
-//const asyncHandlers2D = wrapHandlers(handlers2D);
-//const asyncHandlers3D = wrapHandlers(handlers3D);
-//const asyncHandlersTour = wrapHandlers(handlersTour);
-//
-//let currentHandlers = getCombinedHandlers(getOrInitialize3DOption());
-//
-//const getCombinedHandlers = (is3DEnabled) => {
-//    const modeHandlers = is3DEnabled ? asyncHandlers3D : asyncHandlers2D;
-//    return { ...modeHandlers, ...asyncHandlersTour };
-//};
-//
-//export const updateHandlers = (is3DEnabled) => {
-//    currentHandlers = getCombinedHandlers(is3DEnabled);
-//    console.log("Handlers updated. 3D mode:", is3DEnabled);
-//};
 
+const handlers2D = {
+    role: (data) => scaleGame(data),          // synchronous
+    players: (data, socket) => setWhoAmI(data, socket),       // might be asynchronous
+    status: (data, socket) => handleStatus(data, socket),      // might be asynchronous
+    update: (data) => handleUpdate(data),      // synchronous
+    endgame: (data) => handleEndgame(data) // synchronous
+};
 
+// Define your 3D handlers
+const handlers3D = {
+    role: (data) => scale3DGame(data),          // asynchronous
+    players: (data, socket) => setWhoAmI3D(data, socket),      // asynchronous
+    status: (data, socket) => handle3DStatus(data, socket),    // asynchronous
+    update: (data) => handle3DUpdate(data),    // synchronous or asynchronous
+    endgame: (data) => handleOnlineEndgame(data) // synchronous or asynchronous
+};
 
+const handlersTour = {
+    totalPlayers: totalPlayers,
+    html: uploadTournamentPage, 
+    new_player_cnt: updatePlayerCount,
+    game_update: gameUpdate,
+    full: tourFull,
+    needs_to_play: (data) => needsPlay(data),
+    tournament_status: (data) => tourStatus(data),
+}
+
+const wrapHandlers = (handlers) => {
+    const wrapped = {};
+    Object.keys(handlers).forEach((key) => {
+      wrapped[key] = (...args) => Promise.resolve(handlers[key](...args));
+    });
+    return wrapped;
+  };
+
+const asyncHandlers2D = wrapHandlers(handlers2D);
+const asyncHandlers3D = wrapHandlers(handlers3D);
+const asyncHandlersTour = wrapHandlers(handlersTour);
+
+const getCombinedHandlers = (is3DEnabled) => {
+
+    const modeHandlers = is3DEnabled ? asyncHandlers3D : asyncHandlers2D;
+    return { ...modeHandlers, ...asyncHandlersTour };
+};
+
+let currentHandlers = getCombinedHandlers(getOrInitialize3DOption() === "true");
+
+export const updateHandlers = (is3DEnabled) => {
+    currentHandlers = getCombinedHandlers(is3DEnabled);
+    console.log("Handlers updated. 3D mode:", is3DEnabled);
+};
 
 export const manageTournamentHomeBtn = () => { 
     const inTournament = localStorage.getItem('inTournament');
@@ -115,15 +113,14 @@ export const loadTournamentHomePage = () => {
             }
         })
         .catch(error => {
-            console.error('Error loading page', error);
+            console.log('Error loading page', error);
         });
     })     
 };
 
 export const createTournament = async () => {
     const nPlayers = getNumberOfPlayers();
-    const tourId = await getTournamentId(); 
-    // alert(tourId)
+    tourId = await getTournamentId(); 
     if (tourId > 0) {
         tournamentConnect(tourId, nPlayers)
             .then(() => console.log("Successfully connected!"))
@@ -136,9 +133,10 @@ export const joinTournament = () => {
         navigateTo('/tournament-home', true);
         return;
     }
-    const tourId = document.getElementById('tournament-id-input').value.trim();
+    tourId = document.getElementById('tournament-id-input').value.trim();
+    console.log("TOOOOOUR ID: ", tourId);
     if (! /^\d{7}$/.test(tourId)) {
-        alert("The tournament ID is not correct.");
+        showModalError("WRONG_TOURNAMENT_ID")
         return;
     }
     tournamentConnect(tourId)
@@ -167,8 +165,10 @@ export const loadWaitingRoomPage = () => {
     }
     if (socket.readyState === WebSocket.OPEN)
 	{
-		const data = {
+		let lang = getCookie("language");
+        const data = {
 			"type": "waiting_room_page_request",
+            "lang": lang,
 		};
 		socket.send(JSON.stringify(data));
 	}
@@ -182,16 +182,16 @@ export const loadBracketTournamentPage = () => {
     }
     if (socket.readyState === WebSocket.OPEN)
 	{
+        let lang = getCookie("language");
         const data = {
 			"type": "bracket_page_request",
+            "lang": lang,
 		};
 		socket.send(JSON.stringify(data));
         // console.log("we have sent the request for bracket page!")
 	}
     else {
         console.log(socket.readyState);
-        // alert("waiting for websoket connection")
-        // loadBracketTournamentPage();
     }
 };
 
@@ -203,8 +203,10 @@ export const loadFinalTournamentPage = () => {
     }
     if (socket.readyState === WebSocket.OPEN)
 	{
+        let lang = getCookie("language");
         const data = {
 			"type": "final_page_request",
+            "lang": lang,
 		};
 		socket.send(JSON.stringify(data));
 	}
@@ -216,6 +218,7 @@ export const quitTournament = () => {
     removeBeforeUnloadListenerRemote();
     console.log("QUIT button clicked")
     if (!socket) {
+        console.log("No socket")
         navigateTo('/home', true);
         return;
     }
@@ -241,12 +244,14 @@ export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) =>
 
     if (socket.readyState === WebSocket.OPEN)
     {
+        let lang = getCookie("language");
         const data = {
             "type": "game_result",
             "winner": winner,
             "winner_score": playerScore > AIScore ? playerScore : AIScore,
             "loser": loser,
             "loser_score": playerScore > AIScore ? AIScore : playerScore,
+            "lang": lang,
         };
         socket.send(JSON.stringify(data));
     }
@@ -276,7 +281,6 @@ export const tournamentGameAIstart = (data, tourId) => {
 
 function addGameButton(data) {
     // tournament ID needed!! or maybe not..
-    
     console.log('Player needs to play!!');
     const bracketSection = document.getElementById("bracket");
     // if (bracketSection) {
@@ -294,7 +298,8 @@ function addGameButton(data) {
     span.classList.add("button-content-trn");
     // const dictionary = getDictFor3DGame();
     // span.textContent = "Play my game";
-    span.textContent = dict['play_my_game'] || "Play My Game";
+    const lang = getCookie("language");
+    span.textContent = getFrontDict(lang || "EN", 'PLAY_MY_GAME') || "Play my game";
 
     playButton.appendChild(span);
 
@@ -388,152 +393,98 @@ function updatePlayerCount(data) {
     if (isOnWaitingRoomPage()) {
         if (document.getElementById('cur-player-cnt'))
             document.getElementById('cur-player-cnt').textContent = data.player_cnt;
-        // let prev_player_cnt = document.getElementById('cur-player-cnt');
-        // if (prev_player_cnt) {
-        //     prev_player_cnt.textContent = data.player_cnt;
-        // }
     }
 }
 
-export async function tournamentConnect(tourId, nPlayers=null) {
+export async function tournamentConnect(tourID, nPlayers=null) {
     dict = await getDictFor3DGame();
-    return new Promise(async (resolve, reject) => {
+    return new Promise( async (resolve, reject) => {
         const access_token = localStorage.getItem("access_token");
         const token = await checkToken(access_token);
-	if (!token)
-	{
-		console.log("No access token found");
-        reject("No access token found");
-		return ;
-	}
-	console.log("tournamentConnect token: " + token);
+        // console.log(token);
 
-    localStorage.setItem("currentTournamentId", tourId);
-    console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
+        if (!token)
+        {
+            console.log("No access token found");
+            reject("No access token found");
+            return ;
+        }
+        // console.log("tournamentConnect token: " + token);
+        tourId = tourID;
+        localStorage.setItem("currentTournamentId", tourId);
+        console.log(" Tour id is: " + tourId + " // Num players: " + nPlayers);
 
-    if (nPlayers) {
-        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
-    } else {
-        socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/T/${tourId}/?token=${token}`);
-    }
-    
-    socket.onopen = () => {
-        console.log("WebSocket connection established");
-        let status = localStorage.getItem('inTournament');
-        if (!status)
-            localStorage.setItem('inTournament', 'waiting');
-        window.addEventListener("beforeunload", () => {
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                localStorage.setItem("currentTournamentId", tourId);
-                localStorage.setItem("tournamentReload", true);
-            }
-        });
-        resolve(socket); // Resolve the promise once the socket is open
-    };
-    
-    socket.onerror = (error) => {
-		console.log("WebSocket encountered an error: ", error);
-		alert("ONERROR: Unable to connect to the server. Please check your connection.");
-        localStorage.removeItem('inTournament');
-        localStorage.removeItem("user_quit");
-        localStorage.removeItem("currentTournamentId");
-        localStorage.removeItem("gameState");
-        removeBeforeUnloadListenerAI();
-        removeBeforeUnloadListenerRemote();
-        navigateTo('/home', true);
-        reject("WebSocket error");
-	};
+        currentHandlers = getCombinedHandlers(getOrInitialize3DOption() === "true");
 
-	socket.onclose = () => {
-        socket = null;
-        cleanRemote();
-        removeBeforeUnloadListenerAI();
-        removeBeforeUnloadListenerRemote();
-        if (localStorage.getItem("user_quit") == "true") {
-            console.log("User quit. No reconnection.");
+        if (nPlayers) {
+            socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/T/${tourId}/?nPlayers=${nPlayers}&token=${token}`);
+        } else {
+            socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/T/${tourId}/?token=${token}`);
+        }
+        
+        socket.onopen = () => {
+            console.log("WebSocket connection established");
+            let status = localStorage.getItem('inTournament');
+            if (!status)
+                localStorage.setItem('inTournament', 'waiting');
+            window.addEventListener("beforeunload", () => {
+                if (socket && socket.readyState === WebSocket.OPEN) {
+                    localStorage.setItem("currentTournamentId", tourId);
+                    localStorage.setItem("tournamentReload", true);
+                }
+            });
+            resolve(socket); // Resolve the promise once the socket is open
+        };
+        
+        socket.onerror = (error) => {
+            console.log("WebSocket encountered an error: ", error);
+            alert("ONERROR: Unable to connect to the server. Please check your connection.");
             localStorage.removeItem('inTournament');
             localStorage.removeItem("user_quit");
             localStorage.removeItem("currentTournamentId");
             localStorage.removeItem("gameState");
+            removeBeforeUnloadListenerAI();
+            removeBeforeUnloadListenerRemote();
             navigateTo('/home', true);
-        } else if (localStorage.getItem("tournamentReload")) {
-            console.log("Closing websocket.");
-        } else {
-            console.log("Closing websocket onclose");
-            localStorage.removeItem('inTournament');
-            localStorage.removeItem("currentTournamentId");
-            localStorage.removeItem("gameState");
-        }
-	};
+            reject("WebSocket error");
+        };
 
-	socket.onmessage = async (event) => { //we're receiving messages from the backend via WB
-		const data = JSON.parse(event.data);
-        localStorage.setItem("currentTournamentId", tourId);
-
-		// console.log(data);
-		switch(data.type)
-		{
-			case "totalPlayers":
-				console.log("current number of players in the tournament: " + data.total);
-                break;
-			case "html":
-				uploadTournamentPage(data);
-                break;
-            case "new_player_cnt":
-                updatePlayerCount(data);
-                break;
-            case "game_update":
-                alert("GAME_UPDATE??  A player has disconnected. Waiting for reconnection...");
-                break;
-            case "full":
-                console.log("Tournament is full:", data.message);
-                alert(data.message);
+        socket.onclose = () => {
+            socket = null;
+            cleanRemote();
+            removeBeforeUnloadListenerAI();
+            removeBeforeUnloadListenerRemote();
+            if (localStorage.getItem("user_quit") == "true") {
+                console.log("User quit. No reconnection.");
                 localStorage.removeItem('inTournament');
                 localStorage.removeItem("user_quit");
                 localStorage.removeItem("currentTournamentId");
-                socket.close();
-                break;
-            case "needs_to_play":
-                if (!data.needs_to_play)
-                    navigateTo('/tournament', true);
-                else if (data.opponent == "@AI") {
-                    tournamentGameAIstart(data, tourId);
-                } else {
-                    playOnline(tourId);
-                }
-                break;
-            case "tournament_status":
-                localStorage.setItem('inTournament', data.status);
-                navigateTo('/tournament');
-                break;
-			case "role":
-				// handleRoleAssignment(data);
-				scaleGame(data);
-				break;
-			case "players":
-				await setWhoAmI(data, socket);
-				// socket.send(JSON.stringify({"type": "ready"}));
-				break;
-			case "status":
-				await handleStatus(data, socket);
-				break;
-			case "update":
-				handleUpdate(data);
-				break;
-			case "endgame":
-                // handleTourEndgame(data);
-                handleEndgame(data);
-                // saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);
-				break;
-			case "reject":
-				// alert(`Connection rejected: ${data.reason}`);
-                console.log(`Connection rejected: ${data.reason}`);
-				//return client to tournament home page or bracket page
-				break;
-            default:
-                console.log("Unhandled message type: ", data.type);
-		}
-	};
+                localStorage.removeItem("gameState");
+                navigateTo('/home', true);
+            } else if (localStorage.getItem("tournamentReload")) {
+                console.log("Closing websocket.");
+            } else {
+                console.log("Closing websocket onclose");
+                localStorage.removeItem('inTournament');
+                localStorage.removeItem("currentTournamentId");
+                localStorage.removeItem("gameState");
+            }
+        };
+
+        socket.onmessage = async (event) => { //we're receiving messages from the backend via WB
+            const data = JSON.parse(event.data);
+            localStorage.setItem("currentTournamentId", tourId);
+            console.log(`SDFGHJKLSDFGHJKL: ${getOrInitialize3DOption()}`)
+            currentHandlers = getCombinedHandlers(getOrInitialize3DOption() === "true");
+
+            const handler = currentHandlers[data.type];
+            console.log(data.type);
+            if (handler) {
+                await handler(data, socket);
+            } else {
+                console.log("Unhandled message type:", data.type);
+            }
+        };
 });
 }
 
@@ -568,7 +519,7 @@ async function getTournamentId() {
             return -1;  // If the ID is active, return -1
         }
     } catch (error) {
-        console.error('Failed to fetch tournament status:', error);
+        console.log('Failed to fetch tournament status:', error);
         return -1;  // Return -1 in case of an error
     }
 }
@@ -580,11 +531,9 @@ function getNumberOfPlayers() {
     }
 //     const nPlayers = document.getElementById('tournament-count').value;
     const nPlayers = document.querySelector('input[name="btn"]:checked').value;
-    console.log("aquiiiiiiiiiiii", nPlayers);
     const validPlayers = ["3", "4", "7", "8", "1", "2"];
     
     if (!validPlayers.includes(nPlayers)) {
-        alert("Incorrect number of players");
         return null;
     }
     return nPlayers;
@@ -645,15 +594,15 @@ function gameUpdate() {
 }
 
 function tourFull() {
-    console.log("Tournament is full:", data.message);
-    alert(data.message);
+    console.log("Tournament is full");
+    showModalError("FULL_TOURNAMENT")
     localStorage.removeItem('inTournament');
     localStorage.removeItem("user_quit");
     localStorage.removeItem("currentTournamentId");
     socket.close();
 }
 
-function needsPlay(data, tourId) {
+function needsPlay(data) {
     if (!data.needs_to_play)
         navigateTo('/tournament', true);
     else if (data.opponent == "@AI") {

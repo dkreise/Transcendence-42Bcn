@@ -94,18 +94,18 @@ class TournamentManager:
 			self.timer_task.cancel()
 		self.timer_task = asyncio.create_task(self.check_unstarted_games())
 
-	def get_waiting_room_page(self, username):
+	def get_waiting_room_page(self, username, lang):
 		status = self.get_status()
 		if status == 'playing':
-			return self.get_bracket_page(username)
+			return self.get_bracket_page(username, lang)
 		elif status == 'finished':
-			return self.get_final_page(username)
+			return self.get_final_page(username, lang)
 		total_players = self.get_players_cnt()
 		context = {
 			'tournament_id': self.id,
 			'player_count': total_players,
 		}
-		add_language_context(self.scope.get('cookies', {}), context)
+		add_language_context({'language': lang}, context)
 		html = render_to_string('waiting_room.html', context)
 		page = {
 			'html': html,
@@ -116,14 +116,14 @@ class TournamentManager:
 		}
 		return page
 
-	def get_bracket_page(self, username):
+	def get_bracket_page(self, username, lang):
 		status = self.get_status()
 		if status == 'waiting':
-			return self.get_waiting_room_page(username)
+			return self.get_waiting_room_page(username, lang)
 		elif status == 'finished':
-			return self.get_final_page(username)
+			return self.get_final_page(username, lang)
 		if self.get_players_cnt() == 1 or self.finished:
-			return self.get_final_page(username)
+			return self.get_final_page(username, lang)
 		context = {
 			'pairs': self.pairs,
 			'bool_winners': self.get_bool_winners(),
@@ -132,7 +132,7 @@ class TournamentManager:
 			'total_cnt': self.max_user_cnt,
 		}
 		logger.info(f"round:: {self.round}")
-		add_language_context(self.scope.get('cookies', {}), context)
+		add_language_context({'language': lang}, context)
 		html = render_to_string('tournament_bracket4.html', context)
 
 		needs_to_play = username in self.players
@@ -150,12 +150,12 @@ class TournamentManager:
 		}
 		return page
 
-	def get_final_page(self, username):
+	def get_final_page(self, username, lang):
 		status = self.get_status()
 		if status == 'waiting':
-			return self.get_waiting_room_page(username)
+			return self.get_waiting_room_page(username, lang)
 		elif status == 'playing':
-			return self.get_bracket_page(username)
+			return self.get_bracket_page(username, lang)
 		self.finished = True
 		# if self.timer_id != -1:
 		# 	AsyncResult(self.timer_id).revoke(terminate=True)  # Force cancel
@@ -169,7 +169,7 @@ class TournamentManager:
 			"winner_player": winner,
 			"results_list": self.results_strings,
 		}
-		add_language_context(self.scope.get('cookies', {}), context)
+		add_language_context({'language': lang}, context)
 		html = render_to_string('final_tournament_page.html', context)
 		
 		page = {
@@ -541,7 +541,7 @@ class TournamentManager:
 		return 'playing'
 
 	async def start_countdown_until_close(self):
-		await asyncio.sleep(20)
+		await asyncio.sleep(2000)
 		logger.info("TIME TO DELETE")
 		channel_layer = get_channel_layer()
 		await channel_layer.group_send(

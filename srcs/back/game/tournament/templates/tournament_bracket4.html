@@ -1,39 +1,8 @@
-<!-- <div class="container-bracket">
-    <section id="bracket" class="bracket">
+<div class="container py-4" style="display: flex; flex-direction: column;">
+    <section id="bracket" class="card tournament-card" style="align-self: center;"">
         {% for round_pairs in pairs_and_winners %}
         {% if forloop.counter0 < cur_round %}  {# Show rounds only up to cur_round #}
-        <div class="round-block mb-4">
-            <h3 class="text-center">Round {{ forloop.counter }}</h3>
-            <div class="container">
-                {% for pair, bool_winner in round_pairs %}
-                <div class="row justify-content-center mb-2">
-                    <div class="col-6 text-center">
-                        <span class="{% if bool_winner.0 %}winner{% endif %}">{{ pair.0 }}</span>
-                    </div>
-                    <div class="col-6 text-center">
-                        <span class="{% if bool_winner.1 %}winner{% endif %}">{{ pair.1 }}</span>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-        {% endfor %}
-    </section>
-
-    <div class="d-flex justify-content-center">
-        <div class="col-12 col-md-6">
-            <button class="btn btn-grey-purple btn-large w-100" replace-url data-route="/quit-tournament">Quit Tournament</button>
-        </div>
-    </div>
-</div> -->
-
-
-<div class="container py-4">
-    <section id="bracket" class="card tournament-card">
-        {% for round_pairs in pairs_and_winners %}
-        {% if forloop.counter0 < cur_round %}  {# Show rounds only up to cur_round #}
-        <div class="round-block mb-5">
+        <div class="round-block mb-5" style="width: inherit;">
             <h3 class="text-center mb-3">{{ round }} {{ forloop.counter }}</h3>
             <div class="container">
                 {% for pair, bool_winner in round_pairs %}

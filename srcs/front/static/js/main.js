@@ -21,9 +21,9 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const userMgmtPort = window.env.USER_MGMT_PORT;
 const modeProduction = window.env.SECURE;
 
-if (modeProduction === 'true') {
-    console.log = () => {};
-}
+// if (modeProduction === 'true') {
+//     console.log = () => {};
+// }
 
 // The routes object maps URL paths to their respective handler functions:
 // Each key is a path (e.g., /, /profile).
@@ -32,9 +32,7 @@ if (modeProduction === 'true') {
 const routes = {
     '/': homePage,
     '/login': loadLoginPage,
-    '/handle-login': handleLogin,
     '/signup': loadSignupPage,
-    '/handle-signup': handleSignup,
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,
     '/two-fa-login': loadLogin2FAPage,
@@ -158,7 +156,7 @@ function getRedirectionIfNeeded(path=null) {
     }
 
     //Check if the user has the required permissions, if not, redirect
-    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/handle-login', '/handle-signup', '/callback'];
+    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/callback'];
     const openPaths = ['/', '/page-not-found']; //open for authenticated and not authenticated
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';

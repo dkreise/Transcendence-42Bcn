@@ -33,7 +33,6 @@ let countdownTimeout = null;
 // console.log("Hi! This is remoteGame.js :D");
 
 export function handleRoleAssignment(data) {
-	console.log("Hi! I'm " + data.role);
 	if (data.role === "player1") {
 		console.log("Hi! I'm " + data.role + " and I'm a player");
 		player = new Player(data, canvas, "player1");
@@ -49,6 +48,7 @@ export function handleRoleAssignment(data) {
 
 export function scaleGame(data)
 {
+	console.log("2222222D sCALE GAME")
 	handleRoleAssignment(data)
 	ball.setVars(data);
 }
@@ -246,7 +246,7 @@ export async function createRoomId()
 	}
 	catch (error)
 	{
-		console.error("Failed to fetch game status: ", error);
+		console.log("Failed to fetch game status: ", error);
 		return -1;
 	}
 }
@@ -273,7 +273,6 @@ async function initializeWebSocket(roomId, isCreator) {
 	socket.onopen = () => console.log("WebSocket connection established.");
 	socket.onerror = (error) => {
 		console.log("WebSocket encountered an error:", error);
-		// alert("Unable to connect to the server. Please check your connection.");
 	};
 	socket.onclose = async (event) => {
 		console.log("WebSocket connection closing");
@@ -314,7 +313,6 @@ async function initializeWebSocket(roomId, isCreator) {
 				handleUpdate(data);
 				break ;
 			case "reject":
-				// alert(`Connection rejected: ${data.reason}`);
 				socket.close();
 				navigateTo("/remote-home");
 				break ;
@@ -348,7 +346,7 @@ function gameLoop() {
 	}
 }
 
-function resizeCanvas() {
+function resizeCanvasRemote() {
 	if (!canvas)
 		return ;
 
@@ -386,26 +384,25 @@ function resizeCanvas() {
 }
 
 // Resize canvas when the window resizes
-window.addEventListener("resize", resizeCanvas); 
+window.addEventListener("resize", resizeCanvasRemote);
 
 export function startGame(roomId, isCreator, dictionary, tour = null)
 {
 	canvas = document.getElementById('newGameCanvas');
+	
+
 	tourId = tour;
 	console.log("tour is : ", tour);
-	// window.dict = dictionary;
 	dict = dictionary;
   if (!roomId && !tour)
 	{
-		// alert(`${dict['bad_id']}`);
 		navigateTo("/remote-home");
 		return ;
 	}
-
 	if (!canvas)
 		return ;
 	ball = new Ball(canvas);
-	resizeCanvas();
+	resizeCanvasRemote();
 	targetBallX = ball.x;
 	targetBallY = ball.y;
 	gameStop = false;
@@ -424,6 +421,7 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 }
 
 export function cleanRemote() {
+
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
 	console.log("CLEAN REMOTE tourId::: ", tourId);

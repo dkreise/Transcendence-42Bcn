@@ -11,7 +11,7 @@ export class Player {
         console.log(`player width: ${this.x}`)
         this.y = canvas.height / 2 - this.height / 2;
         this.speed = canvas.height / 90;
-        this.color = "white";
+        this.color = "white";   
         this.up = false;
         this.down = false;
         this.score = 0;
@@ -73,6 +73,17 @@ export class Player {
 	resetPosition() {
 		this.y = this.canvas.height / 2;
 	}
+
+    resize(nW, nH) {
+		const factor = nH / this.canvas.height;
+
+		this.width = this.width * nW / this.canvas.width;
+		this.height = this.height * factor;
+		if (this.x != 0)
+			this.x = nW - this.width;
+		this.y = this.y * factor;
+        this.speed = this.speed * factor;
+  }
 }
 
 export class Ball {
@@ -150,5 +161,18 @@ export class Ball {
    		return 0;
 	}
 
+    resize(nW, nH) {
+		const factor = nH / this.canvas.height;         // Factor vertical
+    const factorX = nW / this.canvas.width;           // Factor horizontal
 
+    // Escalamos posición y tamaño
+    this.radius = this.radius * factor;
+    this.x = this.x * factorX;
+    this.y = this.y * factor;
+
+    // Escalamos las velocidades de forma proporcional
+    this.xspeed = this.xspeed * factorX;
+    this.yspeed = this.yspeed * factor;
+
+	}
 }

@@ -10,7 +10,6 @@ from django.contrib.auth import authenticate, login
 from django.template.loader import render_to_string
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.models import User
-# from .models import Profile
 from game.utils.translations import add_language_context
 from rest_framework import status
 import json
@@ -90,7 +89,7 @@ def tournament_creator(request):
 def get_players_count(request, tournament_id):
     tournament_data = cache.get(f"tournament:{tournament_id}")
     if not tournament_data:
-        return JsonResponse({'error': 'Tournament not found in cache'}, status=404)
+        return JsonResponse({'error': 'Tournament not found in cache'})
 
     players_count = len(tournament_data["players"])
 
@@ -101,18 +100,9 @@ def get_tournament_data(request, tournament_id):
     tournament_data = cache.get(f"tournament:{tournament_id}")
 
     if not tournament_data:
-        return JsonResponse({'error': 'Tournament not found in cache'}, status=404)
+        return JsonResponse({'error': 'Tournament not found in cache'})
 
     return JsonResponse(tournament_data)
-
-
-# def get_tournament_status(request):
-#     tournament_id = request.GET.get("id")
-#     status = redis_client.get(f"tournament:{tournament_id}")  # Fetch from Redis
-
-#     if status:
-#         return JsonResponse({"status": status})
-#     return JsonResponse({"error": "Tournament not found"}, status=404)
 
 @api_view(['GET'])
 def join_tournament_page(request):
@@ -125,7 +115,7 @@ def join_tournament_page(request):
 def join_tournament(request, tournament_id):
     tournament_data = cache.get(f"tournament:{tournament_id}")
     if not tournament_data:
-        return JsonResponse({'error': 'Tournament not found'}, status=404) #TODO: add alert in the front
+        return JsonResponse({'error': 'Tournament not found'})
     
     # Add the user (player) to the tournament's player list
     user = request.user.username
@@ -139,12 +129,11 @@ def join_tournament(request, tournament_id):
 
 @api_view(['GET'])
 def waiting_room_page(request, tournament_id):
-    print('waiting roooooom')
     print(tournament_id)
     tournament_data = cache.get(f"tournament:{tournament_id}")
 
     if not tournament_data:
-        return JsonResponse({'error': 'Tournament not found'}, status=404)
+        return JsonResponse({'error': 'Tournament not found'})
     
     context = {
         'tournament_id': tournament_id,
@@ -218,12 +207,10 @@ def tournament_bracket_page(request, tournament_id):
         #     tournament_bracket_html = render_to_string("tournament_bracket4.html", context)
         # elif player_count == 8:
         tournament_bracket_html = render_to_string("tournament_bracket8.html", context)
-        # else:
-        #     return JsonResponse({"error": "Invalid player count"}, status=400)
 
         return JsonResponse({"tournament_bracket_html": tournament_bracket_html, "needs_to_play": needs_to_play, "opponent": opponent}, content_type="application/json")
     
-    return JsonResponse({"error": "Tournament not found"}, status=404)
+    return JsonResponse({"error": "Tournament not found"})
 
 def create_pairs(tournament_id):
     tournament_data = cache.get(f"tournament:{tournament_id}")
