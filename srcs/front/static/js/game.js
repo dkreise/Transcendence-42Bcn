@@ -391,7 +391,6 @@ export async function play3D(tour) {
         navigateTo('/logout');
         return;
     }
-    console.warn("dificiiiiilll", difficulty);
     start3DAIGame(name, dictionary, tour, difficulty);
 
 }

@@ -1,29 +1,24 @@
-<div id="final-tournament-page-container">
-    <div class="d-flex justify-content-center mb-4">
-        <!-- <div class="col-12 col-md-6">
-            <button class="btn btn-grey-purple btn-large w-100" data-route="/home">{{ home }}</button>
-        </div> -->
-    </div>
-    <div class="text-center mb-4">
-        <div class="winner-info-box p-3">
-            <h1 class="winner-title trophy-icon">🏆</h1>
-            <h3 class="winner-title">{{ winner_is }}</h3>
-            <!-- <h1 class="winner-name"> Diana🩷</h1>
-            <h3 class="winner-title">*Real winner :</h3> -->
-            <h1 class="winner-name">{{ winner_player }}</h1>
-        </div>
-        <div>
-            <ul>
-                {% for res in results_list %}
-                <li>{{ res }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-
-    <div class="d-flex justify-content-center">
-        <div class="col-12 col-md-6">
-            <button class="btn btn-grey-purple btn-large w-100" replace-url data-route="/quit-tournament">{{ quit_tournament }}</button>
-        </div>
-    </div>
+<div id="final-tournament-page-container" class="container">
+  <!-- Bloque del ganador, centrado y destacado -->
+  <div class="winner-info-box">
+    <h2 class="winner-title" style="margin: 10px;">{{ winner_is }}</h2>
+    <h2 class="winner-name" style="margin: 10px;">{{ winner_player }}</h2>
+  </div>
+  
+  <!-- Lista de resultados, centrada en un contenedor responsivo -->
+  <div class="mb-4 w-100" style="max-width: 600px; margin-top: 3%;">
+    <h4 class="text-center mb-3">{{tournament_results}}</h4>
+    <ul class="list-group results-list">
+      {% for res in results_list %}
+      <li class="list-group-item text-center">{{ res }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  
+  <!-- Botón para salir, centrado -->
+  <div class="text-center w-100" style="max-width: 600px;">
+    <button class="button-trn" style="width: 75%; bottom: -190px;" replace-url data-route="/quit-tournament">
+      <span class="button-content-trn">{{ quit_tournament }}</span>
+    </button>
+  </div>
 </div>

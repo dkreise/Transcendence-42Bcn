@@ -1,0 +1,53 @@
+#final-tournament-page-container {
+    min-height: 80vh;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 40px;
+    border: 5px solid;
+    border-color: #811cff;
+    background-color: #333333d9;
+  }
+
+  /* Caja para la información del ganador */
+  .winner-info-box {
+    border: 5px solid;
+    border-radius: 20px;
+    border-color: #811cff;
+    background-color: #f1f1f1c2;
+    color: #ffffff;
+    width: 100%;
+    height: 100px;
+    max-width: 600px;
+    text-align: center;
+    margin-bottom: 8%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    margin-top: -10%;
+  }
+
+  /* Lista de resultados */
+  .results-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .results-list li {
+    background-color: #f1f1f1c2;
+    border: 2px solid #811cff;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+    width: 75%;
+    align-self: center;
+  }
+
+  .results-list li:hover {
+    background-color: #e9ecef;
+  }

@@ -68,6 +68,7 @@ def get_lang_words(lang):
 			"good_luck": "Mejor suerte la próxima vez...",
 			"back_tour": "Volver a la página del torneo",
 			"create_room": "Crear sala",
+			"tournament_results": "Resultados del Torneo",
 		}
 	elif lang == 'CA':
 		return {
@@ -131,6 +132,7 @@ def get_lang_words(lang):
 			"good_luck": "Més sort la pròxima vegada...",
 			"back_tour": "Tornar a la pàgina del torneig",
 			"create_room": "Crear sala",
+			"tournament_results": "Resultats del torneig",
 		}
 	elif lang == 'RU':
 		return {
@@ -195,6 +197,7 @@ def get_lang_words(lang):
 			"good_luck": "Удачи в следующий раз...",
 			"back_tour": "Вернуться на страницу турнира",
 			"create_room": "Создать комнату",
+			"tournament_results": "Результаты турнира",
 		}
 	elif lang == 'LV':
 		return {
@@ -257,6 +260,7 @@ def get_lang_words(lang):
 			"good_luck": "Veiksmi nākamreiz...",
 			"back_tour": "Atpakaļ uz turnīra lapu",
 			"create_room": "Izveidot istabu",
+			"tournament_results": "Turnīra rezultāti",
 		}
 	else:
 		return {
@@ -317,4 +321,5 @@ def get_lang_words(lang):
 			"back_tour" : "Back to Tournament Page",
 			'create_room': "Create Room",
 			'waiting_for_players': "Waiting for players...",
+			"tournament_results": "Tournament Results",
 		}
