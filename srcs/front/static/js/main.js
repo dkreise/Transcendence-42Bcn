@@ -32,9 +32,7 @@ const modeProduction = window.env.SECURE;
 const routes = {
     '/': homePage,
     '/login': loadLoginPage,
-    '/handle-login': handleLogin,
     '/signup': loadSignupPage,
-    '/handle-signup': handleSignup,
     '/login-intra': handleLoginIntra, 
     '/callback': handle42Callback,
     '/two-fa-login': loadLogin2FAPage,
@@ -158,7 +156,7 @@ function getRedirectionIfNeeded(path=null) {
     }
 
     //Check if the user has the required permissions, if not, redirect
-    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/handle-login', '/handle-signup', '/callback'];
+    const publicPaths = ['/login', '/signup', '/login-intra', '/two-fa-login', '/callback'];
     const openPaths = ['/', '/page-not-found']; //open for authenticated and not authenticated
     if (checkPermission() && publicPaths.includes(path)) {
         return '/home';

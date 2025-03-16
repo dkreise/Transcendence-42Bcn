@@ -275,7 +275,6 @@ async function initializeWebSocket(roomId = 123) {
     socket.onopen = () => console.log("WebSocket connection established.");
     socket.onerror = (error) => {
         console.log("WebSocket encountered an error:", error);
-        // alert("Unable to connect to the server. Please check your connection.");
     };
     socket.onclose = async (event) => {
         console.log("WebSocket closing with code:", event.code);

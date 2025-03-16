@@ -24,11 +24,9 @@ export const handle42Callback = () => {
         window.history.replaceState(null, null, '/');
         if (err) {
             console.log(`error string: ${err}`);
-            // alert("Access denied. Try again later");
             clearURL();
             showModalError("ERROR");
             navigateTo("/login");
-            // displayLoginError('Invalid credentials. Please try again.', 'login-form');
         }
         else if (code && state){
             const queryParams = new URLSearchParams({code , state}).toString();
@@ -71,7 +69,6 @@ export const handle42Callback = () => {
             })
             .catch(error => {
                 clearURL();
-                // alert("Access denied. Try again later");
                 if (error.message.includes("401")) {
                     showModalError("ACCESS_DENIED");
                 } else if (error.message.includes("403")) {
