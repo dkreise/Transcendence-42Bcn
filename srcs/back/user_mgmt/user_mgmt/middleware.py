@@ -6,6 +6,8 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 # from django.contrib.auth.models import User
 from rest_framework.exceptions import AuthenticationFailed
 from asgiref.sync import sync_to_async
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework_simplejwt.tokens import AccessToken
 # from django.utils.deprecation import MiddlewareMixin
 
 # class UpdateLastActivityMiddleware:
