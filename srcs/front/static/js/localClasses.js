@@ -36,10 +36,6 @@ export class Player {
 			this.y = this.canvas.height - this.height;
     }
 
-    // update(newScore) {
-	// 	this.score = newScore;
-	// }
-
     drawScore(ctx) {
 		const text = `${this.name}: ${this.score}`;
 		let x;
@@ -71,7 +67,7 @@ export class Player {
 	}
 
 	resetPosition() {
-		this.y = this.canvas.height / 2;
+		this.y = (this.canvas.height - this.height) / 2;
 	}
 
     resize(nW, nH) {
