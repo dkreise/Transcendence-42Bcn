@@ -16,6 +16,7 @@ const gamePort = window.env.GAME_PORT;
 let Enable3D = false;
 let isCreator = false;
 let roomId = null;
+let difficulty = 3; // 0.5-1 => easy, 3 => already low chance for ai to lose, 5 => almost impossible; 
 
 export const playLocal = () => {
 
@@ -45,6 +46,29 @@ export const playLocal = () => {
         })
     }
 } 
+
+document.addEventListener("click", function (event) {
+    // Detectamos si se clicó dentro de una opción
+    //console.warn("dentroooooo");
+    const option = event.target.closest(".option-trn");
+    if (option) {
+      // Marcamos el radio button dentro de la opción
+      const radio = option.querySelector(".input-trn");
+      if (radio) {
+        radio.checked = true;
+        // Removemos la clase "active" de todas las opciones
+        document.querySelectorAll(".option-trn").forEach(opt => opt.classList.remove("active"));
+        // Añadimos "active" a la opción clicada
+        option.classList.add("active");
+  
+        // Obtenemos el valor de la dificultad
+        const difficulty_btn = radio.getAttribute("data-value");
+        console.log("LEVEL SELECTED:", difficulty_btn);
+        // Aquí asignas a la variable global si es necesario:
+        difficulty = difficulty_btn;
+      }
+    }
+});
 
 export const playAI = async (args) => {
     clearIntervalIDGame();
@@ -125,13 +149,14 @@ export async function gameLocal () {
             navigateTo('/play-local', true);
             return ;
         }
-        
-        makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
-            method: "POST",
-            body: JSON.stringify({
-                'second-player': secondPlayerName,  // Stringify the body data
-            }),
-            headers: {"Content-Type": "application/json"},
+        drawHeader('main').then(() => {
+            return    makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
+                        method: "POST",
+                        body: JSON.stringify({
+                            'second-player': secondPlayerName,  // Stringify the body data
+                        }),
+                        headers: {"Content-Type": "application/json"},
+                    })
         })
         .then(response => {
             console.log('Raw response:', response);  // Add this line to inspect the raw response
@@ -187,15 +212,18 @@ export const gameAI = async (args) => {
             // clearIntervalIDGame();
             // const savedState = localStorage.getItem("gameState");
         }
+
         if (Enable3D === "true")
             play3D(tournament);
         else {
-            makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
-                method: "POST",
-                body: JSON.stringify({
-                    'second-player': "AI",  // Stringify the body data
-                }),
-                headers: {"Content-Type": "application/json"},
+            drawHeader('main').then(() => {
+                return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        'second-player': "AI",  // Stringify the body data
+                    }),
+                    headers: {"Content-Type": "application/json"},
+                })
             })
             .then(response => {
                 console.log('Raw response:', response);  // Add this line to inspect the raw response
@@ -241,7 +269,7 @@ export const gameAI = async (args) => {
             });
         };
     }
-} 
+}
 
 
 export async function playOnline (tourId = null) {
@@ -265,15 +293,21 @@ export async function playOnline (tourId = null) {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
 
-                if (canvas)
+                let id_html = document.getElementById('id-room-remote');
+                id_html.textContent = `${roomId}`;
+                console.warn(roomId);
+
+                if (canvas) {
+                    console.log("GOING TO START 2D");
                     startGame(roomId, isCreator, dictionary, tourId);
+                }
 
                 else
                     console.log("Error: Canvas not found");
             } else if (Enable3D === "true") {
                 //HERE SOMETHING WITH LANGUAGES
                 // start3DOnlineGame(localStorage.getItem('username'));
-                
+                console.log("GOING TO START 3D")
                 const contentArea = document.getElementById('content-area');
                 contentArea.innerHTML = ''; // Clear previous content
                 start3DRemoteGame(dictionary, tourId, roomId, isCreator);
@@ -358,7 +392,8 @@ export async function play3D(tour) {
         navigateTo('/logout');
         return;
     }
-    start3DAIGame(name, dictionary, tour);
+    console.warn("dificiiiiilll", difficulty);
+    start3DAIGame(name, dictionary, tour, difficulty);
 
 }
 

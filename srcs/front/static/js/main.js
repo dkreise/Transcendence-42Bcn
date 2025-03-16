@@ -21,7 +21,6 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const userMgmtPort = window.env.USER_MGMT_PORT;
 const modeProduction = window.env.SECURE;
 
-//COMMENTED UNTIL THE LAST DAY
 // if (modeProduction === 'true') {
 //     console.log = () => {};
 // }

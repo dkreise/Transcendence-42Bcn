@@ -54,3 +54,22 @@
       height: auto;
     }
   }
+
+  .team {
+    display: block;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    text-align: center;
+    /* font-weight: bold; */
+    font-size: 16px;
+    color: white;
+    background-color: #595e61 !important;
+}
+
+
+.winner {
+    font-weight: bold;
+    color: #bae6bc;
+    background-color: #d4edda;
+}

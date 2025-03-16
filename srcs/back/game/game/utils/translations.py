@@ -55,9 +55,12 @@ def get_lang_words(lang):
 			'opponent': "Oponente",
 			'winner_wo': "Ganador",
 			'access_denied': "Acceso denegado",
+			'create_room': "Crear Sala",
 			'add_friend': "Agregar amigo",
 			'remove_friend': "Eliminar amigo",
 			"user_not_authenticated": "Usuario no autenticado",
+			'restart': "Reiniciar",
+			'waiting for players': "Esperando a los jugadores...",
 		}
 	elif lang == 'CA':
 		return {
@@ -108,9 +111,12 @@ def get_lang_words(lang):
 			'opponent': "Oponent",
 			'winner_wo': "Guanyador",
 			'access_denied': "Accés denegat",
+			'create_room': "Crear Sales",
 			'add_friend': "Afegir amic",
 			'remove_friend': "Eliminar amic",
 			"user_not_authenticated": "Usuari no autenticat",
+			'restart': "Reiniciar",
+			'waiting for players': "Esperando a los jugadores...",
 		}
 	elif lang == 'RU':
 		return {
@@ -164,9 +170,11 @@ def get_lang_words(lang):
 			'game_wo': "Игра",
 			'opponent': "Противник",
 			'access_denied': "Доступ запрещен",
+			'create_room': "создать_комнату",
 			'add_friend': "Добавить друга",
 			'remove_friend': "Удалить друга",
 			"user_not_authenticated": "Пользователь не аутентифицирован",
+			'waiting for players': "Ожидание игроков...",
 		}
 	elif lang == 'LV':
 		return {
@@ -216,9 +224,12 @@ def get_lang_words(lang):
 			'opponent': "Pretinieks",
 			'winner_wo': "Uzvarētājs",
 			'access_denied': "Prieiga uždrausta",
+			'create_room': "izveidot_telpu",
 			'add_friend': "Pievienot draugu",
 			'remove_friend': "Noņemt draugu",
 			"user_not_authenticated": "Lietotājs nav autentificēts",
+			'restart': "restartēt",
+			'waiting for players': "Gaida spēlētājus...",
 		}
 	else:
 		return {
@@ -278,5 +289,8 @@ def get_lang_words(lang):
 			"congrats": "Congratuations! You've won!",
 			"good_luck": "Better luck next time...",
 			"back_tour" : "Back to Tournament Page",
+			'create_room': "Create Room",
+
 			'quit_tournament': "Quit Tournament",
+			'waiting for players': "Waiting for players...",
 		}
