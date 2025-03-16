@@ -36,10 +36,6 @@ export class Player {
 			this.y = this.canvas.height - this.height;
     }
 
-    // update(newScore) {
-	// 	this.score = newScore;
-	// }
-
     drawScore(ctx) {
 		const text = `${this.name}: ${this.score}`;
 		let x;
@@ -71,7 +67,7 @@ export class Player {
 	}
 
 	resetPosition() {
-		this.y = this.canvas.height / 2;
+		this.y = (this.canvas.height - this.height) / 2;
 	}
 
     resize(nW, nH) {
@@ -87,17 +83,16 @@ export class Player {
 }
 
 export class Ball {
-    // radius = 10;
-	div = document.getElementById("wait");
 
     constructor(canvas, ctx) {
         this.x = canvas.width / 2;
         this.y = canvas.height / 2;
-        this.xspeed = canvas.width * 0.01;
-        this.yspeed = canvas.height * 0.02;
+        this.xspeed = canvas.width  * 0.008;
+        //this.yspeed = canvas.height * 0.01;
+        this.yspeed = 0;
         this.color = "white";
         this.canvas = canvas;
-        this.radius = canvas.width * 0.015;
+        this.radius = canvas.width * 0.01;
 		this.ctx = ctx;
     }
 

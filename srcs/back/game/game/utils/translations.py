@@ -1,11 +1,7 @@
 def add_language_context(cookies, context=None):
 	if context is None:
 		context = {}
-
-	# lang = cookies.get('language') or 'EN'
-	# lang = 'EN'
 	lang = 'EN' if cookies is None else cookies.get('language', 'EN')
-
 	lang_words = get_lang_words(lang)
 	context.update(lang_words)
 
@@ -25,6 +21,7 @@ def get_lang_words(lang):
 			'submit': "Enviar",
 			'start_tournament': "Inicia el torneo",
 			'quit': "Salir",
+			'quit_tournament': "Salir del torneo",
 			'play': "Jugar",
 			'ranking': "Clasificación",
 			'play_again': "Jugar de nuevo",
@@ -62,9 +59,15 @@ def get_lang_words(lang):
 			'create_room': "Crear Sala",
 			'add_friend': "Agregar amigo",
 			'remove_friend': "Eliminar amigo",
+			"user_not_authenticated": "Usuario no autenticado",
 			'restart': "Reiniciar",
 			'waiting for players': "Esperando a los jugadores...",
 			'quit_tournament': "Salir del torneo",
+			"restart": "Reiniciar",
+			"congrats": "¡Felicidades! ¡Has ganado!",
+			"good_luck": "Mejor suerte la próxima vez...",
+			"back_tour": "Volver a la página del torneo",
+			"create_room": "Crear sala",
 		}
 	elif lang == 'CA':
 		return {
@@ -80,6 +83,7 @@ def get_lang_words(lang):
 			'submit': "Envia",
 			'start_tournament': "Inicia el torneig",
 			'quit': "Sortir",
+			'quit_tournament': "Sortir del torneig",
 			'play': "Jugar",
 			'ranking': "Classificació",
 			'play_again': "Jugar de nou",
@@ -118,9 +122,15 @@ def get_lang_words(lang):
 			'create_room': "Crear Sales",
 			'add_friend': "Afegir amic",
 			'remove_friend': "Eliminar amic",
+			"user_not_authenticated": "Usuari no autenticat",
 			'restart': "Reiniciar",
-			'waiting for players': "Esperant jugadors...",
 			'quit_tournament': "Surtir del torneig",
+			'waiting_for_players': "Esperando a los jugadores...",
+			"restart": "Reinicia",
+			"congrats": "Felicitats! Has guanyat!",
+			"good_luck": "Més sort la pròxima vegada...",
+			"back_tour": "Tornar a la pàgina del torneig",
+			"create_room": "Crear sala",
 		}
 	elif lang == 'RU':
 		return {
@@ -177,8 +187,14 @@ def get_lang_words(lang):
 			'create_room': "создать_комнату",
 			'add_friend': "Добавить друга",
 			'remove_friend': "Удалить друга",
-			'waiting for players': "Ожидание игроков...",
 			'quit_tournament': "Выйти из турнира",
+			"user_not_authenticated": "Пользователь не аутентифицирован",
+			'waiting_for_players': "Ожидание игроков...",
+			"restart": "Перезапустить",
+			"congrats": "Поздравляем! Вы выиграли!",
+			"good_luck": "Удачи в следующий раз...",
+			"back_tour": "Вернуться на страницу турнира",
+			"create_room": "Создать комнату",
 		}
 	elif lang == 'LV':
 		return {
@@ -194,6 +210,7 @@ def get_lang_words(lang):
 			'submit': "Iesniegt",
 			'start_tournament': "Sākt turnīru",
 			'quit': "Iziet",
+			'quit_tournament': "Iziet no turnīra",
 			'play': "Spēlēt",
 			'ranking': "Reitings",
 			'play_again': "Spēlēt vēlreiz",
@@ -231,9 +248,15 @@ def get_lang_words(lang):
 			'create_room': "izveidot_telpu",
 			'add_friend': "Pievienot draugu",
 			'remove_friend': "Noņemt draugu",
+			"user_not_authenticated": "Lietotājs nav autentificēts",
 			'restart': "restartēt",
-			'waiting for players': "Gaida spēlētājus...",
 			'quit_tournament': "Iziet no turnīra",
+			'waiting_for_players': "Gaida spēlētājus...",
+			"restart": "Restartēt",
+			"congrats": "Apsveicam! Tu uzvarēji!",
+			"good_luck": "Veiksmi nākamreiz...",
+			"back_tour": "Atpakaļ uz turnīra lapu",
+			"create_room": "Izveidot istabu",
 		}
 	else:
 		return {
@@ -249,6 +272,7 @@ def get_lang_words(lang):
 			'submit': "Submit",
 			'start_tournament': "Start tournament",
 			'quit': "Quit",
+			'quit_tournament': "Quit Tournament",
 			'play': "Play",
 			'ranking': "Ranking",
 			'play_again': "Play again",
@@ -285,14 +309,12 @@ def get_lang_words(lang):
 			'access_denied': "Access denied",
 			'add_friend': "Add Friend",
 			'remove_friend': "Remove Friend",
-
-			############### new ones
+			"user_not_authenticated": "User not authenticated",
+			"tournament_not_found": "Tournament not found",
 			'restart': "restart",
 			"congrats": "Congratuations! You've won!",
 			"good_luck": "Better luck next time...",
 			"back_tour" : "Back to Tournament Page",
 			'create_room': "Create Room",
-
-			'quit_tournament': "Quit Tournament",
-			'waiting for players': "Waiting for players...",
+			'waiting_for_players': "Waiting for players...",
 		}

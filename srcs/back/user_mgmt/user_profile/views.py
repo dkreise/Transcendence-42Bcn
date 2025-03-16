@@ -50,7 +50,7 @@ def user_info_api(request):
         user_html = render_to_string('user.html', context)
         return JsonResponse({'user_html': user_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 def player_game_statistics(request, player_id):
     endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/game_statistics/'
@@ -98,7 +98,7 @@ def player_last_ten_games(request):
         except requests.RequestException as e:
             return JsonResponse({'error': 'Failed to fetch game data.'}, status=500)
     else:
-        return JsonResponse({'error': 'User not authenticated.'}, status=401)
+        return JsonResponse({'error': 'User not authenticated.'})
 
 def player_all_games(request, player_id):
     endpoint = f'{GAME_SERVICE_URL}/api/player/{player_id}/all_games/'
@@ -126,7 +126,7 @@ def match_history_page(request):
         match_history_html = render_to_string('match_history.html', context)
         return JsonResponse({'match_history_html': match_history_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 
 @api_view(['GET'])
@@ -158,7 +158,7 @@ def profile_page(request):
         profile_html = render_to_string('profile.html', context)
         return JsonResponse({'profile_html': profile_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 @api_view(['GET'])
 def profile_settings_page(request):
@@ -173,7 +173,7 @@ def profile_settings_page(request):
         profile_settings_html = render_to_string('settings_profile.html', context)
         return JsonResponse({'profile_settings_html': profile_settings_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 @api_view(['POST'])
 def update_profile_settings(request):
@@ -184,19 +184,19 @@ def update_profile_settings(request):
         last_name = request.POST.get('last_name', '')
 
         if not re.match(r'^[a-zA-Z0-9.]+$', username) and not (user.username.startswith('@') and user.username == username):
-            return JsonResponse({'success': False, "error": "Username should consist only of letters, digits and dots(.)."})
+            return JsonResponse({'success': False, "error": get_translation(request, "invalid_username")})
 
         if User.objects.filter(username=username).exclude(id=request.user.id).exists():
-            return JsonResponse({'success': False, "error": "Username already exists."})
+            return JsonResponse({'success': False, "error": get_translation(request, "username_exists")})
 
         if len(username) < 2 or len(username) > 10:
-            return JsonResponse({'success': False, "error": "Username should be 2-10 (included) chars length."})
+            return JsonResponse({'success': False, "error": get_translation(request, "username_length")})
 
         if len(first_name) < 2 or len(first_name) > 10:
-            return JsonResponse({'success': False, "error": "First Name should be 2-10 (included) chars length."})
+            return JsonResponse({'success': False, "error": get_translation(request, "username_length") + " " + get_translation(request, "please_try_again" )})
         
         if len(last_name) > 15:
-            return JsonResponse({'success': False, "error": "Last Name should be max 15 chars length."})
+            return JsonResponse({'success': False, "error": "lastname_length"})
 
         user.username = username
         user.first_name = first_name
@@ -211,10 +211,9 @@ def update_profile_settings(request):
             profile.save()
 
         user.save()
-
-        return JsonResponse({'success': True, 'message': 'Settings updated successfully!', 'username': username})
+        return JsonResponse({'success': True, 'message': get_translation(request, 'settings_updated'), 'username': username})
     else:
-        return JsonResponse({'success': False, 'error': 'User not authenticated.'}, status=401)
+        return JsonResponse({'success': False, 'error': 'User not authenticated.'})
 
 @api_view(['GET'])
 def search_users(request):
@@ -304,13 +303,13 @@ def save_user_pref_lang(request):
     user_profile.save()
     
     activate(lang)
-    return JsonResponse({'status': 'success', 'message': 'Language has been setted.'})
+    return JsonResponse({'status': 'success'})
 
 @api_view(['GET'])
-@login_required 
+@login_required
 def get_user_pref_lang(request):
-    lang = request.user.profile.language
-    return JsonResponse({'status': 'success', 'language': lang}, status=200)
+    lang = getattr(request.user.profile, 'language', 'EN')
+    return JsonResponse({'status': 'success', 'language': lang})
 
 # def root_view(request):
 #     #print('------->entro root_view<-------')
@@ -338,7 +337,7 @@ def home_page(request):
         home_html = render_to_string('home_page.html', context)
         return JsonResponse({'home_html': home_html}, content_type="application/json")
     else:
-        return JsonResponse({'error': 'user not authenticated'}, status=401)
+        return JsonResponse({'error': 'user not authenticated'})
 
 
 @api_view(['GET'])
@@ -374,3 +373,8 @@ def get_3D_header(request):
 def get_lang_from_cookies(request):
     lang = request.COOKIES.get('language', 'EN')
     return JsonResponse({'status': 'success', 'language': lang}, status=200)
+
+def get_translation(request, key):
+    context = {}
+    add_language_context(request.COOKIES, context)
+    return context.get(key, key)

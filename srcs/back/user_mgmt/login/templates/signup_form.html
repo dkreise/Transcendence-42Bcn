@@ -1,6 +1,6 @@
 <div class="container d-flex justify-content-center align-items-center px-3">
 	<div id="signup-container" class="form-container">
-	  <p id="login-error" class="error-login text-center">{{error_text}}</p>
+		<p id="login-error" class="error-login text-center">{{error_text}}</p>
 	  <h1 class="text-center mb-4">{{sign_up}}</h1>
 	  <form id="signup-form" class="form" method="post">
 			<div class="row">
@@ -24,20 +24,20 @@
 					<label for="email">{{email}}</label>
 					<input class="form-control" type="text" id="email" name="email">
 				</div>
-				<div class="col-12 text-center">
-					<button id="signup-submit" data-route="/handle-signup" class="form-submit-btn btn w-100" type="submit">
-						{{submit}}
-					</button>
-				</div>
-				<div class="col-12 text-center mt-2" >
-					<p id="login" style="margin-bottom: 10px; margin-top: 10px;">
-						{{have_account}} 
-							<button data-route="/login" id="login-link" class="not-account-btn btn btn-link" type="button">
-								{{click_here}}
-							</button>
-					</p>
-				</div>
 			</div>
-	  </form>
+		</form>
+		<div class="col-12 text-center">
+			<button id="signup-submit" class="form-submit-btn btn w-100" type="submit">
+				{{submit}}
+			</button>
+		</div>
+		<div class="col-12 text-center mt-2" >
+			<p id="login" style="margin-bottom: 10px; margin-top: 10px;">
+				{{have_account}} 
+					<button data-route="/login" id="login-link" class="not-account-btn btn btn-link" type="button">
+						{{click_here}}
+					</button>
+			</p>
+		</div>
 	</div>
 </div>

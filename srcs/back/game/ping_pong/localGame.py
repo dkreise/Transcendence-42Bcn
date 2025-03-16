@@ -97,11 +97,11 @@ def save_local_score(request):
         player1 = request.user if main_user == 1 else guest_player("@guest")
         player2 = request.user if main_user == 2 else guest_player("@guest")
 
-        if not player1 or not player1:
+        if not player1 or not player2:
             raise ValueError("Couldn't find the player")
 
         # Determine the winner
-        winner = player1 if score1 > score2 else player1
+        winner = player1 if score1 > score2 else player2
 
         # Save to the database
         game = Game.objects.create(

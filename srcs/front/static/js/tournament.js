@@ -1,12 +1,11 @@
 import { makeAuthenticatedRequest } from "./login.js";
-import { navigateTo } from "./main.js";
+import { navigateTo, drawHeader } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
 import { gameAI, playOnline, getDictFor3DGame, getOrInitialize3DOption } from "./game.js";
-import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, handleTourEndgame, cleanRemote } from "./remoteGame.js"
-import { scale3DGame, setWhoAmI3D, handle3DStatus, handle3DUpdate, handleOnlineEndgame} from "./3DGame.js"
-import { drawHeader } from "./main.js";
-import { removeBeforeUnloadListenerRemote } from "./remoteGame.js"
+import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, cleanRemote, removeBeforeUnloadListenerRemote } from "./remoteGame.js"
 import { checkToken } from "./onlineStatus.js";
+import { getCookie, getFrontDict } from "./langs.js";
+import { showModalError } from "./errorHandler.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -70,9 +69,6 @@ export const updateHandlers = (is3DEnabled) => {
     console.log("Handlers updated. 3D mode:", is3DEnabled);
 };
 
-
-
-
 export const manageTournamentHomeBtn = () => { 
     const inTournament = localStorage.getItem('inTournament');
     if (!socket || !inTournament) {
@@ -117,7 +113,7 @@ export const loadTournamentHomePage = () => {
             }
         })
         .catch(error => {
-            console.error('Error loading page', error);
+            console.log('Error loading page', error);
         });
     })     
 };
@@ -125,7 +121,6 @@ export const loadTournamentHomePage = () => {
 export const createTournament = async () => {
     const nPlayers = getNumberOfPlayers();
     tourId = await getTournamentId(); 
-    // alert(tourId)
     if (tourId > 0) {
         tournamentConnect(tourId, nPlayers)
             .then(() => console.log("Successfully connected!"))
@@ -134,13 +129,15 @@ export const createTournament = async () => {
 };
 
 export const joinTournament = () => {
-    if (! document.getElementById('tournament-id-input')) {
+    if (!document.getElementById('tournament-id-input')) {
         navigateTo('/tournament-home', true);
         return;
     }
     tourId = document.getElementById('tournament-id-input').value.trim();
+    console.log("TOOOOOUR ID: ", tourId);
     if (! /^\d{7}$/.test(tourId)) {
-        alert("The tournament ID is not correct.");
+        showModalError("WRONG_TOURNAMENT_ID")
+        navigateTo('/tournament-home', true);
         return;
     }
     tournamentConnect(tourId)
@@ -169,8 +166,10 @@ export const loadWaitingRoomPage = () => {
     }
     if (socket.readyState === WebSocket.OPEN)
 	{
-		const data = {
+		let lang = getCookie("language");
+        const data = {
 			"type": "waiting_room_page_request",
+            "lang": lang,
 		};
 		socket.send(JSON.stringify(data));
 	}
@@ -184,16 +183,16 @@ export const loadBracketTournamentPage = () => {
     }
     if (socket.readyState === WebSocket.OPEN)
 	{
+        let lang = getCookie("language");
         const data = {
 			"type": "bracket_page_request",
+            "lang": lang,
 		};
 		socket.send(JSON.stringify(data));
         // console.log("we have sent the request for bracket page!")
 	}
     else {
         console.log(socket.readyState);
-        // alert("waiting for websoket connection")
-        // loadBracketTournamentPage();
     }
 };
 
@@ -205,8 +204,10 @@ export const loadFinalTournamentPage = () => {
     }
     if (socket.readyState === WebSocket.OPEN)
 	{
+        let lang = getCookie("language");
         const data = {
 			"type": "final_page_request",
+            "lang": lang,
 		};
 		socket.send(JSON.stringify(data));
 	}
@@ -244,12 +245,14 @@ export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) =>
 
     if (socket.readyState === WebSocket.OPEN)
     {
+        let lang = getCookie("language");
         const data = {
             "type": "game_result",
             "winner": winner,
             "winner_score": playerScore > AIScore ? playerScore : AIScore,
             "loser": loser,
             "loser_score": playerScore > AIScore ? AIScore : playerScore,
+            "lang": lang,
         };
         socket.send(JSON.stringify(data));
     }
@@ -279,7 +282,6 @@ export const tournamentGameAIstart = (data, tourId) => {
 
 function addGameButton(data) {
     // tournament ID needed!! or maybe not..
-    
     console.log('Player needs to play!!');
     const bracketSection = document.getElementById("bracket");
     // if (bracketSection) {
@@ -297,7 +299,8 @@ function addGameButton(data) {
     span.classList.add("button-content-trn");
     // const dictionary = getDictFor3DGame();
     // span.textContent = "Play my game";
-    span.textContent = dict['play_my_game'] || "Play My Game";
+    const lang = getCookie("language");
+    span.textContent = getFrontDict(lang || "EN", 'PLAY_MY_GAME') || "Play my game";
 
     playButton.appendChild(span);
 
@@ -393,7 +396,6 @@ function updatePlayerCount(data) {
             document.getElementById('cur-player-cnt').textContent = data.player_cnt;
     }
 }
-
 
 export async function tournamentConnect(tourID, nPlayers=null) {
     dict = await getDictFor3DGame();
@@ -518,7 +520,7 @@ async function getTournamentId() {
             return -1;  // If the ID is active, return -1
         }
     } catch (error) {
-        console.error('Failed to fetch tournament status:', error);
+        console.log('Failed to fetch tournament status:', error);
         return -1;  // Return -1 in case of an error
     }
 }
@@ -530,11 +532,9 @@ function getNumberOfPlayers() {
     }
 //     const nPlayers = document.getElementById('tournament-count').value;
     const nPlayers = document.querySelector('input[name="btn"]:checked').value;
-    console.log("aquiiiiiiiiiiii", nPlayers);
     const validPlayers = ["3", "4", "7", "8", "1", "2"];
     
     if (!validPlayers.includes(nPlayers)) {
-        alert("Incorrect number of players");
         return null;
     }
     return nPlayers;
@@ -595,12 +595,13 @@ function gameUpdate() {
 }
 
 function tourFull() {
-    console.log("Tournament is full:", data.message);
-    alert(data.message);
+    console.log("Tournament is full");
+    showModalError("FULL_TOURNAMENT")
     localStorage.removeItem('inTournament');
     localStorage.removeItem("user_quit");
     localStorage.removeItem("currentTournamentId");
     socket.close();
+    navigateTo('/tournament-home', true);
 }
 
 function needsPlay(data) {

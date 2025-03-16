@@ -161,21 +161,22 @@ function checkIfAIneedStop() {
 
 async function displayCountdown()
 {
-	if (tournamentId)
-		return ;
-	cancelAnimationFrame(gameLoopId);
+	//if (tournamentId)
+	//	return ;
+	if (gameLoopId)
+		cancelAnimationFrame(gameLoopId);
 	let div = document.getElementById("wait");
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	div.innerHTML = dict["ready"];
 	div.style.display = "block";
-	div.style.fontSize = Math.floor(canvas.width * 0.15) + "px";
+	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
 	ctx.fillStyle = "rgb(0 0 0 / 25%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 	await new Promise(resolve => setTimeout(resolve, 500));
 	div.innerHTML = dict["go"];
 	await new Promise(resolve => setTimeout(resolve, 500));
 	div.style.display = "none";
-	gameAILoop();
+	await gameAILoop();
 }
 
 
@@ -371,7 +372,6 @@ export const removeBeforeUnloadListenerAI = () => {
 
 document.addEventListener("click", function (event) {
     // Detectamos si se clicó dentro de una opción
-    console.warn("dentroooooo");
     const option = event.target.closest(".option-trn");
     if (option) {
       // Marcamos el radio button dentro de la opción

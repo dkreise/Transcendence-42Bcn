@@ -6,6 +6,7 @@ import { startTournamentGame, stopTournamentGame, saveTournamentGameResult } fro
 import { makeAuthenticatedRequest } from "./login.js"
 import { navigateTo } from "./main.js";
 import { checkToken } from "./onlineStatus.js";
+import { showModalError } from "./errorHandler.js";
 
 const gamePort = window.env.GAME_PORT;
 const host = window.env.HOST;
@@ -33,7 +34,6 @@ let countdownTimeout = null;
 // console.log("Hi! This is remoteGame.js :D");
 
 export function handleRoleAssignment(data) {
-	console.log("222222222222222DHi! I'm " + data.role);
 	if (data.role === "player1") {
 		console.log("Hi! I'm " + data.role + " and I'm a player");
 		player = new Player(data, canvas, "player1");
@@ -51,7 +51,6 @@ export function scaleGame(data)
 {
 	console.log("2222222D sCALE GAME")
 	handleRoleAssignment(data)
-	
 	ball.setVars(data);
 }
 
@@ -83,7 +82,6 @@ async function firstCountdown(callback) {
 
 async function readySteadyGo(countdown)
 {
-	// if (!div || ! div.textContent) return ;
 	const msg = ["1", "2", "3"];
 	let div = document.getElementById("wait");
 
@@ -96,9 +94,7 @@ async function readySteadyGo(countdown)
 		ctx.fillStyle = "rgb(0 0 0 / 25%)";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		div.style.display = "block";
-		//console.log(`[${getTimestamp()}] RSG: ${countdown}`);
 		if (countdown >= 0)
-			// await setTimeout(async() => await readySteadyGo(--countdown), 500);
 			countdownTimeout = setTimeout(() => readySteadyGo(--countdown), 500);
 
 		else
@@ -112,19 +108,11 @@ function displayCountdown()
 	if (!ctx)
 		return ;
 	let div = document.getElementById("wait");
-	// let waitMsg = div ? div.dataset.original : "Waiting for X"; 
 
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(0 0 0 / 25%)"; //rectangle style
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-	// if (opponent && opponent.whoAmI)
-	// 	waitMsg = waitMsg.replace("X", opponent.whoAmI);
-	// else if (player.role == "player1")
-	// 	waitMsg = waitMsg.replace("X", "player2");
-	// else
-	// 	waitMsg = waitMsg.replace("X", "player1");
-	// div.textContent = waitMsg;
 	div.textContent = dict['waiting_enemy'];
 
 	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
@@ -141,10 +129,6 @@ export function handleEndgame(data) {
 	socket = null;
 	const { winner, loser, scores} = data;
 //	let div = document.getElementById("wait");
-	const msg = [
-		"Congratulations! You've won 😁",
-		"Better luck next time! 🥲"
-	]
 	console.log(`winner ${winner} loser ${loser}`);
 	console.log(`I am: ${player.whoAmI}`);
 
@@ -260,14 +244,12 @@ export async function createRoomId()
 	}
 	catch (error)
 	{
-		console.error("Failed to fetch game status: ", error);
+		console.log("Failed to fetch game status: ", error);
 		return -1;
 	}
 }
 
 async function initializeWebSocket(roomId, isCreator) {
-//async function initializeWebSocket() {
-//	const roomId = 123;
 	let retries = 0;
 
 	const access_token = localStorage.getItem("access_token");
@@ -289,11 +271,10 @@ async function initializeWebSocket(roomId, isCreator) {
 	socket.onopen = () => console.log("WebSocket connection established.");
 	socket.onerror = (error) => {
 		console.log("WebSocket encountered an error:", error);
-		// alert("Unable to connect to the server. Please check your connection.");
 	};
 	socket.onclose = async (event) => {
 		console.log("WebSocket connection closing");
-		if (event.code === 4001) {
+		if (event.code === 4242) {
 			// Token expired; refresh token logic
 			try {
 				await refreshAccessToken();
@@ -305,8 +286,6 @@ async function initializeWebSocket(roomId, isCreator) {
 				return ;
 			}
 		}
-		// } else if (retries++ <= 5)
-		// 	setTimeout(initializeWebSocket, 1000);
 	};
 
 	socket.onmessage = async (event) => {
@@ -315,14 +294,10 @@ async function initializeWebSocket(roomId, isCreator) {
 		// console.log(`data type is: ${data.type}`);
 		switch (data.type) {
 			case "role":
-				// handleRoleAssignment(data);
-				console.log(`data type is: ${data.type}`);
 				scaleGame(data);
 				break;
 			case "players":
-				console.log(`data type is: ${data.type}`);
 				await setWhoAmI(data, socket);
-				// socket.send(JSON.stringify({"type": "ready"}))
 				break;
 			case "status":
 				//console.log(`player1: ${data.players.player1.id} scores: ${data.scores.player1}`);
@@ -332,10 +307,10 @@ async function initializeWebSocket(roomId, isCreator) {
 				handleUpdate(data);
 				break ;
 			case "reject":
-				// alert(`Connection rejected: ${data.reason}`);
 				socket.close();
+				showModalError(data.reason);
 				navigateTo("/remote-home");
-				break ;
+				return ;
 			case "endgame":
 				console.log("This game's over!");
 				handleEndgame(data);
@@ -413,15 +388,12 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 
 	tourId = tour;
 	console.log("tour is : ", tour);
-	// window.dict = dictionary;
 	dict = dictionary;
-  	if (!roomId && !tour)
+  if (!roomId && !tour)
 	{
-		// alert(`${dict['bad_id']}`);
 		navigateTo("/remote-home");
 		return ;
 	}
-
 	if (!canvas)
 		return ;
 	ball = new Ball(canvas);
