@@ -9,6 +9,13 @@ def get_lang_words(lang):
 	if lang == 'ES':
 		return {
 			'lang': "ES",
+      'lang_flag': """
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1000" width="30" height="20">
+                        <rect width="1500" height="333.33" fill="#AA151B" data-lang="ES" />
+                        <rect y="333.33" width="1500" height="333.33" fill="#F1BF00" data-lang="ES" />
+                        <rect y="666.66" width="1500" height="333.33" fill="#AA151B" data-lang="ES" />
+                    </svg>
+                    """,
 			'profile_wo': "Perfil",
 			'settings': "Configuraciones",
 			'friends_wo': "Amigos",
@@ -69,9 +76,9 @@ def get_lang_words(lang):
 			'disable_2FA': "Desactivar 2FA",
 			'add_2FA': "Agregar 2FA",
 			'my_friends': "Mis amigos",
-			"page_not_found": "Página no encontrada",
-			"msg_page_not_found": "¡Ups! La página que buscas no existe.",
-			"rights_reserved": "Todos los derechos reservados.",
+			'page_not_found': "Página no encontrada",
+			'msg_page_not_found': "¡Ups! La página que buscas no existe.",
+			'rights_reserved': "Todos los derechos reservados.",
 			'logout': "Cerrar sesión",
 			'error_text': "Texto de error",  
 			'exit': "Salir",  
@@ -80,23 +87,32 @@ def get_lang_words(lang):
 			'search_by_username_email_ph': "Buscar por nombre de usuario o correo electrónico",
 			'go_back': "Volver Atrás",
 			'quit': "SALIR",
-			"invalid_credentials": "Credenciales inválidas",
-			"password_mismatch": "Las contraseñas no coinciden.",
-			"all_fields_required": "Todos los campos son obligatorios.",
-			"invalid_username": "El nombre de usuario solo debe contener letras, dígitos y puntos (.).",
-			"username_length": "El nombre de usuario y el nombre deben tener entre 2 y 10 caracteres.",
-			"invalid_email": "Formato de correo electrónico no válido.",
-			"username_exists": "El nombre de usuario ya existe.",
-			"email_registered": "El correo electrónico ya está registrado.",
-			"invalid_json": "Formato JSON inválido.",
-			"user_registered": "Usuario registrado con éxito.",
-			"login_successful": "Inicio de sesión exitoso",
-			"user_not_authenticated": "Usuario no autenticado",
+			'invalid_credentials': "Credenciales inválidas",
+			'password_mismatch': "Las contraseñas no coinciden.",
+			'all_fields_required': "Todos los campos son obligatorios.",
+			'invalid_username': "El nombre de usuario solo debe contener letras, dígitos y puntos (.).",
+			'username_length': "El nombre de usuario y el nombre deben tener entre 2 y 10 caracteres.",
+			'invalid_email': "Formato de correo electrónico no válido.",
+			'username_exists': "El nombre de usuario ya existe.",
+			'email_registered': "El correo electrónico ya está registrado.",
+			'invalid_json': "Formato JSON inválido.",
+			'user_registered': "Usuario registrado con éxito.",
+			'login_successful': "Inicio de sesión exitoso",
+			'user_not_authenticated': "Usuario no autenticado",
+			'lastname_length': "El apellido debe tener un máximo de 15 caracteres.",
+			'please_try_again': "Por favor, inténtalo de nuevo.",
+    		'settings_updated': "¡La configuración se ha actualizado!",
 		}
 
 	elif lang == 'CA':
 		return {
 			'lang': "CA",
+      'lang_flag': """
+                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="20" viewBox="0 0 810 540" data-lang="CA">
+                        <rect width="810" height="540" fill="#FCDD09" data-lang="CA" />
+                        <path stroke="#DA121A" stroke-width="60" d="M0,90H810m0,120H0m0,120H810m0,120H0"></path>
+                    </svg>
+                    """,
 			'profile_wo': "Perfil",
 			'settings': "Configuracions",
 			'friends_wo': "Amics",
@@ -157,9 +173,9 @@ def get_lang_words(lang):
 			'disable_2FA': "Desactivar 2FA",
 			'add_2FA': "Afegir 2FA",
 			'my_friends': "Els meus amics",
-			"page_not_found": "Pàgina no trobada",
-			"msg_page_not_found": "Ups! La pàgina que busques no existeix.",
-			"rights_reserved": "Tots els drets reservats.",
+			'page_not_found': "Pàgina no trobada",
+			'msg_page_not_found': "Ups! La pàgina que busques no existeix.",
+			'rights_reserved': "Tots els drets reservats.",
 			'logout': "Tancar sessió",
 			'error_text': "Text d'error",  
 			'exit': "Sortir",  
@@ -169,22 +185,32 @@ def get_lang_words(lang):
 			'go_back': "Tornar enrrere",
 			'quit': "SORTIR",
 			'invalid_credentials': "Credencials invàlides",
-			"password_mismatch": "Les contrasenyes no coincideixen.",
-			"all_fields_required": "Tots els camps són obligatoris.",
-			"invalid_username": "El nom d'usuari només ha de contenir lletres, dígits i punts (.).",
-			"username_length": "El nom d'usuari i el nom han de tenir entre 2 i 10 caràcters.",
-			"invalid_email": "Format de correu electrònic no vàlid.",
-			"username_exists": "El nom d'usuari ja existeix.",
-			"email_registered": "El correu electrònic ja està registrat.",
-			"invalid_json": "Format JSON no vàlid.",
-			"user_registered": "Usuari registrat amb èxit.",
-			"login_successful": "Sessió iniciada amb èxit",
-			"user_not_authenticated": "Usuari no autenticat",
+			'password_mismatch': "Les contrasenyes no coincideixen.",
+			'all_fields_required': "Tots els camps són obligatoris.",
+			'invalid_username': "El nom d'usuari només ha de contenir lletres, dígits i punts (.).",
+			'username_length': "El nom d'usuari i el nom han de tenir entre 2 i 10 caràcters.",
+			'invalid_email': "Format de correu electrònic no vàlid.",
+			'username_exists': "El nom d'usuari ja existeix.",
+			'email_registered': "El correu electrònic ja està registrat.",
+			'invalid_json': "Format JSON no vàlid.",
+			'user_registered': "Usuari registrat amb èxit.",
+			'login_successful': "Sessió iniciada amb èxit",
+			'user_not_authenticated': "Usuari no autenticat",
+			'lastname_length': "El cognom ha de tenir un màxim de 15 caràcters.",
+			'please_try_again': "Si us plau, torna-ho a provar.",
+    		'settings_updated': "La configuració s'ha actualitzat!",
 		}
 
 	elif lang == 'RU':
 		return {
 			'lang': "RU",
+      'lang_flag': """
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" width="30" height="20">
+                        <rect width="3" height="2" fill="#fff" data-lang="RU"/>
+                        <rect width="3" height="1.333" y="0.667" fill="#0033a0" data-lang="RU"/>
+                        <rect width="3" height="0.667" y="1.333" fill="#d52b1e" data-lang="RU"/>
+                    </svg>
+                    """,
 			'profile_wo': "Профиль",
 			'settings': "Настройки",
 			'friends_wo': "Друзья",
@@ -247,9 +273,9 @@ def get_lang_words(lang):
 			'disable_2FA': "Отключить 2FA",
 			'add_2FA': "Добавить 2FA",
 			'my_friends': "Мои друзья",
-			"page_not_found": "Страница не найдена",
-			"msg_page_not_found": "Упс! Страница, которую вы ищете, не существует.",
-			"rights_reserved": "Все права защищены.",
+			'page_not_found': "Страница не найдена",
+			'msg_page_not_found': "Упс! Страница, которую вы ищете, не существует.",
+			'rights_reserved': "Все права защищены.",
 			'logout': "Выйти",
 			'error_text': "Текст ошибки",  
 			'exit': "Выход",  
@@ -259,22 +285,32 @@ def get_lang_words(lang):
 			'go_back': "Вернуться назад",
 			'quit': "ВЫЙТИ",
 			'invalid_credentials': "Недействительные учетные данные",
-			"password_mismatch": "Пароли не совпадают.",
-			"all_fields_required": "Все поля обязательны.",
-			"invalid_username": "Имя пользователя должно содержать только буквы, цифры и точки (.).",
-			"username_length": "Имя пользователя и имя должны содержать от 2 до 10 символов.",
-			"invalid_email": "Недопустимый формат электронной почты.",
-			"username_exists": "Имя пользователя уже существует.",
-			"email_registered": "Электронная почта уже зарегистрирована.",
-			"invalid_json": "Неверный формат JSON.",
-			"user_registered": "Пользователь успешно зарегистрирован!",
-			"login_successful": "Вход выполнен успешно",
-			"user_not_authenticated": "Пользователь не аутентифицирован",
+			'password_mismatch': "Пароли не совпадают.",
+			'all_fields_required': "Все поля обязательны.",
+			'invalid_username': "Имя пользователя должно содержать только буквы, цифры и точки (.).",
+			'username_length': "Имя пользователя и имя должны содержать от 2 до 10 символов.",
+			'invalid_email': "Недопустимый формат электронной почты.",
+			'username_exists': "Имя пользователя уже существует.",
+			'email_registered': "Электронная почта уже зарегистрирована.",
+			'invalid_json': "Неверный формат JSON.",
+			'user_registered': "Пользователь успешно зарегистрирован!",
+			'login_successful': "Вход выполнен успешно",
+			'user_not_authenticated': "Пользователь не аутентифицирован",
+			'lastname_length': "Фамилия должна содержать не более 15 символов.",
+			'please_try_again': "Пожалуйста, попробуйте снова.",
+    		'settings_updated': "Настройки были обновлены!",
 		}
 
 	elif lang == 'LV':
 		return {
 			'lang': "LV",
+      'lang_flag': """
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" width="30" height="20">
+                        <rect width="200" height="40" fill="#9E3039" data-lang="LV" />
+                        <rect y="40" width="200" height="20" fill="#FFFFFF" data-lang="LV" />
+                        <rect y="60" width="200" height="40" fill="#9E3039" data-lang="LV" />
+                    </svg>
+                    """,
 			'profile_wo': "Profils",
 			'settings': "Iestatījumi",
 			'friends_wo': "Draugi",
@@ -335,9 +371,9 @@ def get_lang_words(lang):
 			'disable_2FA': "Atspējot 2FA",
 			'add_2FA': "Pievienot 2FA",
 			'my_friends': "Mani draugi",
-			"page_not_found": "Lapa nav atrasta",
-			"msg_page_not_found": "Ups! Lapa, kuru meklējat, neeksistē.",
-			"rights_reserved": "Visas tiesības aizsargātas.",
+			'page_not_found': "Lapa nav atrasta",
+			'msg_page_not_found': "Ups! Lapa, kuru meklējat, neeksistē.",
+			'rights_reserved': "Visas tiesības aizsargātas.",
 			'logout': "Iziet",
 			'error_text': "Kļūdas teksts",  
 			'exit': "Iziet",  
@@ -347,23 +383,33 @@ def get_lang_words(lang):
 			'go_back': "Atgriezties atpakaļ",
 			'quit': "IZIET",
 			'invalid_credentials': "Nederīgi akreditācijas dati",
-			"invalid_credentials": "Nederīgi akreditācijas dati",
-			"password_mismatch": "Paroles nesakrīt.",
-			"all_fields_required": "Visi lauki ir obligāti.",
-			"invalid_username": "Lietotājvārdam jābūt tikai burtiem, cipariem un punktiem (.).",
-			"username_length": "Lietotājvārdam un vārdam jābūt no 2 līdz 10 rakstzīmēm.",
-			"invalid_email": "Nederīgs e-pasta formāts.",
-			"username_exists": "Lietotājvārds jau pastāv.",
-			"email_registered": "E-pasts jau ir reģistrēts.",
-			"invalid_json": "Nederīgs JSON formāts.",
-			"user_registered": "Lietotājs veiksmīgi reģistrēts!",
-			"login_successful": "Pieteikšanās veiksmīga",
-			"user_not_authenticated": "Lietotājs nav autentificēts",
+			'invalid_credentials': "Nederīgi akreditācijas dati",
+			'password_mismatch': "Paroles nesakrīt.",
+			'all_fields_required': "Visi lauki ir obligāti.",
+			'invalid_username': "Lietotājvārdam jābūt tikai burtiem, cipariem un punktiem (.).",
+			'username_length': "Lietotājvārdam un vārdam jābūt no 2 līdz 10 rakstzīmēm.",
+			'invalid_email': "Nederīgs e-pasta formāts.",
+			'username_exists': "Lietotājvārds jau pastāv.",
+			'email_registered': "E-pasts jau ir reģistrēts.",
+			'invalid_json': "Nederīgs JSON formāts.",
+			'user_registered': "Lietotājs veiksmīgi reģistrēts!",
+			'login_successful': "Pieteikšanās veiksmīga",
+			'user_not_authenticated': "Lietotājs nav autentificēts",
+			'lastname_length': "Uzvārds nedrīkst pārsniegt 15 rakstzīmes.",
+			'please_try_again': "Lūdzu, mēģiniet vēlreiz.",
+    		'settings_updated': "Iestatījumi tika atjaunināti!",
 		}
 		
 	else:
 		return {
 			'lang': "EN",
+      'lang_flag': """
+                    <svg id="mySvg" viewBox="0 0 1200 800" width="30" height="20" data-lang="EN">
+                        <rect width="1200" height="800" fill="#ffffff" data-lang="EN" />
+                        <rect width="200" height="800" x="400" fill="#c8102e" data-lang="EN" />
+                        <rect width="1200" height="200" y="300" fill="#c8102e" data-lang="EN" />
+                    </svg>
+                    """,
 			'profile_wo': "Profile",
 			'settings': "Settings",
 			'friends_wo': "Friends",
@@ -424,9 +470,9 @@ def get_lang_words(lang):
 			'disable_2FA': "Disable 2FA",
 			'add_2FA': "Add 2FA",
 			'my_friends': "My Friends",
-			"page_not_found": "Page not found",
-			"msg_page_not_found": "Oops! The page you are looking for doesn’t exist.",
-			"rights_reserved": "All rights reserved.",
+			'page_not_found': "Page not found",
+			'msg_page_not_found': "Oops! The page you are looking for doesn’t exist.",
+			'rights_reserved': "All rights reserved.",
 			'logout': "Logout",
 			'error_text': "Error Text",  
 			'exit': "Exit",  
@@ -436,16 +482,20 @@ def get_lang_words(lang):
 			'go_back': "Go Back",
 			'quit': "QUIT",
 			'quit_tournament': "Quit Tournament",
-			"invalid_credentials": "Invalid credentials",
-			"password_mismatch": "Password mismatch.",
-			"all_fields_required": "All fields are required.",
-			"invalid_username": "Username should consist only of letters, digits, and dots (.).",
-			"username_length": "Username and Name should be 2-10 (included) chars length.",
-			"invalid_email": "Invalid email format.",
-			"username_exists": "Username already exists.",
-			"email_registered": "Email already registered.",
-			"invalid_json": "Invalid JSON format.",
-			"user_registered": "User registered successfully!",
-			"login_successful": "Login successful",
-			"user_not_authenticated": "User not authenticated",
+			'invalid_credentials': "Invalid credentials",
+			'password_mismatch': "Password mismatch.",
+			'all_fields_required': "All fields are required.",
+			'invalid_username': "Username should consist only of letters, digits, and dots (.).",
+			'username_length': "Username and Name should be 2-10 (included) chars length.",
+			'invalid_email': "Invalid email format.",
+			'username_exists': "Username already exists.",
+			'email_registered': "Email already registered.",
+			'invalid_json': "Invalid JSON format.",
+			'user_registered': "User registered successfully!",
+			'login_successful': "Login successful",
+			'user_not_authenticated': "User not authenticated",
+			'lastname_length': "Last Name should be a maximum of 15 characters long.",
+			'please_try_again': "Please try again.",
+    		'settings_updated': "Settings were updated!"
 		}
+

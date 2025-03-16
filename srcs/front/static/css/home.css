@@ -63,10 +63,12 @@
 
 #card-1,#card-2,#card-3,#card-4{
   min-width: 330px;
+  display: flex;
+  justify-content: center;
 }
 
   /* Para pantallas con ancho menor a 768px, se usa altura automática */
-  @media (max-width: 1400px) {
+  /* @media (max-width: 1400px) {
     .card {
       width: 90%;
       min-width: none;
@@ -74,7 +76,7 @@
     #card-1,#card-2,#card-3,#card-4{
       min-width: none;
     } 
-  }
+  } */
 
 .blob {
   position: absolute;

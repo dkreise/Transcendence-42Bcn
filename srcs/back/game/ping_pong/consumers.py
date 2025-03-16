@@ -12,14 +12,6 @@ from .websocket_state import active_tournaments, active_tournaments_lock, active
 
 logger = logging.getLogger(__name__)
 
-ws_codes = {
-	"4000": "You're already in the room",
-	"4001": "Error trying to reconnect. Please, try again later",
-	"4002": "Access denied: The room is already full",
-	"4003": "Acces denied: Invalid id"
-}
-
-
 class ThrowError(Exception):
 	pass
 
@@ -109,23 +101,21 @@ class PongConsumer(AsyncWebsocketConsumer):
 						elif (self.room_id not in active_games) and not isCreator:
 							await self.send(json.dumps({
 								"type": "reject",
-								"reason": ws_codes["4003"],
-								"code": "4003"
+								"reason": "WRONG_ID",
 							}))
-							await self.close(int(self.role))
+							await self.close(4001)
 							return
 							
 						# TODO: False should be dynamic (player = T / viewer = F)
 						game = active_games[self.room_id]
 						self.role = await game.join_room(self.user.username, False)
-						logger.info("self role: {self.role}")
+						logger.info(f"self role: {self.role}")
 						if "player" not in self.role:
 							await self.send(json.dumps({
 								"type": "reject",
-								"reason": ws_codes[self.role],
-								"code": self.role
+								"reason": self.role,
 							}))
-							await self.close(int(self.role))
+							await self.close(4000)
 							return
 						# Notify the client of their role
 						await self.channel_layer.group_add(self.room_id, self.channel_name)
@@ -166,7 +156,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 					logger.info(f"Current users in the room: {game.users}")
 					logger.info(f"Current players in the room: {game.players}")
 				
-				if len(game.players) == 1:
+				if len(game.players) == 1 and len(game.users) == 2:
 					game.status = 1
 					logger.info(f"The role: {self.role}")
 					if self.role == "player1":
@@ -442,8 +432,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 							logger.info(f"\033[1;31mwe're going to reject the connection\033[0m")
 							await self.send(json.dumps({
 								"type": "reject",
-								"reason": ws_codes[self.role],
-								"code": self.role
+								"reason": self.role
 							}))
 							return
 						await game.send_role(self.channel_name, self.role)
@@ -492,19 +481,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 ###################################################
 
 	async def send_game_msg(self, event):
-
-		# logger.info(f"SGM: sending message {event['message']}")
 		await self.send(text_data=json.dumps(event["message"]))
-
-	# async def send_game_msg_tour(self, message):
-	# 	logger.info("first send game msg tour is called!")
-	# 	await self.channel_layer.group_send(
-	# 		self.tour_id,
-	# 		{
-	# 			"type": "send_game_msg_tour",  # this is the handler on the consumer side
-	# 			"message": message
-	# 		}
-	# 	)
 
 	async def send_game_msg_tour(self, event):
 		data = event["message"]
@@ -597,40 +574,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 			"player_cnt": tournament.get_players_cnt(),
 		}))
 	
-	# async def tournament_game_result(self, event):
-	# 	data = event["message"]
-	# 	logger.info("RECEIVED. we need to handle game result")
-	# 	status = await tournament.handle_game_end(data, False)
-	# 	if status == "new":
-	# 		tournament.increase_round()
-	# 		await self.channel_layer.group_send(
-	# 				self.tour_id,
-	# 				{
-	# 					"type": "tournament_starts",
-	# 					"message": "New round has started",
-	# 					"status": "playing",
-	# 				}
-	# 			)
-	# 	elif status == "finished":
-	# 		await self.channel_layer.group_send(
-	# 				self.tour_id,
-	# 				{
-	# 					"type": "tournament_ends",
-	# 					"message": "Tournament has finished",
-	# 					"status": "finished",
-	# 				}
-	# 			)
-	# 	elif status == "continue":
-	# 		await self.channel_layer.group_send(
-	# 				self.tour_id,
-	# 				{
-	# 					"type": "tournament_update",
-	# 					"message": "Tournament has updated",
-	# 					"status": "playing",
-	# 				}
-	# 			)
-		
-
 ###################### UTILS #############################
 
 	def get_nb_users_from_url(self):

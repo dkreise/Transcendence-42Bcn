@@ -130,7 +130,7 @@ export const createTournament = async () => {
 };
 
 export const joinTournament = () => {
-    if (! document.getElementById('tournament-id-input')) {
+    if (!document.getElementById('tournament-id-input')) {
         navigateTo('/tournament-home', true);
         return;
     }
@@ -138,6 +138,7 @@ export const joinTournament = () => {
     console.log("TOOOOOUR ID: ", tourId);
     if (! /^\d{7}$/.test(tourId)) {
         showModalError("WRONG_TOURNAMENT_ID")
+        navigateTo('/tournament-home', true);
         return;
     }
     tournamentConnect(tourId)
@@ -602,6 +603,7 @@ function tourFull() {
     localStorage.removeItem("user_quit");
     localStorage.removeItem("currentTournamentId");
     socket.close();
+    navigateTo('/tournament-home', true);
 }
 
 function needsPlay(data) {

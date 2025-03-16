@@ -10,6 +10,7 @@ import { AmbientLight, DirectionalLight , Vector3} from 'three'
 import { drawHeader, navigateTo } from "./main.js";
 import { quitTournament, saveTournamentGameResult, startTournamentGame, stopTournamentGame } from "./tournament.js"
 import { checkToken } from "./onlineStatus.js";
+import { showModalError } from "./errorHandler.js";
 
 //----------------------------------------------------------------------------//
 //-------------------- VARIABLES INITIALIZATION ------------------------------//
@@ -280,7 +281,7 @@ async function initializeWebSocket(roomId = 123) {
         console.log("WebSocket closing with code:", event.code);
 
         // console.log("WebSocket connection closed. ...");
-        if (event.code === 4001) {
+        if (event.code === 4242) {
             // Token expired; refresh token logic
             try {
                 await refreshAccessToken();
@@ -312,6 +313,11 @@ async function initializeWebSocket(roomId = 123) {
             case "update":
                 handle3DUpdate(data);
                 break ;
+			case "reject":
+				socket.close();
+				showModalError(data.reason);
+				navigateTo("/remote-home");
+				return ;
             case "endgame":
                 console.log("endgame!"); 
                 handleOnlineEndgame(data);
@@ -563,7 +569,17 @@ async function setupScene() {
     contentArea.style.padding = 0;
     
     scene = new THREE.Scene();
-    drawHeader('3d');
+    let id_3d;
+    drawHeader('3d').then(() => {
+        if (remote && !tournamentId) {
+            id_3d = document.getElementById("3D-header-id");
+            if (id_3d) {
+                id_3d.textContent = `ID: ${roomID}`;
+                id_3d.style.color = "white";
+            }
+        }
+    });
+    
     scene.background = new THREE.Color(params.fogColor);
     scene.fog = new THREE.Fog(params.fogColor, params.fogNear, params.fogFar);
 }
@@ -713,13 +729,16 @@ async function buttonsManager(event) {
         text.start.visible = false; // Hide the button
         text.button.visible = false;
         if (remote && !moveCamera) {
+            console.log(`Starting online game: Remote: ${remote}, Tour: ${tournamentId}, moveCamera: ${moveCamera}`)
             moveCamera = true;
             text.button.position.set(0, params.textY, 0);
             text.start.position.set(0, params.textY, 1.5);
             await animateCameraToField()
         } else if (remote && !tournamentId) {
+            console.log(`Remote: ${remote}, Tour: ${tournamentId}, initializing the sockets`)
             initializeWebSocket(roomID);
         } else {
+            console.log(`Starting local game: Remote: ${remote}, Tour: ${tournamentId}, moveCamera: ${moveCamera}`)
             gameStarted = true;
         }
     } else if ((intersects.length > 0 || intersectsTryAgain.length > 0) && gameEnded && text.tryAgain.visible == true) {

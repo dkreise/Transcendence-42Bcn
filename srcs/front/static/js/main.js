@@ -25,6 +25,7 @@ const modeProduction = window.env.SECURE;
     // console.log = () => {};
 // }
 
+// console.log = () => {};
 // The routes object maps URL paths to their respective handler functions:
 // Each key is a path (e.g., /, /profile).
 // Each value is a function that handles what should happen when the app navigates to that path.

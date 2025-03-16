@@ -541,7 +541,7 @@ class TournamentManager:
 		return 'playing'
 
 	async def start_countdown_until_close(self):
-		await asyncio.sleep(2000)
+		await asyncio.sleep(20) #changeeeeeeeee??????????????????
 		logger.info("TIME TO DELETE")
 		channel_layer = get_channel_layer()
 		await channel_layer.group_send(
