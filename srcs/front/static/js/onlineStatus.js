@@ -48,7 +48,6 @@ let off = false;
 
 export async function connectWS(access_token)
 {
-    console.log("Trying connect ws");
     access_token = await checkToken(access_token);
     if (!access_token) {
         console.log("No access token found");
@@ -72,11 +71,11 @@ export async function connectWS(access_token)
 		// 	}
 		// }
 
-        if (access_token && !off) {
-            off = true;
-            setTimeout(() => connectWS(access_token), 1000); // Retry after 1 second
-            console.log('Reconnecting...');
-        }
+        // if (access_token && !off) {
+        //     off = true;
+        //     setTimeout(() => connectWS(access_token), 1000); // Retry after 1 second
+        //     console.log('Reconnecting...');
+        // }
     };
     
     socket.onopen = function(event) {
@@ -98,11 +97,8 @@ export async function connectWS(access_token)
 
 
 export function disconnectWS() {
-    console.log("Trying disconnect ws");
     if (socket) {
-        console.log("there is socket!!");
         socket.close();
-        console.log("socket closed, setting to null");
         socket = null;
     }
 }

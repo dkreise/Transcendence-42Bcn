@@ -8,7 +8,7 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const userMgmtPort = window.env.USER_MGMT_PORT;
 
 
-function handleLogoutToken() {
+function handleInvalidToken() {
     localStorage.clear();
     window.history.replaceState(null, null, '/');
     navigateTo('/login', true);
@@ -18,7 +18,7 @@ export async function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refresh_token");
     if (!refreshToken) {
         console.log("No refresh token found. User needs to log in again.");
-        handleLogoutToken();
+        handleInvalidToken();
         return Promise.reject("No refresh token available");
     }
 
@@ -31,13 +31,13 @@ export async function refreshAccessToken() {
 
         if (response.status === 401) {
             console.log("Refresh token is invalid or expired. Logging out...");
-            handleLogoutToken();
+            handleInvalidToken();
             return Promise.reject("Refresh token expired");
         }
 
         if (!response.ok) {
             console.log("Unexpected error during token refresh:", response.statusText);
-            handleLogoutToken();
+            handleInvalidToken();
             return Promise.reject("Unexpected refresh error");
         }
 
@@ -53,43 +53,9 @@ export async function refreshAccessToken() {
         }
     } catch (error) {
         console.log("Error during token refresh:", error);
-        handleLogoutToken();
+        handleInvalidToken();
         return Promise.reject(error);
     }
-
-    // return fetch(baseUrl + userMgmtPort + "/api/token/refresh/", {
-    //     method: "POST",
-    //     headers: {"Content-Type": "application/json"},
-    //     body: JSON.stringify({refresh: refreshToken}),
-    // })
-    // .then((response) => {
-    //     if (response.ok) {
-    //         return response.json();
-    //     } else {
-    //         console.log("Refresh token invalid or expired.");
-    //         // handleLogout();
-    //         localStorage.clear();
-    //         window.history.replaceState(null, null, '/');
-    //         navigateTo('/login', true);
-    //         return Promise.reject("Refresh token invalid or expired.");
-    //     }
-    // })
-    // .then((data) => {
-    //     if (data.access) {
-    //         localStorage.setItem("access_token", data.access);
-    //         if (data.refresh) {
-    //             console.log("new refresh!!!!");
-    //             localStorage.setItem("refresh_token", data.refresh);
-    //         }
-    //         return data.access;
-    //     }
-    // })
-    // .catch((error) => {
-    //     console.log("Error during token refresh:", error);
-    //     localStorage.removeItem("access_token");
-    //     localStorage.removeItem("refresh_token");
-    //     throw error;
-    // });
 };
 
 export const makeAuthenticatedRequest = async (url, options = {}) => {

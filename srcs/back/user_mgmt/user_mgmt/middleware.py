@@ -8,6 +8,7 @@ from rest_framework.exceptions import AuthenticationFailed
 from asgiref.sync import sync_to_async
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
+from django.contrib.auth.models import AnonymousUser
 # from django.utils.deprecation import MiddlewareMixin
 
 # class UpdateLastActivityMiddleware:
@@ -52,7 +53,9 @@ class JwtAuthMiddleware:
         token = query_params.get('token', [None])[0]
         
         if not token:
-            raise AuthenticationFailed('Invalid or missing token')
+            scope['user'] = AnonymousUser()
+            return await self.inner(scope, receive, send)
+            # raise AuthenticationFailed('Invalid or missing token')
 
         jwt_authenticator = JWTAuthentication()
 
@@ -65,22 +68,24 @@ class JwtAuthMiddleware:
                 scope['user'] = user
                 logger.info(f"User {user} authenticated successfully")
             else:
-                raise AuthenticationFailed('Invalid or expired token')
+                scope['user'] = AnonymousUser()
+                # raise AuthenticationFailed('Invalid or expired token')
         
         except (InvalidToken, TokenError, AuthenticationFailed) as e:
-            logger.error(f"Authentication failed: {e}")
-            # Check if the error details indicate that the token is expired.
-            # The exception's detail might be a dict with a "messages" key.
-            detail = getattr(e, "detail", str(e))
-            if isinstance(detail, dict):
-                messages = detail.get("messages", [])
-                for message in messages:
-                    token_message = message.get("message", "")
-                    if "expired" in token_message.lower():
-                        # Raise a distinct error so the client can detect token expiration.
-                        raise AuthenticationFailed("TokenExpired")
-            # Fallback: raise a generic error message.
-            raise AuthenticationFailed("Invalid or expired token")
+            # logger.error(f"Authentication failed: {e}")
+            # # Check if the error details indicate that the token is expired.
+            # # The exception's detail might be a dict with a "messages" key.
+            # detail = getattr(e, "detail", str(e))
+            # if isinstance(detail, dict):
+            #     messages = detail.get("messages", [])
+            #     for message in messages:
+            #         token_message = message.get("message", "")
+            #         if "expired" in token_message.lower():
+            #             # Raise a distinct error so the client can detect token expiration.
+            #             raise AuthenticationFailed("TokenExpired")
+            # # Fallback: raise a generic error message.
+            # raise AuthenticationFailed("Invalid or expired token")
+            scope['user'] = AnonymousUser()
 
         return await self.inner(scope, receive, send)
 

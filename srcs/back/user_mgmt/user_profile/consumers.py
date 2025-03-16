@@ -27,6 +27,7 @@ class FriendsConsumer(AsyncWebsocketConsumer):
         logger.info("\033[1;32mCONNECT METHOD CALLED\033[0m")
         logger.info(self.scope["user"].id)
         if not self.user or not self.user.is_authenticated:
+            await self.accept()
             await self.close()
             return
 
