@@ -6,6 +6,7 @@ import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, cleanR
 import { checkToken } from "./onlineStatus.js";
 import { getCookie } from "./langs.js";
 import { showModalError } from "./errorHandler.js";
+import { getOrInitialize3DOption } from "./game.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -68,9 +69,6 @@ export const updateHandlers = (is3DEnabled) => {
     currentHandlers = getCombinedHandlers(is3DEnabled);
     console.log("Handlers updated. 3D mode:", is3DEnabled);
 };
-
-
-
 
 export const manageTournamentHomeBtn = () => { 
     const inTournament = localStorage.getItem('inTournament');
@@ -137,6 +135,7 @@ export const joinTournament = () => {
         return;
     }
     tourId = document.getElementById('tournament-id-input').value.trim();
+    console.log("TOOOOOUR ID: ", tourId);
     if (! /^\d{7}$/.test(tourId)) {
         showModalError("WRONG_TOURNAMENT_ID")
         return;

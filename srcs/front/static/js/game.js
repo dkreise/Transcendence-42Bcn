@@ -48,8 +48,6 @@ export const playLocal = () => {
 } 
 
 document.addEventListener("click", function (event) {
-    // Detectamos si se clicó dentro de una opción
-    //console.warn("dentroooooo");
     const option = event.target.closest(".option-trn");
     if (option) {
       // Marcamos el radio button dentro de la opción
