@@ -7,35 +7,42 @@ const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
 const userMgmtPort = window.env.USER_MGMT_PORT;
 
+
+function handleInvalidToken() {
+    localStorage.clear();
+    window.history.replaceState(null, null, '/');
+    navigateTo('/login', true);
+}
+
 export async function refreshAccessToken() {
     const refreshToken = localStorage.getItem("refresh_token");
     if (!refreshToken) {
         console.log("No refresh token found. User needs to log in again.");
-        // handleLogout();
-        localStorage.clear();
-        window.history.replaceState(null, null, '/');
-        navigateTo('/login', true);
+        handleInvalidToken();
         return Promise.reject("No refresh token available");
     }
 
-    return fetch(baseUrl + userMgmtPort + "/api/token/refresh/", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({refresh: refreshToken}),
-    })
-    .then((response) => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            console.log("Refresh token invalid or expired.");
-            // handleLogout();
-            localStorage.clear();
-            window.history.replaceState(null, null, '/');
-            navigateTo('/login', true);
-            return Promise.reject("Refresh token invalid or expired.");
+    try {
+        const response = await fetch(baseUrl + userMgmtPort + "/api/token/refresh/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refresh: refreshToken }),
+        });
+
+        if (response.status === 401) {
+            console.log("Refresh token is invalid or expired. Logging out...");
+            handleInvalidToken();
+            return Promise.reject("Refresh token expired");
         }
-    })
-    .then((data) => {
+
+        if (!response.ok) {
+            console.log("Unexpected error during token refresh:", response.statusText);
+            handleInvalidToken();
+            return Promise.reject("Unexpected refresh error");
+        }
+
+        const data = await response.json();
+
         if (data.access) {
             localStorage.setItem("access_token", data.access);
             if (data.refresh) {
@@ -44,13 +51,11 @@ export async function refreshAccessToken() {
             }
             return data.access;
         }
-    })
-    .catch((error) => {
+    } catch (error) {
         console.log("Error during token refresh:", error);
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        throw error;
-    });
+        handleInvalidToken();
+        return Promise.reject(error);
+    }
 };
 
 export const makeAuthenticatedRequest = async (url, options = {}) => {

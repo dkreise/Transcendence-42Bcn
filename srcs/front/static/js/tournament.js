@@ -42,6 +42,7 @@ const handlersTour = {
     full: tourFull,
     needs_to_play: (data) => needsPlay(data),
     tournament_status: (data) => tourStatus(data),
+    quitted: (data) => quitted(data),
 }
 
 const wrapHandlers = (handlers) => {
@@ -330,7 +331,7 @@ function addGameButton(data) {
         playButton.setAttribute("data-route", '/tournament-game-remote');
 	}
     playButton.addEventListener('click', () => {
-        if (socket.readyState === WebSocket.OPEN)
+        if (socket && socket.readyState === WebSocket.OPEN)
         {
 			//CHANGED BY diana
             socket.send(JSON.stringify({ "type": "game_started" }));
@@ -477,6 +478,7 @@ export async function tournamentConnect(tourID, nPlayers=null) {
             localStorage.setItem("currentTournamentId", tourId);
             console.log(`SDFGHJKLSDFGHJKL: ${getOrInitialize3DOption()}`)
             currentHandlers = getCombinedHandlers(getOrInitialize3DOption() === "true");
+            // dict = await getDictFor3DGame();
 
             const handler = currentHandlers[data.type];
             console.log(data.type);
@@ -617,4 +619,8 @@ function needsPlay(data) {
 function tourStatus(data) {
     localStorage.setItem('inTournament', data.status);
     navigateTo('/tournament');
+}
+
+function quitted(data) {
+    quitTournament();
 }
