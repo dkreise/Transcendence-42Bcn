@@ -153,7 +153,7 @@ def get_lang_words(lang):
 			'players': "Игроки",
 			'round': "Раунд",
 			'tournament_finished': "Турнир завершен",
-			'winner_is': "Победитель -"
+			'winner_is': "Победитель -",
 			'winner_wo': "Победитель:",
 			'start': "НАЧАТЬ",
 			'try_again': "ЕЩЕ РАЗ!",
