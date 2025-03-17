@@ -3,6 +3,7 @@ import { navigateTo, drawHeader } from "./main.js";
 import { clearIntervalIDGame, removeBeforeUnloadListenerAI } from "./AIGame.js"
 import { gameAI, playOnline, getDictFor3DGame, getOrInitialize3DOption } from "./game.js";
 import { scaleGame, setWhoAmI, handleStatus, handleUpdate, handleEndgame, cleanRemote, removeBeforeUnloadListenerRemote } from "./remoteGame.js"
+import { scale3DGame, setWhoAmI3D, handle3DStatus, handle3DUpdate, handleOnlineEndgame} from "./3DGame.js"
 import { checkToken } from "./onlineStatus.js";
 import { getCookie, getFrontDict } from "./langs.js";
 import { showModalError } from "./errorHandler.js";
