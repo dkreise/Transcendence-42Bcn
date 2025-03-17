@@ -8,7 +8,7 @@ import { params, field } from "./3DGame.js";
 // import { pause } from "./Game.js";
 // import { Player, AIPlayer, AIController } from './3DPlayer.js';
 
-const ballCoef = 0.3;
+// const ballCoef = 0.3;
 
 const TEXT_PARAMS = {
     size: 3,
@@ -206,7 +206,7 @@ export class OnlineBall extends BasicBall {
 
     constructor (data, dict, scene, limits, players, ifAI) {
         super(dict, scene, limits, players, ifAI);
-        this.radius = limits.y * 2* data.ballRad / data.canvasX;
+        this.radius = limits.y * 2 * data.ballRad / data.canvasX;
         // this.inicial = new Vector3(data.ballSy / 10, 0, data.ballSx / 10)
         // this.radius = ballParams.radius;
         // this.inicial = ballParams.velocity;
@@ -223,7 +223,7 @@ export class OnlineBall extends BasicBall {
         this.mesh.receiveShadow = true;
         this.resetPos();
         this.scene.add(this.mesh);
-        console.log(`Creating ball, position x ${this.mesh.position.z}, y ${this.mesh.position.x}`)
+        // console.log(`Creating ball, position x ${this.mesh.position.z}, y ${this.mesh.position.x}`)
         // this.velocity.multiplyScalar(this.speed);
         
         // this.ray = new Raycaster();

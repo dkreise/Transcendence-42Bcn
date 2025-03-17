@@ -53,10 +53,10 @@ speeds => relative
 class GameManager:
 
 
-	ball_config = {"rad": 9, "xspeed": 4, "yspeed": 5}
+	ball_config = {"rad": 8, "xspeed": 4, "yspeed": 6}
 	board_config = {"width": 600, "height": 400, "max_score": 3}
 
-	paddle_config = {"width": 5, "height": 70, "speed": 5}
+	paddle_config = {"width": 7, "height": 70, "speed": 6}
 	countdown = 200000
 
 	def __init__(self, game_id):
@@ -86,8 +86,8 @@ class GameManager:
 ###############################################
 
 	async def join_room(self, user, play): #user = [string] username || play = [bool] player/viewer
-		logger.info(f"room id {self.id} total players: {len(self.players)}")
-		logger.info(f"current players in the room: {self.players}")
+		# logger.info(f"room id {self.id} total players: {len(self.players)}")
+		# logger.info(f"current players in the room: {self.players}")
 		if any(player["id"] == user for player in self.players.values()):
 			self.cancel_disconnect_task()
 			role = next((key for key, value in self.players.items() if value["id"] == user), None)
@@ -104,16 +104,16 @@ class GameManager:
 					if self.player2_waiting_task:
 						self.player2_waiting_task.cancel()
 				return role
-			logger.info(f"Reconnection error for user {user}. Please, try again later")
+			# logger.info(f"Reconnection error for user {user}. Please, try again later")
 			return "4001"
 
 		elif len(self.players) >= 2:
-			logger.info(f"Access denied to {user}. Room {self.id} is already full")
+			# logger.info(f"Access denied to {user}. Room {self.id} is already full")
 			return "4002"
 		else:
 			self.users.append(user)
 			if len(self.players) == 0:
-				logger.info(f"adding {user} as player1")
+				# logger.info(f"adding {user} as player1")
 				self.players["player1"] = {"id": user, "y": 0.5}
 				if self.player2_waiting_task:
 					self.player2_waiting_task.cancel()
@@ -152,7 +152,7 @@ class GameManager:
 		self.reset_positions(role)
 		self.scores[role] += 1
 
-		logger.info(f"current scores: {self.scores}\nMAX scores: {GameManager.board_config['max_score']}")
+		# logger.info(f"current scores: {self.scores}\nMAX scores: {GameManager.board_config['max_score']}")
 		if self.scores[role] == GameManager.board_config["max_score"]:
 			await self.declare_winner(role)
 		else:
@@ -175,6 +175,7 @@ class GameManager:
 		elif self.ball["x"] * boardW + radius >= boardW - GameManager.paddle_config["width"] - 1:
 			if ((self.ball["y"] * boardH <= pl2 + padH + 1) and
 				(self.ball["y"] * boardH >= pl2 - padH - 1)):
+				logger.info(f"Side col, ball at {self.ball['x'] * boardW}, paddle at {boardW - GameManager.paddle_config['width'] - 1}")
 				return True
 		return False
 
@@ -188,16 +189,18 @@ class GameManager:
 
 		# Left paddle
 		if self.ball["x"] * GameManager.board_config["width"] - radius <= GameManager.paddle_config["width"]:
-			#logger.info(f"col Top pl1 x area")
+			# logger.info(f"col Top pl1 x area")
 			if ((ballY + radius >= pl1_y - padH) and
 				(ballY - radius <= pl1_y + padH)):
-				#logger.info(f"col Top pl1")
+				# logger.info(f"col Top pl1")
 				return True
 		# Right paddle # APPLY CHANGES HERE
 		elif self.ball["x"] * GameManager.board_config["width"] + radius >= pl2_x:
 			#logger.info(f"col Top pl2 x area")
 			if ((ballY + radius >= pl2_y - padH) and
 				(ballY - radius <= pl2_y + padH)):
+				logger.info(f"Top col, ball at X {self.ball['x'] * GameManager.board_config['width']}, paddle at {GameManager.board_config['width'] - GameManager.paddle_config['width'] - 1}")
+				logger.info(f"ball Y is {ballY}, paddle Y at {pl2_y}")
 				#logger.info(f"col Top pl2")
 				return True
 		return False
@@ -211,12 +214,17 @@ class GameManager:
 		is_col_s = self.is_pad_col_side()
 		is_col_t = self.is_pad_col_top()
 
+		# logger.info(f"Collitions TOP")
 		if is_col_s:
 			self.ball["xspeed"] *= -1
-		elif is_col_t:
+			self.ball["x"] += self.ball["xspeed"] / GameManager.board_config["width"]
+			logger.info(f"Collitions SIDE, xspeed of the ball {self.ball['xspeed']}")
+		if is_col_t:
 			self.ball["yspeed"] *= -1
-			self.ball["xspeed"] *= -1
-		elif self.ball["y"] - radius <= 0 or self.ball["y"] + radius >= 1:
+			self.ball["y"] += self.ball["yspeed"] / GameManager.board_config["height"]
+			# self.ball["xspeed"] *= -1
+			logger.info(f"Collitions TOP")
+		if self.ball["y"] - radius <= 0 or self.ball["y"] + radius >= 1:
 			self.ball["yspeed"] *= -1
 		if not (is_col_s and is_col_t) and (ballX - GameManager.ball_config["rad"] <= 0):
 			await self.has_scored("player2")

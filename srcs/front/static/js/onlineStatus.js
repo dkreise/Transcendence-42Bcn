@@ -54,7 +54,7 @@ export async function connectWS(access_token)
     // console.log("Online status Checking token");
     access_token = await checkToken(access_token);
     if (!access_token) {
-        console.log("Online status No access token found");
+        // console.log("Online status No access token found");
         return ;
     }
 
