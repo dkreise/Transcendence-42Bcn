@@ -60,12 +60,13 @@
 
 /* Cambia el fondo del dropdown */
 #language-menu {
-    background-color:rgba(226, 219, 248, 0.8); /* Color de fondo deseado */
-    border: none; /* Quita bordes si los hay */
+    background-color: rgb(124 124 124 / 80%);
+    border: 2px solid;
     width: 100px !important;
     min-width: 30px !important;
     max-width: 100px !important;
     left: -44%;
+    border-color: rgba(226, 219, 248, 0.8);
   }
   
   /* Cambia el estilo de cada item del dropdown */

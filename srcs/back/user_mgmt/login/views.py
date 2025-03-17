@@ -26,7 +26,6 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from user_mgmt.utils.translations import add_language_context
 from rest_framework.exceptions import AuthenticationFailed
-
 def generate_jwt_tokens(user):
     refresh = RefreshToken.for_user(user)
     return {
@@ -89,24 +88,24 @@ def login_view(request):
 @permission_classes([AllowAny])
 def verify_login_2fa(request):
     data = json.loads(request.body)
-    temp_token = data.get('temp_token')
+    temp_token = data.get('temp_token')    
     if not temp_token:
-        return Response({'success': False, 'message': 'Invalid or expired temporary token.'})
+        return Response({'success': False, 'message': get_translation(request, "invalid_temp_token")})
     code = data.get('code')
     user_id = decode_temp_token(temp_token)
 
     if not user_id:
-        return Response({'success': False, 'message': 'Invalid or expired temporary token.'})
+        return Response({'success': False, 'message': get_translation(request, "invalid_temp_token")})
     try:
         user = User.objects.get(id=user_id)
         profile = user.profile
         if not profile.two_fa:
-            return Response({'success': False, 'message': '2FA is not enabled for this account.'})
+            return Response({'success': False, 'message': get_translation(request, "2fa_not_enable")})
         if TwoFA.verify_code(profile.totp_secret, code):
             tokens = generate_jwt_tokens(user)
-            return Response({'success': True, 'tokens': tokens, 'message': '2FA verification successful.', 'username': user.username})
+            return Response({'success': True, 'tokens': tokens, 'message': get_translation(request, "2fa_verification_success"), 'username': user.username})
         else:
-            return Response({'success': False, 'message': 'Invalid or expired TOTP code.'})
+            return Response({'success': False, 'message': get_translation(request, "invalid_verification_code")})
     except User.DoesNotExist:
         return Response({'success': False, 'message': 'User does not exist.'})
 
@@ -272,15 +271,14 @@ def verify_2fa(request):
         print("CODE::::", code)
 
         if not secret:
-            return JsonResponse({"success": False, "error": "2FA is not enabled for this account."})
-        
+            return JsonResponse({"success": False, "error": get_translation(request, "2fa_not_enable")})
         try:
             if TwoFA.verify_code(secret, code):
                 profile.two_fa = True
                 profile.save()
-                return JsonResponse({"success": True, "message": "2FA verification successful."})
+                return JsonResponse({"success": True, "message": get_translation(request, "2fa_verification_success")})
             else:
-                return JsonResponse({"success": False, "error": "Invalid or expired TOTP code."})
+                return JsonResponse({"success": False, "error": get_translation(request, "invalid_code")})
         except ValueError as e:
             return JsonResponse({"success": False, "error": str(e)})
     else:
@@ -296,7 +294,7 @@ def disable_2fa(request):
             profile.totp_secret = None
             profile.two_fa = False
             profile.save()
-        return JsonResponse({"success": True, "message": "2FA disabled successfully."})
+        return JsonResponse({"success": True, "message": get_translation(request, "2fa_disable")})
     else:
         return JsonResponse({'error': 'user not authenticated'})
 
@@ -313,8 +311,6 @@ def check_status_2fa(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def verify_token(request):
-
-    print('fooooo')
     print("SUCCESFULLY ENTERED, VERIFYING TOKEN...")
     if request.user == AnonymousUser() or not request.user:
         return JsonResponse({'error': 'no token'}, status=498)

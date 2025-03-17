@@ -43,6 +43,7 @@ const handlersTour = {
     full: tourFull,
     needs_to_play: (data) => needsPlay(data),
     tournament_status: (data) => tourStatus(data),
+    quitted: (data) => quitted(data),
 }
 
 const wrapHandlers = (handlers) => {
@@ -331,7 +332,7 @@ function addGameButton(data) {
         playButton.setAttribute("data-route", '/tournament-game-remote');
 	}
     playButton.addEventListener('click', () => {
-        if (socket.readyState === WebSocket.OPEN)
+        if (socket && socket.readyState === WebSocket.OPEN)
         {
 			//CHANGED BY diana
             socket.send(JSON.stringify({ "type": "game_started" }));
@@ -385,9 +386,6 @@ function uploadTournamentPage(data) {
     
     if (data.status === 'finish') {
         console.log("tournament is finished");
-        //TODO: manage disconnect:
-            //1. disconnect socket when you leave // after 5 second of tourn finishes??
-            //2. remove localstorage: localStorage.removeItem('inTournament'); (id needed)
     }
 }
 
@@ -439,8 +437,7 @@ export async function tournamentConnect(tourID, nPlayers=null) {
         };
         
         socket.onerror = (error) => {
-            console.log("WebSocket encountered an error: ", error);
-            alert("ONERROR: Unable to connect to the server. Please check your connection.");
+            console.log("WebSocket encountered an error: ", error)
             localStorage.removeItem('inTournament');
             localStorage.removeItem("user_quit");
             localStorage.removeItem("currentTournamentId");
@@ -478,6 +475,7 @@ export async function tournamentConnect(tourID, nPlayers=null) {
             localStorage.setItem("currentTournamentId", tourId);
             // console.log(`SDFGHJKLSDFGHJKL: ${getOrInitialize3DOption()}`)
             currentHandlers = getCombinedHandlers(getOrInitialize3DOption() === "true");
+            // dict = await getDictFor3DGame();
 
             const handler = currentHandlers[data.type];
             // console.log(data.type);
@@ -517,7 +515,7 @@ async function getTournamentId() {
         if (!data.active) {
             return id;  // If not active, return the id
         } else {
-            alert("Oops. Try again.");
+            showModalError("ERROR");
             return -1;  // If the ID is active, return -1
         }
     } catch (error) {
@@ -618,4 +616,8 @@ function needsPlay(data) {
 function tourStatus(data) {
     localStorage.setItem('inTournament', data.status);
     navigateTo('/tournament');
+}
+
+function quitted(data) {
+    quitTournament();
 }

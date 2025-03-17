@@ -106,7 +106,6 @@ class PongConsumer(AsyncWebsocketConsumer):
 							await self.close(4001)
 							return
 							
-						# TODO: False should be dynamic (player = T / viewer = F)
 						game = active_games[self.room_id]
 						self.role = await game.join_room(self.user.username, False)
 						logger.info(f"self role: {self.role}")
@@ -338,6 +337,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 					status = await tournament.handle_quit(self.user.username, False)
 					logger.info("we handled the quit. now disconnecting..:")
 					await self.disconnect(1000)
+					message = {"type": "quitted", "quit_user": self.user.username}
+					await self.channel_layer.group_send(
+						self.tour_id,
+						{
+							"type": "quit_user",
+							"message": message,
+						}
+					)
 					logger.info(f"quit status : {status}")
 					if status == "remote":
 						if not self.room_id:
@@ -484,6 +491,14 @@ class PongConsumer(AsyncWebsocketConsumer):
 		# if (self.user.username == winner):
 		logger.info(f"sending game msg tour for: {self.user.username}")
 		await self.send(text_data=json.dumps(event["message"]))
+	
+	async def quit_user(self, event):
+		logger.info("in quit_user")
+		data = event["message"]
+		us = data["quit_user"]
+		if self.user.username == us:
+			logger.info(f"sending quitted toooo {self.user.username}")
+			await self.send(text_data=json.dumps(event["message"]))
 	
 	async def send_endgame(self, event):
 		logger.info("\033[1;32mEndgame, kudos to the winner!\033[0m")
