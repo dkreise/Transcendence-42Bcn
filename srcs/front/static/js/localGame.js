@@ -42,28 +42,6 @@ export function saveScore(score1, score2, mainUser) {
     });
 }
 
-//async function displayCountdown()
-//{
-//	console.log("display countdown");
-//	if (gameLoopId) {
-//		cancelAnimationFrame(gameLoopId);
-//		console.log("frame animation cancelled! gameLoopId: " + gameLoopId);
-//	}
-//	let div = document.getElementById("wait");
-//	ctx.clearRect(0, 0, canvas.width, canvas.height);
-//	ctx.fillStyle = "rgb(0 0 0 / 25%)";
-//	div.style.display = "block";
-//    div.style.whitespace = "nowrap";
-//	div.style.fontSize = Math.floor(canvas.width * 0.05) + "px";
-//	div.innerHTML = dict["ready"];
-//	ctx.fillRect(0, 0, canvas.width, canvas.height);
-//	await new Promise(resolve => setTimeout(resolve, 500));
-//	div.innerHTML = dict["go"];
-//	await new Promise(resolve => setTimeout(resolve, 500));
-//	div.style.display = "none";
-//	await gameLocalLoop();
-//}
-
 async function readySteadyGo(countdown = 3)
 {
 	const msg = ["1", "2", "3"];

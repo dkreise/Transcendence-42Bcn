@@ -20,7 +20,7 @@ export class Player {
 		this.speed = data.padS;
 		this.uplim = this.height / 2;
 		this.downlim = this.canvas.height - (this.height / 2)
-		console.log(`Constructor finished, ${this.role},  ${this.whoAmI}`)
+		// console.log(`Constructor finished, ${this.role},  ${this.whoAmI}`)
 	}
  
 	setVars(data) {
@@ -36,10 +36,10 @@ export class Player {
 	}
 
 	move(socket) {
-		console.log(`Moving, uplim is ${this.uplim}, downlim is ${this.downlim}`)
+		// console.log(`Moving, uplim is ${this.uplim}, downlim is ${this.downlim}`)
 		const oldY = this.y
 		const realY = this.y * this.canvas.height
-		console.log(`Current y position: ${this.y}\nCurrent REAL y position ${realY}`);
+		// console.log(`Current y position: ${this.y}\nCurrent REAL y position ${realY}`);
 		if (this.up && realY > this.uplim)
 			this.y -= this.speed;
 		if (this.down && realY < this.downlim)
@@ -91,7 +91,7 @@ export class Player {
 			ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
 			div.style.fontSize = Math.floor(this.canvas.width * 0.05) + "px";
-			console.log("endgameMsg: " + msg);
+			// console.log("endgameMsg: " + msg);
 		}
 	}
 

@@ -8,10 +8,10 @@ const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
 
 export const handleLoginIntra = () => {
-    console.log(`login 42 clicked: ${window.location.pathname}`);
+    // console.log(`login 42 clicked: ${window.location.pathname}`);
     const currentPath = '/';
     window.history.replaceState({ fromOAuth: true, previousPath: currentPath  }, null, '/');
-    console.log(history.state)
+    // console.log(history.state)
     window.location.href = baseUrl + userMgmtPort + "/api/login-intra";
 }
 
@@ -23,7 +23,7 @@ export const handle42Callback = () => {
         // console.log(`Windows location is ${window.location.href}`)
         window.history.replaceState(null, null, '/');
         if (err) {
-            console.log(`error string: ${err}`);
+            // console.log(`error string: ${err}`);
             clearURL();
             showModalError("ERROR");
             navigateTo("/login");
@@ -79,7 +79,7 @@ export const handle42Callback = () => {
                 navigateTo("/login");
             });
         } else {
-            console.log(`No relevant information provided in callback`);
+            // console.log(`No relevant information provided in callback`);
             clearURL();
             navigateTo("/login");
         }

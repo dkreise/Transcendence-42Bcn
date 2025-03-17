@@ -36,8 +36,8 @@ const ambientLight = new AmbientLight(0xffffff, 1)
 const dirLight = new DirectionalLight(0xffffff, 1)
 
 export const field = {
-    x: 15,
-    y: 20,
+    x: 20,
+    y: 30,
     width: 0.5,
     height: 2,
     radius: 5,
@@ -165,7 +165,7 @@ export async function start3DRemoteGame(dict, tournament, roomId, isCreator) {
     remote = true;
     tournamentId = tournament;
     roomID = roomId;
-    console.log(`ROOM ID: ${roomId}, is Creator: ${isCreator}`)
+    // console.log(`ROOM ID: ${roomId}, is Creator: ${isCreator}`)
     if (!roomId && ! tournament) {
         navigateTo('/remote-home');
         return ;
@@ -207,7 +207,7 @@ async function setupRemoteEvents() {
                 text.start.position.set(0, params.textY, 1.5);
                 await animateCameraToField()
             } else if (!tournamentId) {
-                console.log("initializing Web Socket")
+                // console.log("initializing Web Socket")
                 initializeWebSocket(roomID);
             }
         }
@@ -242,11 +242,11 @@ export function setupRemoteControls(player) {
 //async function initializeWebSocket(roomId) {
 async function initializeWebSocket(roomId = 123) {
     let retries = 0;
-    console.log(`Initializing Web socket... ROOM ID ${roomID}`);
+    // console.log(`Initializing Web socket... ROOM ID ${roomID}`);
     const access_token = localStorage.getItem("access_token");
 	const token = await checkToken(access_token);
     if (!token) {
-        console.log("3D Game No access token found");
+        // console.log("3D Game No access token found");
         return ;
     }
     if (!socket)
@@ -255,12 +255,12 @@ async function initializeWebSocket(roomId = 123) {
         // console.log(`REALLY Initializing Web socket... ROOM ID ${roomID}`);
         socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomID.toString()}/?token=${token}`);
     }
-    socket.onopen = () => console.log("WebSocket connection established.");
+    socket.onopen = () => {} //console.log("WebSocket connection established.");
     socket.onerror = (error) => {
-        console.log("WebSocket encountered an error:", error);
+        // console.log("WebSocket encountered an error:", error);
     };
     socket.onclose = async (event) => {
-        console.log("WebSocket closing with code:", event.code);
+        // console.log("WebSocket closing with code:", event.code);
 
         // console.log("WebSocket connection closed. ...");
         if (event.code === 4242) {
@@ -270,7 +270,7 @@ async function initializeWebSocket(roomId = 123) {
                 // Reconnect with the new token
                 initializeWebSocket(roomID);
             } catch (err) {
-                console.log("Failed to refresh token", err);
+                // console.log("Failed to refresh token", err);
                 cleanup3D();
                 return; 
             }
@@ -323,7 +323,7 @@ export async function scale3DGame(data)
     // console.log("333333333333D sCALE GAME")
     if (!player1) {
         player1 = new OnlinePlayer(data, dict, limits, scene, -1, "player1", new THREE.Vector3(0, 0, -field.y), -0.1, -0.5, 0);
-        console.log(`player1: ${field.y}`)
+        // console.log(`player1: ${field.y}`)
         player2 = new OnlinePlayer(data, dict, limits, scene, 1, "player2", new THREE.Vector3(0, 0, field.y), -0.1, -0.5, 0);
         ball = new OnlineBall(data, dict, scene, limits, [player1, player2], false);
         waiting = true;
@@ -339,7 +339,7 @@ export async function handle3DStatus(data, tourSocket = null)
 	if (data.wait)
 	{
 		if (data.countdown == 3) {
-            console.log(data.countdown)
+            // console.log(data.countdown)
             gameStarted = false;
             // console.log(`after scored ball.x: ${data.ball.x}, after scored ball.y: ${data.ball.y}`)
             ball.resetPos();
@@ -433,7 +433,7 @@ export async function start3DAIGame(playerName2, dict, tournament = null, diffic
     text = new SceneText(scene, dict, tournamentId);
     await text.createText();
     camera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 1000);
-    camera.position.set(0, 20, 45);
+    camera.position.set(0, 20, 50);
     camera.lookAt(new THREE.Vector3(0, 0, 0))
     await createLights(20);
     await setupField();
@@ -531,15 +531,17 @@ async function setupScene(roomId = null) {
 
 async function createLights(posX) {
 
-    dirLight.position.set(posX, 20, 20)
-    dirLight.castShadow = true
-    dirLight.shadow.mapSize.set(1024, 1024)
-    dirLight.shadow.camera.top = 30
-    dirLight.shadow.camera.bottom = -30
-    dirLight.shadow.camera.left = -30
-    dirLight.shadow.camera.right = 30
-    dirLight.shadow.radius = 10
-    dirLight.shadow.blurSamples = 20
+    dirLight.position.set(posX, 20, 20);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.set(1024, 1024);
+    dirLight.shadow.camera.top = 40;
+    dirLight.shadow.camera.bottom = -40;
+    dirLight.shadow.camera.left = -40;
+    dirLight.shadow.camera.right = 40;
+    dirLight.shadow.radius = 10;
+    dirLight.shadow.blurSamples = 20;
+    dirLight.shadow.bias = -0.001;
+    dirLight.shadow.camera.updateProjectionMatrix();
 
     lights = [dirLight, ambientLight]
 }
@@ -558,33 +560,20 @@ async function setupField() {
     scene.add(...lights);
     
     limits = new THREE.Vector2(field.x, field.y);
-    const planeGeo = new THREE.PlaneGeometry(
-        limits.x * 3,
-        limits.y * 3,
-        limits.x * 3,
-        limits.y * 3,
+    let planeGeo = new THREE.PlaneGeometry(
+        limits.x * 20,
+        limits.y * 20,
+        limits.x * 20,
+        limits.y * 20,
     );
 
     planeGeo.rotateX(-Math.PI * 0.5);
-    const planeMat = new THREE.MeshStandardMaterial({ 
+    let planeMat = new THREE.MeshStandardMaterial({ 
         color: params.planeColor,
     });
     plane = new THREE.Mesh(planeGeo, planeMat);
-    plane.position.y = 0.01
-    let addplaneGeo = new THREE.PlaneGeometry(
-        limits.x * 20,
-        limits.y * 20,
-        limits.x * 20,
-        limits.y * 20,
-    );
-
-    addplaneGeo.rotateX(-Math.PI * 0.5);
-    let addplaneMat = new THREE.MeshStandardMaterial({ 
-        color: params.planeColor,
-    });
-    addplane = new THREE.Mesh(addplaneGeo, addplaneMat);
     plane.receiveShadow = true;
-    scene.add(plane, addplane)
+    scene.add(plane)
 
     const boundGeo = new RoundedBoxGeometry(field.width, field.height, limits.y * 2, field.radius, field.seg);
     const boundMat = new THREE.MeshPhongMaterial({
@@ -631,7 +620,7 @@ async function animateCameraToField( duration = 1000) {
             cameraId = requestAnimationFrame(updateCamera); // Continue animation
         } else {
             cancelAnimationFrame(cameraId);
-            if (!tournamentId)
+            if (remote && !tournamentId)
                 initializeWebSocket(roomID);
             return;
         } 
@@ -644,7 +633,7 @@ async function setupEvents() {
     ball.addEventListener("aifinish", (e) => {
         handleEnd3DGame(e.message);
         if (tournamentId) {
-            console.log(player2.name);
+            // console.log(player2.name);
             if (e.player == window.gameDict['enemy'])
                 saveTournamentGameResult("@AI", player2.name, player1.score, player2.score);
             else
@@ -723,24 +712,24 @@ async function buttonsManager(event) {
     const intersectsTryAgain = ray.intersectObject(text.tryAgain);
 
     if ((intersects.length > 0 || intersectsStart.length > 0) && !gameEnded && text.start.visible == true ) {
-        console.log("3D Start Button Clicked!");
+        // console.log("3D Start Button Clicked!");
         text.start.visible = false; // Hide the button
         text.button.visible = false;
         if (remote && !moveCamera) {
-            console.log(`Starting online game: Remote: ${remote}, Tour: ${tournamentId}, moveCamera: ${moveCamera}`)
+            // console.log(`Starting online game: Remote: ${remote}, Tour: ${tournamentId}, moveCamera: ${moveCamera}`)
             moveCamera = true;
             text.button.position.set(0, params.textY, 0);
             text.start.position.set(0, params.textY, 1.5);
             await animateCameraToField()
         } else if (remote && !tournamentId) {
-            console.log(`Remote: ${remote}, Tour: ${tournamentId}, initializing the sockets`)
+            // console.log(`Remote: ${remote}, Tour: ${tournamentId}, initializing the sockets`)
             initializeWebSocket(roomID);
         } else {
-            console.log(`Starting local game: Remote: ${remote}, Tour: ${tournamentId}, moveCamera: ${moveCamera}`)
+            // console.log(`Starting local game: Remote: ${remote}, Tour: ${tournamentId}, moveCamera: ${moveCamera}`)
             gameStarted = true;
         }
     } else if ((intersects.length > 0 || intersectsTryAgain.length > 0) && gameEnded && text.tryAgain.visible == true) {
-        console.log("3D TryAgain Button Clicked!");
+        // console.log("3D TryAgain Button Clicked!");
         restart();
     }
 }
@@ -815,11 +804,11 @@ export async function  handleOnlineEndgame(data) {
     
     const { winner, loser, scores} = data;
     const msg = `${winner} ` + window.gameDict['wins'] + " !";
-	console.log(`winner ${winner} loser ${loser}`);
+	// console.log(`winner ${winner} loser ${loser}`);
     if (!scene)
         return ;
 	if (socket && socket.readyState === WebSocket.OPEN && !tournamentId) {
-        console.log(`Closing socket tourId: ${tournamentId}`);
+        // console.log(`Closing socket tourId: ${tournamentId}`);
 		socket.close();
 		socket = null;
 	} 
@@ -876,7 +865,7 @@ async function restart() {
 }
 
 function resetOnlineTeam() {
-    console.log("Reset team");
+    // console.log("Reset team");
     if (tournamentId) {
         player1.resetPos();
         player2.resetPos();
@@ -889,7 +878,7 @@ function resetOnlineTeam() {
 
 
 function resetTeam() {
-    console.log("Reset team");
+    // console.log("Reset team");
     player1.resetAll();
     player2.resetAll();
     ball.resetVelocity();
@@ -901,7 +890,7 @@ async function handleResize() {
     if (!scene) return ;
     const header = document.getElementById('header-container');
     if (!header)    return ;
-    console.log("RESIZING 3D")
+    // console.log("RESIZING 3D")
     headerHeight = header.offsetHeight;
     size.width = window.innerWidth;
     size.height = window.innerHeight - headerHeight;
@@ -922,7 +911,7 @@ export async function exit3D() {
     // tournamentId = localStorage.getItem('currentTournamentId')
     // if (tournamentId) 
     //     quitTournament();
-    console.log(`EXITING tournament, the ID is ${tournamentId}`)
+    // console.log(`EXITING tournament, the ID is ${tournamentId}`)
     cleanup3D();
     navigateTo('/home');
 }
@@ -939,7 +928,7 @@ export async function cleanup3D() {
     drawHeader('main')
     
     if (socket && socket.readyState === WebSocket.OPEN && !tournamentId) {
-        console.log("333ddd Closing SOCKET~")
+        // console.log("333ddd Closing SOCKET~")
         socket.close();
         socket = null;
     }

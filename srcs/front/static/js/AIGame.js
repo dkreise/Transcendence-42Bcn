@@ -47,7 +47,7 @@ function loadGameState() {
     const savedState = localStorage.getItem("gameState");
     const username = localStorage.getItem("username");
     if (savedState) {
-        console.log("WE HAVE SAVED STATE")
+        // console.log("WE HAVE SAVED STATE")
         const gameState = JSON.parse(savedState);
         mainUser = gameState.mainUserNmb;
         if (mainUser == 1) {
@@ -233,12 +233,10 @@ async function gameAILoop() {
         }
 
         if (tournamentId) {
-            console.log('TOURNAMENT GAME FINISHED');
+            // console.log('TOURNAMENT GAME FINISHED');
             // console.log(tournamentId);
             saveTournamentGameResult(winner, looser, player.score, AI.score);
-        } else {
-            console.log("SIMPLE GAME FINISHED");
-        }
+        } 
     }
 }
 
@@ -315,15 +313,15 @@ export async function startAIGame(playerName1, playerName2, mainUserNmb, tournam
     if (tournament) {
         difficulty = 1; // medium
         tournamentId = tournament.id;
-        console.log(tournament.id);
+        // console.log(tournament.id);
     } else {
         tournamentId = null;
     }
     canvas = document.getElementById("newGameCanvas");
     ctx = canvas.getContext("2d");
-    console.log(mainUserNmb);
-    console.log(playerName1);
-    console.log(playerName2);
+    // console.log(mainUserNmb);
+    // console.log(playerName1);
+    // console.log(playerName2);
 
     // canvas.width = window.innerWidth * 0.65; // % of screen width
     // canvas.height = canvas.width * 0.57; // % of screen height
@@ -333,7 +331,7 @@ export async function startAIGame(playerName1, playerName2, mainUserNmb, tournam
     mainUser = mainUserNmb;
 
     // Initialize players and ball
-    console.log('Starting AI game...');
+    // console.log('Starting AI game...');
     // if (!gameStop) {
     //     console.log("game was not stopped!");
         if (mainUserNmb == 1) {
@@ -356,7 +354,7 @@ export async function startAIGame(playerName1, playerName2, mainUserNmb, tournam
     setupControlsAI(player);
     window.addEventListener("beforeunload", beforeUnloadHandlerAI);
     intervalID = setInterval(doMovesAI, 1000);
-    console.log(tournamentId);
+    // console.log(tournamentId);
     await gameAILoop();
 }
 
@@ -385,7 +383,7 @@ document.addEventListener("click", function (event) {
   
         // Obtenemos el valor de la dificultad
         const difficulty_btn = radio.getAttribute("data-value");
-        console.log("LEVEL SELECTED:", difficulty_btn);
+        // console.log("LEVEL SELECTED:", difficulty_btn);
         // Aquí asignas a la variable global si es necesario:
         difficulty = difficulty_btn;
       }
