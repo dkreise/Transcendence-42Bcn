@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 @permission_classes([AllowAny])
 def login_intra(request):
     state = gen_state()
-    logger.info("Redirect URI: %s", REDIRECT_URI)
+    # logger.info("Redirect URI: %s", REDIRECT_URI)
 
     go_to_api = (
         "https://api.intra.42.fr/oauth/authorize"
@@ -51,27 +51,18 @@ def login_intra(request):
         f"&scope=public"
         f"&state={state}"
     )
-    print("Environment variables:")
-    print("UID:", os.environ.get('UID'))
-    print("SECRET:", os.environ.get('SECRET'))
-    logger.info(f"Redirect URL: {go_to_api}")
     return redirect(go_to_api)
 
 
 def gen_state():
 	return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
 
-# @method_decorator(csrf_exempt, name='dispatch')
 class Callback42API(APIView):
     """ """
 
     permission_classes = [AllowAny]
 
-    # def has_permission(self, request, view):
-    #     return True  # Explicitly allow all requests
-
     def post(self, request):
-        # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         code = request.GET.get('code')
         state = request.GET.get('state')
         print(f"Code: {code}, State: {state}")
@@ -79,19 +70,13 @@ class Callback42API(APIView):
             raise AuthenticationFailed("Invalid authentication parameters")
         try:
             response = post42("/oauth/token", defaultParams(code, state))
-            # print("1111!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", response.content)
             if response.status_code != 200:
                 raise AuthenticationFailed("Bad response code while authentication")
-            # print("222!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
             data = response.json()
             intra_token = data.get("access_token")
             user = saveUser(str(intra_token))
-            # print("333!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
             if user == AnonymousUser:
                 raise AuthenticationFailed("Authentication failed")
-            print("42 username !!!!!!!!!!!!!!!!!!:", user.username)
-            # print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
-            # django_login(request, user)
 
             profile = user.profile
             if profile.two_fa:
@@ -109,14 +94,12 @@ class Callback42API(APIView):
                 print("User authenticated successfully:", request.user.username)
             else:
                 print("User authentication failed")
-            # print("777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user.profile.photo)
             refresh_token = RefreshToken.for_user(user)
             loginResponse = {
                 'success': True,
                 'two_fa_required': False,
                 'refresh_token': str(refresh_token),
                 'access_token': str(refresh_token.access_token), 
-                # 'intra_token': str(intra_token),
                 'username': user.username,
                 'name': user.first_name
             }
@@ -130,15 +113,11 @@ def saveUser(token):
         if user_res.status_code != 200:
             raise AuthenticationFailed("Bad response code while authentication")
         user_data = user_res.json()
-        # print("55555!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user_data.get('login'))  
         if not user_data.get('login'):
             raise AuthenticationFailed("Couldn't recognize the user")
-        # print("7777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")  
         name42 = '@' + user_data.get('login')
-        # print("42 username !!!!!!!!!!!!!!!!!!:", name42)  
         try:
             exist = User.objects.filter(username=name42).exists() # try catch
-            # print("888!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", exist)  
             if exist:
                 return User.objects.get(username=name42)
         except Exception as e:
@@ -148,9 +127,7 @@ def saveUser(token):
         user_img = None # here the default
         if user_data['image']['link']:
             user_img = user_data['image']['link']
-        # user.profile.photo = user_img
         user.profile.external_photo_url = user_img
-        # print("777!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", user.profile.photo)  
         user.profile.save()
         return user
     except Exception as e:
@@ -185,33 +162,3 @@ def get42(url, vars, auth):
     }
     response = requests.request("GET", url, headers=headers)
     return response
-
-# Example token blocklist (you may use a database or Redis for scalability)
-# BLOCKLIST = set()
-
-# @api_view(['POST'])
-# @permission_classes([IsAuthenticated])
-# def logout_view(request):
-#     # Get the refresh token from the request
-      
-#     refresh_token = request.data.get('refresh_token')
-#     print("LOGOUT: ", request.data.get('refresh_token'))
-#     # 'intra_token'
-#     user = User.objects.get(username=request.data.get('username'))
-#     if refresh_token:
-#         try:
-#             # Blacklist the token
-#             token = RefreshToken(refresh_token)
-#             # BLOCKLIST.add(str(token))  # Replace with your blocklist logic (e.g., saving to DB/Redis)
-#             token.blacklist()  # Use if you enabled Django REST Framework SimpleJWT's blacklist app
-#         except Exception as e:
-#             return JsonResponse({'detail': 'Invalid token'}, status=400)
-    
-#     # Log out the user from Django (clears session data)
-#     django_logout(request, user)
-    
-#     # Clear the refresh token cookie
-#     response = JsonResponse({'detail': 'Successfully logged out'})
-#     response.delete_cookie('refresh_token')
-    
-#     return response

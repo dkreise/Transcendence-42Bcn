@@ -1,6 +1,6 @@
 import { navigateTo, drawHeader } from "./main.js";
 import { updateLanguage, getCookie } from "./langs.js";
-import { connectWS } from "./onlineStatus.js";
+import { connectWS, disconnectWS } from "./onlineStatus.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -11,6 +11,7 @@ const userMgmtPort = window.env.USER_MGMT_PORT;
 function handleInvalidToken() {
     localStorage.clear();
     window.history.replaceState(null, null, '/');
+    disconnectWS();
     navigateTo('/login', true);
 }
 
@@ -63,10 +64,11 @@ export const makeAuthenticatedRequest = async (url, options = {}) => {
     if (!accessToken) {
         console.log("No access token available.");
         localStorage.clear();
+        disconnectWS();
         navigateTo('/login', true);
         return null;
     }
-    console.log(url);
+    // console.log(url);
     options = {
         ...options,
         headers: {

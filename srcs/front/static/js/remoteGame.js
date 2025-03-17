@@ -244,7 +244,7 @@ export async function createRoomId()
 	}
 	catch (error)
 	{
-		console.log("Failed to fetch game status: ", error);
+		// console.log("Failed to fetch game status: ", error);
 		return -1;
 	}
 }
@@ -255,16 +255,16 @@ async function initializeWebSocket(roomId, isCreator) {
 	const access_token = localStorage.getItem("access_token");
 	const token = await checkToken(access_token);
     if (!token) {
-        console.log("No access token found");
+        console.log("Remote Game No access token found");
         return ;
     }
 	//// CHECK ALL
-	console.log(`initWS roomID: ${roomId}`);
+	// console.log(`initWS roomID: ${roomId}`);
 	if (!socket && roomId != -1)
 	{
-		console.log("ROOM ID pre initWS: " + roomId);
+		// console.log("ROOM ID pre initWS: " + roomId);
 		roomId = (isCreator | 0) + roomId.toString();
-		console.log("ROOM ID post initWS: " + roomId);
+		// console.log("ROOM ID post initWS: " + roomId);
 		socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
 		// console.log("Socket created!");
 	}
@@ -312,7 +312,7 @@ async function initializeWebSocket(roomId, isCreator) {
 				navigateTo("/remote-home");
 				return ;
 			case "endgame":
-				console.log("This game's over!");
+				// console.log("This game's over!");
 				handleEndgame(data);
 				break ;
 			default:
@@ -387,7 +387,7 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 	
 
 	tourId = tour;
-	console.log("tour is : ", tour);
+	// console.log("tour is : ", tour);
 	dict = dictionary;
   if (!roomId && !tour)
 	{
@@ -404,7 +404,7 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 	if (!tourId)
 		initializeWebSocket(roomId, isCreator);
 	else {
-		console.log("it is a tour game");
+		// console.log("it is a tour game");
 		startTournamentGame();
 		const button = document.getElementById('play-again');
         if (button) {
@@ -419,7 +419,7 @@ export function cleanRemote() {
 
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
-	console.log("CLEAN REMOTE tourId::: ", tourId);
+	// console.log("CLEAN REMOTE tourId::: ", tourId);
 	if (socket && socket.readyState === WebSocket.OPEN && !tourId) {
         socket.close();
 //         socket = null;

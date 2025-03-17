@@ -136,7 +136,7 @@ function router(args=null) {
     cleanupGames();
     
     let path = window.location.pathname;
-    console.log(path);
+    // console.log(path);
 // const contentArea = document.getElementById('content-area');
 // contentArea.innerHTML = ''; // Clear previous content
 
@@ -181,7 +181,7 @@ function getRedirectionIfNeeded(path=null) {
 // (pushState or replaceState).
 
 export function navigateTo(path, replace = false, args = null) {
-    console.log(`navigating to ${path} with args: `, args)
+    // console.log(`navigating to ${path} with args: `, args)
 
     // // Extract query params
     // const [cleanPath, queryString] = path.split("?");
@@ -276,7 +276,12 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem("tournamentReload");
     }
 
-    window.addEventListener("load", connectWS(localStorage.getItem('access_token')));
+    // window.addEventListener("load", connectWS(localStorage.getItem('access_token')));
+    window.addEventListener("load", function () {
+        setTimeout(() => {
+            connectWS(localStorage.getItem('access_token'));
+        }, 1000); 
+    });
    
     // Event delegation for data-route attributes
     document.body.addEventListener('click', (event) => {
@@ -302,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     if (shouldRoute) {
-        console.log(history.state)
+        // console.log(history.state)
         cleanupGames();
         router();        
     }

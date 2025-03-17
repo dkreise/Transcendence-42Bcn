@@ -9,6 +9,7 @@ from asgiref.sync import sync_to_async
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from rest_framework_simplejwt.tokens import AccessToken
 from django.contrib.auth.models import AnonymousUser
+
 # from django.utils.deprecation import MiddlewareMixin
 
 # class UpdateLastActivityMiddleware:
@@ -72,52 +73,10 @@ class JwtAuthMiddleware:
                 # raise AuthenticationFailed('Invalid or expired token')
         
         except (InvalidToken, TokenError, AuthenticationFailed) as e:
-            # logger.error(f"Authentication failed: {e}")
-            # # Check if the error details indicate that the token is expired.
-            # # The exception's detail might be a dict with a "messages" key.
-            # detail = getattr(e, "detail", str(e))
-            # if isinstance(detail, dict):
-            #     messages = detail.get("messages", [])
-            #     for message in messages:
-            #         token_message = message.get("message", "")
-            #         if "expired" in token_message.lower():
-            #             # Raise a distinct error so the client can detect token expiration.
-            #             raise AuthenticationFailed("TokenExpired")
-            # # Fallback: raise a generic error message.
-            # raise AuthenticationFailed("Invalid or expired token")
             scope['user'] = AnonymousUser()
 
         return await self.inner(scope, receive, send)
 
 def JwtAuthMiddlewareStack(inner):
     return JwtAuthMiddleware(AuthMiddlewareStack(inner))
-
-# from rest_framework.authentication import BaseAuthentication
-# from rest_framework.exceptions import AuthenticationFailed
-# from rest_framework_simplejwt.authentication import JWTAuthentication
-# import requests
-# import logging
-# from django.contrib.auth.models import User
-
-# logger = logging.getLogger(__name__)
-
-# class Intra42Authentication(BaseAuthentication):
-#     def authenticate(self, request):
-#         auth_header = request.headers.get('Authorization')
-#         if not auth_header:
-#             return None
-#         print("==========================================================")
-#         print(auth_header)
-#         print("==========================================================")
-        
-#         jwt_authenticator = JWTAuthentication()
-#         try:
-#             user, validated_token = jwt_authenticator.authenticate(request)
-#             if user:
-#                 logger.info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
-#                 return (user, None)
-#         except AuthenticationFailed:
-#             logger.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-#             raise AuthenticationFailed('Invalid or expired token')
-#         raise AuthenticationFailed('Invalid or expired token')
 
