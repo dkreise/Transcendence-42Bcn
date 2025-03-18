@@ -47,7 +47,6 @@ function loadGameState() {
     const savedState = localStorage.getItem("gameState");
     const username = localStorage.getItem("username");
     if (savedState) {
-        // console.log("WE HAVE SAVED STATE")
         const gameState = JSON.parse(savedState);
         mainUser = gameState.mainUserNmb;
         if (mainUser == 1) {
@@ -430,6 +429,6 @@ export function cleanupAI() {
     player = null;
     AI = null;
     ball = null;
-    console.log("✅ AI game cleaned up!");
+    // console.log("✅ AI game cleaned up!");
 }
 

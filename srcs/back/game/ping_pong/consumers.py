@@ -203,6 +203,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 					async with active_tournaments_lock:
 						if self.tour_id in active_tournaments:
 							tournament = active_tournaments[self.tour_id]
+							await self.channel_layer.group_discard(
+								self.tour_id,
+								self.channel_name
+							)
 							if tournament.countdown_task:
 								tournament.countdown_task.cancel()
 							if tournament.timer_task:
@@ -277,22 +281,23 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 				elif dtype == "game_result":
 					logger.info("RECEIVED. we need to handle game result")
-					if not tournament.unfinished_game_exist(data["winner"], data["loser"]):
-						logger.info("game has already been finished and saved")
-						return
-					if data["winner"] != "@AI" and data["loser"] != "@AI":
-						if self.user.username == data["loser"]:
-							logger.info("for loser not handling the game res! return")
+					async with active_games_lock:
+						if not tournament.unfinished_game_exist(data["winner"], data["loser"]):
+							logger.info("game has already been finished and saved")
 							return
-						logger.info("deleting game group")
-						await self.channel_layer.group_discard(
-							self.room_id,
-							self.channel_name
-						)
-						async with active_games_lock:
+						if data["winner"] != "@AI" and data["loser"] != "@AI":
+							if self.user.username == data["loser"]:
+								logger.info("for loser not handling the game res! return")
+								return
+							logger.info("deleting game group")
+							await self.channel_layer.group_discard(
+								self.room_id,
+								self.channel_name
+							)
+							# async with active_games_lock:
 							del active_games[self.room_id]
-					self.room_id = None
-					status = await tournament.handle_game_end(data, False)
+						self.room_id = None
+						status = await tournament.handle_game_end(data, False)
 					if status == "new":
 						tournament.increase_round()
 						await self.channel_layer.group_send(
@@ -345,6 +350,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 							"message": message,
 						}
 					)
+					# await self.disconnect(1000)
 					logger.info(f"quit status : {status}")
 					if status == "remote":
 						if not self.room_id:

@@ -19,27 +19,27 @@ let dict = null;
 
 export function saveScore(score1, score2, mainUser) {
 
-	makeAuthenticatedRequest(baseUrl + gamePort + "/api/game/local/save-local-score/", {
-		method: "POST",
-		body: JSON.stringify({
-			// 'player1': player1.name,
-			'score1': score1,
-			// 'player2': player1.name,
-			'score2': score2,
-			
-			'main_user': mainUser, 
-		}),
-		headers: {"Content-Type": "application/json"},
-	})
-	.then((response) => {
-		if (!response) return null;
-		if (response.ok) {
-			console.log('Score saved successfully');
-		}
-	})
-	.catch(error => {
-		console.error('Catch error saving score: ', error);
-	});
+    makeAuthenticatedRequest(baseUrl + gamePort + "/api/game/local/save-local-score/", {
+        method: "POST",
+        body: JSON.stringify({
+            // 'player1': player1.name,
+            'score1': score1,
+            // 'player2': player1.name,
+            'score2': score2,
+            
+            'main_user': mainUser, 
+        }),
+        headers: {"Content-Type": "application/json"},
+    })
+    .then((response) => {
+        if (!response) return null;
+        if (response.ok) {
+            // console.log('Score saved successfully');
+        }
+    })
+    .catch(error => {
+        // console.log('Catch error saving score: ', error);
+    });
 }
 
 async function readySteadyGo(countdown = 3)
@@ -76,8 +76,6 @@ async function gameLocalLoop() {
 	player1.draw(ctx);
 	player2.draw(ctx);
 	ball.draw();
-
-	//console.log('In local game loop!');
 
 	// Draw scores
 	player1.drawScore(ctx);
@@ -118,26 +116,6 @@ export function setupControls(player1, player2) {
 		if (e.key === "ArrowDown") player2.down = false;
 	});
 }
-
-//window.addEventListener("touchmove", (e) => {
-//  e.preventDefault(); // Prevent scrolling
-//  const touch = e.touches[0];
-//  
-//  // Get the canvas position and dimensions
-//  const rect = canvas.getBoundingClientRect();
-//  
-//  // Calculate coordinates relative to the canvas
-//  const relativeX = touch.clientX - rect.left;
-//  const relativeY = touch.clientY - rect.top;
-//  
-//  // Determine which half of the canvas was touched
-//  if (relativeX < rect.width / 2) {
-//	player1.y = relativeY - player1.height / 2;
-//  } else {
-//	player2.y = relativeY - player2.height / 2;
-//  }
-//}, { passive: false });
-
 
 let player1TouchId = null;
 let player2TouchId = null;
@@ -259,32 +237,30 @@ export async function startLocalGame(playerName1, playerName2, mainUserNmb, dict
 	canvas = document.getElementById("newGameCanvas");
 	ctx = canvas.getContext("2d");
 	dict = dictionary;
-	console.log("dictionary: ", dictionary);
-
-	// canvas.width = window.innerWidth * 0.65; // % of screen width
-	// canvas.height = canvas.width * 0.57; // % of screen height
-	
-	mainUser = mainUserNmb;
-	
-	resizeCanvasLocal();
-	// Initialize players and ball
-	console.log('Starting local game...');
-	console.log(`Canvas: ${canvas.width} x ${canvas.height}`);
-	player1 = new Player(canvas, 0, playerName1);
-	player2 = new Player(canvas, 1, playerName2);
-	ball = new Ball(canvas, ctx, dict);
-	
-	setupControls(player1, player2);
+    // canvas.width = window.innerWidth * 0.65; // % of screen width
+    // canvas.height = canvas.width * 0.57; // % of screen height
+    
+    mainUser = mainUserNmb;
+    
+    resizeCanvasLocal();
+    // Initialize players and ball
+    // console.log('Starting local game...');
+    // console.log(`Canvas: ${canvas.width} x ${canvas.height}`);
+    player1 = new Player(canvas, 0, playerName1);
+    player2 = new Player(canvas, 1, playerName2);
+    ball = new Ball(canvas, ctx, dict);
+    
+    setupControls(player1, player2);
 	await readySteadyGo();
 	await gameLocalLoop();
 }
 
 export function cleanupLocal() {
-	if (!ball) return;
-	// console.log("✅ Local game cleaned up!");
-	cancelAnimationFrame(gameLoopId);
-	player1 = null;
-	player2 = null;
-	ball = null;
-	console.log("✅ Local game cleaned up!");
+    if (!ball) return;
+    // console.log("✅ Local game cleaned up!");
+    cancelAnimationFrame(gameLoopId);
+    player1 = null;
+    player2 = null;
+    ball = null;
+    // console.log("✅ Local game cleaned up!");
 }
