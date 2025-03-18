@@ -164,7 +164,7 @@ export async function gameLocal () {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
                 if (canvas)
-                    await startLocalGame(data['player1'], data['player2'], data['main_user'], dictionary);
+                    await startLocalGame(data['player1'].substring(0, 7), data['player2'].substring(0, 7), data['main_user'], dictionary);
                 else
                     console.log("Error: Canvas not found");
 
@@ -173,7 +173,7 @@ export async function gameLocal () {
                 
                 const contentArea = document.getElementById('content-area');
                 contentArea.innerHTML = ''; // Clear previous content
-                start3DLocalGame(data['player1'], data['player2'], data['main_user'], dictionary);
+                start3DLocalGame(data['player1'].substring(0, 7), data['player2'].substring(0, 7), data['main_user'], dictionary);
             } else {
                 // console.log('Response: ', data);
                 console.log('Failed to fetch the local game:', data.error);
@@ -251,7 +251,7 @@ export const gameAI = async (args) => {
                             //     // loadBracketTournamentPage(tournament.id);
                             // });
                         }
-                        await startAIGame(data['player1'], data['player2'], data['main_user'], tournament, dictionary);   
+                        await startAIGame(data['player1'].substring(0, 7), data['player2'].substring(0, 7), data['main_user'], tournament, dictionary);   
                     }
                 } else {
                     // console.log('Response: ', data);
@@ -387,7 +387,7 @@ export async function play3D(tour) {
         navigateTo('/logout');
         return;
     }
-    start3DAIGame(name, dictionary, tour, difficulty);
+    start3DAIGame(name.substring(0, 7), dictionary, tour, difficulty);
 
 }
 
