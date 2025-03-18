@@ -573,7 +573,7 @@ async function setupScene() {
         if (remote && !tournamentId) {
             id_3d = document.getElementById("3D-header-id");
             if (id_3d) {
-                id_3d.textContent = `ID: ${roomID}`;
+                id_3d.textContent = `ID: ${roomID.substring(1)}`;
                 id_3d.style.color = "white";
             }
         }

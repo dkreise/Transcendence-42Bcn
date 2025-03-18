@@ -4,6 +4,7 @@ import { navigateTo, checkPermission, drawHeader } from "./main.js"
 import { startLocalGame } from "./localGame.js";
 import { startGame, cleanRemote, createRoomId } from "./remoteGame.js"; 
 import { start3DAIGame, start3DLocalGame, start3DRemoteGame } from "./3DGame.js";
+
 import { loadBracketTournamentPage, quitTournament } from "./tournament.js";
 import { showModalError } from "./errorHandler.js";
 

@@ -102,6 +102,7 @@ def get_lang_words(lang):
 			'lastname_length': "El apellido debe tener un máximo de 15 caracteres.",
 			'please_try_again': "Por favor, inténtalo de nuevo.",
     		'settings_updated': "¡La configuración se ha actualizado!",
+			'select_file': "Seleccionar archivo",
 		}
 
 	elif lang == 'CA':
@@ -199,6 +200,7 @@ def get_lang_words(lang):
 			'lastname_length': "El cognom ha de tenir un màxim de 15 caràcters.",
 			'please_try_again': "Si us plau, torna-ho a provar.",
     		'settings_updated': "La configuració s'ha actualitzat!",
+			'select_file': "Selecciona un fitxer",
 		}
 
 	elif lang == 'RU':
@@ -299,6 +301,7 @@ def get_lang_words(lang):
 			'lastname_length': "Фамилия должна содержать не более 15 символов.",
 			'please_try_again': "Пожалуйста, попробуйте снова.",
     		'settings_updated': "Настройки были обновлены!",
+			'select_file': "Выберите файл",
 		}
 
 	elif lang == 'LV':
@@ -398,6 +401,7 @@ def get_lang_words(lang):
 			'lastname_length': "Uzvārds nedrīkst pārsniegt 15 rakstzīmes.",
 			'please_try_again': "Lūdzu, mēģiniet vēlreiz.",
     		'settings_updated': "Iestatījumi tika atjaunināti!",
+			'select_file': " Izvēlieties failu",
 		}
 		
 	else:
@@ -496,6 +500,7 @@ def get_lang_words(lang):
 			'user_not_authenticated': "User not authenticated",
 			'lastname_length': "Last Name should be a maximum of 15 characters long.",
 			'please_try_again': "Please try again.",
-    		'settings_updated': "Settings were updated!"
+    		'settings_updated': "Settings were updated!",
+			'select_file': "Select File",
 		}
 
