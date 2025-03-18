@@ -219,7 +219,7 @@ export const quitTournament = () => {
     clearIntervalIDGame();
     removeBeforeUnloadListenerAI();
     removeBeforeUnloadListenerRemote();
-    // console.log("QUIT button clicked")
+    // console.log("QUIT button clicked, ws open: ", socket.readyState === WebSocket.OPEN)
     if (!socket) {
         // console.log("No socket")
         navigateTo('/home', true);
@@ -233,6 +233,12 @@ export const quitTournament = () => {
             };
             socket.send(JSON.stringify(data));
         }
+    localStorage.removeItem('inTournament');
+    localStorage.removeItem("user_quit");
+    localStorage.removeItem("currentTournamentId");
+    localStorage.removeItem("gameState");
+    socket = null;
+    navigateTo('/home', true);
 }
 
 export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) => {
