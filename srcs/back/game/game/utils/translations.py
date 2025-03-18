@@ -61,7 +61,6 @@ def get_lang_words(lang):
 			"user_not_authenticated": "Usuario no autenticado",
 			'restart': "Reiniciar",
 			'waiting_for_players': "Esperando a los jugadores...",
-			"restart": "Reiniciar",
 			"congrats": "¡Felicidades! ¡Has ganado!",
 			"good_luck": "Mejor suerte la próxima vez...",
 			"back_tour": "Volver a la página del torneo",
@@ -136,7 +135,7 @@ def get_lang_words(lang):
 			'create': "Создать",
 			'create_room': "Создать комнату",
 			'join': "Присоединиться",
-			'create_tournament': "Создать Турнир",
+			'create_tournament': "Создать tурнир",
 			'number_players': "Количество игроков",
 			'players_number': "Введите количество игроков:",
 			'submit': "Отправить",
@@ -196,7 +195,7 @@ def get_lang_words(lang):
 			'create': "Izveidot",
 			'create_room': "Izveidot istabu",
 			'join': "Pievienoties",
-			'create_tournament': "Izveidot Turnīru",
+			'create_tournament': "Izveidot turnīru",
 			'number_players': "Spēlētāju skaits",
 			'players_number': "Ievadiet spēlētāju skaitu:",
 			'submit': "Iesniegt",
@@ -305,5 +304,5 @@ def get_lang_words(lang):
 			"congrats": "Congratuations! You've won!",
 			"good_luck": "Better luck next time...",
 			"back_tour" : "Back to tournament page",
-			'waiting_for_players': "Waiting for players...", #56
+			'waiting_for_players': "Waiting for players...",
 		}

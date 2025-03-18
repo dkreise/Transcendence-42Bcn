@@ -9,7 +9,7 @@ def get_lang_words(lang):
 	if lang == 'ES':
 		return {
 			'lang': "ES",
-      'lang_flag': """
+      		'lang_flag': """
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1000" width="30" height="20">
                         <rect width="1500" height="333.33" fill="#AA151B" data-lang="ES" />
                         <rect y="333.33" width="1500" height="333.33" fill="#F1BF00" data-lang="ES" />
@@ -113,7 +113,7 @@ def get_lang_words(lang):
 	elif lang == 'CA':
 		return {
 			'lang': "CA",
-      'lang_flag': """
+      		'lang_flag': """
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="20" viewBox="0 0 810 540" data-lang="CA">
                         <rect width="810" height="540" fill="#FCDD09" data-lang="CA" />
                         <path stroke="#DA121A" stroke-width="60" d="M0,90H810m0,120H0m0,120H810m0,120H0"></path>
@@ -205,10 +205,10 @@ def get_lang_words(lang):
 			'lastname_length': "El cognom ha de tenir un màxim de 15 caràcters.",
 			'please_try_again': "Si us plau, torna-ho a provar.",
     		'settings_updated': "La configuració s'ha actualitzat!",
-			"2fa_not_enable": "L'autenticació en dos passos no està habilitada per a aquest compte.",
-			"2fa_verification_success": "Verificació en dos passos completada amb èxit.",
-			"invalid_code": "Codi TOTP invàlid o caducat.",
-			"2fa_disable": "L'autenticació en dos passos s'ha desactivat correctament.",
+			'2fa_not_enable': "L'autenticació en dos passos no està habilitada per a aquest compte.",
+			'2fa_verification_success': "Verificació en dos passos completada amb èxit.",
+			'invalid_code': "Codi TOTP invàlid o caducat.",
+			'2fa_disable': "L'autenticació en dos passos s'ha desactivat correctament.",
 			'invalid_verification_code': "Codi de verificació invàlid o caducat.",
 			"invalid_temp_token": "Token temporal invàlid o caducat.",
 		}
@@ -216,7 +216,7 @@ def get_lang_words(lang):
 	elif lang == 'RU':
 		return {
 			'lang': "RU",
-      'lang_flag': """
+      		'lang_flag': """
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 2" width="30" height="20">
                         <rect width="3" height="2" fill="#fff" data-lang="RU"/>
                         <rect width="3" height="1.333" y="0.667" fill="#0033a0" data-lang="RU"/>
@@ -273,7 +273,6 @@ def get_lang_words(lang):
 			'winner_wo': "Победитель",
 			'tournament': "Турнир",
 			'quit': "Выйти",
-			'quit_tournament': "Покинуть турнир",
 			'all': "Все",
 			'yes': "Да",
 			'no': "Нет",
@@ -295,7 +294,6 @@ def get_lang_words(lang):
 			'enter_winner_username_placeholder': "Введите имя пользователя победителя",  
 			'search_by_username_email_ph': "Поиск по имени пользователя или электронной почте",
 			'go_back': "Вернуться назад",
-			'quit': "ВЫЙТИ",
 			'invalid_credentials': "Недействительные учетные данные",
 			'password_mismatch': "Пароли не совпадают.",
 			'all_fields_required': "Все поля обязательны.",
@@ -311,10 +309,10 @@ def get_lang_words(lang):
 			'lastname_length': "Фамилия должна содержать не более 15 символов.",
 			'please_try_again': "Пожалуйста, попробуйте снова.",
     		'settings_updated': "Настройки были обновлены!",
-			"2fa_not_enable": "Двухфакторная аутентификация не включена для этого аккаунта.",
-			"2fa_verification_success": "Двухфакторная аутентификация пройдена успешно.",
-			"invalid_code": "Недействительный или истекший TOTP-код.",
-			"2fa_disable": "Двухфакторная аутентификация успешно отключена.",
+			'2fa_not_enable': "Двухфакторная аутентификация не включена для этого аккаунта.",
+			'2fa_verification_success': "Двухфакторная аутентификация пройдена успешно.",
+			'invalid_code': "Недействительный или истекший TOTP-код.",
+			'2fa_disable': "Двухфакторная аутентификация успешно отключена.",
 			'invalid_verification_code': "Неверный или истекший код подтверждения.",
 			"invalid_temp_token": "Недействительный или истекший временный токен.",
 		}
@@ -322,7 +320,7 @@ def get_lang_words(lang):
 	elif lang == 'LV':
 		return {
 			'lang': "LV",
-      'lang_flag': """
+      		'lang_flag': """
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" width="30" height="20">
                         <rect width="200" height="40" fill="#9E3039" data-lang="LV" />
                         <rect y="40" width="200" height="20" fill="#FFFFFF" data-lang="LV" />
@@ -401,7 +399,6 @@ def get_lang_words(lang):
 			'go_back': "Atgriezties atpakaļ",
 			'quit': "IZIET",
 			'invalid_credentials': "Nederīgi akreditācijas dati",
-			'invalid_credentials': "Nederīgi akreditācijas dati",
 			'password_mismatch': "Paroles nesakrīt.",
 			'all_fields_required': "Visi lauki ir obligāti.",
 			'invalid_username': "Lietotājvārdam jābūt tikai burtiem, cipariem un punktiem (.).",
@@ -416,10 +413,10 @@ def get_lang_words(lang):
 			'lastname_length': "Uzvārds nedrīkst pārsniegt 15 rakstzīmes.",
 			'please_try_again': "Lūdzu, mēģiniet vēlreiz.",
 			'settings_updated': "Iestatījumi tika atjaunināti!",
-			"2fa_not_enable": "Divfaktoru autentifikācija šim kontam nav iespējota.",
-			"2fa_verification_success": "Divfaktoru autentifikācija veiksmīgi pabeigta.",
-			"invalid_code": "Nederīgs vai beidzies TOTP kods.",
-			"2fa_disable": "Divfaktoru autentifikācija veiksmīgi atspējota.",
+			'2fa_not_enable': "Divfaktoru autentifikācija šim kontam nav iespējota.",
+			'2fa_verification_success': "Divfaktoru autentifikācija veiksmīgi pabeigta.",
+			'invalid_code': "Nederīgs vai beidzies TOTP kods.",
+			'2fa_disable': "Divfaktoru autentifikācija veiksmīgi atspējota.",
 			'invalid_verification_code': "Nederīgs vai beidzies verifikācijas kods.",
 			"invalid_temp_token": "Nederīgs vai beidzies pagaidu pilnvarojuma žetons.",
 		}
@@ -427,7 +424,7 @@ def get_lang_words(lang):
 	else:
 		return {
 			'lang': "EN",
-      'lang_flag': """
+      		'lang_flag': """
                     <svg id="mySvg" viewBox="0 0 1200 800" width="30" height="20" data-lang="EN">
                         <rect width="1200" height="800" fill="#ffffff" data-lang="EN" />
                         <rect width="200" height="800" x="400" fill="#c8102e" data-lang="EN" />
@@ -505,7 +502,6 @@ def get_lang_words(lang):
 			'search_by_username_email_ph': "Search by username or email",
 			'go_back': "Go back",
 			'quit': "QUIT",
-			'quit_tournament': "Quit tournament",
 			'invalid_credentials': "Invalid credentials",
 			'password_mismatch': "Password mismatch.",
 			'all_fields_required': "All fields are required.",
@@ -521,10 +517,10 @@ def get_lang_words(lang):
 			'lastname_length': "Last Name should be a maximum of 15 characters long.",
 			'please_try_again': "Please try again.",
     		'settings_updated': "Settings were updated!",
-			"2fa_not_enable": "2FA is not enabled for this account.",
-			"2fa_verification_success": "2FA verification successful.",
-			"invalid_code": "Invalid or expired TOTP code.",
-			"2fa_disable": "2FA disabled successfully.",
+			'2fa_not_enable': "2FA is not enabled for this account.",
+			'2fa_verification_success': "2FA verification successful.",
+			'invalid_code': "Invalid or expired TOTP code.",
+			'2fa_disable': "2FA disabled successfully.",
 			'invalid_verification_code': "Invalid or expired verification code.",
 			"invalid_temp_token": "Invalid or expired temporary token.",
 		}
