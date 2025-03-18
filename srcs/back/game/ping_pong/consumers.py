@@ -230,10 +230,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 				elif data["type"] == "ready":
 					async with active_games_lock:
 						game.ready += 1
-						logger.info(f"{self.user} is ready: {game.ready}")
+						#logger.info(f"{self.user} is ready: {game.ready}")
 						if game.ready == 2:
 							game.status = 1
-							logger.info(f"{self.role} ({self.user})starts the game")
+							#logger.info(f"{self.role} ({self.user})starts the game")
 							await game.start_game(self.user)
 				elif data["type"] == "close":
 					logger.info("\033[1;32mRECEIVE METHOD CALLED: closed WS\033[0m")
@@ -287,7 +287,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 							return
 						if data["winner"] != "@AI" and data["loser"] != "@AI":
 							if self.user.username == data["loser"]:
-								logger.info("for loser not handling the game res! return")
+								#logger.info("for loser not handling the game res! return")
 								return
 							logger.info("deleting game group")
 							await self.channel_layer.group_discard(
@@ -428,13 +428,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 									active_games[self.room_id] = GameManager(self.room_id)
 						game = active_games[self.room_id]
 						game.tour_id = self.tour_id
-						logger.info(f"START TGAME: users {game.users}")
+						#logger.info(f"START TGAME: users {game.users}")
 						self.role = await game.join_room(self.user.username, False)
-						logger.info(f"USERS NOW: {game.users}, LEN: {len(game.users)}")
-						logger.info(f"PLAYERS NOW: {len(game.players)}")
-						logger.info(f"START TGAME: self.role {self.role}")
+						#logger.info(f"USERS NOW: {game.users}, LEN: {len(game.users)}")
+						#logger.info(f"PLAYERS NOW: {len(game.players)}")
+						#logger.info(f"START TGAME: self.role {self.role}")
 						if "player" not in self.role:
-							logger.info(f"\033[1;31mwe're going to reject the connection\033[0m")
+							#logger.info(f"\033[1;31mwe're going to reject the connection\033[0m")
 							await self.send(json.dumps({
 								"type": "reject",
 								"reason": self.role
