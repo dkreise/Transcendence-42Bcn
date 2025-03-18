@@ -35,8 +35,6 @@ export class SceneText {
     constructor(scene, dict, tour, rotationX = 0, rotationY = 0, rotationZ = 0) {
         this.scene = scene;
         this.loader = new FontLoader();
-        this.fontPathRegular = "../three/examples/fonts/helvetiker_regular.typeface.json";
-        this.fontPathBold = "../three/examples/fonts/helvetiker_regular.typeface.json";
         this.loadedBoldFont = null;
         this.fonts = null;
         this.dict = dict;
@@ -68,14 +66,11 @@ export class SceneText {
         const button = new THREE.Mesh(buttonGeo, buttonMat);
         if (this.tour)
             button.visible = false;
-        // button.castShadow = true;
-        // button.receiveShadow = true;
         button.position.set(0, params.textY, 0); // Adjust position in the scene
         return button;
     }
 
     async createText() {
-        // this.loadedBoldFont = await this.loadFont(this.fontPathBold);
         this.fonts = await this.loadFonts();
         this.start = this.createButtonText(this.dict['start'], this.fonts['robotoLight']);
         this.tryAgain = this.createButtonText(this.dict['try_again'], this.fonts['robotoLight']);

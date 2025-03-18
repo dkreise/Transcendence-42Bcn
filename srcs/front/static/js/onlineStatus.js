@@ -11,6 +11,7 @@ export function isTokenExpired(token) {
     try {
         const decoded = jwt_decode(token);
         // Ensure the token has an expiration field
+        // console.log(`DEcoded token: `, decoded);
         if (!decoded.exp) {
             console.log("Token missing expiration claim");
             return true;
@@ -25,9 +26,9 @@ export function isTokenExpired(token) {
 }
 
 export async function checkToken(token) {
-    console.log(`Trying to check token for token access`);
+    // console.log(`111Trying to check token for token access`);
     if (!token) {
-        console.log("No access token found");
+        // console.log("No access token found");
         return null;
     }
     if (isTokenExpired(token)) {
@@ -50,24 +51,23 @@ let off = false;
 
 export async function connectWS(access_token)
 {
+    // console.log("Online status Checking token");
     access_token = await checkToken(access_token);
     if (!access_token) {
-        console.log("No access token found");
+        // console.log("Online status No access token found");
         return ;
     }
 
     const options = {
         debug: false, // turns off default logging if available
-        // Optionally, supply your own logger:
-        logger: (msg) => {
-          if (!intentionalDisconnect) {
-            console.log("Reconnection log:", msg);
-          }
-        }
       };
 
-    socket = new WebSocket(`${protocolSocket}://${host}:${userMgmtPort}/${protocolSocket}/online-status/?token=${access_token}`, [], options);
-    socket.onclose = async (event) => {
+    try {
+        socket = new WebSocket(`${protocolSocket}://${host}:${userMgmtPort}/${protocolSocket}/online-status/?token=${access_token}`, [], options);
+    } catch (err) {
+        console.warn('WebSocket Problem: ', err);
+    }
+        socket.onclose = async (event) => {
 
         console.log('WebSocket Disconnected. ');
         access_token = localStorage.getItem('access_token');
@@ -91,6 +91,8 @@ export async function connectWS(access_token)
     };
     
     socket.onopen = function(event) {
+        if (off === true)
+            off = false;
         // console.log(`WebSocket Connected! Socket: ${socket}`);
     };
     
@@ -100,16 +102,13 @@ export async function connectWS(access_token)
     };
     
     socket.onerror = function(error) {
-        console.log('WebSocket Error:', error);
-        
+        console.log('WebSocket Error:', error);   
     };
-    
-    
 }
 
 
 export function disconnectWS() {
-    if (socket) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
         intentionalDisconnect = true;
         socket.close();
         socket = null;

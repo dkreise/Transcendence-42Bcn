@@ -8,10 +8,10 @@ const protocolWeb = window.env.PROTOCOL_WEB
 const baseUrl = protocolWeb + "://" + host + ":";  
 
 export const handleLoginIntra = () => {
-    console.log(`login 42 clicked: ${window.location.pathname}`);
+    // console.log(`login 42 clicked: ${window.location.pathname}`);
     const currentPath = '/';
     window.history.replaceState({ fromOAuth: true, previousPath: currentPath  }, null, '/');
-    console.log(history.state)
+    // console.log(history.state)
     window.location.href = baseUrl + userMgmtPort + "/api/login-intra";
 }
 
@@ -20,19 +20,19 @@ export const handle42Callback = () => {
         const code = urlParams.get('code');
         const state = urlParams.get('state');
         const err = urlParams.get('error');
-        console.log(`Windows location is ${window.location.href}`)
+        // console.log(`Windows location is ${window.location.href}`)
         window.history.replaceState(null, null, '/');
         if (err) {
-            console.log(`error string: ${err}`);
+            // console.log(`error string: ${err}`);
             clearURL();
             showModalError("ERROR");
             navigateTo("/login");
         }
         else if (code && state){
             const queryParams = new URLSearchParams({code , state}).toString();
-            console.log(code, state);
+            // console.log(code, state);
             const url = baseUrl + userMgmtPort + `/api/login-intra/callback?${queryParams}`;
-            console.log(`Sending GET request to: ${url}`);
+            // console.log(`Sending GET request to: ${url}`);
             fetch(url, {
                 method: 'POST',
                 credentials: "include", 
@@ -54,7 +54,7 @@ export const handle42Callback = () => {
                     localStorage.setItem('refresh_token', data.refresh_token);
                     clearURL();
                     await connectWS(data.access_token);
-                    console.log(history.state)
+                    // console.log(history.state)
                     navigateTo('/home', true);
                     
                 } else if (data.two_fa_required) {
@@ -79,7 +79,7 @@ export const handle42Callback = () => {
                 navigateTo("/login");
             });
         } else {
-            console.log(`No relevant information provided in callback`);
+            // console.log(`No relevant information provided in callback`);
             clearURL();
             navigateTo("/login");
         }

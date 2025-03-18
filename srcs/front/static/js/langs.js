@@ -79,7 +79,7 @@ export async function updateLanguage(lang) {
     }
     updateLanguageButtonUI(lang);
 
-    //STEP 5: TODO: Update page (Pending Dina code)
+    //STEP 5: Update page (Pending Dina code)
     if (lang_is_defined) {
         navigateTo(window.location.pathname, true);
     }
@@ -109,7 +109,7 @@ export function getFrontDict(lang, key) {
     const dict = {
         "EN": {
             "ACCESS_DENIED": "Access denied",
-            "ERROR": "An error occurred",
+            "ERROR": "An error occurred. Try again.",
             "WRONG_ID": "Wrong ID",
             "REPEATED_NAME": "Both names cannot be equal. Set another name",
             "SECOND_PLAYER_NEEDED": "Set second player's name",
@@ -120,7 +120,7 @@ export function getFrontDict(lang, key) {
         },
         "ES": {
             "ACCESS_DENIED": "Acceso denegado",
-            "ERROR": "Ocurrió un error",
+            'ERROR': "Ocurrió un error. Inténtalo de nuevo.",
             "WRONG_ID": "ID incorrecto",
             "REPEATED_NAME": "Ambos nombres no pueden ser iguales. Pon otro nombre.",
             "SECOND_PLAYER_NEEDED": "Pon el nombre del segundo jugador",
@@ -131,7 +131,7 @@ export function getFrontDict(lang, key) {
         },
         "CA": {
             "ACCESS_DENIED": "Accés denegat",
-            "SERVER_ERROR": "S'ha produït un error",
+            "ERROR": "S'ha produït un error. Torna-ho a provar.",
             "WRONG_ID": "ID incorrecta",
             "REPEATED_NAME": "Els dos noms no poden ser iguals. Poseu un altre nom.",
             "SECOND_PLAYER_NEEDED": "Poseu el nom del segon jugador",
@@ -142,7 +142,7 @@ export function getFrontDict(lang, key) {
         },
         "RU": {
             "ACCESS_DENIED": "Доступ запрещен",
-            "SERVER_ERROR": "Произошла ошибка",
+            'ERROR': "Произошла ошибка. Попробуйте снова.",
             "WRONG_ID": "Неверный ID",
             "REPEATED_NAME": "Имена не могут быть одинаковыми. Укажите другое имя",
             "SECOND_PLAYER_NEEDED": "Укажите имя второго игрока",
@@ -153,7 +153,7 @@ export function getFrontDict(lang, key) {
         },
         "LV": {
             "ACCESS_DENIED": "Prieiga uždrausta",
-            "SERVER_ERROR": "Įvyko klaida",
+            'ERROR': "Radās kļūda. Mēģiniet vēlreiz.",
             "WRONG_ID": "Nederīgs ID",
             "REPEATED_NAME": "Abi vārdi nevar būt vienādi. Ievadiet citu vārdu",
             "SECOND_PLAYER_NEEDED": "Norādiet otra spēlētāja vārdu",

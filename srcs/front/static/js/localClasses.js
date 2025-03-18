@@ -1,8 +1,8 @@
 export class Player {
 
     constructor(canvas, role, name) {
-        this.width = canvas.width * 0.01;
-        this.height = canvas.height * 0.2;
+        this.width = canvas.height * 0.0175;
+        this.height = canvas.height * 0.175;
         if (!role) {
             this.x = 0
         } else {
@@ -10,7 +10,7 @@ export class Player {
         }
         console.log(`player width: ${this.x}`)
         this.y = canvas.height / 2 - this.height / 2;
-        this.speed = canvas.height / 90;
+        this.speed = canvas.height * 0.01;
         this.color = "white";   
         this.up = false;
         this.down = false;
@@ -87,12 +87,12 @@ export class Ball {
     constructor(canvas, ctx) {
         this.x = canvas.width / 2;
         this.y = canvas.height / 2;
-        this.xspeed = canvas.width  * 0.008;
-        //this.yspeed = canvas.height * 0.01;
-        this.yspeed = 0;
+        this.xspeed = canvas.height * 0.01;
+        this.yspeed = canvas.height * 0.0125;
+        // this.yspeed = 0;
         this.color = "white";
         this.canvas = canvas;
-        this.radius = canvas.width * 0.01;
+        this.radius =  canvas.height * 0.02;
 		this.ctx = ctx;
     }
 

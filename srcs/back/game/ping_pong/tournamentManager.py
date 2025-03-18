@@ -302,7 +302,7 @@ class TournamentManager:
 					score += 1
 
 				logger.info(f"res for user: {player}, score: {score}")
-				self.results_strings.append(f"{player}, score: {score}")
+				self.results_strings.append(f"{player}: {score}")
 				# Save the tournament result
 				tournament_res = Tournament.objects.create(
 					id_tournament=self.id,

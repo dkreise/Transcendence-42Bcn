@@ -9,8 +9,8 @@ import { EventDispatcher } from "../three/build/three.core.js";
 import { RoundedBoxGeometry } from '../three/examples/jsm/geometries/RoundedBoxGeometry.js'
 
 export const paddle = {
-    radius: 0.5,
-    length: 5,
+    radius: 0.35,
+    length: 7,
     capSeg: 20,
     radSeg: 20,
     speed: 0.6,
@@ -66,7 +66,7 @@ export class BasicPlayer {
         this.score = 0;
         this.role = role; // 1 - right or -1 - left (AI)
         this.name = name;
-        console.log(`My name is ${this.name}`)
+        // console.log(`My name is ${this.name}`)
         // console.log(`Originally ${name}`)
         this.scene = scene;
         this.text = `${this.score}`;
@@ -84,7 +84,7 @@ export class BasicPlayer {
     }
 
     drawGeometry() {
-        this.geometry = new CapsuleGeometry(paddle.radius, paddle.length, paddle.capSeg, paddle.radSeg);
+        this.geometry = new CapsuleGeometry(this.limits.x * 0.02, paddle.length, paddle.capSeg, paddle.radSeg);
         this.geometry.rotateZ(Math.PI * 0.5);
         this.helperGeo = new CapsuleGeometry(paddle.radius + ballParams.radius, paddle.length + 0.5, paddle.capSeg, 8)
         this.helperGeo.rotateZ(Math.PI * 0.5);
@@ -92,10 +92,11 @@ export class BasicPlayer {
     }
 
     drawPaddle() {
+        // this.material = new THREE.MeshPhongMaterial({ 
         this.material = new THREE.MeshPhongMaterial({ 
             color: paddle.color,
             specular: 0xFFFFFF, 
-            shininess: 100 }); 
+            shininess: 50 }); 
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
@@ -182,7 +183,7 @@ export class BasicPlayer {
     }
 }
 
-export class Player extends BasicPlayer {
+export class LocalPlayer extends BasicPlayer {
 
     constructor(dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
         super(dict, limits, scene, role, name, position, rotationX, rotationY, rotationZ)
@@ -229,7 +230,7 @@ export class AIPlayer extends BasicPlayer {
         this.textMesh = new THREE.Mesh(textGeo, new THREE.MeshStandardMaterial({ color: paddle.color }));
         this.textMesh.castShadow = true;
         this.textMesh.receiveShadow = true;
-        this.textMesh.position.set(0, 3, (this.limits.y + 10) * this.role);
+        this.textMesh.position.set(0, 3, (this.limits.y + 5) * this.role);
         this.scene.add(this.textMesh);
     }
 
@@ -365,7 +366,7 @@ export class OnlinePlayer extends BasicPlayer {
     constructor(data, dict, limits, scene, role, name, position, rotationX = 0, rotationY = 0, rotationZ = 0) {
         super(dict, limits, scene, role, name, position, rotationX, rotationY, rotationZ);
         this.backY = (limits.x * 2) / data.canvasY / 10;
-        this.width = 2 * limits.y * 2 * data.padW / data.canvasX;
+        this.width = limits.y * 2 * data.padW / data.canvasX;
         this.height = limits.x * 2 * data.padH / data.canvasY;
         // console.log(`Creating paddles ${name}, position x ${position.z}, position y ${position.x}`)
         this.initial.z = position.z - (this.role * this.width / 2);
@@ -373,7 +374,7 @@ export class OnlinePlayer extends BasicPlayer {
         this.backendRole = name;
         this.drawGeometry();
         this.drawPaddle();
-        console.log(`Creating paddles, position x ${this.mesh.position.z}, y ${this.mesh.position.x}`)
+        // console.log(`Creating paddles, position x ${this.mesh.position.z}, y ${this.mesh.position.x}`)
         
     }
 
@@ -432,11 +433,11 @@ export class OnlinePlayer extends BasicPlayer {
 		const oldY = this.mesh.position.x;
         // console.log(` ${this.down}, mesh pos is ${this.mesh.position.x - paddle.length / 2}, limits are ${this.limits.x * -1 + 0.5}`)
         if (this.down && ((this.mesh.position.x - this.height / 2) > (this.limits.x * -1 + 0.25))) {
-            console.log(`${this.name} ${this.backendRole} ${this.mesh.position.z} Move down position: ${this.mesh.position.x}`);
+            // console.log(`${this.name} ${this.backendRole} ${this.mesh.position.z} Move down position: ${this.mesh.position.x}`);
             this.mesh.position.x -= this.speed;
         }
         if (this.up && (this.mesh.position.x + this.height / 2) < this.limits.x - 0.25) {
-            console.log(`${this.name} ${this.backendRole} ${this.mesh.position.z} Move up position: ${this.mesh.position.x}`);
+            // console.log(`${this.name} ${this.backendRole} ${this.mesh.position.z} Move up position: ${this.mesh.position.x}`);
             this.mesh.position.x += this.speed;
         }
 		if (socket.readyState === WebSocket.OPEN && this.mesh.position.x != oldY) {
@@ -451,7 +452,7 @@ export class OnlinePlayer extends BasicPlayer {
             
             //console.log("front y: " + this.y + " backFactor: " + this.backFactor);
 			// console.log(`${this.backendRole}'s paddle: ${this.mesh.position.x} converted: ${this.convertXToBack(this.mesh.position.x)}`);
-            console.log(`sending: ${this.backendRole}, ${this.name}, ${this.convertXToBack(this.mesh.position.x) }`);
+            // console.log(`sending: ${this.backendRole}, ${this.name}, ${this.convertXToBack(this.mesh.position.x) }`);
 			const data = {
 				"type": "update",
 				"role": this.backendRole,

@@ -35,12 +35,12 @@ let countdownTimeout = null;
 
 export function handleRoleAssignment(data) {
 	if (data.role === "player1") {
-		console.log("Hi! I'm " + data.role + " and I'm a player");
+		// console.log("Hi! I'm " + data.role + " and I'm a player");
 		player = new Player(data, canvas, "player1");
 		opponent = new Player(data, canvas, "player2");
 	}
 	else {
-		console.log("Hi! I'm " + data.role + " and I'm a player");
+		// console.log("Hi! I'm " + data.role + " and I'm a player");
 		player = new Player(data, canvas, "player2");
 		opponent = new Player(data, canvas, "player1");
 	}
@@ -49,7 +49,7 @@ export function handleRoleAssignment(data) {
 
 export function scaleGame(data)
 {
-	console.log("2222222D sCALE GAME")
+	// console.log("2222222D sCALE GAME")
 	handleRoleAssignment(data)
 	ball.setVars(data);
 }
@@ -63,7 +63,7 @@ async function firstCountdown(callback) {
             clearInterval(interval);
             div.textContent = "";
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            console.log("RESUME")
+            // console.log("RESUME")
             // handleOnlineEndgame();
             callback(); // Resume the game
         } else {
@@ -104,7 +104,7 @@ async function readySteadyGo(countdown)
 
 function displayCountdown()
 {
-	console.log("entering displayCountdown");
+	// console.log("entering displayCountdown");
 	if (!ctx)
 		return ;
 	let div = document.getElementById("wait");
@@ -129,8 +129,8 @@ export function handleEndgame(data) {
 	socket = null;
 	const { winner, loser, scores} = data;
 //	let div = document.getElementById("wait");
-	console.log(`winner ${winner} loser ${loser}`);
-	console.log(`I am: ${player.whoAmI}`);
+	// console.log(`winner ${winner} loser ${loser}`);
+	// console.log(`I am: ${player.whoAmI}`);
 
 	//div.style.display = 'none';
 	// console.log(`winner ${winner} loser ${loser}`);
@@ -142,7 +142,7 @@ export function handleEndgame(data) {
     if (div) div.style.display = "none";
 	player.score = data["scores"][player.role];
 	opponent.score = data["scores"][opponent.role];
-	console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
+	// console.log(`player's score: ${player.score}\nopponent's score ${opponent.score}`);
 	if (player.whoAmI == loser)
 		player.displayEndgameMessage(ctx, opponent.score, dict['good_luck']);
 	else
@@ -155,10 +155,10 @@ export function handleEndgame(data) {
 export function handleTourEndgame(data) {
 	const { wait, winnerID, loserID } = data;
 	
-	console.log(player.whoAmI);
-	console.log(player.role);
-	console.log(loserID);
-	console.log(winnerID);
+	// console.log(player.whoAmI);
+	// console.log(player.role);
+	// console.log(loserID);
+	// console.log(winnerID);
 	if (player.whoAmI == winnerID)
 		player.scores++;
 	else
@@ -237,14 +237,14 @@ export async function createRoomId()
 			let response = await makeAuthenticatedRequest(baseUrl + gamePort + `/api/check-remote/${id}`,
 							{ method: "GET", credentials: "include" });
 			let data = await response.json();
-			console.log("createRoomId: data: " + JSON.stringify(data));
+			// console.log("createRoomId: data: " + JSON.stringify(data));
 			if (!data.active)
 				return id;
 		}
 	}
 	catch (error)
 	{
-		console.log("Failed to fetch game status: ", error);
+		// console.log("Failed to fetch game status: ", error);
 		return -1;
 	}
 }
@@ -255,25 +255,26 @@ async function initializeWebSocket(roomId, isCreator) {
 	const access_token = localStorage.getItem("access_token");
 	const token = await checkToken(access_token);
     if (!token) {
-        console.log("No access token found");
+        console.log("Remote Game No access token found");
         return ;
     }
 	//// CHECK ALL
-	console.log(`initWS roomID: ${roomId}`);
+	// console.log(`initWS roomID: ${roomId}`);
 	if (!socket && roomId != -1)
 	{
-		console.log("ROOM ID pre initWS: " + roomId);
+		// console.log("ROOM ID pre initWS: " + roomId);
 		roomId = (isCreator | 0) + roomId.toString();
-		console.log("ROOM ID post initWS: " + roomId);
+		// console.log("ROOM ID post initWS: " + roomId);
 		socket = new WebSocket(`${protocolSocket}://${host}:${gamePort}/${protocolSocket}/G/${roomId}/?token=${token}`);
 		// console.log("Socket created!");
 	}
-	socket.onopen = () => console.log("WebSocket connection established.");
+	socket.onopen = () => {}
+		// console.log("WebSocket connection established.");
 	socket.onerror = (error) => {
-		console.log("WebSocket encountered an error:", error);
+		// console.log("WebSocket encountered an error:", error);
 	};
 	socket.onclose = async (event) => {
-		console.log("WebSocket connection closing");
+		// console.log("WebSocket connection closing");
 		if (event.code === 4242) {
 			// Token expired; refresh token logic
 			try {
@@ -312,7 +313,7 @@ async function initializeWebSocket(roomId, isCreator) {
 				navigateTo("/remote-home");
 				return ;
 			case "endgame":
-				console.log("This game's over!");
+				// console.log("This game's over!");
 				handleEndgame(data);
 				break ;
 			default:
@@ -387,7 +388,7 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 	
 
 	tourId = tour;
-	console.log("tour is : ", tour);
+	// console.log("tour is : ", tour);
 	dict = dictionary;
   if (!roomId && !tour)
 	{
@@ -404,7 +405,7 @@ export function startGame(roomId, isCreator, dictionary, tour = null)
 	if (!tourId)
 		initializeWebSocket(roomId, isCreator);
 	else {
-		console.log("it is a tour game");
+		// console.log("it is a tour game");
 		startTournamentGame();
 		const button = document.getElementById('play-again');
         if (button) {
@@ -419,7 +420,7 @@ export function cleanRemote() {
 
 	if (gameLoopId)
 		cancelAnimationFrame(gameLoopId);
-	console.log("CLEAN REMOTE tourId::: ", tourId);
+	// console.log("CLEAN REMOTE tourId::: ", tourId);
 	if (socket && socket.readyState === WebSocket.OPEN && !tourId) {
         socket.close();
 //         socket = null;

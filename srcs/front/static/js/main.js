@@ -10,7 +10,7 @@ import { playLocal, restartOnline, playAI, gameAI, playOnline, play3D, gameLocal
 import { cleanup3D, exit3D } from "./3DGame.js";
 import { tournamentConnect, manageTournamentHomeBtn, loadTournamentHomePage, createTournament, joinTournament, loadWaitingRoomPage, loadBracketTournamentPage, loadFinalTournamentPage, quitTournament, tournamentGameRequest } from "./tournament.js";
 import { cleanupLocal } from "./localGame.js"
-import { connectWS } from "./onlineStatus.js";
+import { connectWS, disconnectWS } from "./onlineStatus.js";
 import { cleanRemote } from "./remoteGame.js";
 import { loadPageNotFound, showModalError } from "./errorHandler.js";
 
@@ -21,9 +21,9 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const userMgmtPort = window.env.USER_MGMT_PORT;
 const modeProduction = window.env.SECURE;
 
-if (modeProduction === 'true') {
-    console.log = () => {};
-}
+// if (modeProduction === 'true') {
+    // console.log = () => {};
+// }
 
 // console.log = () => {};
 // The routes object maps URL paths to their respective handler functions:
@@ -136,7 +136,7 @@ function router(args=null) {
     cleanupGames();
     
     let path = window.location.pathname;
-    console.log(path);
+    // console.log(path);
 // const contentArea = document.getElementById('content-area');
 // contentArea.innerHTML = ''; // Clear previous content
 
@@ -181,7 +181,7 @@ function getRedirectionIfNeeded(path=null) {
 // (pushState or replaceState).
 
 export function navigateTo(path, replace = false, args = null) {
-    console.log(`navigating to ${path} with args: `, args)
+    // console.log(`navigating to ${path} with args: `, args)
 
     // // Extract query params
     // const [cleanPath, queryString] = path.split("?");
@@ -276,7 +276,12 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.removeItem("tournamentReload");
     }
 
-    window.addEventListener("load", connectWS(localStorage.getItem('access_token')));
+    // window.addEventListener("load", connectWS(localStorage.getItem('access_token')));
+    window.addEventListener("load", function () {
+        setTimeout(() => {
+            connectWS(localStorage.getItem('access_token'));
+        }, 1000); 
+    });
    
     // Event delegation for data-route attributes
     document.body.addEventListener('click', (event) => {
@@ -302,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     if (shouldRoute) {
-        console.log(history.state)
+        // console.log(history.state)
         cleanupGames();
         router();        
     }
