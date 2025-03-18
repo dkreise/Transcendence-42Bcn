@@ -217,14 +217,14 @@ class GameManager:
 		# logger.info(f"Collitions TOP")
 		if is_col_s:
 			self.ball["xspeed"] *= -1
-			self.ball["x"] += self.ball["xspeed"] / GameManager.board_config["width"]
+			self.ball["x"] += self.ball["xspeed"] * 3 / GameManager.board_config["width"]
 			logger.info(f"Collitions SIDE, xspeed of the ball {self.ball['xspeed']}")
-		if is_col_t:
+		elif is_col_t:
 			self.ball["yspeed"] *= -1
 			self.ball["y"] += self.ball["yspeed"] / GameManager.board_config["height"]
 			# self.ball["xspeed"] *= -1
 			logger.info(f"Collitions TOP")
-		if self.ball["y"] - radius <= 0 or self.ball["y"] + radius >= 1:
+		elif self.ball["y"] - radius <= 0 or self.ball["y"] + radius >= 1:
 			self.ball["yspeed"] *= -1
 		if not (is_col_s and is_col_t) and (ballX - GameManager.ball_config["rad"] <= 0):
 			await self.has_scored("player2")
