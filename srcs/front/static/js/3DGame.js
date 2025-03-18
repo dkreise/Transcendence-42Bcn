@@ -87,7 +87,6 @@ export async function start3DLocalGame(playerName1, playerName2, mainUserNmb, di
     await createLights(-20);
     await setupField();
     controls.target.set(0, 7, 0);
-    // console.log('Starting local game...');
 
     player1 = new LocalPlayer(dict, limits, scene, -1, playerName1, new THREE.Vector3(0, 0, -field.y + 2), -0.1, -0.5, 0);
     player2 = new LocalPlayer(dict, limits, scene, 1, playerName2, new THREE.Vector3(0, 0, field.y - 2), -0.1, -0.5, 0);
@@ -304,7 +303,7 @@ async function initializeWebSocket(roomId = 123) {
                 handleOnlineEndgame(data);
                 break;
             default:
-                console.log("Unhandled message type:", data.type);
+                // console.log("Unhandled message type:", data.type);
         }
     };
 }
@@ -319,7 +318,6 @@ function convertXToFront(backX) {
 
 export async function scale3DGame(data)
 {
-    // console.log("333333333333D sCALE GAME")
     if (!player1) {
         player1 = new OnlinePlayer(data, dict, limits, scene, -1, "player1", new THREE.Vector3(0, 0, -field.y), -0.1, -0.5, 0);
         // console.log(`player1: ${field.y}`)
@@ -371,7 +369,6 @@ export function handle3DUpdate(data)
 }
 
 export async function setWhoAmI3D(data, sock) {
-    // console.log("3DDDDDD Set who am I ");
     text.waiting.visible = false;
     text.enemy.visible = true;
     await player1.setupText();
@@ -383,7 +380,6 @@ export async function setWhoAmI3D(data, sock) {
 }
 
 function handle3DRoleAssignment(role) {
-	// console.log("3DDDDDD Hi! I'm " + role + " Setting REmote controls");
 	if (role === "player1") {
         setupRemoteControls(player1);
         mainplayer = player1;
@@ -993,7 +989,7 @@ export async function cleanup3D() {
     waiting = false;
     pause = false;
 
-    console.log("✅ 3D Scene cleaned up!");
+    // console.log("✅ 3D Scene cleaned up!");
 }
 
 
