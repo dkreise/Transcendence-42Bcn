@@ -137,13 +137,19 @@
 }
 
 #match-history-container th, #match-history-container td {
-    border: 1px solid #ddd;
+    border: 1px solid #ebebeb91;;
     padding: 8px;
   }
-  
+
+  #match-history-container td{
+    background-color: rgba(128, 128, 128, 0.3);
+    color: #e1e1e1;;
+  }
+
   #match-history-container th {
-    background-color: #634b75;
+    background-color: #564690;
     text-align: left;
+    color: #e1e1e1;
   }
   
   #match-history-container button {
@@ -195,3 +201,7 @@
 .custom-file-upload input[type="file"] {
   display: none;
 }
+
+  /* .table-responsive {
+    border: 5px solid #4732af;
+  } */

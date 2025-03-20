@@ -240,6 +240,7 @@ export const quitTournament = () => {
 
 export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) => {
     const button = document.getElementById('play-again');
+    const span = document.getElementById('span-remote');
     if (button) {
         button.textContent = dict['back_tour'] || "Back to Tournament Page";
         button.setAttribute("data-route", "/tournament-bracket");

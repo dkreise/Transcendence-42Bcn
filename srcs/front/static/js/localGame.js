@@ -122,6 +122,7 @@ let player2TouchId = null;
 
 document.addEventListener("touchstart", (e) => {
 	// Loop through new touches and assign them if not already set
+	if (!canvas) return ;
 	for (let touch of e.changedTouches) {
 		const rect = canvas.getBoundingClientRect();
 		const relativeX = touch.clientX - rect.left;
@@ -148,6 +149,7 @@ document.addEventListener("touchstart", (e) => {
 }, { passive: false });
 
 document.addEventListener("touchmove", (e) => {
+	if (!canvas) return ;
 	for (let touch of e.changedTouches) {
 	const rect = canvas.getBoundingClientRect();
 	const relativeY = touch.clientY - rect.top;
