@@ -13,15 +13,17 @@ DC_RUN_USER= run --rm user-mgmt sh -c
 CERTS_DIR= ./srcs/.certs/
 ENV= ./srcs/.env
 CONF_DIR= ./srcs/conf/
-SECURE ?= false
+SECURE ?= true
 
-all: build mi fill up
+all: certs build mi fill up
 
-build: env
+build: env 
 	@$(DOCKER_COMPOSE) build
 
-secure: certs
-	@$(MAKE) --no-print-directory build SECURE=true
+setdev: 
+	@$(MAKE) --no-print-directory build SECURE=false
+
+dev: setdev mi fill up
 
 env:
 	@if [ "$(SECURE)" = "true" ]; then \
@@ -107,4 +109,4 @@ fclean: down
 
 re: fclean all mi up
 
-.SILENT: all build secure up mi fill clean fclean
+.SILENT: all build secure up mi fill clean fclean dev
