@@ -240,7 +240,6 @@ export const gameAI = async (args) => {
                             button.setAttribute("data-route", "/play-ai");
                             button.setAttribute("replace-url", true);
                         } else if (button && tournament) {
-                            console.warn("entroooooooo");
                             button.innerHTML = dictionary['quit_tournament_special'] || "Quit Tournament";
                             // span.textContent = dictionary['quit_tournament'] || "Quit Tournament";
                             button.setAttribute("data-route", "/quit-tournament");
