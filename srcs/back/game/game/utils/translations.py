@@ -67,6 +67,8 @@ def get_lang_words(lang):
 			"create_room": "Crear sala",
 			"tournament_results": "Resultados del Torneo",
 			"tournament_not_found": "Torneo no encontrado",
+			'quit_tournament_special': "<span  class=\"button-content-trn\">Salir del torneo</span>",
+			'back_tour_special': "<span  class=\"button-content-trn\">Volver a la página del torneo</span>",
 		}
 	elif lang == 'CA':
 		return {
@@ -129,6 +131,8 @@ def get_lang_words(lang):
 			"create_room": "Crear sala",
 			"tournament_results": "Resultats del torneig",
 			"tournament_not_found": "Torneig no trobat",
+			'quit_tournament_special': "<span  class=\"button-content-trn\">Sortir del torneig</span>",
+			'back_tour_special': "<span  class=\"button-content-trn\">Tornar a la pàgina del torneig</span>",
 		}
 	elif lang == 'RU':
 		return {
@@ -191,6 +195,8 @@ def get_lang_words(lang):
 			"create_room": "Создать комнату",
 			"tournament_results": "Результаты турнира",
 			"tournament_not_found": "Турнир не найден",
+			'quit_tournament_special': "<span  class=\"button-content-trn\">Покинуть турнир</span>",
+			'back_tour_special': "<span  class=\"button-content-trn\">Вернуться на страницу турнира</span>",
 		}
 	elif lang == 'LV':
 		return {
@@ -253,6 +259,8 @@ def get_lang_words(lang):
 			"create_room": "Izveidot istabu",
 			"tournament_results": "Turnīra rezultāti",
 			"tournament_not_found": "Turnīrs nav atrasts",
+			'quit_tournament_special': "<span  class=\"button-content-trn\">Iziet no turnīra</span>",
+			'back_tour_special': "<span  class=\"button-content-trn\">Atpakaļ uz turnīra lapu</span>",
 		}
 	else:
 		return {
@@ -314,4 +322,6 @@ def get_lang_words(lang):
 			"back_tour" : "Back to tournament page",
 			'waiting_for_players': "Waiting for players...",
 			"tournament_results": "Tournament Results",
+			'quit_tournament_special': "<span  class=\"button-content-trn\">Quit tournament</span>",
+			'back_tour_special': "<span  class=\"button-content-trn\">Back to tournament page</span>",
 		}
