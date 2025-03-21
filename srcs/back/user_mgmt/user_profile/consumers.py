@@ -64,7 +64,7 @@ class FriendsConsumer(AsyncWebsocketConsumer):
             # HERE SOME CHECKINGS
             if not stored_channel or stored_channel == self.channel_name:
                 # If the same channel is still in Redis, it means the user hasn't reconnected → Disconnect them
-                logger.info("\033[1;31mUser did NOT reconnect, removing from Redis\033[0m")
+                logger.info("User did NOT reconnect, removing from Redis")
                 cache.delete(self.channel_name_key)  # Remove from Redis
                 self.set_offline(self)
                 # redis_client.delete(f"user:{self.user.id}:online")

@@ -30,58 +30,58 @@ class PongConsumer(AsyncWebsocketConsumer):
 				#call tournament manager
 				try:
 					self.tour_id = self.scope['url_route']['kwargs']['tgID']
-					# logger.info(f"T.ID::{self.tour_id}")
+					logger.info(f"T.ID::{self.tour_id}")
 					max_user_cnt = self.get_nb_users_from_url()
 					async with active_tournaments_lock:
 						if self.tour_id not in active_tournaments:
-							# logger.info(max_user_cnt)
+							logger.info(max_user_cnt)
 							active_tournaments[self.tour_id] = TournamentManager(self.scope, self.tour_id, max_user_cnt) #add tournament in array activetournaments
 						tournament = active_tournaments[self.tour_id]
 						# Check if the tournament is already full
-						if self.user.username not in tournament.users and (tournament.get_players_cnt() >= tournament.max_user_cnt or tournament.round > 0):
-							# logger.info("Tournament is full. Rejecting connection.")
-							await self.accept()
-							await self.send(text_data=json.dumps({
-								"type": "full",
-								"message": "Tournament does not exist or has already started.",
-							}))
-							return
-						status = tournament.add_player(self.user.username)
-						await self.channel_layer.group_add(self.tour_id, self.channel_name)
+					if self.user.username not in tournament.users and (tournament.get_players_cnt() >= tournament.max_user_cnt or tournament.round > 0):
+						logger.info("Tournament is full. Rejecting connection.")
 						await self.accept()
-						logger.info("accepted..")
-						# logger.info(f"self.channel_name: {self.channel_name}")
-						if status == "reload":
-							return
+						await self.send(text_data=json.dumps({
+							"type": "full",
+							"message": "Tournament does not exist or has already started.",
+						}))
+						return
+					status = tournament.add_player(self.user.username)
+					await self.channel_layer.group_add(self.tour_id, self.channel_name)
+					await self.accept()
+					logger.info("accepted..")
+					logger.info(f"self.channel_name: {self.channel_name}")
+					if status == "reload":
+						return
 
-						if tournament.get_players_cnt() < tournament.max_user_cnt:
-							page = tournament.get_waiting_room_page(self.user.username, self.lang)
-							await self.channel_layer.group_send(
-								self.tour_id,
-								{
-									"type": "new_player_cnt",
-									"player_cnt": tournament.get_players_cnt(),
-								}
-							)
-							await self.send(text_data=json.dumps({
-								"type": "html",
-								"html": page['html'],
-								"redirect": page['redirect'],
-								"status": "waiting",
-								"request": True,
-								"replace": True,
-							}))
-						else:
-							tournament.increase_round()
-							await self.channel_layer.group_send(
-								self.tour_id,
-								{
-									"type": "tournament_starts",
-									"message": "Tournament has started",
-									"status": "playing",
-									"lang": self.lang,
-								}
-							)
+					if tournament.get_players_cnt() < tournament.max_user_cnt:
+						page = tournament.get_waiting_room_page(self.user.username, self.lang)
+						await self.channel_layer.group_send(
+							self.tour_id,
+							{
+								"type": "new_player_cnt",
+								"player_cnt": tournament.get_players_cnt(),
+							}
+						)
+						await self.send(text_data=json.dumps({
+							"type": "html",
+							"html": page['html'],
+							"redirect": page['redirect'],
+							"status": "waiting",
+							"request": True,
+							"replace": True,
+						}))
+					else:
+						tournament.increase_round()
+						await self.channel_layer.group_send(
+							self.tour_id,
+							{
+								"type": "tournament_starts",
+								"message": "Tournament has started",
+								"status": "playing",
+								"lang": self.lang,
+							}
+						)
 
 				except Exception as e:
 					logger.error(f"Error connecting to the tournament: {e}")
@@ -127,13 +127,13 @@ class PongConsumer(AsyncWebsocketConsumer):
 							await game.send_status(0)
 
 				except Exception as e:
-					logger.error(f"\033[1;31mError connecting to the game: {e}\033[0m")
+					logger.error(f"Error connecting to the game: {e}")
 					await self.close()
 
 			else:
-				raise ThrowError("\033[1;31mUnexpected input when connecting to websocket\033[0m")
+				raise ThrowError("Unexpected input when connecting to websocket")
 		except Exception as e:
-			logger.error(f"\033[1;31mError during Websocket connect: {e}\033[0m")
+			logger.error(f"Error during Websocket connect: {e}")
 			await self.close()
  
 ###################################################
@@ -173,7 +173,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 							del active_games[self.room_id]
 							# logger.info(f"Room {self.room_id} has been deleted")
 		elif self.type == "T":
-			logger.info(f"\033[1;31mclose_code={close_code}\033[0m")
+			logger.info(f"close_code={close_code}")
 			if self.room_id and self.room_id in active_games:
 				game = active_games[self.room_id]
 				# logger.info("Removing user from game group..")
@@ -238,7 +238,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				elif data["type"] == "close":
 					logger.info("\033[1;32mRECEIVE METHOD CALLED: closed WS\033[0m")
 			except Exception as e:
-				logger.error(f"\033[1;31mError receiving a message via WebSocket: {e}\033[0m")
+				logger.error(f"Error receiving a message via WebSocket: {e}")
 		if self.type == "T":
 			try:
 				data = json.loads(text_data)
@@ -297,11 +297,11 @@ class PongConsumer(AsyncWebsocketConsumer):
 							# async with active_games_lock:
 							del active_games[self.room_id]
 						self.room_id = None
-					async with active_tournaments_lock:
-						status = await tournament.handle_game_end(data, False)
+					# async with active_tournaments_lock:
+					status = await tournament.handle_game_end(data, False)
 					if status == "new":
-						async with active_tournaments_lock:
-							tournament.increase_round()
+						# async with active_tournaments_lock:
+						tournament.increase_round()
 						await self.channel_layer.group_send(
 								self.tour_id,
 								{
@@ -331,9 +331,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 
 				elif dtype == "quit":
 					logger.info("player wants to quit the tournament. handling quit..:")
-					async with active_tournaments_lock:
-						us = self.user.username
-						op = tournament.get_opponent(us)
+					# async with active_tournaments_lock:
+					us = self.user.username
+					op = tournament.get_opponent(us)
 					if self.room_id and self.room_id in active_games:
 						# logger.info
 						game = active_games[self.room_id]
@@ -342,10 +342,10 @@ class PongConsumer(AsyncWebsocketConsumer):
 								if game.player2_waiting_task:
 									game.player2_waiting_task.cancel()
 								tournament.matches_started[tournament.get_match_idx(us, op)] = False
-					async with active_tournaments_lock:
-						status = await tournament.handle_quit(self.user.username, False)
-						logger.info("we handled the quit. now disconnecting..:")
-						await self.disconnect(1000)
+					# async with active_tournaments_lock:
+					status = await tournament.handle_quit(self.user.username, False)
+					logger.info("we handled the quit. now disconnecting..:")
+					await self.disconnect(1000)
 					message = {"type": "quitted", "quit_user": self.user.username}
 					await self.channel_layer.group_send(
 						self.tour_id,
@@ -364,8 +364,8 @@ class PongConsumer(AsyncWebsocketConsumer):
 						async with active_games_lock:
 							await game.stop_tournament_game(op, us)
 					elif status == "new":
-						async with active_tournaments_lock:
-							tournament.increase_round()
+						# async with active_tournaments_lock:
+						tournament.increase_round()
 						await self.channel_layer.group_send(
 								self.tour_id,
 								{
@@ -421,9 +421,9 @@ class PongConsumer(AsyncWebsocketConsumer):
 					try:
 						usr = self.user.username
 						logger.info(f"{self.user.username} wants to start the game")
-						async with active_tournaments_lock:
-							tournament.set_match_start(self.user.username)
-							opp = tournament.get_opponent(self.user.username)
+						# async with active_tournaments_lock:
+						tournament.set_match_start(self.user.username)
+						opp = tournament.get_opponent(self.user.username)
 						if opp == "@AI":
 							return
 						self.room_id = f"T_{self.tour_id}_{opp}_{usr}_{tournament.round}".replace("@", "-")
@@ -494,7 +494,7 @@ class PongConsumer(AsyncWebsocketConsumer):
 				# 	await self.tournament_delete()
 
 			except Exception as e:
-				logger.error(f"\033[1;31mError receiving a message via WebSocket: {e}")
+				logger.error(f"Error receiving a message via WebSocket: {e}")
 	
 ###################################################
 

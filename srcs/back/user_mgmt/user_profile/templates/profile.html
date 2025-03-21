@@ -15,8 +15,13 @@
           </div>
           <!-- Información -->
           <div class="col-8">
-            <p style="display: inline; padding: 1%;">{{username}}: {{ user.username }}</p>
-            <p style="display: inline; padding: 1%;">{{name_wo}}: {{ user.first_name }}</p>
+            <div style="display: flex;
+            align-items: center;
+            flex-direction: row;
+            justify-content: center;">
+              <p style="display: inline; padding: 1%; align-self: center;">{{username}}: {{ user.username }}</p>
+              <p style="display: inline; padding: 1%; align-self: center;">{{name_wo}}: {{ user.first_name }}</p>
+            </div>
             <hr>
             <div class="row">
               <div class="col-6 text-center"><h6>{{games_played}}</h6><p id="games-played" style="padding:  1%;">{{ stats_games.games_played }}</p></div>

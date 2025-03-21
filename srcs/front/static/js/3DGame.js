@@ -676,6 +676,8 @@ export async function  handleOnlineEndgame(data) {
 		socket.close();
 		socket = null;
 	} 
+    player1.hide();
+    player2.hide();
     handleEnd3DGame(msg);
     if (tournamentId){
         saveTournamentGameResult(data["winner"], data["loser"], data["scores"]["player1"], data["scores"]["player2"]);

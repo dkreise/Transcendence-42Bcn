@@ -114,6 +114,7 @@ export function getFrontDict(lang, key) {
             "FULL_TOURNAMENT": "Tournament is full or it doesn't exist",
             "PLAY_MY_GAME": "Play my game",
 			"ALREADY_THERE": "You're already in that room!",
+            "LONG_NAME": "Too long name. 10 chars max length",
         },
         "ES": {
             "ACCESS_DENIED": "Acceso denegado",
@@ -125,6 +126,7 @@ export function getFrontDict(lang, key) {
             "FULL_TOURNAMENT": "El torneo está lleno o no existe",
             "PLAY_MY_GAME": "Jugar mi partida",
 			"ALREADY_THERE": "¡Ya estás en esa habitación!",
+            "LONG_NAME": "Nombre demasiado largo. Máximo 10 carácteres.",
         },
         "CA": {
             "ACCESS_DENIED": "Accés denegat",
@@ -136,6 +138,7 @@ export function getFrontDict(lang, key) {
             "FULL_TOURNAMENT": "El torneig està ple o no existeix",
             "PLAY_MY_GAME": "Jugar la meua partida",
 			"ALREADY_THERE": "Ja estàs dins d'aquesta habitació!",
+            "LONG_NAME": "Nom massa llarg. Màxim 10 caràcters.",
         },
         "RU": {
             "ACCESS_DENIED": "Доступ запрещен",
@@ -147,6 +150,7 @@ export function getFrontDict(lang, key) {
             "FULL_TOURNAMENT": "Турнир заполнен или его не существует",
             "PLAY_MY_GAME": "Играть",
 			"ALREADY_THERE": "Вы уже в этой комнате!",
+            "LONG_NAME": "Слишком длинное имя. Максимальная длина 10 символов",
         },
         "LV": {
             "ACCESS_DENIED": "Prieiga uždrausta",
@@ -158,6 +162,7 @@ export function getFrontDict(lang, key) {
             "FULL_TOURNAMENT": "Turnyras pilnas arba jo nėra",
             "PLAY_MY_GAME": "Spēlēt manu spēli",
 			"ALREADY_THERE": "Tu jau tame kambaryje!",
+            "LONG_NAME": "Pārāk garš nosaukums. Maksimālais garums 10 rakstzīmes",
         }
     };
 

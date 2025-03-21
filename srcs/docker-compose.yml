@@ -24,7 +24,7 @@ services:
       - db
       - redis
     environment:
-      - DATABASE_URL=postgres://admin:12345@db:5432/transcendence
+      - DATABASE_URL=${DATABASE_URL}
       - DJANGO_SETTINGS_MODULE=user_mgmt.settings
       - REDIS_HOST=redis
     env_file:

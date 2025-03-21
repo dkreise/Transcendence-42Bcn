@@ -582,7 +582,7 @@ class GameManager:
 				self.player2_waiting_task = None
 
 	async def check_unstarted_game(self):
-		await asyncio.sleep(10000) #Changeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+		await asyncio.sleep(60) 
 		logger.info(f"CHECK UNSTARTED GAME {self.id}")
 		logger.info(f"task: {self.player2_waiting_task}")
 		logger.info(f"LEN users: {len(self.users)}")

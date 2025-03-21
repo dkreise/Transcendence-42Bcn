@@ -274,6 +274,7 @@ export function quitLocal() {
 
 export function cleanupLocal() {
     if (!ball) return;
+	stopGame = true;
     // console.log("✅ Local game cleaned up!");
     cancelAnimationFrame(gameLoopId);
 	gameLoopId = null;

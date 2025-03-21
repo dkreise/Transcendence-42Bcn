@@ -102,10 +102,11 @@ export const playAI = async (args) => {
                 .then(data => {
                     if (data && data.get_difficulty_html) {
                         document.getElementById('content-area').innerHTML = data.get_difficulty_html;
-                    } else {
-                        // console.log('Response: ', data);
-                        // console.log('Failed to fetch difficulty:', data.error);
-                    }
+                    } 
+                    // else {
+                    //     // console.log('Response: ', data);
+                    //     // console.log('Failed to fetch difficulty:', data.error);
+                    // }
                 })
             })
             .catch(error => {
@@ -142,6 +143,10 @@ export async function gameLocal () {
             showModalError("SECOND_PLAYER_NEEDED")
             navigateTo('/play-local', true);
             return ;
+        } else if (secondPlayerName.length > 10) {
+            showModalError("LONG_NAME")
+            navigateTo('/play-local', true);
+            return ;
         }
         drawHeader('main').then(() => {
             return    makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/local/play/", {
@@ -163,7 +168,7 @@ export async function gameLocal () {
                 document.getElementById('content-area').innerHTML = data.game_html;
                 const canvas = document.getElementById("newGameCanvas");
                 if (canvas)
-                    await startLocalGame(data['player1'].substring(0, 7), data['player2'].substring(0, 7), data['main_user'], dictionary);
+                    await startLocalGame(data['player1'], data['player2'], data['main_user'], dictionary);
                 else
                     console.log("Error: Canvas not found");
 
@@ -172,7 +177,7 @@ export async function gameLocal () {
                 
                 const contentArea = document.getElementById('content-area');
                 contentArea.innerHTML = ''; // Clear previous content
-                start3DLocalGame(data['player1'].substring(0, 7), data['player2'].substring(0, 7), data['main_user'], dictionary);
+                start3DLocalGame(data['player1'], data['player2'], data['main_user'], dictionary);
             } else {
                 // console.log('Response: ', data);
                 // console.log('Failed to fetch the local game:', data.error);
@@ -277,7 +282,7 @@ export async function playOnline (tourId = null) {
         navigateTo('/login');
     } else {
         // console.log('Loading online game...')
-        drawHeader('main').then(() => {
+        drawHeader('main').then(() => { 
             return  makeAuthenticatedRequest(baseUrl + gamePort+ "/api/game/remote/play/", {
                 method: "GET",
             })
@@ -374,7 +379,7 @@ export async function play3D(tour) {
         navigateTo('/logout');
         return;
     }
-    start3DAIGame(name.substring(0, 7), dictionary, tour, difficulty);
+    start3DAIGame(name, dictionary, tour, difficulty);
 
 }
 

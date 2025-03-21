@@ -178,12 +178,13 @@ def register_user(request):
             return JsonResponse({'success': False, "error": get_translation(request, "email_registered")})
 
         # UNCOMMENT FOR STRONG PASSWORD CHECK:
-        # temp_user = User(username=username, email=email, first_name=name)
+        temp_user = User(username=username, email=email, first_name=name)
 
-        # try:
-        #     validate_password(password, user=temp_user)
-        # except ValidationError as e:
-        #     print(e.messages)
+        try:
+            validate_password(password, user=temp_user)
+        except ValidationError as e:
+            return JsonResponse({'success': False, "error": e.messages})
+            # print(e.messages)
         user = User.objects.create(
             username=username,
             first_name=name,
