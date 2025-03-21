@@ -247,8 +247,10 @@ export const saveTournamentGameResult = (winner, loser, playerScore, AIScore) =>
     removeBeforeUnloadListenerAI();
     removeBeforeUnloadListenerRemote();
 
-    if (socket.readyState === WebSocket.OPEN)
+    console.log("saveTourResult");
+    if (socket && socket.readyState === WebSocket.OPEN)
     {
+        console.log("request to save game res");
         let lang = getCookie("language");
         const data = {
             "type": "game_result",

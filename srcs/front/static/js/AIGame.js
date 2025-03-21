@@ -9,7 +9,7 @@ let AI = null;
 let mainUser = null; // if the main user is player 1 or 2
 let ball = null;
 let gameLoopId = null;
-let maxScore = 2;
+let maxScore = 5;
 let intervalID = null;
 let targetY = null;
 let difficulty = 3; // 0.5-1 => easy, 3 => already low chance for ai to lose, 5 => almost impossible; 
@@ -115,14 +115,7 @@ function predictBallY() {
     tempY = tempY + tempYspeed * timeToLeftRight;
 
     let error = Math.random() * errorRange - errorRange ;/// 2;  // Random error between ±errorRange/2
-    // console.log('DIFFICULTY:');
-    // console.log(difficulty);
-    // console.log('ERROR-RANGE:');
-    // console.log(errorRange);
-    // console.log('ERROR:');
-    // console.log(error);
     return Math.max(0, Math.min(canvas.height, tempY + error));
-    // return tempY;
 }
 
 function doMovesAI() {

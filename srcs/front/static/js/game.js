@@ -252,7 +252,7 @@ export const gameAI = async (args) => {
                             //     // loadBracketTournamentPage(tournament.id);
                             // });
                         }
-                        await startAIGame(data['player1'].substring(0, 7), data['player2'].substring(0, 7), data['main_user'], tournament, dictionary);   
+                        await startAIGame(data['player1'], data['player2'], data['main_user'], tournament, dictionary);   
                     }
                 } else {
                     // console.log('Failed to fetch the local game:', data.error);
@@ -408,9 +408,9 @@ async function getUsername() {
 }
 
 
-export async function restartOnline() {
+export async function quitOnline() {
     cleanRemote();
-    playOnline();
+    navigateTo("/home", true);
 }
 
 export function getOrInitialize3DOption() {

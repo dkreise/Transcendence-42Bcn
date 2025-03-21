@@ -1,5 +1,6 @@
 import { makeAuthenticatedRequest } from "./login.js";
 import { Ball, Player } from "./localClasses.js";
+import { navigateTo } from "./main.js";
 
 const host = window.env.HOST;
 const protocolWeb = window.env.PROTOCOL_WEB
@@ -14,8 +15,9 @@ let player2 = null;
 let mainUser = null; // if the main user is player 1 or 2
 let ball = null;
 let gameLoopId = null;
-let maxScore = 2;
+let maxScore = 5;
 let dict = null;
+let stopGame = false;
 
 export function saveScore(score1, score2, mainUser) {
 
@@ -34,7 +36,7 @@ export function saveScore(score1, score2, mainUser) {
     .then((response) => {
         if (!response) return null;
         if (response.ok) {
-            // console.log('Score saved successfully');
+            console.log('Score saved successfully');
         }
     })
     .catch(error => {
@@ -47,12 +49,14 @@ async function readySteadyGo(countdown = 3)
 	const msg = ["1", "2", "3"];
 	let div = document.getElementById("wait");
 
+	if (!canvas)  {
+		stopGame = true;
+		return;
+	}
 	if (div) {
 		ctx.clearRect(0, 0, canvas.width, canvas.height);
 		div.textContent = msg[countdown];
 		div.style.fontSize = Math.floor(canvas.width * 0.25) + "px";
-
-
 		ctx.fillStyle = "rgb(0 0 0 / 25%)";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 		div.style.display = "block";
@@ -67,7 +71,8 @@ async function readySteadyGo(countdown = 3)
 
 // Game loop
 async function gameLocalLoop() {
-	gameLoopId = requestAnimationFrame(gameLocalLoop);
+	if (!canvas) return ;
+	
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 	ctx.fillStyle = "rgb(0 0 0 / 75%)";
 	ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -85,19 +90,22 @@ async function gameLocalLoop() {
 	player1.move();
 	player2.move();
 	if (ball.move(player1, player2) && player1.score != maxScore && player2.score != maxScore) {
-		cancelAnimationFrame(gameLoopId);
+		// cancelAnimationFrame(gameLoopId);
 		await readySteadyGo();
-		await gameLocalLoop();
+		// await gameLocalLoop();
 	}
 
 	// Endgame check
-	if (player1.score >= maxScore || player2.score >= maxScore) {
+	if (!stopGame && (player1.score >= maxScore || player2.score >= maxScore)) {
 		const winner = player1.score > player2.score ? `${player1.name} Wins!` : `${player2.name} Wins!`;
 		const finalScore = `${player1.score} - ${player2.score}`;
 		cancelAnimationFrame(gameLoopId);
 		player1.displayEndgameMessage(ctx, finalScore, winner);
 		saveScore(player1.score, player2.score, mainUser);
+		stopGame = true;
+		return ;
 	}
+	gameLoopId = requestAnimationFrame(gameLocalLoop);
 }
 
 // Event listeners for player controls
@@ -253,16 +261,27 @@ export async function startLocalGame(playerName1, playerName2, mainUserNmb, dict
     ball = new Ball(canvas, ctx, dict);
     
     setupControls(player1, player2);
+	stopGame = false;
 	await readySteadyGo();
 	await gameLocalLoop();
+}
+
+export function quitLocal() {
+    cleanupLocal();
+    stopGame = true;
+    navigateTo("/home", true);
 }
 
 export function cleanupLocal() {
     if (!ball) return;
     // console.log("✅ Local game cleaned up!");
     cancelAnimationFrame(gameLoopId);
+	gameLoopId = null;
     player1 = null;
     player2 = null;
     ball = null;
+	canvas = null;
+    ctx = null;
+    mainUser = null;
     // console.log("✅ Local game cleaned up!");
 }

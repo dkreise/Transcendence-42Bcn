@@ -143,7 +143,7 @@ def get_lang_words(lang):
 			'create': "Создать",
 			'create_room': "Создать комнату",
 			'join': "Присоединиться",
-			'create_tournament': "Создать tурнир",
+			'create_tournament': "Создать турнир",
 			'number_players': "Количество игроков",
 			'players_number': "Введите количество игроков:",
 			'submit': "Отправить",
