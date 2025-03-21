@@ -24,8 +24,8 @@ logger = logging.getLogger(__name__)
 
 @api_view(['GET'])
 def get_second_name(request):
-    print("In get second name headers: ", request.headers)
-    print("In get second name api: ", request.user)
+    # print("In get second name headers: ", request.headers)
+    # print("In get second name api: ", request.user)
     if request.user:
         context = {
             'user': request.user,
@@ -38,8 +38,8 @@ def get_second_name(request):
 
 @api_view(['POST'])
 def play_game(request):
-    print("In play game: ", request.user)
-    print("In play game, request: ", request.data)
+    # print("In play game: ", request.user)
+    # print("In play game, request: ", request.data)
     second_player = request.data.get('second-player')
     if not request.user:
         return JsonResponse({'error': 'User not authenticated'}, status=402)
@@ -103,6 +103,7 @@ def save_local_score(request):
         # Determine the winner
         winner = player1 if score1 > score2 else player2
 
+        logger.info(f"Saved local game: pl1 {player1.username}, {score1}, pl2 {player2.username}, {score2}, winner {winner.username}")
         # Save to the database
         game = Game.objects.create(
             player1=player1,
@@ -115,5 +116,5 @@ def save_local_score(request):
         
         return Response({"status": "success"})
     except Exception as error:
-        print("Error in save score: ", error)
+        # print("Error in save score: ", error)
         return Response({"status": "failure", "error": str(error)}, status=501)

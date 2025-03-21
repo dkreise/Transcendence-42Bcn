@@ -319,7 +319,7 @@ class TournamentManager:
 		if username not in self.players or self.finished:
 			if username in self.users:
 				self.users.remove(username)
-			return
+			return 'no user or tournament finished'
 		if self.round == 0:
 			logger.info("tournament has not started")
 			# we need to delete from players and users
@@ -554,8 +554,10 @@ class TournamentManager:
 	def unfinished_game_exist(self, pl1, pl2):
 		match_i = self.get_match_idx(pl1, pl2)
 		if match_i == -1:
+			logger.info("match i = -1")
 			return False
 		elif self.matches_finished[match_i]:
+			logger.info("match finished")
 			return False
 		else:
 			return True

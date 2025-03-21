@@ -106,6 +106,10 @@ fclean: down
 	@if [ -d ./srcs/postgres ]; then \
 		rm -rf ./srcs/postgres/*; \
 	fi
+	@rm -rf srcs/back/game/ping_pong/migrations/0*
+	@rm -rf srcs/back/game/tournament/migrations/0*
+	@rm -rf srcs/back/user_mgmt/login/migrations/0*
+	@rm -rf srcs/back/user_mgmt/user_profile/migrations/0*
 
 re: fclean all mi up
 

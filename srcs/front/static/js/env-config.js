@@ -1,9 +1,9 @@
 window.env = {
-    HOST: "localhost",
-    USER_MGMT_PORT: "8000",
-    GAME_PORT: "8001",
-    PROTOCOL_WEB: "http",
-    PROTOCOL_SOCKET: "ws",
-    REDIRECT_URI: "http://localhost:8443/callback",
-    SECURE: "false",
+    HOST: "10.12.10.3",
+    USER_MGMT_PORT: "8444",
+    GAME_PORT: "8445",
+    PROTOCOL_WEB: "https",
+    PROTOCOL_SOCKET: "wss",
+    REDIRECT_URI: "https://10.12.10.3:8443/callback",
+    SECURE: "true",
 };

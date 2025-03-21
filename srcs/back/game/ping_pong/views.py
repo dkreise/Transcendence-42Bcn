@@ -64,8 +64,8 @@ def get_player_all_games(request, player_id):
             Game.objects.filter(Q(player1_id=player_id) | Q(player2_id=player_id))
             .order_by('-id')
         )
-        print("GAMES OBJECTS:::")
-        print(games)
+        # print("GAMES OBJECTS:::")
+        # print(games)
         games_data = [
             {
                 "id": game.id,
@@ -79,7 +79,7 @@ def get_player_all_games(request, player_id):
             }
             for game in games
         ]
-        print(games_data)
+        # print(games_data)
 
         return Response(games_data, status=status.HTTP_200_OK)
 
