@@ -25,7 +25,7 @@ let renderer, scene, camera, lights, headerHeight;
 let limits, plane, controls;
 let player1, player2, ai, mainplayer, mainUser, ball; // if the main user is player 1 or 2
 let dict, cameraId, gameLoopId, socket, roomID, tournamentId;
-let remote, pause, gameStarted = false, gameEnded = false;
+let remote, pause, gameStarted = false, gameEnded = false, gameStop = false;
 export let text = null;
 
 const clock = new THREE.Clock();
@@ -379,6 +379,7 @@ function setupAIControls() {
                 saveTournamentGameResult("@AI", player2.name, player1.score, player2.score);
             else
                 saveTournamentGameResult(e.player, "@AI", player1.score, player2.score);
+            gameStop = true;
         }
         tournamentId = null;
     })
@@ -760,6 +761,8 @@ export async function cleanup3D() {
     
     if (tournamentId && remote)
         stopTournamentGame();
+    else if (tournamentId && !gameStop)
+        saveTournamentGameResult("@AI", player2.name, 0, player1.score);
 
     drawHeader('main')
     const contentArea = document.getElementById('content-area');
@@ -824,6 +827,7 @@ export async function cleanup3D() {
     gameEnded = false;
     roomID = null;
     pause = false;
+    gameStop = false;
 
     // console.log("✅ 3D Scene cleaned up!");
 }
@@ -857,6 +861,7 @@ function init() {
     gameEnded = false;
     gameStarted = false;
     pause = false;
+    gameStop = false;
 
     const contentArea = document.getElementById('content-area');
     contentArea.style.padding = 0;
