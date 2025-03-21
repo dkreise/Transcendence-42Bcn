@@ -21,9 +21,9 @@ const baseUrl = protocolWeb + "://" + host + ":";
 const userMgmtPort = window.env.USER_MGMT_PORT;
 const modeProduction = window.env.SECURE;
 
-// if (modeProduction === 'true') {
-    // console.log = () => {};
-// }
+
+console.log = () => {};
+
 
 // console.log = () => {};
 // The routes object maps URL paths to their respective handler functions:
