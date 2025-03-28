@@ -1,11 +1,17 @@
 ﻿# Transcendence-42Bcn
-Compilation:
+## Bubble Pong
 
-make - to do the docker-compose build and build the containers
+A multiplayer Pong game with user authentication, profiles, statistics tracking, and tournaments. Built with Django for the backend and JavaScript/Bootstrap for the frontend, running in Docker with Nginx.
 
-make mi - to apply migrations
+### Features
+- User authentication and profiles  
+- Multiplayer Pong (against AI or real players)  
+- Game statistics tracking  
+- Tournament system  
 
-make fill - to execute the createUsers.py and createGames.py and fill the database
+### Tech Stack
+- **Backend:** Django, PostgreSQL  
+- **Frontend:** JavaScript, Bootstrap  
+- **Containerization:** Docker, Nginx
 
-make up - to do the docker-compose up and raise the containers
-
+  
